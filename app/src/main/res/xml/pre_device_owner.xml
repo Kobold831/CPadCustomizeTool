@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+        <PreferenceCategory
+            app:iconSpaceReserved="false">
+                <Preference
+                    app:iconSpaceReserved="false"
+                    android:key="intent_block_to_uninstall_settings"
+                    android:title="@string/pre_owner_title_uninstall_block"
+                    android:summary="@string/pre_owner_sum_uninstall_block" />
+
+                <SwitchPreference
+                    app:iconSpaceReserved="false"
+                    android:key="permission_forced"
+                    android:title="@string/pre_owner_title_permission"
+                    android:summary="@string/pre_owner_sum_permission_forced"/>
+
+                <Preference
+                    app:iconSpaceReserved="false"
+                    android:key="owner_silent_install"
+                    android:title="@string/pre_owner_title_silent_install"
+                    android:summary="@string/pre_owner_sum_silent_install"/>
+
+                <Preference
+                    app:iconSpaceReserved="false"
+                    android:key="disable_device_owner"
+                    android:title="@string/pre_owner_title_device_owner" />
+
+                <Preference
+                    app:iconSpaceReserved="false"
+                    app:selectable="false"
+                    android:key="now_set_owner_package" />
+        </PreferenceCategory>
+</PreferenceScreen>

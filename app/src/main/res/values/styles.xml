@@ -1,0 +1,17 @@
+<resources>
+    <style name="StartTheme" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorAccent">@color/red</item>
+    </style>
+
+    <style name="MainTheme" parent="android:Theme.Material.Light">
+        <item name="android:colorAccent">@color/red</item>
+    </style>
+
+    <style name="ActivityTheme" parent="android:Theme.Material.Light.Dialog.NoActionBar">
+        <item name="android:colorAccent">@color/red</item>
+    </style>
+
+    <style name="MainPreferenceTheme" parent="Theme.AppCompat.Light">
+        <item name="android:colorAccent">@color/red</item>
+    </style>
+</resources>

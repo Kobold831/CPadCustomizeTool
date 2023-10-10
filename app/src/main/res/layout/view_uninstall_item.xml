@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="false">
+        <!-- アイコン -->
+        <ImageView
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:id="@+id/un_icon"
+            android:layout_marginStart="10dp"
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            tools:ignore="ContentDescription" />
+
+        <!-- ラベル -->
+        <TextView
+            android:id="@+id/un_label"
+            android:layout_marginStart="10dp"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+        <!-- スイッチ -->
+        <Switch
+            android:focusable="false"
+            android:clickable="false"
+            android:layout_gravity="center"
+            android:id="@+id/un_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+</LinearLayout>
