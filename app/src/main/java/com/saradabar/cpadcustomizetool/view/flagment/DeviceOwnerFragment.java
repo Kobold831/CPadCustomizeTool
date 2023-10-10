@@ -297,6 +297,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     }
 
     /* 選択したファイルデータを取得 */
+    /* 要修正:SDカードなどからファイルデータを取得できない */
     private String getInstallData(Context context, Uri uri) {
         try {
             if (DocumentsContract.isDocumentUri(context, uri)) {
