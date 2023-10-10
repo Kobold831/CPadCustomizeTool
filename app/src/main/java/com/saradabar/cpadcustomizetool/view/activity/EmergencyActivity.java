@@ -48,7 +48,7 @@ public class EmergencyActivity extends Activity {
                 finishAndRemoveTask();
                 return;
             }
-            switch (PreferenceManager.getDefaultSharedPreferences(this).getString("emergency_mode", "")) {
+            switch (Objects.requireNonNull(PreferenceManager.getDefaultSharedPreferences(this).getString("emergency_mode", ""))) {
                 case "1":
                     if (setDchaSettings("jp.co.benesse.touch.allgrade.b003.touchhomelauncher", "jp.co.benesse.touch.allgrade.b003.touchhomelauncher.HomeLauncherActivity")) {
                         Toast.toast(this, R.string.toast_execution);

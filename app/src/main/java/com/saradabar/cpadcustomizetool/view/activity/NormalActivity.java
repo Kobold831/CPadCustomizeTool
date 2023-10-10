@@ -1,6 +1,7 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -14,6 +15,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.Settings;
+
+import androidx.preference.PreferenceManager;
 
 import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.R;
@@ -34,6 +37,7 @@ public class NormalActivity extends Activity {
         super.onCreate(savedInstanceState);
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
         bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
+        ActivityManager activityManager = (ActivityManager)this.getSystemService(ACTIVITY_SERVICE);
         Runnable runnable = () -> {
             if (!startCheck()) {
                 Toast.toast(this, R.string.toast_not_completed_settings);
@@ -48,6 +52,12 @@ public class NormalActivity extends Activity {
             }
 
             if (setDchaSettings()) {
+                switch (Objects.requireNonNull(PreferenceManager.getDefaultSharedPreferences(this).getString("emergency_mode", ""))) {
+                    case "1":
+                        activityManager.killBackgroundProcesses("jp.co.benesse.touch.allgrade.b003.touchhomelauncher");
+                    case "2":
+                        activityManager.killBackgroundProcesses("jp.co.benesse.touch.home");
+                }
                 Toast.toast(this, R.string.toast_execution);
             }
             finishAndRemoveTask();
