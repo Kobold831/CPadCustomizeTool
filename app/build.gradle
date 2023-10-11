@@ -1,14 +1,15 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
-    compileSdkVersion 32
+    compileSdk 33
+    namespace 'com.saradabar.cpadcustomizetool'
 
     defaultConfig {
-        applicationId "com.saradabar.cpadcustomizetool"
-        
-        minSdkVersion 22
+        minSdk 22
         //noinspection ExpiredTargetSdkVersion
-        targetSdkVersion 22
+        targetSdk 22
 
         versionCode 39
         versionName "1.6.0"
@@ -22,13 +23,14 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+        }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    namespace 'com.saradabar.cpadcustomizetool'
     buildFeatures {
         aidl true
     }
@@ -36,7 +38,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'androidx.preference:preference:1.2.0'
+    implementation 'androidx.preference:preference:1.2.1'
     implementation 'com.stephentuso:welcome:1.4.1'
     implementation 'org.zeroturnaround:zt-zip:1.12'
 }

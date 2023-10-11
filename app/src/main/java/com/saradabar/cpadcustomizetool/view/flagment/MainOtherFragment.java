@@ -18,6 +18,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
 
@@ -53,7 +54,13 @@ public class MainOtherFragment extends PreferenceFragmentCompat {
         preferenceDevelopmentSettings.setOnPreferenceClickListener(preference -> {
             if (Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) == 1) {
                 try {
-                    startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                    if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0) != 3) {
+                        startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                    } else {
+                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
+                        startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                        new Handler().postDelayed(() -> Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0), 1000);
+                    }
                 } catch (ActivityNotFoundException ignored) {
                 }
             } else {
