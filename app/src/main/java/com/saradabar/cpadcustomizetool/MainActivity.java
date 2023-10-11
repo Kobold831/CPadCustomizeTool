@@ -322,7 +322,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
 
     /* 端末チェック */
     private boolean checkModel() {
-        String[] modelName = {"TAB-A03-BS", "TAB-A03-BR", "TAB-A03-BR2", "TAB-A03-BR2B", "TAB-A04-BR3", "TAB-A05-BD", "TAB-A05-BA1"};
+        String[] modelName = {"TAB-A03-BS", "TAB-A03-BR", "TAB-A03-BR2", "TAB-A03-BR3", "TAB-A05-BD", "TAB-A05-BA1"};
         for (String string : modelName) if (Objects.equals(string, Build.MODEL)) return true;
         return false;
     }
@@ -342,7 +342,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
     private void checkDcha() {
         if (!Preferences.GET_DCHASERVICE_FLAG(this)) {
             switch (Build.MODEL) {
-                case "TAB-A04-BR3":
+                case "TAB-A03-BR3":
                     checkSettingsTab3();
                     break;
                 case "TAB-A05-BD":
@@ -367,7 +367,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
                     .setNeutralButton(R.string.dialog_common_continue, (dialogInterface, i) -> {
                         Preferences.SET_DCHASERVICE_FLAG(false, this);
                         switch (Build.MODEL) {
-                            case "TAB-A04-BR3":
+                            case "TAB-A03-BR3":
                                 checkSettingsTab3();
                                 break;
                             case "TAB-A05-BD":
@@ -384,7 +384,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
         }
 
         switch (Build.MODEL) {
-            case "TAB-A04-BR3":
+            case "TAB-A03-BR3":
                 checkSettingsTab3();
                 break;
             case "TAB-A05-BD":
