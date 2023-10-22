@@ -851,8 +851,8 @@ public class MainFragment extends PreferenceFragmentCompat {
                     switchMarketApp.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                     switchMarketApp.setEnabled(false);
                 }
-                preferenceSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preferenceSilentInstall.setEnabled(false);
+                //preferenceSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                //preferenceSilentInstall.setEnabled(false);
                 switchDeviceAdministrator.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 switchDeviceAdministrator.setEnabled(false);
                 break;
@@ -1044,8 +1044,8 @@ public class MainFragment extends PreferenceFragmentCompat {
                 preferenceSilentInstall.setEnabled(false);
                 break;
             case 1:
-                preferenceSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preferenceSilentInstall.setEnabled(false);
+                //preferenceSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                //preferenceSilentInstall.setEnabled(false);
                 switchDeviceAdministrator.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 switchDeviceAdministrator.setEnabled(false);
                 break;
