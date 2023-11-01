@@ -174,4 +174,13 @@
             android:key="switch10"
             android:title="@string/pre_main_title_device_admin"
             android:summary="@string/pre_main_sum_device_admin" />
+
+        <PreferenceCategory
+            app:iconSpaceReserved="false"
+            android:title="アシスト機能" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:title="アプリを取得(ベータ機能)"
+            android:summary="ランチャー、ブラウザ、そのほかの最小限のアプリを取得してインストールします\n表示されるダイアログからアプリを選択してください" />
 </PreferenceScreen>

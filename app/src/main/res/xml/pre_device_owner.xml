@@ -24,6 +24,26 @@
 
                 <Preference
                     app:iconSpaceReserved="false"
+                    android:title="インストールセッション破棄"
+                    android:summary="インストールで問題が発生した場合に使用してください。"/>
+
+                <SwitchPreference
+                    app:iconSpaceReserved="false"
+                    android:title="外部ストレージにインストール"
+                    android:summary="アプリを外部ストレージ(SDカートなど)に保存する場合は有効にしてください"/>
+
+                <Preference
+                    app:iconSpaceReserved="false"
+                    android:title="ACCESS_DEVICE_OWNER権限の管理"
+                    android:summary="不正なアプリがこの権限を使用して悪用することを防ぎます\nダイアログから「アクセス可能アプリ」・「アクセス可能設定」を編集できます"/>
+
+                <Preference
+                    app:iconSpaceReserved="false"
+                    android:title="ACCESS_DEVICE_OWNER権限の説明"
+                    android:summary="com.saradabar.cpadcustomizetool.permission.ACCESS_DEVICE_OWNERはAurora Store for NEOとのプロセス間通信に使用されています\nDevice Ownerは１つのアプリに付与できないため、公正かつ自由に利用できるようにすべてのアプリからアクセス可能です"/>
+
+                <Preference
+                    app:iconSpaceReserved="false"
                     android:key="disable_device_owner"
                     android:title="@string/pre_owner_title_device_owner" />
 
