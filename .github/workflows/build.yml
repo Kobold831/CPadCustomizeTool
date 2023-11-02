@@ -6,7 +6,7 @@ on:
       - '.github/workflows/build.yml'
       - 'app/**'
       - 'gradle/**'
-      - '*.gradle'
+      - '*.gradle.*'
       - '*.properties'
   workflow_dispatch:
 
@@ -36,11 +36,11 @@ jobs:
       - name: Build with Gradle
         run: |
           ./gradlew assemble --no-daemon
-          echo "version=$(grep versionName app/build.gradle | awk '{print $2}' | tr -d \")" >> $GITHUB_ENV
+          echo "version=Ver.$(grep versionName app/build.gradle.kts | awk '{print $3}' | tr -d \")" >> $GITHUB_ENV
           echo "commit=$(echo ${{ github.sha }} | cut -c-7)" >> $GITHUB_ENV
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
-          name: CPadCustomizeTool_(Ver.${{ env.version }}@${{ env.commit }})
+          name: CPadCustomizeTool_(${{ env.version }}@${{ env.commit }})
           path: app/build/outputs/apk/**/app-*.apk
