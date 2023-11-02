@@ -6,50 +6,54 @@
             app:iconSpaceReserved="false">
                 <Preference
                     app:iconSpaceReserved="false"
-                    android:key="intent_block_to_uninstall_settings"
+                    android:key="pre_owner_uninstall_block"
                     android:title="@string/pre_owner_title_uninstall_block"
                     android:summary="@string/pre_owner_sum_uninstall_block" />
 
                 <SwitchPreference
                     app:iconSpaceReserved="false"
-                    android:key="permission_forced"
+                    android:key="pre_owner_permission_frc"
                     android:title="@string/pre_owner_title_permission"
                     android:summary="@string/pre_owner_sum_permission_forced"/>
 
                 <Preference
                     app:iconSpaceReserved="false"
-                    android:key="owner_silent_install"
+                    android:key="pre_owner_session_install"
                     android:title="@string/pre_owner_title_silent_install"
                     android:summary="@string/pre_owner_sum_silent_install"/>
 
                 <Preference
                     app:iconSpaceReserved="false"
+                    android:key="pre_owner_abandon_session"
                     android:title="インストールセッション破棄"
                     android:summary="インストールで問題が発生した場合に使用してください。"/>
 
                 <SwitchPreference
                     app:iconSpaceReserved="false"
+                    android:key="pre_owner_install_location"
                     android:title="外部ストレージにインストール"
                     android:summary="アプリを外部ストレージ(SDカートなど)に保存する場合は有効にしてください"/>
 
                 <Preference
                     app:iconSpaceReserved="false"
+                    android:key="pre_owner_manage_org_permission"
                     android:title="ACCESS_DEVICE_OWNER権限の管理"
-                    android:summary="不正なアプリがこの権限を使用して悪用することを防ぎます\nダイアログから「アクセス可能アプリ」・「アクセス可能設定」を編集できます"/>
+                    android:summary="不正なアプリの悪用を防ぎます\nタップすると管理できます"/>
 
                 <Preference
                     app:iconSpaceReserved="false"
+                    android:key="pre_owner_desc_org_permission"
                     android:title="ACCESS_DEVICE_OWNER権限の説明"
-                    android:summary="com.saradabar.cpadcustomizetool.permission.ACCESS_DEVICE_OWNERはAurora Store for NEOとのプロセス間通信に使用されています\nDevice Ownerは１つのアプリに付与できないため、公正かつ自由に利用できるようにすべてのアプリからアクセス可能です"/>
+                    android:summary="タップすると表示されます"/>
 
                 <Preference
                     app:iconSpaceReserved="false"
-                    android:key="disable_device_owner"
+                    android:key="pre_owner_clr_dev_own"
                     android:title="@string/pre_owner_title_device_owner" />
 
                 <Preference
                     app:iconSpaceReserved="false"
                     app:selectable="false"
-                    android:key="now_set_owner_package" />
+                    android:key="pre_owner_now_set_own_pkg" />
         </PreferenceCategory>
 </PreferenceScreen>

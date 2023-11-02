@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -45,12 +46,16 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
     double totalByte;
 
-    Preference preferenceBlockToUninstallSettings,
-            preferenceDisableDeviceOwner,
-            preferenceNowSetOwnerApp,
-            preferenceOwnerSilentInstall;
+    Preference preUninstallBlock,
+            preSessionInstall,
+            preAbandonSession,
+            preInstallLocation,
+            preManageOrgPermission,
+            preDescOrgPermission,
+            preClrDevOwn,
+            preNowSetOwnPkg;
 
-    SwitchPreference switchPreferencePermissionForced;
+    SwitchPreference swPrePermissionFrc;
 
     @SuppressLint("StaticFieldLeak")
     private static DeviceOwnerFragment instance = null;
@@ -63,15 +68,19 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_device_owner, rootKey);
-        DevicePolicyManager devicePolicyManager = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
         instance = this;
-        preferenceBlockToUninstallSettings = findPreference("intent_block_to_uninstall_settings");
-        preferenceDisableDeviceOwner = findPreference("disable_device_owner");
-        switchPreferencePermissionForced = findPreference("permission_forced");
-        preferenceNowSetOwnerApp = findPreference("now_set_owner_package");
-        preferenceOwnerSilentInstall = findPreference("owner_silent_install");
+        preUninstallBlock = findPreference("pre_owner_uninstall_block");
+        swPrePermissionFrc = findPreference("pre_owner_permission_frc");
+        preSessionInstall = findPreference("pre_owner_session_install");
+        preAbandonSession = findPreference("pre_owner_abandon_session");
+        preInstallLocation = findPreference("pre_owner_install_location");
+        preManageOrgPermission = findPreference("pre_owner_manage_org_permission");
+        preDescOrgPermission = findPreference("pre_owner_desc_org_permission");
+        preClrDevOwn = findPreference("pre_owner_clr_dev_own");
+        preNowSetOwnPkg = findPreference("pre_owner_now_set_own_pkg");
 
-        preferenceBlockToUninstallSettings.setOnPreferenceClickListener(preference -> {
+        preUninstallBlock.setOnPreferenceClickListener(preference -> {
             try {
                 startActivity(new Intent(getActivity(), BlockerActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (ActivityNotFoundException ignored) {
@@ -79,11 +88,11 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        switchPreferencePermissionForced.setOnPreferenceChangeListener((preference, o) -> {
+        swPrePermissionFrc.setOnPreferenceChangeListener((preference, o) -> {
             if ((boolean) o) {
-                switchPreferencePermissionForced.setChecked(true);
-                switchPreferencePermissionForced.setSummary("PERMISSION_POLICY_AUTO_GRANT/PERMISSION_GRANT_STATE_GRANTED" + getString(R.string.pre_owner_sum_permission_forced));
-                devicePolicyManager.setPermissionPolicy(new ComponentName(getActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
+                swPrePermissionFrc.setChecked(true);
+                swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_forced));
+                dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
                 for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
                     /* ユーザーアプリか確認 */
                     if (app.sourceDir.startsWith("/data/app/")) {
@@ -91,9 +100,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                     }
                 }
             } else {
-                switchPreferencePermissionForced.setChecked(false);
-                switchPreferencePermissionForced.setSummary("PERMISSION_POLICY_PROMPT/PERMISSION_GRANT_STATE_DEFAULT" + getString(R.string.pre_owner_sum_permission_default));
-                devicePolicyManager.setPermissionPolicy(new ComponentName(getActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_PROMPT);
+                swPrePermissionFrc.setChecked(false);
+                swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
+                dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_PROMPT);
                 for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
                     /* ユーザーアプリか確認 */
                     if (app.sourceDir.startsWith("/data/app/")) {
@@ -104,11 +113,49 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             return true;
         });
 
-        preferenceDisableDeviceOwner.setOnPreferenceClickListener(preference -> {
+        preSessionInstall.setOnPreferenceClickListener(preference -> {
+            preSessionInstall.setEnabled(false);
+            try {
+                startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/*"}).addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), ""), Constants.REQUEST_INSTALL);
+            } catch (ActivityNotFoundException ignored) {
+                preSessionInstall.setEnabled(true);
+                new AlertDialog.Builder(getActivity())
+                        .setMessage(getString(R.string.dialog_error_no_file_browse))
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+            return false;
+        });
+
+        /* 追加予定:セッション破棄 */
+        preAbandonSession.setOnPreferenceClickListener(preference -> {
+            return false;
+        });
+
+        /* 追加予定:外部ストレージインストール */
+        preInstallLocation.setOnPreferenceChangeListener((preference, o) -> {
+            return true;
+        });
+
+        /* 追加予定:権限管理 */
+        preManageOrgPermission.setOnPreferenceClickListener(preference -> {
+            return false;
+        });
+
+        /* 追加予定:権限説明（ダイアログ表示） */
+        preDescOrgPermission.setOnPreferenceClickListener(preference -> {
+            new AlertDialog.Builder(getActivity())
+                    .setMessage("com.saradabar.cpadcustomizetool.permission.ACCESS_DEVICE_OWNER：\n関連アプリのプロセス間通信に使用されています\nデバイスオーナーは１つのアプリのみ付与できるため、公正かつ自由に利用できるようにすべてのアプリからアクセスできます")
+                    .setPositiveButton(R.string.dialog_common_ok, null)
+                    .show();
+            return false;
+        });
+
+        preClrDevOwn.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.dialog_question_device_owner)
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                        devicePolicyManager.clearDeviceOwnerApp(requireActivity().getPackageName());
+                        dpm.clearDeviceOwnerApp(requireActivity().getPackageName());
                         requireActivity().finish();
                         requireActivity().overridePendingTransition(0, 0);
                         startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", true));
@@ -118,41 +165,27 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceOwnerSilentInstall.setOnPreferenceClickListener(preference -> {
-            preferenceOwnerSilentInstall.setEnabled(false);
-            try {
-                startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/*"}).addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), ""), Constants.REQUEST_INSTALL);
-            } catch (ActivityNotFoundException ignored) {
-                preferenceOwnerSilentInstall.setEnabled(true);
-                new AlertDialog.Builder(getActivity())
-                        .setMessage(getString(R.string.dialog_error_no_file_browse))
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-            }
-            return false;
-        });
-
         if (getNowOwnerPackage() != null) {
-            preferenceNowSetOwnerApp.setSummary(getString(R.string.pre_owner_sum_message_1) + getNowOwnerPackage() + getString(R.string.pre_owner_sum_message_2));
-        } else preferenceNowSetOwnerApp.setSummary(getString(R.string.pre_owner_sum_no_device_owner));
+            preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_message_1) + getNowOwnerPackage() + getString(R.string.pre_owner_sum_message_2));
+        } else preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_no_device_owner));
 
         switch (Preferences.GET_MODEL_ID(getActivity())) {
             case 0:
-                switchPreferencePermissionForced.setEnabled(false);
-                switchPreferencePermissionForced.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preferenceOwnerSilentInstall.setEnabled(false);
-                preferenceOwnerSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swPrePermissionFrc.setEnabled(false);
+                swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preSessionInstall.setEnabled(false);
+                preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 setPreferenceSettings();
                 break;
             case 1:
-                switchPreferencePermissionForced.setEnabled(false);
-                switchPreferencePermissionForced.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preferenceBlockToUninstallSettings.setEnabled(false);
-                preferenceBlockToUninstallSettings.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preferenceDisableDeviceOwner.setEnabled(false);
-                preferenceDisableDeviceOwner.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preferenceOwnerSilentInstall.setEnabled(false);
-                preferenceOwnerSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swPrePermissionFrc.setEnabled(false);
+                swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preUninstallBlock.setEnabled(false);
+                preUninstallBlock.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preClrDevOwn.setEnabled(false);
+                preClrDevOwn.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preSessionInstall.setEnabled(false);
+                preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
             case 2:
                 setPreferenceSettings();
@@ -162,26 +195,26 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void setPreferenceSettings() {
-        DevicePolicyManager devicePolicyManager = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
-        if (!devicePolicyManager.isDeviceOwnerApp(requireActivity().getPackageName())) {
-            preferenceBlockToUninstallSettings.setEnabled(false);
-            preferenceDisableDeviceOwner.setEnabled(false);
-            switchPreferencePermissionForced.setEnabled(false);
-            preferenceOwnerSilentInstall.setEnabled(false);
-            preferenceBlockToUninstallSettings.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            preferenceDisableDeviceOwner.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            switchPreferencePermissionForced.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            preferenceOwnerSilentInstall.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+        if (!dpm.isDeviceOwnerApp(requireActivity().getPackageName())) {
+            preUninstallBlock.setEnabled(false);
+            preClrDevOwn.setEnabled(false);
+            swPrePermissionFrc.setEnabled(false);
+            preSessionInstall.setEnabled(false);
+            preUninstallBlock.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            preClrDevOwn.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            preSessionInstall.setSummary(getString(R.string.pre_owner_sum_not_use_function));
         } else {
             if (Preferences.GET_MODEL_ID(requireActivity()) != 0) {
-                switch (devicePolicyManager.getPermissionPolicy(new ComponentName(getActivity(), AdministratorReceiver.class))) {
+                switch (dpm.getPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
                     case DevicePolicyManager.PERMISSION_POLICY_PROMPT:
-                        switchPreferencePermissionForced.setChecked(false);
-                        switchPreferencePermissionForced.setSummary("PERMISSION_POLICY_PROMPT/PERMISSION_GRANT_STATE_DEFAULT" + getString(R.string.pre_owner_sum_permission_default));
+                        swPrePermissionFrc.setChecked(false);
+                        swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
                         break;
                     case DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT:
-                        switchPreferencePermissionForced.setChecked(true);
-                        switchPreferencePermissionForced.setSummary("PERMISSION_POLICY_AUTO_GRANT/PERMISSION_GRANT_STATE_GRANTED" + getString(R.string.pre_owner_sum_permission_forced));
+                        swPrePermissionFrc.setChecked(true);
+                        swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_forced));
                         break;
                 }
             }
@@ -206,23 +239,23 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     @Override
     public void onResume() {
         super.onResume();
-        switch (Preferences.GET_MODEL_ID(getActivity())) {
+        switch (Preferences.GET_MODEL_ID(requireActivity())) {
             case 0:
-                switchPreferencePermissionForced.setEnabled(false);
-                switchPreferencePermissionForced.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preferenceOwnerSilentInstall.setEnabled(false);
-                preferenceOwnerSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swPrePermissionFrc.setEnabled(false);
+                swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preSessionInstall.setEnabled(false);
+                preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 setPreferenceSettings();
                 break;
             case 1:
-                switchPreferencePermissionForced.setEnabled(false);
-                switchPreferencePermissionForced.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preferenceBlockToUninstallSettings.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preferenceDisableDeviceOwner.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preferenceBlockToUninstallSettings.setEnabled(false);
-                preferenceDisableDeviceOwner.setEnabled(false);
-                preferenceOwnerSilentInstall.setEnabled(false);
-                preferenceOwnerSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swPrePermissionFrc.setEnabled(false);
+                swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preUninstallBlock.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preClrDevOwn.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preUninstallBlock.setEnabled(false);
+                preClrDevOwn.setEnabled(false);
+                preSessionInstall.setEnabled(false);
+                preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
             case 2:
                 setPreferenceSettings();
@@ -234,25 +267,25 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Constants.REQUEST_INSTALL) {
-            preferenceOwnerSilentInstall.setEnabled(true);
+            preSessionInstall.setEnabled(true);
             if (setInstallFiles(data)) {
                 String str = new File(splitInstallData[0]).getName();
                 /* ファイルの拡張子 */
                 switch (str.substring(str.lastIndexOf("."))) {
                     case ".apk":
-                        DeviceOwnerFragment.OwnerInstallTask ownerInstallTask = new DeviceOwnerFragment.OwnerInstallTask();
-                        ownerInstallTask.setListener(StartActivity.getInstance().OwnerInstallCreateListener());
-                        ownerInstallTask.execute();
+                        TryApkTask at = new TryApkTask();
+                        at.setListener(StartActivity.getInstance().ApkListener());
+                        at.execute();
                         return;
                     case ".XAPK":
                     case ".xapk":
-                        TryXApkTask tryXApkTask = new TryXApkTask();
-                        tryXApkTask.setListener(StartActivity.getInstance().XApkListener());
-                        tryXApkTask.execute();
+                        TryXApkTask xat = new TryXApkTask();
+                        xat.setListener(StartActivity.getInstance().XApkListener());
+                        xat.execute();
                         return;
                 }
             }
-            new AlertDialog.Builder(getActivity())
+            new AlertDialog.Builder(requireActivity())
                     .setMessage(getString(R.string.dialog_error_no_file_data))
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                     .show();
@@ -260,17 +293,17 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     }
 
     /* インストールファイルの取得 */
-    private boolean setInstallFiles(Intent data) {
+    private boolean setInstallFiles(Intent intent) {
         try {
             try {
                 /* 一時ファイルを消去 */
                 FileUtils.deleteDirectory(requireActivity().getExternalCacheDir());
             } catch (IOException ignored) {
             }
-            ClipData clipData = data.getClipData();
-            if (clipData == null) {
+            ClipData cd = intent.getClipData();
+            if (cd == null) {
                 /* シングルApk */
-                splitInstallData[0] = getInstallData(getActivity(), data.getData());
+                splitInstallData[0] = getInstallData(requireActivity(), intent.getData());
                 if (splitInstallData[0] == null) return false;
                 String str = new File(splitInstallData[0]).getName();
                 /* ファイルの拡張子 */
@@ -285,9 +318,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 }
             } else {
                 /* マルチApk */
-                for (int i = 0; i < clipData.getItemCount(); i++) {
+                for (int i = 0; i < cd.getItemCount(); i++) {
                     /* 処理 */
-                    splitInstallData[i] = getInstallData(getActivity(), clipData.getItemAt(i).getUri());
+                    splitInstallData[i] = getInstallData(requireActivity(), cd.getItemAt(i).getUri());
                 }
             }
             return splitInstallData != null;
@@ -297,7 +330,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     }
 
     /* 選択したファイルデータを取得 */
-    /* 要修正:SDカードなどからファイルデータを取得できない */
+    /* 修正予定:すべての場所からファイルデータを適切に取得できない */
     private String getInstallData(Context context, Uri uri) {
         try {
             if (DocumentsContract.isDocumentUri(context, uri)) {
@@ -480,8 +513,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     }
 
     /* インストールタスク */
-    public static class OwnerInstallTask extends AsyncTask<Object, Void, Object> {
-        public static OwnerInstallTask.Listener mListener;
+    public static class TryApkTask extends AsyncTask<Object, Void, Object> {
+        public static TryApkTask.Listener mListener;
 
         @Override
         protected void onPreExecute() {
@@ -540,7 +573,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             mListener.onError(result.toString());
         }
 
-        public void setListener(OwnerInstallTask.Listener listener) {
+        public void setListener(TryApkTask.Listener listener) {
             mListener = listener;
         }
 

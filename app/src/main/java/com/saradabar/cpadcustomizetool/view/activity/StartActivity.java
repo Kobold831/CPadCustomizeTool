@@ -235,9 +235,9 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             public void onSuccess() {
                 alertDialog.dismiss();
                 new DeviceOwnerFragment.TryXApkTask().cancel(true);
-                DeviceOwnerFragment.OwnerInstallTask ownerInstallTask = new DeviceOwnerFragment.OwnerInstallTask();
-                ownerInstallTask.setListener(OwnerInstallCreateListener());
-                ownerInstallTask.execute();
+                DeviceOwnerFragment.TryApkTask tryApkTask = new DeviceOwnerFragment.TryApkTask();
+                tryApkTask.setListener(ApkListener());
+                tryApkTask.execute();
             }
 
             @Override
@@ -279,8 +279,8 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         };
     }
 
-    public DeviceOwnerFragment.OwnerInstallTask.Listener OwnerInstallCreateListener() {
-        return new DeviceOwnerFragment.OwnerInstallTask.Listener() {
+    public DeviceOwnerFragment.TryApkTask.Listener ApkListener() {
+        return new DeviceOwnerFragment.TryApkTask.Listener() {
             ProgressDialog progressDialog;
 
             /* プログレスバーの表示 */
@@ -302,7 +302,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                     FileUtils.deleteDirectory(StartActivity.this.getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
-                new DeviceOwnerFragment.OwnerInstallTask().cancel(true);
+                new DeviceOwnerFragment.TryApkTask().cancel(true);
                 AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.this)
                         .setMessage(R.string.dialog_info_success_silent_install)
                         .setCancelable(false)
@@ -322,7 +322,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                     FileUtils.deleteDirectory(StartActivity.this.getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
-                new DeviceOwnerFragment.OwnerInstallTask().cancel(true);
+                new DeviceOwnerFragment.TryApkTask().cancel(true);
                 new AlertDialog.Builder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + str)
                         .setCancelable(false)
@@ -338,7 +338,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                     FileUtils.deleteDirectory(StartActivity.this.getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
-                new DeviceOwnerFragment.OwnerInstallTask().cancel(true);
+                new DeviceOwnerFragment.TryApkTask().cancel(true);
                 new AlertDialog.Builder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_error) + "\n" + str)
                         .setCancelable(false)
@@ -455,17 +455,17 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
     @Override
     public void onInstallSuccess() {
-        DeviceOwnerFragment.OwnerInstallTask.mListener.onSuccess();
+        DeviceOwnerFragment.TryApkTask.mListener.onSuccess();
     }
 
     @Override
     public void onInstallFailure(String str) {
-        DeviceOwnerFragment.OwnerInstallTask.mListener.onFailure(str);
+        DeviceOwnerFragment.TryApkTask.mListener.onFailure(str);
     }
 
     @Override
     public void onInstallError(String str) {
-        DeviceOwnerFragment.OwnerInstallTask.mListener.onError(str);
+        DeviceOwnerFragment.TryApkTask.mListener.onError(str);
     }
 
     @Override

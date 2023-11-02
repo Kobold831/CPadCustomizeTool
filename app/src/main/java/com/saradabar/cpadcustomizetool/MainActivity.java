@@ -153,7 +153,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
                     result = false;
                     if (Preferences.GET_SETTINGS_FLAG(this)) {
                         if (checkModel()) checkDcha();
-                        else errorNotTab2Or3();
+                        else errorNotSupportTab();
                     } else new WelcomeHelper(this, WelAppActivity.class).forceShow();
                 })
                 .show();
@@ -191,7 +191,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
         cancelLoadingDialog();
         if (Preferences.GET_SETTINGS_FLAG(this)) {
             if (checkModel()) checkDcha();
-            else errorNotTab2Or3();
+            else errorNotSupportTab();
         } else {
             new WelcomeHelper(this, WelAppActivity.class).forceShow();
         }
@@ -302,7 +302,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
                     result = false;
                     if (Preferences.GET_SETTINGS_FLAG(this)) {
                         if (checkModel()) checkDcha();
-                        else errorNotTab2Or3();
+                        else errorNotSupportTab();
                     } else new WelcomeHelper(this, WelAppActivity.class).forceShow();
                 })
                 .show();
@@ -328,7 +328,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
     }
 
     /* 端末チェックエラー */
-    private void errorNotTab2Or3() {
+    private void errorNotSupportTab() {
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_common_error)
@@ -505,7 +505,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
             case WelcomeHelper.DEFAULT_WELCOME_SCREEN_REQUEST:
             case Constants.REQUEST_PERMISSION:
                 if (checkModel()) checkDcha();
-                else errorNotTab2Or3();
+                else errorNotSupportTab();
                 break;
         }
     }

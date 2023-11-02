@@ -2,7 +2,7 @@
     <!-- アプリ・アクティビティ -->
     <string name="app_name">CPad Customize Tool</string>
     <string name="permission_group_label">デバイスオーナーへのアクセス</string>
-    <string name="permission_group_description">デバイスオーナーのAPIを提供します。</string>
+    <string name="permission_group_description">デバイスオーナー機能を提供します</string>
     <string name="activity_start_check">カスタマイズツール</string>
     <string name="activity_main_normal_settings">設定</string>
     <string name="activity_emergency">緊急モード</string>
@@ -64,9 +64,9 @@
     <string name="pre_main_sum_keep_home">設定中のホームランチャーを維持します</string>
     <string name="pre_main_sum_change_settings">デフォルトではすべての設定が変更されます</string>
     <string name="pre_main_sum_change_to_normal_mode_settings">デフォルトではすべての設定が変更されます</string>
-    <string name="pre_main_sum_use_dcha">この機能を使用するには、\n表示されるダイアログの内容を確認してください</string>
+    <string name="pre_main_sum_use_dcha">この機能を使用するにはタップして確認する必要があります</string>
     <string name="pre_main_sum_device_admin">このアプリがアンインストールされないようにします</string>
-    <string name="pre_main_sum_silent_install">分割APKは対応していません\n分割APKは「デバイスオーナーの機能」にあるサイレントインストールからできます</string>
+    <string name="pre_main_sum_silent_install">分割APKは非対応です\n分割APKは「デバイスオーナーの機能」→サイレントインストールでインストールできます</string>
     <string name="pre_main_sum_already_device_owner">デバイスオーナーのため変更できません</string>
     <string name="pre_main_sum_no_setting_launcher">変更するランチャーは設定されていません</string>
 
@@ -81,8 +81,8 @@
     <string name="pre_app_title_update">アップデートモードを選択</string>
     <string name="pre_app_title_crash_history">クラッシュ履歴</string>
     <string name="pre_app_title_delete_crash_history">クラッシュ履歴消去</string>
-    <string name="pre_app_sum_dcha">DchaServiceによってシステム設定を変更します</string>
-    <string name="pre_app_sum_usb">有効にすると、デバイス起動時にUSBデバッグが自動的に無効にされるのを防ぎます</string>
+    <string name="pre_app_sum_dcha">DchaServiceでシステム設定を変更します</string>
+    <string name="pre_app_sum_usb">有効にすると、デバイス起動時にUSBデバッグが無効にされるのを防ぎます</string>
     <string name="pre_app_sum_confirmation_dcha">この機能を使用するには、\"DchaServiceを使用\"を押して内容を確認してください</string>
     
     <!-- デバイスオーナー設定 -->
@@ -96,8 +96,8 @@
     <string name="pre_owner_sum_not_use_function">デバイスオーナーではないためこの機能は使用できません\nこの機能を使用するにはADBで許可してください</string>
     <string name="pre_owner_sum_uninstall_block">ユーザーアプリのアンインストールをブロックします</string>
     <string name="pre_owner_sum_silent_install">「xapk・apkm・分割APK」のインストールに対応しています\n「分割APK」をインストールするにはファイルを長押しして選択してください</string>
-    <string name="pre_owner_sum_permission_forced">\nDevicePolicyによりすべてのユーザーアプリのランタイム権限などは強制付与されます</string>
-    <string name="pre_owner_sum_permission_default">\nDevicePolicyはデフォルトです</string>
+    <string name="pre_owner_sum_permission_forced">\nデバイスポリシーでユーザーアプリのランタイム権限は強制付与されます</string>
+    <string name="pre_owner_sum_permission_default">\nデバイスポリシーはデフォルトです</string>
 
     <!-- その他の設定 -->
     <string name="pre_other_title_settings">設定を起動</string>
@@ -135,7 +135,7 @@
     <string name="dialog_title_update">アプリの更新</string>
     <string name="dialog_title_common_error">起動エラー</string>
     <string name="dialog_title_error">エラー</string>
-    <string name="dialog_title_notice_start">利用上の注意</string>
+    <string name="dialog_title_notice_start">はじめに</string>
     <string name="dialog_title_grant_permission">権限設定</string>
     <string name="dialog_title_dcha_service">以下の内容を確認してください</string>
     <string name="dialog_title_emergency_manual">緊急モードの説明</string>
@@ -146,12 +146,12 @@
     <string name="dialog_title_select_mode">モードを選択してください</string>
     <!-- ダイアログメッセージ -->
     <string name="dialog_notice_support_ended">0000.00.00をもってこのアプリケーションはサポートを終了します\nサポート終了後にこのアプリケーションを起動することはできません\n今までのご利用ありがとうございました</string>
-    <string name="dialog_notice_start">このアプリはアンチウイルスソフトに不審なプログラムとして誤検知される場合があります\n詳しくは、CTabLabに所属している開発者に問い合わせてください\nこのダイアログは次回起動以降表示しません</string>
+    <string name="dialog_notice_start">ウイルス対策アプリなどに脅威として誤検知される場合があります\n詳細情報は開発者にお問い合わせください\nこのダイアログは以降表示されません</string>
     <string name="dialog_emergency_select_course">受講中の講座を選択してください</string>
     <string name="dialog_mode_select_settings">実行時に変更する設定を選択してください\n設定変更後は”OK”を押してください</string>
-    <string name="dialog_emergency_manual">\nこの機能はアクティビティを呼び出して使用します\n\nOneToucherのようにアクティビティを呼び出すアプリで使用します\n\n使用する場合ホームランチャーなどから”.mode.emergency.EmergencyActivity”を追加し、タップしてください\n\nこのアクティビティが呼び出されると即座に次の通りの動作をします\n\n＊ナビゲーションバーを隠す＊\n\n＊アプリ履歴を全消去＊\n\n＊ホームを勉強ホームに変更＊\n\n＊システムUIを学習用に変更＊</string>
-    <string name="dialog_emergency_manual_red">\nシステムUIを変更するためOneToucher等のアクティビティや他のアプリを起動させるアプリをインストールしておかないと初期化以外に勉強ホームから抜け出すことができなくなります\n\nアプリ履歴を全消去はナビゲーションバーの□ボタンを押すと表示されるアプリ履歴のアプリを終了するだけであり、バックグランド上で動いているOneToucher等のアプリは停止しません</string>
-    <string name="dialog_normal_manual">\nこの機能はアクティビティを呼び出して使用します\n\nOneToucherのようにアクティビティを呼び出すアプリで使用します\n\n使用する場合ホームランチャーなどから”.mode.normal.NormalActivity”を追加し、タップしてください\n\nこのアクティビティが呼び出されると即座に次の通りの動作をします\n\n＊ナビゲーションバーを表示＊\n\n＊ホームを変更＊\n\n＊システムUIを通常用に変更＊\n\n＊ホームを起動＊</string>
+    <string name="dialog_emergency_manual">\nこの機能はアクティビティを呼び出すアプリで使用できます\n\n”.mode.emergency.EmergencyActivity”を追加して起動してください\n\n呼び出されると以下の動作をします\n\n＊ナビゲーションバーを隠す＊\n\n＊アプリ履歴を全消去＊\n\n＊ホームを勉強ホームに変更＊\n\n＊システムUIを学習用に変更＊</string>
+    <string name="dialog_emergency_manual_red">\nシステムUIを変更するためアクティビティや他のアプリを起動させるアプリをインストールしておかないと初期化以外に勉強ホームから抜け出すことができなくなります\n\nアプリ履歴を全消去はナビゲーションバーの□ボタンを押すと表示されるアプリ履歴のアプリを終了します</string>
+    <string name="dialog_normal_manual">\nこの機能はアクティビティを呼び出すアプリで使用できます\n\n”.mode.normal.NormalActivity”を追加して起動してください\n\n呼び出されると以下の動作をします\n\n＊ナビゲーションバーを表示＊\n\n＊ホームを変更＊\n\n＊システムUIを通常用に変更＊\n\n＊ホームを起動＊</string>
     <string name="dialog_confirmation">このデバイスのシステム領域にDchaServiceが恒久的な変更を加えていないことを検出しました\n続行すると一部の動作がAndroidシステムによって制限される可能性があります</string>
     <string name="dialog_final_confirmation">続行するとこの操作は取り消せません\n初期化をおこなってもシステム領域の変更、Androidシステムによる制限はもとには戻りません\n続行すると警告は無効になり、設定変更が可能になります</string>
     <!-- 情報 -->
@@ -226,7 +226,7 @@
     <!-- クラス -->
     <string name="percent">%</string>
     <string name="shortcut_reboot">再起動</string>
-    <string name="logger_empty">Empty crash log</string>
+    <string name="logger_empty">ログはありません</string>
     <string name="progress_state_connecting">通信中です…</string>
     <string name="progress_state_downloading_update_file">アップデートファイルをサーバーからダウンロード中…</string>
     <string name="progress_state_update_check">アプリの更新を確認しています…</string>

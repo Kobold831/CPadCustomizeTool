@@ -28,6 +28,7 @@ import java.util.List;
 
 public class DeviceOwnerService extends Service {
 
+    /* 追加予定:すべての機能 */
     protected IDeviceOwnerService.Stub mDeviceOwnerServiceStub = new IDeviceOwnerService.Stub() {
 
         @Override
