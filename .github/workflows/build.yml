@@ -36,7 +36,7 @@ jobs:
       - name: Build with Gradle
         run: |
           ./gradlew assemble --no-daemon
-          echo "version=Ver.$(grep versionName app/build.gradle | awk '{print $3}' | tr -d \")" >> $GITHUB_ENV
+          echo "version=Ver.$(grep versionName app/build.gradle.kts | awk '{print $3}' | tr -d \")" >> $GITHUB_ENV
           echo "commit=$(echo ${{ github.sha }} | cut -c-7)" >> $GITHUB_ENV
 
       - name: Upload APK
