@@ -8,22 +8,22 @@
             android:key="1">
                 <SwitchPreference
                     app:iconSpaceReserved="false"
-                    android:key="switch1"
+                    android:key="pre_dcha_state"
                     android:title="@string/pre_main_title_system_ui" />
 
                 <SwitchPreference
                     app:iconSpaceReserved="false"
-                    android:key="switch2"
+                    android:key="pre_keep_dcha_state"
                     android:title="@string/pre_main_title_keep_system_ui" />
 
                 <SwitchPreference
                     app:iconSpaceReserved="false"
-                    android:key="switch3"
+                    android:key="pre_navigation"
                     android:title="@string/pre_main_title_navigation_bar" />
 
                 <SwitchPreference
                     app:iconSpaceReserved="false"
-                    android:key="switch4"
+                    android:key="pre_keep_navigation"
                     android:title="@string/pre_main_title_keep_navigation_bar" />
         </PreferenceCategory>
 
@@ -33,44 +33,44 @@
             android:key="2">
                 <SwitchPreference
                     app:iconSpaceReserved="false"
-                    android:key="switch5"
+                    android:key="pre_unk_src"
                     android:title="@string/pre_main_title_non_market" />
 
                 <SwitchPreference
                     app:iconSpaceReserved="false"
-                    android:key="switch6"
+                    android:key="pre_keep_unk_src"
                     android:title="@string/pre_main_title_keep_non_market" />
 
                 <SwitchPreference
                     app:iconSpaceReserved="false"
-                    android:key="switch7"
+                    android:key="pre_adb"
                     android:title="@string/pre_main_title_usb_debug" />
 
                 <SwitchPreference
                     app:iconSpaceReserved="false"
-                    android:key="switch8"
+                    android:key="pre_keep_adb"
                     android:title="@string/pre_main_title_keep_usb_debug" />
         </PreferenceCategory>
 
         <Preference
             app:iconSpaceReserved="false"
-            android:key="android_home"
+            android:key="pre_launcher"
             android:title="@string/pre_main_title_change_home" />
 
         <SwitchPreference
             app:iconSpaceReserved="false"
-            android:key="switch9"
+            android:key="pre_keep_launcher"
             android:title="@string/pre_main_title_keep_home"
             android:summary="@string/pre_main_sum_keep_home" />
 
         <Preference
             app:iconSpaceReserved="false"
-            android:key="android_settings"
+            android:key="pre_other_settings"
             android:title="@string/pre_main_title_other_settings" />
 
         <Preference
             app:iconSpaceReserved="false"
-            android:key="dcha_service"
+            android:key="pre_enable_dcha_service"
             android:title="@string/pre_main_title_use_dcha"
             android:summary="@string/pre_main_sum_use_dcha" />
 
@@ -99,7 +99,7 @@
 
                 <Preference
                     app:iconSpaceReserved="false"
-                    android:key="emergency_manual"
+                    android:key="pre_emg_manual"
                     android:title="@string/pre_main_title_manual" />
         </PreferenceCategory>
 
@@ -119,12 +119,12 @@
 
                 <Preference
                     app:iconSpaceReserved="false"
-                    android:key="normal_mode_launcher"
+                    android:key="pre_sel_nor_launcher"
                     android:title="@string/pre_main_title_launcher" />
 
                 <Preference
                     app:iconSpaceReserved="false"
-                    android:key="normal_manual"
+                    android:key="pre_nor_manual"
                     android:title="@string/pre_main_title_normal_mode_manual" />
         </PreferenceCategory>
 
@@ -135,43 +135,43 @@
 
         <Preference
             app:iconSpaceReserved="false"
-            android:key="android_reboot"
+            android:key="pre_reboot"
             android:title="@string/pre_main_title_reboot" />
 
         <Preference
             app:iconSpaceReserved="false"
-            android:key="android_reboot_shortcut"
+            android:key="pre_reboot_shortcut"
             android:title="@string/pre_main_title_reboot_shortcut" />
 
         <Preference
             app:iconSpaceReserved="false"
-            android:key="android_silent_install"
+            android:key="pre_silent_install"
             android:title="@string/pre_main_title_silent_install"
             android:summary="@string/pre_main_sum_silent_install" />
 
         <Preference
             app:iconSpaceReserved="false"
-            android:key="android_resolution"
+            android:key="pre_resolution"
             android:title="@string/pre_main_title_resolution" />
 
         <Preference
             app:iconSpaceReserved="false"
-            android:key="android_resolution_reset"
+            android:key="pre_reset_resolution"
             android:title="@string/pre_main_title_resolution_reset" />
 
         <Preference
             app:iconSpaceReserved="false"
-            android:key="android_update"
+            android:key="pre_system_update"
             android:title="@string/pre_main_title_system_update" />
 
         <Preference
             app:iconSpaceReserved="false"
-            android:key="device_owner"
+            android:key="pre_device_owner_fn"
             android:title="@string/pre_main_title_device_owner" />
 
         <SwitchPreference
             app:iconSpaceReserved="false"
-            android:key="switch10"
+            android:key="pre_device_admin"
             android:title="@string/pre_main_title_device_admin"
             android:summary="@string/pre_main_sum_device_admin" />
 

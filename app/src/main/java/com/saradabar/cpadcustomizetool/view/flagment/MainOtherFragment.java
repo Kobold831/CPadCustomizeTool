@@ -37,7 +37,7 @@ public class MainOtherFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.pre_main_setting, rootKey);
+        setPreferencesFromResource(R.xml.pre_other, rootKey);
         preferenceOtherSettings = findPreference("intent_android_settings");
         preferenceSysUiAdjustment = findPreference("intent_sys_ui_adjustment");
         preferenceDevelopmentSettings = findPreference("intent_development_settings");

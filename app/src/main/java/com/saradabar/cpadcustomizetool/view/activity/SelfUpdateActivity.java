@@ -24,7 +24,7 @@ import com.saradabar.cpadcustomizetool.util.Variables;
 
 import java.io.File;
 
-public class UpdateActivity extends Activity implements UpdateEventListener {
+public class SelfUpdateActivity extends Activity implements UpdateEventListener {
 
     private ProgressDialog loadingDialog;
 

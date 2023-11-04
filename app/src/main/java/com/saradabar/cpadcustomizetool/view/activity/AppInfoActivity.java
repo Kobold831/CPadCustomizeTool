@@ -14,7 +14,7 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Toast;
 
-public class InformationActivity extends Activity {
+public class AppInfoActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

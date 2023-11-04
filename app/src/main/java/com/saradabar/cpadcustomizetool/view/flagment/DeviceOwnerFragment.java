@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -29,7 +28,7 @@ import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Path;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.view.activity.BlockerActivity;
+import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 
 import org.zeroturnaround.zip.ZipUtil;
@@ -67,7 +66,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.pre_device_owner, rootKey);
+        setPreferencesFromResource(R.xml.pre_owner, rootKey);
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
         instance = this;
         preUninstallBlock = findPreference("pre_owner_uninstall_block");
@@ -82,7 +81,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
         preUninstallBlock.setOnPreferenceClickListener(preference -> {
             try {
-                startActivity(new Intent(getActivity(), BlockerActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                startActivity(new Intent(getActivity(), UninstallBlockActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (ActivityNotFoundException ignored) {
             }
             return false;

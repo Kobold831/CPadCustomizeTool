@@ -39,7 +39,7 @@ public class ApplicationSettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.pre_app_settings, rootKey);
+        setPreferencesFromResource(R.xml.pre_app, rootKey);
         SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
         ContentResolver resolver = requireActivity().getContentResolver();
 

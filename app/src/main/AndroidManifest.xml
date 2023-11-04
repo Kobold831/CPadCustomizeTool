@@ -46,7 +46,7 @@
         <activity
             android:clearTaskOnLaunch="true"
             android:name=".MainActivity"
-            android:label="@string/activity_start_check"
+            android:label="@string/activity_main"
             android:theme="@style/StartTheme"
             android:exported="true">
             <intent-filter>
@@ -59,17 +59,17 @@
 
         <activity
             android:name=".view.activity.StartActivity"
-            android:label="@string/activity_main_normal_settings"
+            android:label="@string/activity_start"
             android:theme="@style/MainPreferenceTheme" />
 
         <activity
-            android:name=".view.activity.UpdateActivity"
-            android:label="@string/activity_app_update"
+            android:name=".view.activity.SelfUpdateActivity"
+            android:label="@string/activity_self_update"
             android:theme="@style/MainTheme"
             tools:ignore="InnerclassSeparator" />
 
         <activity
-            android:name=".view.activity.InformationActivity"
+            android:name=".view.activity.AppInfoActivity"
             android:label="@string/activity_app_info"
             android:theme="@style/MainTheme"
             tools:ignore="InnerclassSeparator" />
@@ -112,7 +112,7 @@
         </activity>
 
         <activity
-            android:name=".view.activity.BlockerActivity"
+            android:name=".view.activity.UninstallBlockActivity"
             android:theme="@style/MainTheme"
             android:label="@string/activity_uninstall_block" />
 

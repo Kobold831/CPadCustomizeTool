@@ -82,7 +82,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                     .show());
             findViewById(R.id.main_error_button_2).setOnClickListener(view -> {
                 try {
-                    startActivity(new Intent(view.getContext(), BlockerActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                    startActivity(new Intent(view.getContext(), UninstallBlockActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 } catch (ActivityNotFoundException ignored) {
                 }
             });
@@ -144,10 +144,10 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.app_info_1:
-                startActivity(new Intent(this, InformationActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", getIntent().getBooleanExtra("result", false)));
+                startActivity(new Intent(this, AppInfoActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", getIntent().getBooleanExtra("result", false)));
                 return true;
             case R.id.app_info_2:
-                startActivity(new Intent(this, UpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 return true;
             case R.id.app_info_3:
                 menu.findItem(R.id.app_info_3).setVisible(false);
@@ -348,8 +348,8 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         };
     }
 
-    public MainFragment.silentInstallTask.Listener createListener() {
-        return new MainFragment.silentInstallTask.Listener() {
+    public MainFragment.installTask.Listener createListener() {
+        return new MainFragment.installTask.Listener() {
             ProgressDialog progressDialog;
 
             /* プログレスバーの表示 */
@@ -386,8 +386,8 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         };
     }
 
-    public MainFragment.setResolutionTask.Listener mCreateListener() {
-        return new MainFragment.setResolutionTask.Listener() {
+    public MainFragment.resolutionTask.Listener mCreateListener() {
+        return new MainFragment.resolutionTask.Listener() {
             Handler mHandler;
             Runnable mRunnable;
             /* 成功 */

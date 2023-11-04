@@ -62,10 +62,10 @@ public class MainFragment extends PreferenceFragmentCompat {
 
     int width, height;
 
-    boolean isObserverStateEnable = false,
-            isObserverHideEnable = false,
-            isObserverMarketEnable = false,
-            isObserverUsbEnable = false;
+    boolean isObsDchaState = false,
+            isObsNavigation = false,
+            isObsUnkSrc = false,
+            isObsAdb = false;
 
     ListView mListView;
     IDchaService mDchaService;
@@ -75,79 +75,79 @@ public class MainFragment extends PreferenceFragmentCompat {
             installData,
             systemUpdateFilePath;
 
-    SwitchPreference switchDchaState,
-            switchKeepDchaState,
-            switchHideBar,
-            switchEnableService,
-            switchMarketApp,
-            switchKeepMarketApp,
-            switchUsbDebug,
-            switchKeepUsbDebug,
-            switchKeepHome,
-            switchDeviceAdministrator;
+    SwitchPreference swDchaState,
+            swKeepDchaState,
+            swNavigation,
+            swKeepNavigation,
+            swUnkSrc,
+            swKeepUnkSrc,
+            swAdb,
+            swKeepAdb,
+            swKeepLauncher,
+            swDeviceAdmin;
 
-    Preference preferenceDchaService,
-            preferenceEmergencyManual,
-            preferenceNormalLauncher,
-            preferenceNormalManual,
-            preferenceOtherSettings,
-            preferenceReboot,
-            preferenceRebootShortCut,
-            preferenceSilentInstall,
-            preferenceChangeHome,
-            preferenceResolution,
-            preferenceResolutionReset,
-            preferenceDeviceOwner,
-            preferenceSystemUpdate;
+    Preference preEnableDchaService,
+            preEmgManual,
+            preSelNorLauncher,
+            preNorManual,
+            preOtherSettings,
+            preReboot,
+            preRebootShortcut,
+            preSilentInstall,
+            preLauncher,
+            preResolution,
+            preResetResolution,
+            preDeviceOwnerFn,
+            preSystemUpdate;
 
     public static MainFragment getInstance() {//インスタンスを取得
         return instance;
     }
 
     /* システムUIオブザーバー */
-    ContentObserver observerState = new ContentObserver(new Handler()) {
+    ContentObserver obsDchaState = new ContentObserver(new Handler()) {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
             try {
-                switchDchaState.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE) != 0);
+                swDchaState.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
             }
         }
     };
 
     /* ナビゲーションバーオブザーバー */
-    ContentObserver observerHide = new ContentObserver(new Handler()) {
+    ContentObserver obsNavigation = new ContentObserver(new Handler()) {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
             try {
-                switchHideBar.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != 0);
+                swNavigation.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
             }
         }
     };
 
     /* 提供元オブザーバー */
-    ContentObserver observerMarket = new ContentObserver(new Handler()) {
+    ContentObserver obsUnkSrc = new ContentObserver(new Handler()) {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
             try {
                 //noinspection deprecation
-                switchMarketApp.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
+                swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
             }
         }
     };
 
     /* USBデバッグオブザーバー */
-    ContentObserver observerUsb = new ContentObserver(new Handler()) {
+    ContentObserver obsAdb = new ContentObserver(new Handler()) {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
             try {
-                switchUsbDebug.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
+                swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
             }
         }
@@ -162,7 +162,6 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mDchaService = null;
         }
     };
 
@@ -175,22 +174,21 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mDchaUtilService = null;
         }
     };
 
     /* Dcha・UtilServiceにバインド */
-    public boolean bindDchaService(int flag, boolean isDchaService) {
+    public boolean bindDchaService(int req, boolean isDchaReq) {
         try {
-            if (isDchaService) {
-                switch (flag) {
+            if (isDchaReq) {
+                switch (req) {
                     case Constants.FLAG_SET_DCHA_STATE_0:
-                        if (!confirmationDialog()) {
+                        if (!isCfmDialog()) {
                             mDchaService.setSetupStatus(0);
                         }
                         break;
                     case Constants.FLAG_SET_DCHA_STATE_3:
-                        if (!confirmationDialog()) {
+                        if (!isCfmDialog()) {
                             mDchaService.setSetupStatus(3);
                         }
                         break;
@@ -208,7 +206,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                         mDchaService.setDefaultPreferredHomeApp(setLauncherPackage);
                         /* listviewの更新 */
                         mListView.invalidateViews();
-                        setCheckedSwitch();
+                        initialize();
                         break;
                     case Constants.FLAG_SYSTEM_UPDATE:
                         if (mDchaService.copyUpdateImage(systemUpdateFilePath, "/cache/update.zip")) {
@@ -225,7 +223,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                         break;
                 }
             } else {
-                switch (flag) {
+                switch (req) {
                     case Constants.FLAG_CHECK:
                         return requireActivity().getApplicationContext().bindService(Constants.DCHA_UTIL_SERVICE, mDchaUtilServiceConnection, Context.BIND_AUTO_CREATE);
                     case Constants.FLAG_RESOLUTION:
@@ -239,15 +237,15 @@ public class MainFragment extends PreferenceFragmentCompat {
 
     /* 設定変更 */
     @SuppressWarnings("deprecation")
-    private void settingsFlag(int flag) {
-        switch (flag) {
+    private void chgSetting(int req) {
+        switch (req) {
             case Constants.FLAG_SET_DCHA_STATE_0:
-                if (!confirmationDialog()) {
+                if (!isCfmDialog()) {
                     Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
                 }
                 break;
             case Constants.FLAG_SET_DCHA_STATE_3:
-                if (!confirmationDialog()) {
+                if (!isCfmDialog()) {
                     Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
                 }
                 break;
@@ -280,51 +278,51 @@ public class MainFragment extends PreferenceFragmentCompat {
         bindDchaService(Constants.FLAG_CHECK, true);
         bindDchaService(Constants.FLAG_CHECK, false);
 
-        switchDchaState = findPreference("switch1");
-        switchKeepDchaState = findPreference("switch2");
-        switchHideBar = findPreference("switch3");
-        switchEnableService = findPreference("switch4");
-        switchMarketApp = findPreference("switch5");
-        switchKeepMarketApp = findPreference("switch6");
-        switchUsbDebug = findPreference("switch7");
-        switchKeepUsbDebug = findPreference("switch8");
-        switchKeepHome = findPreference("switch9");
-        switchDeviceAdministrator = findPreference("switch10");
-        preferenceChangeHome = findPreference("android_home");
-        preferenceDchaService = findPreference("dcha_service");
-        preferenceOtherSettings = findPreference("android_settings");
-        preferenceReboot = findPreference("android_reboot");
-        preferenceRebootShortCut = findPreference("android_reboot_shortcut");
-        preferenceEmergencyManual = findPreference("emergency_manual");
-        preferenceNormalLauncher = findPreference("normal_mode_launcher");
-        preferenceNormalManual = findPreference("normal_manual");
-        preferenceSilentInstall = findPreference("android_silent_install");
-        preferenceResolution = findPreference("android_resolution");
-        preferenceResolutionReset = findPreference("android_resolution_reset");
-        preferenceDeviceOwner = findPreference("device_owner");
-        preferenceSystemUpdate = findPreference("android_update");
+        swDchaState = findPreference("pre_dcha_state");
+        swKeepDchaState = findPreference("pre_keep_dcha_state");
+        swNavigation = findPreference("pre_navigation");
+        swKeepNavigation = findPreference("pre_keep_navigation");
+        swUnkSrc = findPreference("pre_unk_src");
+        swKeepUnkSrc = findPreference("pre_keep_unk_src");
+        swAdb = findPreference("pre_adb");
+        swKeepAdb = findPreference("pre_keep_adb");
+        swKeepLauncher = findPreference("pre_keep_launcher");
+        swDeviceAdmin = findPreference("pre_device_admin");
+        preLauncher = findPreference("pre_launcher");
+        preEnableDchaService = findPreference("pre_enable_dcha_service");
+        preOtherSettings = findPreference("pre_other_settings");
+        preReboot = findPreference("pre_reboot");
+        preRebootShortcut = findPreference("pre_reboot_shortcut");
+        preEmgManual = findPreference("pre_emg_manual");
+        preSelNorLauncher = findPreference("pre_sel_nor_launcher");
+        preNorManual = findPreference("pre_nor_manual");
+        preSilentInstall = findPreference("pre_silent_install");
+        preResolution = findPreference("pre_resolution");
+        preResetResolution = findPreference("pre_reset_resolution");
+        preDeviceOwnerFn = findPreference("pre_device_owner_fn");
+        preSystemUpdate = findPreference("pre_system_update");
 
         /* オブサーバーを有効化 */
-        isObserverStateEnable = true;
-        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, observerState);
-        isObserverHideEnable = true;
-        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, observerHide);
-        isObserverMarketEnable = true;
+        isObsDchaState = true;
+        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, obsDchaState);
+        isObsNavigation = true;
+        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, obsNavigation);
+        isObsUnkSrc = true;
         //noinspection deprecation
-        requireActivity().getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, observerMarket);
-        isObserverUsbEnable = true;
-        requireActivity().getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED), false, observerUsb);
+        requireActivity().getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, obsUnkSrc);
+        isObsAdb = true;
+        requireActivity().getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED), false, obsAdb);
 
-        /* 一括変更 */
-        setCheckedSwitch();
+        /* 初期化 */
+        initialize();
 
         /* リスナーを有効化 */
-        switchDchaState.setOnPreferenceChangeListener((preference, o) -> {
+        swDchaState.setOnPreferenceChangeListener((preference, o) -> {
             if (!Preferences.GET_CHANGE_SETTINGS_DCHA_FLAG(getActivity())) {
                 if ((boolean) o) {
-                    settingsFlag(Constants.FLAG_SET_DCHA_STATE_3);
+                    chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
                 } else {
-                    settingsFlag(Constants.FLAG_SET_DCHA_STATE_0);
+                    chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                 }
             } else if (Preferences.GET_CHANGE_SETTINGS_DCHA_FLAG(getActivity())) {
                 if ((boolean) o) {
@@ -336,12 +334,12 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        switchHideBar.setOnPreferenceChangeListener((preference, o) -> {
+        swNavigation.setOnPreferenceChangeListener((preference, o) -> {
             if (!Preferences.GET_CHANGE_SETTINGS_DCHA_FLAG(getActivity())) {
                 if ((boolean) o) {
-                    settingsFlag(Constants.FLAG_HIDE_NAVIGATION_BAR);
+                    chgSetting(Constants.FLAG_HIDE_NAVIGATION_BAR);
                 } else {
-                    settingsFlag(Constants.FLAG_VIEW_NAVIGATION_BAR);
+                    chgSetting(Constants.FLAG_VIEW_NAVIGATION_BAR);
                 }
             } else if (Preferences.GET_CHANGE_SETTINGS_DCHA_FLAG(getActivity())) {
                 if ((boolean) o) {
@@ -353,10 +351,10 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        switchEnableService.setOnPreferenceChangeListener((preference, o) -> {
+        swKeepNavigation.setOnPreferenceChangeListener((preference, o) -> {
             requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, (boolean) o).apply();
             if ((boolean) o) {
-                settingsFlag(Constants.FLAG_VIEW_NAVIGATION_BAR);
+                chgSetting(Constants.FLAG_VIEW_NAVIGATION_BAR);
                 requireActivity().startService(new Intent(getActivity(), KeepService.class));
                 requireActivity().startService(Constants.PROTECT_KEEP_SERVICE);
                 for (ActivityManager.RunningServiceInfo serviceInfo : ((ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE)) {
@@ -382,7 +380,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             return true;
         });
 
-        switchKeepMarketApp.setOnPreferenceChangeListener((preference, o) -> {
+        swKeepUnkSrc.setOnPreferenceChangeListener((preference, o) -> {
             requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, (boolean) o).apply();
             if ((boolean) o) {
                 try {
@@ -401,7 +399,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                 } catch (SecurityException e) {
                     Toast.toast(getActivity(), R.string.toast_not_change);
                     requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false).apply();
-                    switchKeepMarketApp.setChecked(false);
+                    swKeepUnkSrc.setChecked(false);
                     return false;
                 }
             } else {
@@ -419,20 +417,20 @@ public class MainFragment extends PreferenceFragmentCompat {
             return true;
         });
 
-        switchKeepUsbDebug.setOnPreferenceChangeListener((preference, o) -> {
-            if (confirmationDialog()) {
+        swKeepAdb.setOnPreferenceChangeListener((preference, o) -> {
+            if (isCfmDialog()) {
                 return false;
             }
             requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, (boolean) o).apply();
             if ((boolean) o) {
                 try {
                     if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
-                        settingsFlag(Constants.FLAG_SET_DCHA_STATE_3);
+                        chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
                     }
                     Thread.sleep(100);
                     Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
                     if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
-                        settingsFlag(Constants.FLAG_SET_DCHA_STATE_0);
+                        chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                     }
                     requireActivity().startService(new Intent(getActivity(), KeepService.class));
                     requireActivity().startService(Constants.PROTECT_KEEP_SERVICE);
@@ -444,13 +442,13 @@ public class MainFragment extends PreferenceFragmentCompat {
                             }
                         }
                     }
-                } catch (SecurityException | InterruptedException e) {
-                    if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
-                        settingsFlag(Constants.FLAG_SET_DCHA_STATE_0);
+                } catch (Exception e) {
+                    if (Preferences.GET_MODEL_ID(requireActivity()) == 2) {
+                        chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                     }
                     Toast.toast(getActivity(), R.string.toast_not_change);
                     requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false).apply();
-                    switchKeepUsbDebug.setChecked(false);
+                    swKeepAdb.setChecked(false);
                     return false;
                 }
             } else {
@@ -467,13 +465,13 @@ public class MainFragment extends PreferenceFragmentCompat {
             return true;
         });
 
-        switchKeepDchaState.setOnPreferenceChangeListener((preference, o) -> {
-            if (confirmationDialog()) {
+        swKeepDchaState.setOnPreferenceChangeListener((preference, o) -> {
+            if (isCfmDialog()) {
                 return false;
             }
             requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, (boolean) o).apply();
             if ((boolean) o) {
-                settingsFlag(Constants.FLAG_SET_DCHA_STATE_0);
+                chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                 requireActivity().startService(new Intent(getActivity(), KeepService.class));
                 requireActivity().startService(Constants.PROTECT_KEEP_SERVICE);
                 for (ActivityManager.RunningServiceInfo serviceInfo : ((ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE)) {
@@ -499,7 +497,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             return true;
         });
 
-        switchKeepHome.setOnPreferenceChangeListener((preference, o) -> {
+        swKeepLauncher.setOnPreferenceChangeListener((preference, o) -> {
             requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_HOME, (boolean) o).apply();
             if ((boolean) o) {
                 requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putString(Constants.KEY_SAVE_KEEP_HOME, getLauncherPackage()).apply();
@@ -528,26 +526,26 @@ public class MainFragment extends PreferenceFragmentCompat {
             return true;
         });
 
-        switchMarketApp.setOnPreferenceChangeListener((preference, o) -> {
+        swUnkSrc.setOnPreferenceChangeListener((preference, o) -> {
             if ((boolean) o) {
                 try {
-                    settingsFlag(Constants.FLAG_MARKET_APP_TRUE);
+                    chgSetting(Constants.FLAG_MARKET_APP_TRUE);
                 } catch (SecurityException ignored) {
                     Toast.toast(getActivity(), R.string.toast_not_change);
                     try {
                         //noinspection deprecation
-                        switchMarketApp.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
+                        swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
                     } catch (Settings.SettingNotFoundException ignored1) {
                     }
                 }
             } else {
                 try {
-                    settingsFlag(Constants.FLAG_MARKET_APP_FALSE);
+                    chgSetting(Constants.FLAG_MARKET_APP_FALSE);
                 } catch (SecurityException ignored) {
                     Toast.toast(getActivity(), R.string.toast_not_change);
                     try {
                         //noinspection deprecation
-                        switchMarketApp.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
+                        swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
                     } catch (Settings.SettingNotFoundException ignored1) {
                     }
                 }
@@ -555,37 +553,37 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        switchUsbDebug.setOnPreferenceChangeListener((preference, o) -> {
-            if (confirmationDialog()) {
+        swAdb.setOnPreferenceChangeListener((preference, o) -> {
+            if (isCfmDialog()) {
                 return false;
             }
             if ((boolean) o) {
                 try {
                     if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
-                        settingsFlag(Constants.FLAG_SET_DCHA_STATE_3);
+                        chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
                         Thread.sleep(100);
                     }
-                    settingsFlag(Constants.FLAG_USB_DEBUG_TRUE);
+                    chgSetting(Constants.FLAG_USB_DEBUG_TRUE);
                     if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
-                        settingsFlag(Constants.FLAG_SET_DCHA_STATE_0);
+                        chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                     }
                 } catch (SecurityException | InterruptedException ignored) {
                     if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
-                        settingsFlag(Constants.FLAG_SET_DCHA_STATE_0);
+                        chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                     }
                     Toast.toast(getActivity(), R.string.toast_not_change);
                     try {
-                        switchUsbDebug.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
+                        swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
                     } catch (Settings.SettingNotFoundException ignored1) {
                     }
                 }
             } else {
                 try {
-                    settingsFlag(Constants.FLAG_USB_DEBUG_FALSE);
+                    chgSetting(Constants.FLAG_USB_DEBUG_FALSE);
                 } catch (SecurityException ignored) {
                     Toast.toast(getActivity(), R.string.toast_not_change);
                     try {
-                        switchUsbDebug.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
+                        swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
                     } catch (Settings.SettingNotFoundException ignored1) {
                     }
                 }
@@ -593,23 +591,23 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        switchDeviceAdministrator.setOnPreferenceChangeListener((preference, o) -> {
+        swDeviceAdmin.setOnPreferenceChangeListener((preference, o) -> {
             if ((boolean) o) {
-                if (!((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(getActivity(), AdministratorReceiver.class))) {
-                    startActivityForResult(new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, new ComponentName(getActivity(), AdministratorReceiver.class)), Constants.REQUEST_ADMIN);
+                if (!((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
+                    startActivityForResult(new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, new ComponentName(requireActivity(), AdministratorReceiver.class)), Constants.REQUEST_ADMIN);
                 }
             } else {
-                switchDeviceAdministrator.setChecked(true);
+                swDeviceAdmin.setChecked(true);
                 new AlertDialog.Builder(getActivity())
                         .setTitle(R.string.dialog_title_dcha_service)
                         .setMessage(R.string.dialog_question_device_admin)
                         .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                            ((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).removeActiveAdmin(new ComponentName(getActivity(), AdministratorReceiver.class));
-                            switchDeviceAdministrator.setChecked(false);
+                            ((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).removeActiveAdmin(new ComponentName(requireActivity(), AdministratorReceiver.class));
+                            swDeviceAdmin.setChecked(false);
                         })
 
                         .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
-                            switchDeviceAdministrator.setChecked(true);
+                            swDeviceAdmin.setChecked(true);
                             dialog.dismiss();
                         })
                         .show();
@@ -617,7 +615,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceEmergencyManual.setOnPreferenceClickListener(preference -> {
+        preEmgManual.setOnPreferenceClickListener(preference -> {
             TextView textView = new TextView(getActivity());
             textView.setText(R.string.dialog_emergency_manual_red);
             textView.setTextSize(16);
@@ -632,7 +630,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceNormalManual.setOnPreferenceClickListener(preference -> {
+        preNorManual.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.dialog_title_normal_manual)
                     .setMessage(R.string.dialog_normal_manual)
@@ -641,7 +639,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceNormalLauncher.setOnPreferenceClickListener(preference -> {
+        preSelNorLauncher.setOnPreferenceClickListener(preference -> {
             View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_normal_launcher_list, null);
             List<ResolveInfo> installedAppList = requireActivity().getPackageManager().queryIntentActivities(new Intent().setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
             List<NormalModeView.AppData> dataList = new ArrayList<>();
@@ -659,7 +657,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                 Preferences.SET_NORMAL_LAUNCHER(Uri.fromParts("package", installedAppList.get(position).activityInfo.packageName, null).toString().replace("package:", ""), getActivity());
                 /* listviewの更新 */
                 listView.invalidateViews();
-                setCheckedSwitch();
+                initialize();
             });
             new AlertDialog.Builder(getActivity())
                     .setView(view)
@@ -669,7 +667,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceReboot.setOnPreferenceClickListener(preference -> {
+        preReboot.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.dialog_question_reboot)
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> bindDchaService(Constants.FLAG_REBOOT, true))
@@ -678,12 +676,12 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceRebootShortCut.setOnPreferenceClickListener(preference -> {
+        preRebootShortcut.setOnPreferenceClickListener(preference -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(getActivity(), getString(R.string.shortcut_reboot))
                         .setShortLabel(getString(R.string.shortcut_reboot))
-                        .setIcon(Icon.createWithResource(getActivity(), R.drawable.reboot))
-                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(getActivity(), "com.saradabar.cpadcustomizetool.view.activity.RebootActivity"))
+                        .setIcon(Icon.createWithResource(requireActivity(), R.drawable.reboot))
+                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), "com.saradabar.cpadcustomizetool.view.activity.RebootActivity"))
                         .build(), null);
             } else {
                 makeRebootShortcut();
@@ -691,8 +689,8 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceDchaService.setOnPreferenceClickListener(preference -> {
-            if (confirmationDialog()) {
+        preEnableDchaService.setOnPreferenceClickListener(preference -> {
+            if (isCfmDialog()) {
                 return false;
             }
             new AlertDialog.Builder(getActivity())
@@ -716,7 +714,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceChangeHome.setOnPreferenceClickListener(preference -> {
+        preLauncher.setOnPreferenceClickListener(preference -> {
             View v = requireActivity().getLayoutInflater().inflate(R.layout.layout_launcher_list, null);
             List<ResolveInfo> installedAppList = requireActivity().getPackageManager().queryIntentActivities(new Intent().setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
             List<LauncherView.AppData> dataList = new ArrayList<>();
@@ -742,17 +740,17 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceOtherSettings.setOnPreferenceClickListener(preference -> {
+        preOtherSettings.setOnPreferenceClickListener(preference -> {
             StartActivity.getInstance().transitionFragment(new MainOtherFragment(), true);
             return false;
         });
 
-        preferenceSilentInstall.setOnPreferenceClickListener(preference -> {
-            preferenceSilentInstall.setEnabled(false);
+        preSilentInstall.setOnPreferenceClickListener(preference -> {
+            preSilentInstall.setEnabled(false);
             try {
                 startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/vnd.android.package-archive").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false), ""), Constants.REQUEST_INSTALL);
             } catch (ActivityNotFoundException ignored) {
-                preferenceSilentInstall.setEnabled(true);
+                preSilentInstall.setEnabled(true);
                 new AlertDialog.Builder(getActivity())
                         .setMessage(getString(R.string.dialog_error_no_file_browse))
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -761,7 +759,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceResolution.setOnPreferenceClickListener(preference -> {
+        preResolution.setOnPreferenceClickListener(preference -> {
             /* DchaUtilServiceが機能しているか */
             if (!bindDchaService(Constants.FLAG_CHECK, false)) {
                 new AlertDialog.Builder(getActivity())
@@ -789,7 +787,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                                         .show();
                             } else {
-                                setResolutionTask resolutionTask = new setResolutionTask();
+                                resolutionTask resolutionTask = new resolutionTask();
                                 resolutionTask.setListener(StartActivity.getInstance().mCreateListener());
                                 resolutionTask.execute();
                             }
@@ -806,7 +804,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceResolutionReset.setOnPreferenceClickListener(preference -> {
+        preResetResolution.setOnPreferenceClickListener(preference -> {
             /* DchaUtilServiceが機能しているか */
             if (!bindDchaService(Constants.FLAG_CHECK, false)) {
                 new AlertDialog.Builder(getActivity())
@@ -819,17 +817,17 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceDeviceOwner.setOnPreferenceClickListener(preference -> {
+        preDeviceOwnerFn.setOnPreferenceClickListener(preference -> {
             StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
             return false;
         });
 
-        preferenceSystemUpdate.setOnPreferenceClickListener(preference -> {
-            preferenceSystemUpdate.setEnabled(false);
+        preSystemUpdate.setOnPreferenceClickListener(preference -> {
+            preSystemUpdate.setEnabled(false);
             try {
                 startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/zip").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false), ""), Constants.REQUEST_SYSTEM_UPDATE);
             } catch (ActivityNotFoundException ignored) {
-                preferenceSystemUpdate.setEnabled(true);
+                preSystemUpdate.setEnabled(true);
                 new AlertDialog.Builder(getActivity())
                         .setMessage(getString(R.string.dialog_error_no_file_browse))
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -841,57 +839,55 @@ public class MainFragment extends PreferenceFragmentCompat {
         /* 端末ごとにPreferenceの状態を設定 */
         switch (Preferences.GET_MODEL_ID(getActivity())) {
             case 0:
-                preferenceSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preferenceSilentInstall.setEnabled(false);
+                preSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preSilentInstall.setEnabled(false);
                 break;
             case 1:
                 if (!Build.ID.contains("01.")) {
-                    switchKeepMarketApp.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                    switchKeepMarketApp.setEnabled(false);
-                    switchMarketApp.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                    switchMarketApp.setEnabled(false);
+                    swKeepUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                    swKeepUnkSrc.setEnabled(false);
+                    swUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                    swUnkSrc.setEnabled(false);
                 }
-                //preferenceSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                //preferenceSilentInstall.setEnabled(false);
-                switchDeviceAdministrator.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                switchDeviceAdministrator.setEnabled(false);
+                swDeviceAdmin.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swDeviceAdmin.setEnabled(false);
                 break;
             case 2:
-                switchMarketApp.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                switchKeepMarketApp.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                switchMarketApp.setEnabled(false);
-                switchKeepMarketApp.setEnabled(false);
+                swUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swKeepUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swUnkSrc.setEnabled(false);
+                swKeepUnkSrc.setEnabled(false);
                 break;
         }
 
         if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName())) {
-            switchDeviceAdministrator.setEnabled(false);
-            switchDeviceAdministrator.setSummary(getString(R.string.pre_main_sum_already_device_owner));
+            swDeviceAdmin.setEnabled(false);
+            swDeviceAdmin.setSummary(getString(R.string.pre_main_sum_already_device_owner));
         }
 
         /* DchaServiceを使用するか */
         if (!Preferences.GET_DCHASERVICE_FLAG(requireActivity())) {
             for (Preference preference : Arrays.asList(
-                    preferenceSilentInstall,
-                    preferenceChangeHome,
-                    switchKeepHome,
+                    preSilentInstall,
+                    preLauncher,
+                    swKeepLauncher,
                     findPreference("category_emergency"),
                     findPreference("category_normal"),
-                    preferenceReboot,
-                    preferenceRebootShortCut,
-                    preferenceResolution,
-                    preferenceResolutionReset,
-                    preferenceSystemUpdate
+                    preReboot,
+                    preRebootShortcut,
+                    preResolution,
+                    preResetResolution,
+                    preSystemUpdate
             )) {
                 getPreferenceScreen().removePreference(preference);
             }
         } else {
-            getPreferenceScreen().removePreference(preferenceDchaService);
+            getPreferenceScreen().removePreference(preEnableDchaService);
         }
     }
 
     /* 確認ダイアログ */
-    private boolean confirmationDialog() {
+    private boolean isCfmDialog() {
         if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
             if (Preferences.GET_CONFIRMATION(getActivity())) {
                 new AlertDialog.Builder(getActivity())
@@ -938,42 +934,42 @@ public class MainFragment extends PreferenceFragmentCompat {
         Toast.toast(getActivity(), R.string.toast_common_success);
     }
 
-    /* スイッチ一括変更 */
-    private void setCheckedSwitch() {
+    /* 初期化 */
+    private void initialize() {
         SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
         try {
-            switchDchaState.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE) != 0);
+            swDchaState.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE) != 0);
         } catch (Settings.SettingNotFoundException ignored) {
         }
         try {
-            switchHideBar.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != 0);
+            swNavigation.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != 0);
         } catch (Settings.SettingNotFoundException ignored) {
         }
         try {
             //noinspection deprecation
-            switchMarketApp.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
+            swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
         } catch (Settings.SettingNotFoundException ignored) {
         }
         try {
-            switchUsbDebug.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
+            swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
         } catch (Settings.SettingNotFoundException ignored) {
         }
-        switchDeviceAdministrator.setChecked(((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(getActivity(), AdministratorReceiver.class)));
-        switchEnableService.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false));
-        switchKeepMarketApp.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false));
-        switchKeepDchaState.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false));
-        switchKeepUsbDebug.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false));
-        switchKeepHome.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false));
-        preferenceChangeHome.setSummary(getLauncherName());
+        swDeviceAdmin.setChecked(((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), AdministratorReceiver.class)));
+        swKeepNavigation.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false));
+        swKeepUnkSrc.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false));
+        swKeepDchaState.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false));
+        swKeepAdb.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false));
+        swKeepLauncher.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false));
+        preLauncher.setSummary(getLauncherName());
         String normalLauncherName = null;
         try {
             normalLauncherName = (String) requireActivity().getPackageManager().getApplicationLabel(requireActivity().getPackageManager().getApplicationInfo(Preferences.GET_NORMAL_LAUNCHER(getActivity()), 0));
         } catch (PackageManager.NameNotFoundException ignored) {
         }
         if (normalLauncherName == null) {
-            preferenceNormalLauncher.setSummary(getString(R.string.pre_main_sum_no_setting_launcher));
+            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_no_setting_launcher));
         } else {
-            preferenceNormalLauncher.setSummary(getString(R.string.pre_main_sum_message_2) + normalLauncherName + getString(R.string.pre_main_sum_message_3));
+            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_message_2) + normalLauncherName + getString(R.string.pre_main_sum_message_3));
         }
 
         /* 維持スイッチが有効のときサービスが停止していたら起動 */
@@ -999,21 +995,21 @@ public class MainFragment extends PreferenceFragmentCompat {
         super.onDestroy();
         if (mDchaService != null) requireActivity().getApplicationContext().unbindService(mDchaServiceConnection);
         if (mDchaUtilService != null) requireActivity().getApplicationContext().unbindService(mDchaUtilServiceConnection);
-        if (isObserverStateEnable) {
-            requireActivity().getContentResolver().unregisterContentObserver(observerState);
-            isObserverStateEnable = false;
+        if (isObsDchaState) {
+            requireActivity().getContentResolver().unregisterContentObserver(obsDchaState);
+            isObsDchaState = false;
         }
-        if (isObserverHideEnable) {
-            requireActivity().getContentResolver().unregisterContentObserver(observerHide);
-            isObserverHideEnable = false;
+        if (isObsNavigation) {
+            requireActivity().getContentResolver().unregisterContentObserver(obsNavigation);
+            isObsNavigation = false;
         }
-        if (isObserverMarketEnable) {
-            requireActivity().getContentResolver().unregisterContentObserver(observerMarket);
-            isObserverMarketEnable = false;
+        if (isObsUnkSrc) {
+            requireActivity().getContentResolver().unregisterContentObserver(obsUnkSrc);
+            isObsUnkSrc = false;
         }
-        if (isObserverUsbEnable) {
-            requireActivity().getContentResolver().unregisterContentObserver(observerUsb);
-            isObserverUsbEnable = false;
+        if (isObsAdb) {
+            requireActivity().getContentResolver().unregisterContentObserver(obsAdb);
+            isObsAdb = false;
         }
     }
 
@@ -1022,44 +1018,42 @@ public class MainFragment extends PreferenceFragmentCompat {
     public void onResume() {
         super.onResume();
         if (requireActivity().getActionBar() != null) requireActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-        if (!preferenceChangeHome.isEnabled()) preferenceChangeHome.setEnabled(true);
+        if (!preLauncher.isEnabled()) preLauncher.setEnabled(true);
 
         /* オブザーバー有効 */
-        isObserverStateEnable = true;
-        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, observerState);
-        isObserverHideEnable = true;
-        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, observerHide);
-        isObserverMarketEnable = true;
+        isObsDchaState = true;
+        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, obsDchaState);
+        isObsNavigation = true;
+        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, obsNavigation);
+        isObsUnkSrc = true;
         //noinspection deprecation
-        requireActivity().getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, observerMarket);
-        isObserverUsbEnable = true;
-        requireActivity().getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED), false, observerUsb);
+        requireActivity().getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, obsUnkSrc);
+        isObsAdb = true;
+        requireActivity().getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED), false, obsAdb);
 
         /* 一括変更 */
-        setCheckedSwitch();
+        initialize();
 
         switch (Preferences.GET_MODEL_ID(getActivity())) {
             case 0:
-                preferenceSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preferenceSilentInstall.setEnabled(false);
+                preSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preSilentInstall.setEnabled(false);
                 break;
             case 1:
-                //preferenceSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                //preferenceSilentInstall.setEnabled(false);
-                switchDeviceAdministrator.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                switchDeviceAdministrator.setEnabled(false);
+                swDeviceAdmin.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swDeviceAdmin.setEnabled(false);
                 break;
             case 2:
-                switchMarketApp.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                switchKeepMarketApp.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                switchMarketApp.setEnabled(false);
-                switchKeepMarketApp.setEnabled(false);
+                swUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swKeepUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swUnkSrc.setEnabled(false);
+                swKeepUnkSrc.setEnabled(false);
                 break;
         }
 
         if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName())) {
-            switchDeviceAdministrator.setEnabled(false);
-            switchDeviceAdministrator.setSummary(getString(R.string.pre_main_sum_already_device_owner));
+            swDeviceAdmin.setEnabled(false);
+            swDeviceAdmin.setSummary(getString(R.string.pre_main_sum_already_device_owner));
         }
     }
 
@@ -1068,7 +1062,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case Constants.REQUEST_INSTALL:
-                preferenceSilentInstall.setEnabled(true);
+                preSilentInstall.setEnabled(true);
                 /* シングルApk */
                 try {
                     installData = getFilePath(getActivity(), data.getData());
@@ -1076,7 +1070,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                     installData = null;
                 }
                 if (installData != null) {
-                    silentInstallTask silent = new silentInstallTask();
+                    installTask silent = new installTask();
                     silent.setListener(StartActivity.getInstance().createListener());
                     silent.execute();
                 } else {
@@ -1087,7 +1081,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                 }
                 break;
             case Constants.REQUEST_SYSTEM_UPDATE:
-                preferenceSystemUpdate.setEnabled(true);
+                preSystemUpdate.setEnabled(true);
                 try {
                     systemUpdateFilePath = getFilePath(getActivity(), data.getData());
                 } catch (Exception ignored) {
@@ -1127,7 +1121,7 @@ public class MainFragment extends PreferenceFragmentCompat {
     }
 
     /* インストールタスク */
-    public static class silentInstallTask extends AsyncTask<Boolean, Void, Boolean> {
+    public static class installTask extends AsyncTask<Boolean, Void, Boolean> {
         private Listener mListener;
 
         @Override
@@ -1137,7 +1131,7 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         @Override
         protected Boolean doInBackground(Boolean... value) {
-            return MainFragment.getInstance().installApp();
+            return MainFragment.getInstance().isInstallApp();
         }
 
         @Override
@@ -1161,12 +1155,12 @@ public class MainFragment extends PreferenceFragmentCompat {
     }
 
     /* 解像度タスク */
-    public static class setResolutionTask extends AsyncTask<Boolean, Void, Boolean> {
+    public static class resolutionTask extends AsyncTask<Boolean, Void, Boolean> {
         private Listener mListener;
 
         @Override
         protected Boolean doInBackground(Boolean... value) {
-            return MainFragment.getInstance().setResolution();
+            return MainFragment.getInstance().isSetResolution();
         }
 
         @Override
@@ -1190,17 +1184,13 @@ public class MainFragment extends PreferenceFragmentCompat {
         }
     }
 
-    public boolean copySystemFile() {
-        return bindDchaService(Constants.FLAG_COPY_UPDATE_IMAGE, true);
-    }
-
     /* サイレントインストール */
-    public boolean installApp() {
+    public boolean isInstallApp() {
         return bindDchaService(Constants.FLAG_INSTALL_PACKAGE, true);
     }
 
     /* 解像度の変更 */
-    public boolean setResolution() {
+    public boolean isSetResolution() {
         return bindDchaService(Constants.FLAG_RESOLUTION, false);
     }
 

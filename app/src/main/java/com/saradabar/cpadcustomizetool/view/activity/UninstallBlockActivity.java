@@ -27,7 +27,7 @@ import com.saradabar.cpadcustomizetool.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlockerActivity extends Activity {
+public class UninstallBlockActivity extends Activity {
 
     private ComponentName administratorComponent;
 

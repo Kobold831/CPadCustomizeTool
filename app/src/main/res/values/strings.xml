@@ -3,12 +3,12 @@
     <string name="app_name">CPad Customize Tool</string>
     <string name="permission_group_label">デバイスオーナーへのアクセス</string>
     <string name="permission_group_description">デバイスオーナー機能を提供します</string>
-    <string name="activity_start_check">カスタマイズツール</string>
-    <string name="activity_main_normal_settings">設定</string>
+    <string name="activity_main">カスタマイズツール</string>
+    <string name="activity_start">設定</string>
     <string name="activity_emergency">緊急モード</string>
     <string name="activity_normal">通常モード</string>
     <string name="activity_app_info">アプリの情報</string>
-    <string name="activity_app_update">アップデート</string>
+    <string name="activity_self_update">アップデート</string>
     <string name="activity_reboot">再起動</string>
     <string name="activity_uninstall_block">アンインストールブロック設定</string>
     <string name="activity_crash_log">クラッシュ履歴</string>
@@ -96,8 +96,8 @@
     <string name="pre_owner_sum_not_use_function">デバイスオーナーではないためこの機能は使用できません\nこの機能を使用するにはADBで許可してください</string>
     <string name="pre_owner_sum_uninstall_block">ユーザーアプリのアンインストールをブロックします</string>
     <string name="pre_owner_sum_silent_install">「xapk・apkm・分割APK」のインストールに対応しています\n「分割APK」をインストールするにはファイルを長押しして選択してください</string>
-    <string name="pre_owner_sum_permission_forced">\nデバイスポリシーでユーザーアプリのランタイム権限は強制付与されます</string>
-    <string name="pre_owner_sum_permission_default">\nデバイスポリシーはデフォルトです</string>
+    <string name="pre_owner_sum_permission_forced">デバイスポリシーでユーザーアプリのランタイム権限は強制付与されます</string>
+    <string name="pre_owner_sum_permission_default">デバイスポリシーはデフォルトです</string>
 
     <!-- その他の設定 -->
     <string name="pre_other_title_settings">設定を起動</string>
