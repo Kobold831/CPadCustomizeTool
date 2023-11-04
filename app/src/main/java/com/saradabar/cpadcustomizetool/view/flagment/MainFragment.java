@@ -741,7 +741,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         preOtherSettings.setOnPreferenceClickListener(preference -> {
-            StartActivity.getInstance().transitionFragment(new MainOtherFragment(), true);
+            StartActivity.getInstance().transitionFragment(new OtherFragment(), true);
             return false;
         });
 
@@ -788,7 +788,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                                         .show();
                             } else {
                                 resolutionTask resolutionTask = new resolutionTask();
-                                resolutionTask.setListener(StartActivity.getInstance().mCreateListener());
+                                resolutionTask.setListener(StartActivity.getInstance().resolutionListener());
                                 resolutionTask.execute();
                             }
                         } catch (NumberFormatException ignored) {
@@ -1071,7 +1071,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                 }
                 if (installData != null) {
                     installTask silent = new installTask();
-                    silent.setListener(StartActivity.getInstance().createListener());
+                    silent.setListener(StartActivity.getInstance().installListener());
                     silent.execute();
                 } else {
                     new AlertDialog.Builder(getActivity())

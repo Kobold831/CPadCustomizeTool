@@ -5,5 +5,5 @@ interface IDeviceOwnerService {
     boolean isDeviceOwnerApp();
     void setUninstallBlocked(String str, boolean bl);
     boolean isUninstallBlocked(String str);
-    boolean installPackages(String str, in List<Uri> uriList);
+    boolean isInstallPackages(String str, in List<Uri> uriList);
 }

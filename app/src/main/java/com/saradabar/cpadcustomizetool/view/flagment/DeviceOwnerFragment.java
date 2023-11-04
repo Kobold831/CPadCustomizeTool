@@ -273,13 +273,13 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 switch (str.substring(str.lastIndexOf("."))) {
                     case ".apk":
                         TryApkTask at = new TryApkTask();
-                        at.setListener(StartActivity.getInstance().ApkListener());
+                        at.setListener(StartActivity.getInstance().apkListener());
                         at.execute();
                         return;
                     case ".XAPK":
                     case ".xapk":
                         TryXApkTask xat = new TryXApkTask();
-                        xat.setListener(StartActivity.getInstance().XApkListener());
+                        xat.setListener(StartActivity.getInstance().xApkListener());
                         xat.execute();
                         return;
                 }

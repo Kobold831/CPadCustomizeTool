@@ -33,9 +33,9 @@ public class DeviceOwnerService extends Service {
 
         @Override
         public boolean isDeviceOwnerApp() {
-            DevicePolicyManager dPM = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
+            DevicePolicyManager dpm = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
             try {
-                return dPM.isDeviceOwnerApp(getPackageName());
+                return dpm.isDeviceOwnerApp(getPackageName());
             } catch (SecurityException ignored) {
                 return false;
             }
@@ -43,18 +43,18 @@ public class DeviceOwnerService extends Service {
 
         @Override
         public void setUninstallBlocked(String str, boolean bl) {
-            DevicePolicyManager dPM = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
-            dPM.setUninstallBlocked(new ComponentName(getApplicationContext(), AdministratorReceiver.class), str, bl);
+            DevicePolicyManager dpm = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
+            dpm.setUninstallBlocked(new ComponentName(getApplicationContext(), AdministratorReceiver.class), str, bl);
         }
 
         @Override
         public boolean isUninstallBlocked(String str) {
-            DevicePolicyManager dPM = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
-            return dPM.isUninstallBlocked(new ComponentName(getApplicationContext(), AdministratorReceiver.class), str);
+            DevicePolicyManager dpm = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
+            return dpm.isUninstallBlocked(new ComponentName(getApplicationContext(), AdministratorReceiver.class), str);
         }
 
         @Override
-        public boolean installPackages(String str, List<Uri> uriList) {
+        public boolean isInstallPackages(String str, List<Uri> uriList) {
             int sessionId;
             try {
                 sessionId = createSession(getPackageManager().getPackageInstaller());
@@ -97,7 +97,8 @@ public class DeviceOwnerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null) postStatus(intent.getIntExtra("REQUEST_SESSION", -1), intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1), intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME), intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE));
+        if (intent != null)
+            postStatus(intent.getIntExtra("REQUEST_SESSION", -1), intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1), intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME), intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE));
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -108,26 +109,26 @@ public class DeviceOwnerService extends Service {
                     getPackageManager().getPackageInstaller().openSession(sessionId).close();
                 } catch (Exception ignored) {
                 }
-                bindInstallResult(0, packageName, null, null);
+                bindAuroraService(0, packageName, null, null);
                 break;
             case PackageInstaller.STATUS_FAILURE_ABORTED:
                 try {
                     getPackageManager().getPackageInstaller().openSession(sessionId).abandon();
                 } catch (Exception ignored) {
                 }
-                bindInstallResult(1, packageName, getErrorMessage(this, status), null);
+                bindAuroraService(1, packageName, getErrorMessage(this, status), null);
                 break;
             default:
                 try {
                     getPackageManager().getPackageInstaller().openSession(sessionId).abandon();
                 } catch (Exception ignored) {
                 }
-                bindInstallResult(2, packageName, getErrorMessage(this, status), extra);
+                bindAuroraService(2, packageName, getErrorMessage(this, status), extra);
                 break;
         }
     }
 
-    private void bindInstallResult(int flag, String packageName, String errorString, String extra) {
+    private void bindAuroraService(int flag, String packageName, String errorString, String extra) {
         bindService(Constants.AURORA_SERVICE, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {

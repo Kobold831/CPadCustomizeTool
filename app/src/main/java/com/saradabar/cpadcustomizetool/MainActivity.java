@@ -3,16 +3,12 @@ package com.saradabar.cpadcustomizetool;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -24,17 +20,12 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.RequiresApi;
-
-import com.saradabar.cpadcustomizetool.Receiver.PackageAddedReceiver;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
 import com.saradabar.cpadcustomizetool.data.connection.Checker;
 import com.saradabar.cpadcustomizetool.data.connection.Updater;
 import com.saradabar.cpadcustomizetool.data.event.UpdateEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
-import com.saradabar.cpadcustomizetool.data.service.KeepService;
-import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
@@ -51,7 +42,7 @@ import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class MainActivity extends Activity implements UpdateEventListener {
     IDchaService mDchaService;
-    ProgressDialog loadingDialog;
+    ProgressDialog ldDialog;
     boolean result = true;
 
     @Override
@@ -59,17 +50,16 @@ public class MainActivity extends Activity implements UpdateEventListener {
         super.onCreate(savedInstanceState);
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
         if (Preferences.GET_CRASH(this)) {
-            errorCrash();
+            crashError();
             return;
         }
-        FirstCheck();
+        firstCheck();
     }
 
-    private void FirstCheck() {
-        registerReceiver();
+    private void firstCheck() {
         /* ネットワークチェック */
-        if (!isNetWork()) {
-            netWorkError();
+        if (!isNetworkState()) {
+            networkError();
             return;
         }
         /* アップデートチェックの可否を確認 */
@@ -77,72 +67,27 @@ public class MainActivity extends Activity implements UpdateEventListener {
         else supportCheck();
     }
 
-    private void errorCrash() {
+    private void crashError() {
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setMessage("前回" + getApplicationInfo().loadLabel(getPackageManager()).toString() + "が予期せずに終了しました\n繰り返し発生する場合は\"ログを見る\"を押してクラッシュログを開発者に送信してください")
                 .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> {
                     Preferences.SET_CRASH(this, false);
-                    FirstCheck();
+                    firstCheck();
                 })
                 .setNeutralButton("ログを見る", (dialog, which) -> startActivity(new Intent(this, CrashLogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
                 .show();
     }
 
-    private void registerReceiver() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-        intentFilter.addDataScheme("package");
-        PackageAddedReceiver packageReceiver = new PackageAddedReceiver() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                SharedPreferences sp = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
-                if (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED)) {
-                    if (intent.getData().toString().replace("package:", "").equals(context.getPackageName())) {
-                        context.startService(new Intent(context, KeepService.class));
-                    }
-                    if (sp.getBoolean("permission_forced", false)) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            for (ApplicationInfo app : getPackageManager().getInstalledApplications(0)) {
-                                /* ユーザーアプリか確認 */
-                                if (app.sourceDir.startsWith("/data/app/")) {
-                                    Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
-                                }
-                            }
-                        }
-                    }
-                }
-                if (intent.getAction().equals(Intent.ACTION_PACKAGE_REPLACED)) {
-                    if (intent.getData().toString().replace("package:", "").equals(context.getPackageName())) {
-                        context.startService(new Intent(context, KeepService.class));
-                    }
-                    if (sp.getBoolean("permission_forced", false)) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            for (ApplicationInfo app : getPackageManager().getInstalledApplications(0)) {
-                                /* ユーザーアプリか確認 */
-                                if (app.sourceDir.startsWith("/data/app/")) {
-                                    Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        registerReceiver(packageReceiver, intentFilter);
-    }
-
     /* ネットワークの接続を確認 */
-    private boolean isNetWork() {
+    private boolean isNetworkState() {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
     }
 
     /* ネットワークエラー */
-    private void netWorkError() {
+    private void networkError() {
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_common_error)
@@ -152,20 +97,20 @@ public class MainActivity extends Activity implements UpdateEventListener {
                 .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
                     result = false;
                     if (Preferences.GET_SETTINGS_FLAG(this)) {
-                        if (checkModel()) checkDcha();
-                        else errorNotSupportTab();
+                        if (supportModelCheck()) checkDchaService();
+                        else supportModelError();
                     } else new WelcomeHelper(this, WelAppActivity.class).forceShow();
                 })
                 .show();
     }
 
     private void updateCheck() {
-        showLoadingDialog();
+        showLdDialog();
         new Updater(this, Constants.URL_UPDATE_CHECK, 1).updateCheck();
     }
 
     private void supportCheck() {
-        if (!Preferences.GET_UPDATE_FLAG(this)) showLoadingDialog();
+        if (!Preferences.GET_UPDATE_FLAG(this)) showLdDialog();
         new Checker(this, Constants.URL_SUPPORT_CHECK).supportCheck();
     }
 
@@ -183,15 +128,15 @@ public class MainActivity extends Activity implements UpdateEventListener {
     }
 
     public void onSupportAvailable() {
-        cancelLoadingDialog();
+        cancelLdDialog();
         showSupportDialog();
     }
 
     public void onSupportUnavailable() {
-        cancelLoadingDialog();
+        cancelLdDialog();
         if (Preferences.GET_SETTINGS_FLAG(this)) {
-            if (checkModel()) checkDcha();
-            else errorNotSupportTab();
+            if (supportModelCheck()) checkDchaService();
+            else supportModelError();
         } else {
             new WelcomeHelper(this, WelAppActivity.class).forceShow();
         }
@@ -199,7 +144,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
 
     @Override
     public void onUpdateAvailable1(String string) {
-        cancelLoadingDialog();
+        cancelLdDialog();
         showUpdateDialog(string);
     }
 
@@ -210,7 +155,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
 
     @Override
     public void onDownloadError() {
-        cancelLoadingDialog();
+        cancelLdDialog();
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
@@ -222,7 +167,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
 
     @Override
     public void onConnectionError() {
-        cancelLoadingDialog();
+        cancelLdDialog();
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_common_error)
@@ -257,7 +202,8 @@ public class MainActivity extends Activity implements UpdateEventListener {
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                    AsyncFileDownload asyncFileDownload = initFileLoader();
+                    AsyncFileDownload asyncFileDownload = new AsyncFileDownload(this, Variables.DOWNLOAD_FILE_URL, new File(new File(getExternalCacheDir(), "update.apk").getPath()));
+                    asyncFileDownload.execute();
                     ProgressDialog progressDialog = new ProgressDialog(this);
                     progressDialog.setTitle(R.string.dialog_title_update);
                     progressDialog.setMessage(getString(R.string.progress_state_downloading_update_file));
@@ -265,10 +211,10 @@ public class MainActivity extends Activity implements UpdateEventListener {
                     progressDialog.setProgress(0);
                     progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.dialog_common_cancel), (dialog2, which2) -> {
                         asyncFileDownload.cancel(true);
-                        if (isNetWork()) {
-                            showLoadingDialog();
+                        if (isNetworkState()) {
+                            showLdDialog();
                             supportCheck();
-                        } else netWorkError();
+                        } else networkError();
                     });
                     progressDialog.show();
                     ProgressHandler progressHandler = new ProgressHandler();
@@ -277,18 +223,12 @@ public class MainActivity extends Activity implements UpdateEventListener {
                     progressHandler.sendEmptyMessage(0);
                 })
                 .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
-                    if (isNetWork()) {
-                        showLoadingDialog();
+                    if (isNetworkState()) {
+                        showLdDialog();
                         supportCheck();
-                    } else netWorkError();
+                    } else networkError();
                 })
                 .show();
-    }
-
-    private AsyncFileDownload initFileLoader() {
-        AsyncFileDownload asyncfiledownload = new AsyncFileDownload(this, Variables.DOWNLOAD_FILE_URL, new File(new File(getExternalCacheDir(), "update.apk").getPath()));
-        asyncfiledownload.execute();
-        return asyncfiledownload;
     }
 
     private void showSupportDialog() {
@@ -301,34 +241,34 @@ public class MainActivity extends Activity implements UpdateEventListener {
                 .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
                     result = false;
                     if (Preferences.GET_SETTINGS_FLAG(this)) {
-                        if (checkModel()) checkDcha();
-                        else errorNotSupportTab();
+                        if (supportModelCheck()) checkDchaService();
+                        else supportModelError();
                     } else new WelcomeHelper(this, WelAppActivity.class).forceShow();
                 })
                 .show();
     }
 
-    private void showLoadingDialog() {
-        loadingDialog = ProgressDialog.show(this, "", getString(R.string.progress_state_connecting), true);
-        loadingDialog.show();
+    private void showLdDialog() {
+        ldDialog = ProgressDialog.show(this, "", getString(R.string.progress_state_connecting), true);
+        ldDialog.show();
     }
 
-    private void cancelLoadingDialog() {
+    private void cancelLdDialog() {
         try {
-            if (loadingDialog != null) loadingDialog.dismiss();
+            if (ldDialog != null) ldDialog.dismiss();
         } catch (Exception ignored) {
         }
     }
 
     /* 端末チェック */
-    private boolean checkModel() {
+    private boolean supportModelCheck() {
         String[] modelName = {"TAB-A03-BS", "TAB-A03-BR", "TAB-A03-BR2", "TAB-A03-BR3", "TAB-A05-BD", "TAB-A05-BA1"};
         for (String string : modelName) if (Objects.equals(string, Build.MODEL)) return true;
         return false;
     }
 
     /* 端末チェックエラー */
-    private void errorNotSupportTab() {
+    private void supportModelError() {
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_common_error)
@@ -339,25 +279,25 @@ public class MainActivity extends Activity implements UpdateEventListener {
     }
 
     /* DchaService動作チェック */
-    private void checkDcha() {
+    private void checkDchaService() {
         if (!Preferences.GET_DCHASERVICE_FLAG(this)) {
             switch (Build.MODEL) {
                 case "TAB-A03-BR3":
-                    checkSettingsTab3();
+                    confCheckPad3();
                     break;
                 case "TAB-A05-BD":
                 case "TAB-A05-BA1":
-                    checkSettingsTabNeo();
+                    confCheckPadNEO();
                     break;
                 default:
-                    checkSettingsTab2();
+                    confCheckPad2();
                     break;
             }
             return;
         }
 
         /* DchaServiceの使用可否を確認 */
-        if (!bindDchaService()) {
+        if (!isBindDchaService()) {
             new AlertDialog.Builder(this)
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_common_error)
@@ -368,14 +308,14 @@ public class MainActivity extends Activity implements UpdateEventListener {
                         Preferences.SET_DCHASERVICE_FLAG(false, this);
                         switch (Build.MODEL) {
                             case "TAB-A03-BR3":
-                                checkSettingsTab3();
+                                confCheckPad3();
                                 break;
                             case "TAB-A05-BD":
                             case "TAB-A05-BA1":
-                                checkSettingsTabNeo();
+                                confCheckPadNEO();
                                 break;
                             default:
-                                checkSettingsTab2();
+                                confCheckPad2();
                                 break;
                         }
                     })
@@ -385,60 +325,60 @@ public class MainActivity extends Activity implements UpdateEventListener {
 
         switch (Build.MODEL) {
             case "TAB-A03-BR3":
-                checkSettingsTab3();
+                confCheckPad3();
                 break;
             case "TAB-A05-BD":
             case "TAB-A05-BA1":
-                checkSettingsTabNeo();
+                confCheckPadNEO();
                 break;
             default:
-                checkSettingsTab2();
+                confCheckPad2();
                 break;
         }
     }
 
     /* Pad2起動設定チェック */
-    private void checkSettingsTab2() {
+    private void confCheckPad2() {
         Preferences.SET_MODEL_ID(0, this);
         if (Preferences.GET_SETTINGS_FLAG(this)) {
             startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", result));
             overridePendingTransition(0, 0);
             finish();
-        } else startCheck();
+        } else tosDialog();
     }
 
     /* Pad3起動設定チェック */
-    private void checkSettingsTab3() {
+    private void confCheckPad3() {
         Preferences.SET_MODEL_ID(1, this);
         if (Preferences.GET_SETTINGS_FLAG(this)) {
-            if (permissionSettings()) {
+            if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", result));
                 overridePendingTransition(0, 0);
                 finish();
             }
-        } else startCheck();
+        } else tosDialog();
     }
 
     /* PadNeo起動設定チェック */
-    private void checkSettingsTabNeo() {
+    private void confCheckPadNEO() {
         Preferences.SET_MODEL_ID(2, this);
         if (Preferences.GET_SETTINGS_FLAG(this)) {
-            if (permissionSettings()) {
+            if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", result));
                 overridePendingTransition(0, 0);
                 finish();
             }
-        } else startCheck();
+        } else tosDialog();
     }
 
     /* 初回起動お知らせ */
-    public void startCheck() {
+    public void tosDialog() {
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_notice_start)
                 .setMessage(R.string.dialog_notice_start)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                    if (permissionSettings()) {
+                    if (isPermissionCheck()) {
                         Preferences.SET_SETTINGS_FLAG(true, this);
                         startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", result));
                         overridePendingTransition(0, 0);
@@ -449,8 +389,8 @@ public class MainActivity extends Activity implements UpdateEventListener {
     }
 
     /* 権限設定 */
-    private boolean permissionSettings() {
-        if (checkWriteSystemSettings()) {
+    private boolean isPermissionCheck() {
+        if (isWriteSystemPermissionCheck()) {
             new AlertDialog.Builder(this)
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_grant_permission)
@@ -469,7 +409,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
     }
 
     /* システム設定変更権限チェック */
-    private boolean checkWriteSystemSettings() {
+    private boolean isWriteSystemPermissionCheck() {
         boolean canWrite = true;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             canWrite = Settings.System.canWrite(this);
@@ -484,11 +424,10 @@ public class MainActivity extends Activity implements UpdateEventListener {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mDchaService = null;
         }
     };
 
-    public boolean bindDchaService() {
+    public boolean isBindDchaService() {
         return bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
@@ -497,15 +436,15 @@ public class MainActivity extends Activity implements UpdateEventListener {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case Constants.REQUEST_UPDATE:
-                if (isNetWork()) {
-                    showLoadingDialog();
+                if (isNetworkState()) {
+                    showLdDialog();
                     supportCheck();
-                } else netWorkError();
+                } else networkError();
                 break;
             case WelcomeHelper.DEFAULT_WELCOME_SCREEN_REQUEST:
             case Constants.REQUEST_PERMISSION:
-                if (checkModel()) checkDcha();
-                else errorNotSupportTab();
+                if (supportModelCheck()) checkDchaService();
+                else supportModelError();
                 break;
         }
     }

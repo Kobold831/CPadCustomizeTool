@@ -15,7 +15,7 @@ import com.stephentuso.welcome.WelcomePage;
 
 import java.util.regex.Pattern;
 
-public class WelScrollFragment extends Fragment implements WelcomePage.OnChangeListener {
+public class WelcomeFragment extends Fragment implements WelcomePage.OnChangeListener {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -5,7 +5,7 @@ import android.annotation.SuppressLint;
 import androidx.fragment.app.Fragment;
 
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.view.flagment.WelScrollFragment;
+import com.saradabar.cpadcustomizetool.view.flagment.WelcomeFragment;
 import com.stephentuso.welcome.BasicPage;
 import com.stephentuso.welcome.FragmentWelcomePage;
 import com.stephentuso.welcome.TitlePage;
@@ -25,7 +25,7 @@ public class WelAppActivity extends WelcomeActivity {
                 .page(new FragmentWelcomePage() {
                     @Override
                     protected Fragment fragment() {
-                        return new WelScrollFragment();
+                        return new WelcomeFragment();
                     }
                 })
                 .swipeToDismiss(false)

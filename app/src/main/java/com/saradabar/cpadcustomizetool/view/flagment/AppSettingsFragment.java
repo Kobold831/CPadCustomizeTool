@@ -27,15 +27,15 @@ import com.saradabar.cpadcustomizetool.view.views.SingleListView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApplicationSettingsFragment extends PreferenceFragmentCompat {
+public class AppSettingsFragment extends PreferenceFragmentCompat {
 
-    SwitchPreference autoUpdateCheck,
-            changeSettingsDcha,
-            autoUsbDebug;
+    SwitchPreference swUpdateCheck,
+            swUseDcha,
+            swAdb;
 
-    Preference crashLog,
-            crashLogRemove,
-            updateMode;
+    Preference preCrashLog,
+            preDelCrashLog,
+            preUpdateMode;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -43,36 +43,36 @@ public class ApplicationSettingsFragment extends PreferenceFragmentCompat {
         SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
         ContentResolver resolver = requireActivity().getContentResolver();
 
-        autoUpdateCheck = findPreference("switch_auto_update_check");
-        changeSettingsDcha = findPreference("switch_is_change_settings_use_dcha");
-        autoUsbDebug = findPreference("switch_auto_usb_debug");
-        crashLog = findPreference("debug_log");
-        crashLogRemove = findPreference("debug_log_remove");
-        updateMode = findPreference("app_update_mode");
+        swUpdateCheck = findPreference("pre_app_update_check");
+        swUseDcha = findPreference("pre_app_use_dcha");
+        swAdb = findPreference("pre_app_adb");
+        preCrashLog = findPreference("pre_app_crash_log");
+        preDelCrashLog = findPreference("pre_app_del_crash_log");
+        preUpdateMode = findPreference("pre_app_update_mode");
 
-        autoUpdateCheck.setChecked(!Preferences.GET_UPDATE_FLAG(getActivity()));
-        changeSettingsDcha.setChecked(Preferences.GET_CHANGE_SETTINGS_DCHA_FLAG(getActivity()));
+        swUpdateCheck.setChecked(!Preferences.GET_UPDATE_FLAG(getActivity()));
+        swUseDcha.setChecked(Preferences.GET_CHANGE_SETTINGS_DCHA_FLAG(getActivity()));
 
         try {
-            autoUsbDebug.setChecked(sp.getBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false));
+            swAdb.setChecked(sp.getBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false));
         } catch (NullPointerException e) {
             SharedPreferences.Editor spe = sp.edit();
             spe.putBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false);
             spe.apply();
         }
 
-        autoUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
+        swUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
             Preferences.SET_UPDATE_FLAG(!((boolean) newValue), getActivity());
             return true;
         });
 
-        changeSettingsDcha.setOnPreferenceChangeListener((preference, newValue) -> {
+        swUseDcha.setOnPreferenceChangeListener((preference, newValue) -> {
             Preferences.SET_CHANGE_SETTINGS_DCHA_FLAG((boolean) newValue, getActivity());
             return true;
         });
 
-        autoUsbDebug.setOnPreferenceChangeListener((preference, newValue) -> {
-            if (confirmationDialog()) {
+        swAdb.setOnPreferenceChangeListener((preference, newValue) -> {
+            if (isCfmDialog()) {
                 return false;
             }
             try {
@@ -87,18 +87,18 @@ public class ApplicationSettingsFragment extends PreferenceFragmentCompat {
                 if (Preferences.GET_MODEL_ID(getActivity()) == 2)
                     Settings.System.putInt(resolver, Constants.DCHA_STATE, 0);
                 Toast.toast(getActivity(), R.string.toast_not_change);
-                autoUsbDebug.setChecked(false);
+                swAdb.setChecked(false);
                 return false;
             }
             return true;
         });
 
-        crashLog.setOnPreferenceClickListener(preference -> {
+        preCrashLog.setOnPreferenceClickListener(preference -> {
             startActivity(new Intent(getActivity(), CrashLogActivity.class));
             return false;
         });
 
-        crashLogRemove.setOnPreferenceClickListener(preference -> {
+        preDelCrashLog.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(getActivity())
                     .setMessage("消去しますか？")
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
@@ -114,7 +114,7 @@ public class ApplicationSettingsFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        updateMode.setOnPreferenceClickListener(preference -> {
+        preUpdateMode.setOnPreferenceClickListener(preference -> {
             View v = requireActivity().getLayoutInflater().inflate(R.layout.layout_update_list, null);
             List<String> list = new ArrayList<>();
             list.add("パッケージインストーラ");
@@ -184,25 +184,25 @@ public class ApplicationSettingsFragment extends PreferenceFragmentCompat {
 
         if (!Preferences.GET_DCHASERVICE_FLAG(getActivity())) {
             Preferences.SET_CHANGE_SETTINGS_DCHA_FLAG(false, getActivity());
-            changeSettingsDcha.setChecked(false);
-            changeSettingsDcha.setSummary(getString(R.string.pre_app_sum_confirmation_dcha));
-            changeSettingsDcha.setEnabled(false);
+            swUseDcha.setChecked(false);
+            swUseDcha.setSummary(getString(R.string.pre_app_sum_confirmation_dcha));
+            swUseDcha.setEnabled(false);
         }
 
         switch (Preferences.GET_MODEL_ID(getActivity())) {
             case 0:
-                autoUsbDebug.setEnabled(false);
-                autoUsbDebug.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swAdb.setEnabled(false);
+                swAdb.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
             case 1:
-                autoUsbDebug.setEnabled(false);
-                autoUsbDebug.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swAdb.setEnabled(false);
+                swAdb.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
         }
     }
 
     /* 確認ダイアログ */
-    private boolean confirmationDialog() {
+    private boolean isCfmDialog() {
         if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
             if (Preferences.GET_CONFIRMATION(getActivity())) {
                 new AlertDialog.Builder(getActivity())

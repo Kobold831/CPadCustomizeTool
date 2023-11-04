@@ -33,7 +33,7 @@ import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.view.flagment.ApplicationSettingsFragment;
+import com.saradabar.cpadcustomizetool.view.flagment.AppSettingsFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.DeviceOwnerFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
 
@@ -60,20 +60,20 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
-        DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+        DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         if (getActionBar() != null) getActionBar().setDisplayHomeAsUpEnabled(false);
         if (getIntent().getBooleanExtra("result", false)) {
             setContentView(R.layout.activity_main);
             transitionFragment(new MainFragment(), false);
             return;
         }
-        if (devicePolicyManager.isDeviceOwnerApp(getPackageName())) {
+        if (dpm.isDeviceOwnerApp(getPackageName())) {
             setContentView(R.layout.activity_main_error_enable_own);
             findViewById(R.id.main_error_button_1).setOnClickListener(view -> new AlertDialog.Builder(view.getContext())
                     .setTitle(R.string.dialog_question_device_owner)
                     .setCancelable(false)
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                        devicePolicyManager.clearDeviceOwnerApp(getPackageName());
+                        dpm.clearDeviceOwnerApp(getPackageName());
                         finish();
                         overridePendingTransition(0, 0);
                         startActivity(getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", false));
@@ -86,14 +86,14 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 } catch (ActivityNotFoundException ignored) {
                 }
             });
-            findViewById(R.id.main_error_button_3).setOnClickListener(this::setSettings);
+            findViewById(R.id.main_error_button_3).setOnClickListener(this::resetConf);
         } else {
             setContentView(R.layout.activity_main_error_disable_own);
-            findViewById(R.id.main_error_button_4).setOnClickListener(this::setSettings);
+            findViewById(R.id.main_error_button_4).setOnClickListener(this::resetConf);
         }
     }
 
-    private void setSettings(View view) {
+    private void resetConf(View view) {
         new AlertDialog.Builder(view.getContext())
                 .setTitle(R.string.dialog_question_are_you_sure)
                 .setCancelable(false)
@@ -151,7 +151,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 return true;
             case R.id.app_info_3:
                 menu.findItem(R.id.app_info_3).setVisible(false);
-                NullTransitionFragment(new ApplicationSettingsFragment());
+                nullTransitionFragment(new AppSettingsFragment());
                 return true;
             case android.R.id.home:
                 menu.findItem(R.id.app_info_3).setVisible(true);
@@ -179,7 +179,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(enabled);
     }
 
-    private void NullTransitionFragment(PreferenceFragmentCompat nextPreferenceFragment) {
+    private void nullTransitionFragment(PreferenceFragmentCompat nextPreferenceFragment) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .addToBackStack(null)
@@ -196,15 +196,14 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mDchaService = null;
         }
     };
 
-    public boolean bindDchaService() {
+    public boolean isBindDchaService() {
         return bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    public DeviceOwnerFragment.TryXApkTask.Listener XApkListener() {
+    public DeviceOwnerFragment.TryXApkTask.Listener xApkListener() {
         return new DeviceOwnerFragment.TryXApkTask.Listener() {
             AlertDialog alertDialog;
 
@@ -236,7 +235,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 alertDialog.dismiss();
                 new DeviceOwnerFragment.TryXApkTask().cancel(true);
                 DeviceOwnerFragment.TryApkTask tryApkTask = new DeviceOwnerFragment.TryApkTask();
-                tryApkTask.setListener(ApkListener());
+                tryApkTask.setListener(apkListener());
                 tryApkTask.execute();
             }
 
@@ -279,7 +278,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         };
     }
 
-    public DeviceOwnerFragment.TryApkTask.Listener ApkListener() {
+    public DeviceOwnerFragment.TryApkTask.Listener apkListener() {
         return new DeviceOwnerFragment.TryApkTask.Listener() {
             ProgressDialog progressDialog;
 
@@ -348,7 +347,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         };
     }
 
-    public MainFragment.installTask.Listener createListener() {
+    public MainFragment.installTask.Listener installListener() {
         return new MainFragment.installTask.Listener() {
             ProgressDialog progressDialog;
 
@@ -386,7 +385,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         };
     }
 
-    public MainFragment.resolutionTask.Listener mCreateListener() {
+    public MainFragment.resolutionTask.Listener resolutionListener() {
         return new MainFragment.resolutionTask.Listener() {
             Handler mHandler;
             Runnable mRunnable;
@@ -446,7 +445,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         /* DchaServiceの使用可否を確認 */
         if (Preferences.GET_DCHASERVICE_FLAG(this)) {
             //DchaServiceが機能していないなら終了
-            if (!bindDchaService()) {
+            if (!isBindDchaService()) {
                 startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 finish();
             }

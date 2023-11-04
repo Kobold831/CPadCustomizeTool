@@ -28,22 +28,22 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class MainOtherFragment extends PreferenceFragmentCompat {
+public class OtherFragment extends PreferenceFragmentCompat {
 
-    Preference preferenceOtherSettings,
-            preferenceSysUiAdjustment,
-            preferenceDevelopmentSettings,
-            preferenceScreenOffTimeOut;
+    Preference preOtherStartSettings,
+            preStartUiAdjustment,
+            preStartDevSettings,
+            preScreenOffTimeOut;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_other, rootKey);
-        preferenceOtherSettings = findPreference("intent_android_settings");
-        preferenceSysUiAdjustment = findPreference("intent_sys_ui_adjustment");
-        preferenceDevelopmentSettings = findPreference("intent_development_settings");
-        preferenceScreenOffTimeOut = findPreference("android_screen_off_time");
+        preOtherStartSettings = findPreference("pre_other_start_settings");
+        preStartUiAdjustment = findPreference("pre_other_start_ui_adjustment");
+        preStartDevSettings = findPreference("pre_other_start_dev_settings");
+        preScreenOffTimeOut = findPreference("pre_other_screen_off_time");
 
-        preferenceOtherSettings.setOnPreferenceClickListener(preference -> {
+        preOtherStartSettings.setOnPreferenceClickListener(preference -> {
             try {
                 startActivity(new Intent().setClassName("com.android.settings", "com.android.settings.Settings").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (ActivityNotFoundException ignored) {
@@ -51,7 +51,7 @@ public class MainOtherFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceDevelopmentSettings.setOnPreferenceClickListener(preference -> {
+        preStartDevSettings.setOnPreferenceClickListener(preference -> {
             if (Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) == 1) {
                 try {
                     if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0) != 3) {
@@ -69,7 +69,7 @@ public class MainOtherFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceSysUiAdjustment.setOnPreferenceClickListener(preference -> {
+        preStartUiAdjustment.setOnPreferenceClickListener(preference -> {
             try {
                 startActivity(new Intent().setClassName("com.android.systemui", "com.android.systemui.DemoMode").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (ActivityNotFoundException ignored) {
@@ -77,7 +77,7 @@ public class MainOtherFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preferenceScreenOffTimeOut.setOnPreferenceClickListener(preference -> {
+        preScreenOffTimeOut.setOnPreferenceClickListener(preference -> {
             View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
             Button button = view.findViewById(R.id.time_out_button);
             EditText editText = view.findViewById(R.id.time_out_edit);
@@ -125,8 +125,8 @@ public class MainOtherFragment extends PreferenceFragmentCompat {
             return false;
         });
         if (Preferences.GET_MODEL_ID(getActivity()) == 0) {
-            preferenceSysUiAdjustment.setEnabled(false);
-            preferenceSysUiAdjustment.setSummary(Build.MODEL + "ではこの機能は使用できません");
+            preStartUiAdjustment.setEnabled(false);
+            preStartUiAdjustment.setSummary(Build.MODEL + "ではこの機能は使用できません");
         }
         setSummaryScreenOffTimeConvert();
     }
@@ -161,6 +161,6 @@ public class MainOtherFragment extends PreferenceFragmentCompat {
         min = (time / 60) % 60;
         hour = (time / 3600) % 24;
         day = (time / 86400) % 31;
-        preferenceScreenOffTimeOut.setSummary("操作が行われない状態で" + day + "日" + hour + "時間" + min + "分" + sec + "秒" + "経過後");
+        preScreenOffTimeOut.setSummary("操作が行われない状態で" + day + "日" + hour + "時間" + min + "分" + sec + "秒" + "経過後");
     }
 }

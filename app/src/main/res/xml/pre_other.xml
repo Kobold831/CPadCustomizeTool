@@ -6,22 +6,22 @@
             app:iconSpaceReserved="false">
                 <Preference
                     app:iconSpaceReserved="false"
-                    android:key="intent_android_settings"
+                    android:key="pre_other_start_settings"
                     android:title="@string/pre_other_title_settings" />
 
                 <Preference
                     app:iconSpaceReserved="false"
-                    android:key="intent_development_settings"
+                    android:key="pre_other_start_dev_settings"
                     android:title="@string/pre_other_title_development" />
 
                 <Preference
                     app:iconSpaceReserved="false"
-                    android:key="intent_sys_ui_adjustment"
+                    android:key="pre_other_start_ui_adjustment"
                     android:title="@string/pre_other_title_adjustment" />
 
                 <Preference
                     app:iconSpaceReserved="false"
-                    android:key="android_screen_off_time"
+                    android:key="pre_other_screen_off_time"
                     android:title="@string/pre_other_title_screen_off_time" />
         </PreferenceCategory>
 </PreferenceScreen>
