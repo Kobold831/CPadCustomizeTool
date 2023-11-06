@@ -39,11 +39,14 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
                 ">STACK BACKTRACE\n" +
                 stackTrace + "\n";
         String str;
+
         if (Preferences.GET_CRASH_LOG(mContext) != null) {
             str = String.join(",", Preferences.GET_CRASH_LOG(mContext)).replace("    ", "") + message;
         } else str = message;
+
         Preferences.SAVE_CRASH_LOG(mContext, str);
         Preferences.SET_CRASH(mContext, true);
+
         mDefaultUncaughtExceptionHandler.uncaughtException(thread, ex);
     }
 
@@ -60,9 +63,11 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
                 ">STACK BACKTRACE\n" +
                 stackTrace + "\n";
         String str;
+
         if (Preferences.GET_CRASH_LOG(context) != null) {
             str = String.join(",", Preferences.GET_CRASH_LOG(context)).replace("    ", "") + message;
         } else str = message;
+
         Preferences.SAVE_CRASH_LOG(context, str);
     }
 

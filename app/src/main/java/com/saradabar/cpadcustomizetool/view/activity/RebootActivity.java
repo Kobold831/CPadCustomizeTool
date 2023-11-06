@@ -25,7 +25,9 @@ public class RebootActivity extends Activity {
     @Override
     public final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
+
         if (Preferences.GET_DCHASERVICE_FLAG(this)) {
             startReboot();
         } else {
@@ -60,13 +62,13 @@ public class RebootActivity extends Activity {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mDchaService = null;
         }
     };
 
     @Override
     public void onPause() {
         super.onPause();
+
         finishAndRemoveTask();
     }
 }

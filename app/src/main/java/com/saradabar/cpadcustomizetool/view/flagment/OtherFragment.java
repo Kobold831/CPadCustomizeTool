@@ -38,6 +38,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_other, rootKey);
+
         preOtherStartSettings = findPreference("pre_other_start_settings");
         preStartUiAdjustment = findPreference("pre_other_start_ui_adjustment");
         preStartDevSettings = findPreference("pre_other_start_dev_settings");
@@ -135,11 +136,13 @@ public class OtherFragment extends PreferenceFragmentCompat {
     @Override
     public void onResume() {
         super.onResume();
+
         setSummaryScreenOffTimeConvert();
     }
 
     private void setTextScreenOffTimeConvert(TextView textView) {
         long time, sec, min, hour, day;
+
         time = Settings.System.getInt(requireActivity().getContentResolver(), "screen_off_timeout", 60) / 1000;
         sec = time % 60;
         min = (time / 60) % 60;
@@ -147,20 +150,25 @@ public class OtherFragment extends PreferenceFragmentCompat {
         day = (time / 86400) % 31;
         Date date = new Date();
         Calendar calendar = Calendar.getInstance();
+
         calendar.setTime(date);
         calendar.add(Calendar.SECOND, (int) time);
+
         date = calendar.getTime();
         DateFormat df = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss", Locale.JAPAN);
+
         textView.setText(getString(R.string.layout_time_out_label, Settings.System.getInt(requireActivity().getContentResolver(), "screen_off_timeout", 60) + "（" + time + "）", day + "日" + hour + "時間" + min + "分" + sec + "秒", df.format(date)));
     }
 
     private void setSummaryScreenOffTimeConvert() {
         long time, sec, min, hour, day;
+
         time = Settings.System.getInt(requireActivity().getContentResolver(), "screen_off_timeout", 60) / 1000;
         sec = time % 60;
         min = (time / 60) % 60;
         hour = (time / 3600) % 24;
         day = (time / 86400) % 31;
+
         preScreenOffTimeOut.setSummary("操作が行われない状態で" + day + "日" + hour + "時間" + min + "分" + sec + "秒" + "経過後");
     }
 }

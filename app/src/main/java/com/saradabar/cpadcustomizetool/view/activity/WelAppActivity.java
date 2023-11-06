@@ -13,6 +13,7 @@ import com.stephentuso.welcome.WelcomeActivity;
 import com.stephentuso.welcome.WelcomeConfiguration;
 
 public class WelAppActivity extends WelcomeActivity {
+
     @SuppressLint("ResourceAsColor")
     @Override
     protected WelcomeConfiguration configuration() {

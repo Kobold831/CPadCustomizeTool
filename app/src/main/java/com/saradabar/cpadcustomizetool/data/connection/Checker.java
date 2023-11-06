@@ -4,8 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.AsyncTask;
 
-import com.saradabar.cpadcustomizetool.data.event.UpdateEventListener;
-import com.saradabar.cpadcustomizetool.data.event.UpdateEventListenerList;
+import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
+import com.saradabar.cpadcustomizetool.data.event.DownloadEventListenerList;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -17,8 +17,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Objects;
@@ -30,18 +28,20 @@ import javax.xml.parsers.ParserConfigurationException;
 public class Checker {
 
     int supportCode;
-    String supportCheckUrl;
-    UpdateEventListenerList supportListeners;
+    String url;
+    DownloadEventListenerList downloadEventListenerList;
 
-    public Checker(Activity activity, String url) {
-        supportCheckUrl = url;
-        supportListeners = new UpdateEventListenerList();
-        supportListeners.addEventListener((UpdateEventListener) activity);
+    public Checker(Activity activity, String str) {
+        url = str;
+        downloadEventListenerList = new DownloadEventListenerList();
+
+        downloadEventListenerList.addEventListener((DownloadEventListener) activity);
     }
 
     private int supportAvailableCheck() {
         try {
             getSupportInfo();
+
             if (supportCode == 1) {
                 return 1;
             } else {
@@ -49,14 +49,14 @@ public class Checker {
                     return 0;
                 } else return -1;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
             return 0;
         }
     }
 
     private void getSupportInfo() {
-        HashMap<String, String> map = parseSupportXml(supportCheckUrl);
+        HashMap<String, String> map = parseSupportXml(url);
+
         if (map != null) {
             supportCode = Integer.parseInt(Objects.requireNonNull(map.get("supportCode")));
         } else {
@@ -80,13 +80,13 @@ public class Checker {
         protected void onPostExecute(Integer result) {
             switch (result) {
                 case -1:
-                    supportListeners.connectionErrorNotify();
+                    downloadEventListenerList.connectionErrorNotify();
                     break;
                 case 0:
-                    supportListeners.supportUnavailableNotify();
+                    downloadEventListenerList.supportUnavailableNotify();
                     break;
                 case 1:
-                    supportListeners.supportAvailableNotify();
+                    downloadEventListenerList.supportAvailableNotify();
                     break;
             }
         }
@@ -94,33 +94,36 @@ public class Checker {
 
     private HashMap<String, String> parseSupportXml(String url) {
         HashMap<String, String> map = new HashMap<>();
-        HttpURLConnection mHttpURLConnection;
+        HttpURLConnection httpURLConnection;
+
         try {
-            mHttpURLConnection = (HttpURLConnection) new URL(url).openConnection();
-            mHttpURLConnection.setConnectTimeout(5000);
-            InputStream is = mHttpURLConnection.getInputStream();
+            httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
+            httpURLConnection.setConnectTimeout(5000);
+            InputStream is = httpURLConnection.getInputStream();
             BufferedInputStream bis = new BufferedInputStream(is);
-            DocumentBuilderFactory document_builder_factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder document_builder = document_builder_factory.newDocumentBuilder();
-            Document document = document_builder.parse(bis);
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(bis);
             Element root = document.getDocumentElement();
+
             if (root.getTagName().equals("support")) {
                 NodeList nodelist = root.getChildNodes();
+
                 for (int j = 0; j < nodelist.getLength(); j++) {
                     Node node = nodelist.item(j);
+
                     if (node.getNodeType() == Node.ELEMENT_NODE) {
                         Element element = (Element) node;
-                        String name = element.getTagName();
-                        String value = element.getTextContent().trim();
-                        map.put(name, value);
+                        String tagName = element.getTagName();
+                        String textContent = element.getTextContent().trim();
+
+                        map.put(tagName, textContent);
                     }
                 }
             }
+
             return map;
-        } catch (SocketTimeoutException | MalformedURLException ignored) {
-            return null;
-        } catch (IOException | SAXException | ParserConfigurationException e) {
-            e.printStackTrace();
+        } catch (IOException | SAXException | ParserConfigurationException ignored) {
             return null;
         }
     }

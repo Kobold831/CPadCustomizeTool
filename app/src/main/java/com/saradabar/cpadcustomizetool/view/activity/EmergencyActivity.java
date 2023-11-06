@@ -35,19 +35,23 @@ public class EmergencyActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
         bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
+
         Runnable runnable = () -> {
             if (!startCheck()) {
                 Toast.toast(this, R.string.toast_not_completed_settings);
                 finishAndRemoveTask();
                 return;
             }
+
             if (!setSystemSettings(true)) {
                 Toast.toast(this, R.string.toast_not_change);
                 finishAndRemoveTask();
                 return;
             }
+
             switch (Objects.requireNonNull(PreferenceManager.getDefaultSharedPreferences(this).getString("emergency_mode", ""))) {
                 case "1":
                     if (setDchaSettings("jp.co.benesse.touch.allgrade.b003.touchhomelauncher", "jp.co.benesse.touch.allgrade.b003.touchhomelauncher.HomeLauncherActivity")) {
@@ -63,6 +67,7 @@ public class EmergencyActivity extends Activity {
                     break;
             }
         };
+
         new Handler().postDelayed(runnable, 10);
     }
 
@@ -139,6 +144,7 @@ public class EmergencyActivity extends Activity {
         ActivityInfo activityInfo = null;
 
         if (resolveInfo != null) activityInfo = resolveInfo.activityInfo;
+
         if (Preferences.isEmergencySettingsLauncher(getApplicationContext())) {
             try {
                 if (activityInfo != null) {
@@ -151,6 +157,7 @@ public class EmergencyActivity extends Activity {
                 finishAndRemoveTask();
             }
         }
+
         if (Preferences.isEmergencySettingsRemoveTask(getApplicationContext())) {
             try {
                 mDchaService.removeTask(null);
@@ -168,13 +175,13 @@ public class EmergencyActivity extends Activity {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mDchaService = null;
         }
     };
 
     @Override
     public void onPause() {
         super.onPause();
+
         finishAndRemoveTask();
     }
 }

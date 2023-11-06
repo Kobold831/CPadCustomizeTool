@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Common {
+
     public static ComponentName getAdministratorComponent(Context context) {
         return new ComponentName(context, com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver.class);
     }

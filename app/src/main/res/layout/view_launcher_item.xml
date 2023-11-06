@@ -1,38 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusableInTouchMode="false">
-        <!-- ラジオボタン -->
-        <RadioButton
-            android:focusable="false"
-            android:clickable="false"
-            android:id="@+id/launcher_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="20dp"
-            android:paddingTop="20dp" />
 
-        <!-- アイコン -->
-        <ImageView
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:id="@+id/launcher_image"
-            android:layout_marginStart="10dp"
-            android:layout_width="50dip"
-            android:layout_height="50dip"
-            android:contentDescription="@string/layout_img_content_description" />
+    <RadioButton
+        android:focusable="false"
+        android:clickable="false"
+        android:id="@+id/launcher_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="20dp"
+        android:paddingTop="20dp" />
 
-        <!-- ラベル -->
-        <TextView
-            android:id="@+id/launcher_text"
-            android:layout_marginStart="20dp"
-            android:textSize="20sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
+    <ImageView
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/launcher_image"
+        android:layout_marginStart="10dp"
+        android:layout_width="50dip"
+        android:layout_height="50dip"
+        android:contentDescription="@string/layout_img_content_description" />
+
+    <TextView
+        android:id="@+id/launcher_text"
+        android:layout_marginStart="20dp"
+        android:textSize="20sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
 </LinearLayout>

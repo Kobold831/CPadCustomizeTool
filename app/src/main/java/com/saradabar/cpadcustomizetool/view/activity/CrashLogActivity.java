@@ -21,10 +21,13 @@ public class CrashLogActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_crash_log);
         getActionBar().setDisplayHomeAsUpEnabled(true);
+
         textView = findViewById(R.id.textView);
         scrollView = findViewById(R.id.scrollView);
+
         if (Preferences.GET_CRASH_LOG(this).length() != 0) {
             addText(Preferences.GET_CRASH_LOG(this));
         } else {
@@ -35,10 +38,12 @@ public class CrashLogActivity extends Activity {
     private void addText(String status)
     {
         textView.append(status);
+
         int bottom = textView.getBottom() + scrollView.getPaddingBottom();
         int sy = scrollView.getScrollY();
         int sh = scrollView.getHeight();
         int delta = bottom - (sy + sh);
+
         scrollView.smoothScrollBy(0, delta);
     }
 
@@ -48,6 +53,7 @@ public class CrashLogActivity extends Activity {
             finish();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 }

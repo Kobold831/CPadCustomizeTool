@@ -17,39 +17,43 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
 import com.saradabar.cpadcustomizetool.data.connection.Updater;
-import com.saradabar.cpadcustomizetool.data.event.UpdateEventListener;
+import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Toast;
 import com.saradabar.cpadcustomizetool.util.Variables;
 
 import java.io.File;
 
-public class SelfUpdateActivity extends Activity implements UpdateEventListener {
+public class SelfDownloadActivity extends Activity implements DownloadEventListener {
 
     private ProgressDialog loadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         getActionBar().setDisplayHomeAsUpEnabled(true);
         showLoadingDialog();
+
         new Updater(this, Constants.URL_UPDATE_CHECK, 0).updateCheck();
     }
 
     @Override
-    public void onUpdateAvailable(String string) {
+    public void onUpdateAvailable(String str) {
         cancelLoadingDialog();
-        new Handler().post(() -> showUpdateDialog(string));
+
+        new Handler().post(() -> showUpdateDialog(str));
     }
 
     @Override
     public void onUpdateUnavailable() {
         cancelLoadingDialog();
+
         new Handler().post(this::showNoUpdateDialog);
     }
 
     @Override
-    public void onUpdateApkDownloadComplete() {
+    public void onDownloadComplete() {
         new Handler().post(() -> new Updater(this, Constants.URL_UPDATE_CHECK, 0).installApk(this));
     }
 
@@ -64,7 +68,7 @@ public class SelfUpdateActivity extends Activity implements UpdateEventListener 
     }
 
     @Override
-    public void onUpdateAvailable1(String d) {
+    public void onUpdateAvailable1(String str) {
 
     }
 
@@ -76,6 +80,7 @@ public class SelfUpdateActivity extends Activity implements UpdateEventListener 
     @Override
     public void onDownloadError() {
         cancelLoadingDialog();
+
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
@@ -88,6 +93,7 @@ public class SelfUpdateActivity extends Activity implements UpdateEventListener 
     @Override
     public void onConnectionError() {
         cancelLoadingDialog();
+
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
@@ -100,7 +106,9 @@ public class SelfUpdateActivity extends Activity implements UpdateEventListener 
     private void showUpdateDialog(String mString) {
         View view = getLayoutInflater().inflate(R.layout.view_update, null);
         TextView mTextView = view.findViewById(R.id.update_information);
+
         mTextView.setText(mString);
+
         view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
             try {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_UPDATE_INFO)));
@@ -108,6 +116,7 @@ public class SelfUpdateActivity extends Activity implements UpdateEventListener 
                 Toast.toast(this, R.string.toast_unknown_activity);
             }
         });
+
         new AlertDialog.Builder(this)
                 .setView(view)
                 .setCancelable(false)
@@ -146,6 +155,7 @@ public class SelfUpdateActivity extends Activity implements UpdateEventListener 
     private AsyncFileDownload initFileLoader() {
         AsyncFileDownload asyncfiledownload = new AsyncFileDownload(this, Variables.DOWNLOAD_FILE_URL, new File(new File(getExternalCacheDir(), "update.apk").getPath()));
         asyncfiledownload.execute();
+
         return asyncfiledownload;
     }
 
@@ -163,12 +173,14 @@ public class SelfUpdateActivity extends Activity implements UpdateEventListener 
             finish();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == Constants.REQUEST_UPDATE) {
             finish();
         }

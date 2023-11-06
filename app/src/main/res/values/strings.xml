@@ -87,7 +87,7 @@
     
     <!-- デバイスオーナー設定 -->
     <string name="pre_owner_title_uninstall_block">ユーザーアプリのアンインストールを無効</string>
-    <string name="pre_owner_title_permission">権限の付与を強制</string>
+    <string name="pre_owner_title_permission">ランタイム権限を強制付与</string>
     <string name="pre_owner_title_silent_install">サイレントインストール</string>
     <string name="pre_owner_title_device_owner">デバイスオーナーを解除</string>
     <string name="pre_owner_sum_message_1">デバイスオーナーは</string>
@@ -126,7 +126,6 @@
     <string name="dialog_common_ok">OK</string>
     <string name="dialog_common_yes">はい</string>
     <string name="dialog_common_no">いいえ</string>
-    <string name="dialog_common_through">無視</string>
     <string name="dialog_common_settings">設定</string>
     <string name="dialog_common_exit">終了</string>
     <string name="dialog_common_cancel">キャンセル</string>
@@ -145,7 +144,6 @@
     <string name="dialog_title_final_confirmation">最終確認</string>
     <string name="dialog_title_select_mode">モードを選択してください</string>
     <!-- ダイアログメッセージ -->
-    <string name="dialog_notice_support_ended">0000.00.00をもってこのアプリケーションはサポートを終了します\nサポート終了後にこのアプリケーションを起動することはできません\n今までのご利用ありがとうございました</string>
     <string name="dialog_notice_start">ウイルス対策アプリなどに脅威として誤検知される場合があります\n詳細情報は開発者にお問い合わせください\nこのダイアログは以降表示されません</string>
     <string name="dialog_emergency_select_course">受講中の講座を選択してください</string>
     <string name="dialog_mode_select_settings">実行時に変更する設定を選択してください\n設定変更後は”OK”を押してください</string>
@@ -155,14 +153,12 @@
     <string name="dialog_confirmation">このデバイスのシステム領域にDchaServiceが恒久的な変更を加えていないことを検出しました\n続行すると一部の動作がAndroidシステムによって制限される可能性があります</string>
     <string name="dialog_final_confirmation">続行するとこの操作は取り消せません\n初期化をおこなってもシステム領域の変更、Androidシステムによる制限はもとには戻りません\n続行すると警告は無効になり、設定変更が可能になります</string>
     <!-- 情報 -->
-    <string name="dialog_info_success">成功しました</string>
     <string name="dialog_info_failure">失敗しました</string>
     <string name="dialog_info_no_update">アップデートはありません</string>
     <string name="dialog_info_failure_silent_install">サイレントインストールに失敗しました</string>
     <string name="dialog_info_success_silent_install">サイレントインストールに成功しました</string>
     <string name="dialog_info_update_caution">遷移先のページより新しいバージョンのapkファイルをダウンロードしてadbでインストールしてください</string>
     <!-- ダイアログエラー -->
-    <string name="dialog_error_support_ended">このアプリケーションはサポートを終了しました\nアプリケーションを起動できません</string>
     <string name="dialog_error">エラーが発生しました</string>
     <string name="dialog_error_start_use">このアプリは使用できません\n続行する場合機能が制限されます</string>
     <string name="dialog_error_start_connection">サーバーと接続できませんでした\n通信状態を確認してください</string>
@@ -238,15 +234,11 @@
 
     <!-- インストーラー -->
     <string name="installer_status_user_action">ユーザの確認待ち</string>
-    <string name="installer_status_unknown">不明</string>
-    <string name="installer_status_success">インストール成功</string>
     <string name="installer_status_failure_storage">メモリが不足しています</string>
     <string name="installer_status_failure_invalid">APKが無効か破損しています</string>
     <string name="installer_status_failure_incompatible">非対応アプリ</string>
     <string name="installer_status_failure_conflict">衝突するパッケージが存在します</string>
-    <string name="installer_status_failure_session">セッションを作成できませんでした</string>
     <string name="installer_status_failure_blocked">インストールがブロックされました</string>
-    <string name="installer_status_failure_aborted">インストールがキャンセルされました</string>
     <string name="installer_status_failure">インストーラ失敗</string>
     <string name="installer_status_no_allocatable_space">ストレージの空き容量が不足している可能性があります\n</string>
     <string name="installer_status_unknown_error">不明なエラーです</string>

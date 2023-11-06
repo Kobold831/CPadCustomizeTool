@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import java.util.Set;
 
 public class Preferences {
+
     /* マルチリストのデータ取得 */
     public static Set<String> getEmergencySettings(Context context) {
         SharedPreferences preferences = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
@@ -15,6 +16,7 @@ public class Preferences {
 
     public static boolean isEmergencySettingsDchaState(Context context) {
         Set<String> set = getEmergencySettings(context);
+
         if (set != null) {
             return set.contains(Integer.toString(1));
         }
@@ -23,6 +25,7 @@ public class Preferences {
 
     public static boolean isEmergencySettingsNavigationBar(Context context) {
         Set<String> set = getEmergencySettings(context);
+
         if (set != null) {
             return set.contains(Integer.toString(2));
         }
@@ -31,6 +34,7 @@ public class Preferences {
 
     public static boolean isEmergencySettingsLauncher(Context context) {
         Set<String> set = getEmergencySettings(context);
+
         if (set != null) {
             return set.contains(Integer.toString(3));
         }
@@ -39,6 +43,7 @@ public class Preferences {
 
     public static boolean isEmergencySettingsRemoveTask(Context context) {
         Set<String> set = getEmergencySettings(context);
+
         if (set != null) {
             return set.contains(Integer.toString(4));
         }
@@ -52,6 +57,7 @@ public class Preferences {
 
     public static boolean isNormalModeSettingsDchaState(Context context) {
         Set<String> set = getNormalModeSettings(context);
+
         if (set != null) {
             return set.contains(Integer.toString(1));
         }
@@ -60,6 +66,7 @@ public class Preferences {
 
     public static boolean isNormalModeSettingsNavigationBar(Context context) {
         Set<String> set = getNormalModeSettings(context);
+
         if (set != null) {
             return set.contains(Integer.toString(2));
         }
@@ -68,6 +75,7 @@ public class Preferences {
 
     public static boolean isNormalModeSettingsLauncher(Context context) {
         Set<String> set = getNormalModeSettings(context);
+
         if (set != null) {
             return set.contains(Integer.toString(3));
         }
@@ -76,6 +84,7 @@ public class Preferences {
 
     public static boolean isNormalModeSettingsActivity(Context context) {
         Set<String> set = getNormalModeSettings(context);
+
         if (set != null) {
             return set.contains(Integer.toString(4));
         }
@@ -92,6 +101,7 @@ public class Preferences {
         boolean bl;
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         bl = sp.getBoolean("update", true);
+
         return bl;
     }
 
@@ -104,6 +114,7 @@ public class Preferences {
         boolean bl;
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         bl = sp.getBoolean("settings", false);
+
         return bl;
     }
 
@@ -116,6 +127,7 @@ public class Preferences {
         int id;
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         id = sp.getInt("model_name", 0);
+
         return id;
     }
 
@@ -128,6 +140,7 @@ public class Preferences {
         boolean bl;
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         bl = sp.getBoolean("dcha_service", false);
+
         return bl;
     }
 
@@ -140,6 +153,7 @@ public class Preferences {
         boolean bl;
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         bl = sp.getBoolean("settings_dcha", false);
+
         return bl;
     }
 
@@ -152,6 +166,7 @@ public class Preferences {
         String string;
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         string = sp.getString("normal_launcher", null);
+
         return string;
     }
 
@@ -188,6 +203,7 @@ public class Preferences {
     public static boolean REMOVE_CRASH_LOG(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         sp.edit().remove("crash_log").apply();
+
         return true;
     }
 

@@ -23,7 +23,7 @@ import android.widget.TextView;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
 import com.saradabar.cpadcustomizetool.data.connection.Checker;
 import com.saradabar.cpadcustomizetool.data.connection.Updater;
-import com.saradabar.cpadcustomizetool.data.event.UpdateEventListener;
+import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -40,19 +40,23 @@ import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
-public class MainActivity extends Activity implements UpdateEventListener {
+public class MainActivity extends Activity implements DownloadEventListener {
+
     IDchaService mDchaService;
-    ProgressDialog ldDialog;
+    ProgressDialog loadingDialog;
     boolean result = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
+
         if (Preferences.GET_CRASH(this)) {
             crashError();
             return;
         }
+
         firstCheck();
     }
 
@@ -62,6 +66,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
             networkError();
             return;
         }
+
         /* アップデートチェックの可否を確認 */
         if (Preferences.GET_UPDATE_FLAG(this)) updateCheck();
         else supportCheck();
@@ -83,6 +88,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
     private boolean isNetworkState() {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
         return (networkInfo != null && networkInfo.isConnected());
     }
 
@@ -115,12 +121,12 @@ public class MainActivity extends Activity implements UpdateEventListener {
     }
 
     @Override
-    public void onUpdateApkDownloadComplete() {
+    public void onDownloadComplete() {
         new Handler().post(() -> new Updater(this, Constants.URL_UPDATE_CHECK, 1).installApk(this));
     }
 
     @Override
-    public void onUpdateAvailable(String string) {
+    public void onUpdateAvailable(String str) {
     }
 
     @Override
@@ -134,6 +140,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
 
     public void onSupportUnavailable() {
         cancelLdDialog();
+
         if (Preferences.GET_SETTINGS_FLAG(this)) {
             if (supportModelCheck()) checkDchaService();
             else supportModelError();
@@ -143,9 +150,9 @@ public class MainActivity extends Activity implements UpdateEventListener {
     }
 
     @Override
-    public void onUpdateAvailable1(String string) {
+    public void onUpdateAvailable1(String str) {
         cancelLdDialog();
-        showUpdateDialog(string);
+        showUpdateDialog(str);
     }
 
     @Override
@@ -177,7 +184,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
                 .show();
     }
 
-    private void showUpdateDialog(String string) {
+    private void showUpdateDialog(String str) {
         if (!Preferences.GET_SETTINGS_FLAG(this)) {
             switch (Build.MODEL) {
                 case "TAB-A05-BD":
@@ -186,9 +193,11 @@ public class MainActivity extends Activity implements UpdateEventListener {
                     break;
             }
         }
+
         View view = getLayoutInflater().inflate(R.layout.view_update, null);
         TextView mTextView = view.findViewById(R.id.update_information);
-        mTextView.setText(string);
+
+        mTextView.setText(str);
         view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
             try {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_UPDATE_INFO)).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
@@ -249,13 +258,13 @@ public class MainActivity extends Activity implements UpdateEventListener {
     }
 
     private void showLdDialog() {
-        ldDialog = ProgressDialog.show(this, "", getString(R.string.progress_state_connecting), true);
-        ldDialog.show();
+        loadingDialog = ProgressDialog.show(this, "", getString(R.string.progress_state_connecting), true);
+        loadingDialog.show();
     }
 
     private void cancelLdDialog() {
         try {
-            if (ldDialog != null) ldDialog.dismiss();
+            if (loadingDialog != null) loadingDialog.dismiss();
         } catch (Exception ignored) {
         }
     }
@@ -263,6 +272,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
     /* 端末チェック */
     private boolean supportModelCheck() {
         String[] modelName = {"TAB-A03-BS", "TAB-A03-BR", "TAB-A03-BR2", "TAB-A03-BR3", "TAB-A05-BD", "TAB-A05-BA1"};
+
         for (String string : modelName) if (Objects.equals(string, Build.MODEL)) return true;
         return false;
     }
@@ -340,6 +350,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
     /* Pad2起動設定チェック */
     private void confCheckPad2() {
         Preferences.SET_MODEL_ID(0, this);
+
         if (Preferences.GET_SETTINGS_FLAG(this)) {
             startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", result));
             overridePendingTransition(0, 0);
@@ -350,6 +361,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
     /* Pad3起動設定チェック */
     private void confCheckPad3() {
         Preferences.SET_MODEL_ID(1, this);
+
         if (Preferences.GET_SETTINGS_FLAG(this)) {
             if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", result));
@@ -362,6 +374,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
     /* PadNeo起動設定チェック */
     private void confCheckPadNEO() {
         Preferences.SET_MODEL_ID(2, this);
+
         if (Preferences.GET_SETTINGS_FLAG(this)) {
             if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", result));
@@ -411,8 +424,10 @@ public class MainActivity extends Activity implements UpdateEventListener {
     /* システム設定変更権限チェック */
     private boolean isWriteSystemPermissionCheck() {
         boolean canWrite = true;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             canWrite = Settings.System.canWrite(this);
+
         return !canWrite;
     }
 
@@ -434,6 +449,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         switch (requestCode) {
             case Constants.REQUEST_UPDATE:
                 if (isNetworkState()) {
@@ -452,6 +468,7 @@ public class MainActivity extends Activity implements UpdateEventListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         if (mDchaService != null) unbindService(mDchaServiceConnection);
     }
 }

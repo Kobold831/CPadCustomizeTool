@@ -16,13 +16,11 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
-import android.view.inputmethod.InputMethodManager;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
+import com.saradabar.cpadcustomizetool.data.event.DownloadEventListenerList;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
-import com.saradabar.cpadcustomizetool.data.event.UpdateEventListener;
-import com.saradabar.cpadcustomizetool.data.event.UpdateEventListenerList;
 import com.saradabar.cpadcustomizetool.data.installer.SplitInstaller;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
@@ -40,8 +38,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Objects;
@@ -54,39 +50,38 @@ import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class Updater implements InstallEventListener {
 
-    int code, currentVersionCode, latestVersionCode;
-    String latestDescription, updateCheckUrl;
-    UpdateEventListenerList updateListeners;
+    int reqCode, currentVersionCode, latestVersionCode;
+    String description, url;
+    DownloadEventListenerList downloadEventListenerList;
     Activity activity;
     IDchaService mDchaService;
 
+    @SuppressLint("StaticFieldLeak")
     static Updater instance = null;
 
     public static Updater getInstance() {
         return instance;
     }
 
-    public Updater(Activity mActivity, String url, int i) {
+    public Updater(Activity activity, String str, int i) {
         instance = this;
-        updateCheckUrl = url;
-        activity = mActivity;
-        code = i;
-        updateListeners = new UpdateEventListenerList();
-        updateListeners.addEventListener((UpdateEventListener) activity);
+        url = str;
+        this.activity = activity;
+        reqCode = i;
+        downloadEventListenerList = new DownloadEventListenerList();
+
+        downloadEventListenerList.addEventListener((DownloadEventListener) this.activity);
     }
 
     private int updateAvailableCheck() {
-
         try {
             getCurrentVersionInfo();
             getLatestVersionInfo();
 
             if (latestVersionCode == -99) return -1;
-
             if (currentVersionCode < latestVersionCode) return 1;
             else return 0;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
             return 0;
         }
     }
@@ -96,13 +91,12 @@ public class Updater implements InstallEventListener {
     }
 
     private void getLatestVersionInfo() {
-
-        HashMap<String, String> map = parseUpdateXml(updateCheckUrl);
+        HashMap<String, String> map = parseUpdateXml(url);
 
         if (map != null) {
             latestVersionCode = Integer.parseInt(Objects.requireNonNull(map.get("versionCode")));
             Variables.DOWNLOAD_FILE_URL = map.get("url");
-            latestDescription = map.get("description");
+            description = map.get("description");
         } else latestVersionCode = -99;
     }
 
@@ -146,15 +140,15 @@ public class Updater implements InstallEventListener {
         protected void onPostExecute(Integer result) {
             switch (result) {
                 case -1:
-                    updateListeners.connectionErrorNotify();
+                    downloadEventListenerList.connectionErrorNotify();
                     break;
                 case 0:
-                    if (code == 0) updateListeners.updateUnavailableNotify();
-                    if (code == 1) updateListeners.updateUnavailableNotify1();
+                    if (reqCode == 0) downloadEventListenerList.updateUnavailableNotify();
+                    if (reqCode == 1) downloadEventListenerList.updateUnavailableNotify1();
                     break;
                 case 1:
-                    if (code == 0) updateListeners.updateAvailableNotify(latestDescription);
-                    if (code == 1) updateListeners.updateAvailableNotify1(latestDescription);
+                    if (reqCode == 0) downloadEventListenerList.updateAvailableNotify(description);
+                    if (reqCode == 1) downloadEventListenerList.updateAvailableNotify1(description);
                     break;
             }
         }
@@ -163,9 +157,10 @@ public class Updater implements InstallEventListener {
     public void installApk(Context context) {
         switch (Preferences.GET_UPDATE_MODE(activity)) {
             case 0:
-                Uri dataUri = Uri.fromFile(new File(new File(context.getExternalCacheDir(), "update.apk").getPath()));
+                Uri uri = Uri.fromFile(new File(new File(context.getExternalCacheDir(), "update.apk").getPath()));
+
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(dataUri, "application/vnd.android.package-archive");
+                intent.setDataAndType(uri, "application/vnd.android.package-archive");
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 activity.startActivityForResult(intent, Constants.REQUEST_UPDATE);
                 break;
@@ -190,10 +185,12 @@ public class Updater implements InstallEventListener {
                 progressDialog.setMessage("インストール中・・・");
                 progressDialog.setCancelable(false);
                 progressDialog.show();
-                if (bindDchaService()) {
+
+                if (isBindDchaService()) {
                     Runnable runnable = () -> {
-                        if (!installPackage()) {
+                        if (!isInstallPackage()) {
                             progressDialog.dismiss();
+
                             new AlertDialog.Builder(activity)
                                     .setCancelable(false)
                                     .setMessage(R.string.dialog_error)
@@ -204,6 +201,7 @@ public class Updater implements InstallEventListener {
                     new Handler().postDelayed(runnable, 10);
                 } else {
                     progressDialog.dismiss();
+
                     new AlertDialog.Builder(activity)
                             .setCancelable(false)
                             .setMessage(R.string.dialog_error)
@@ -242,19 +240,20 @@ public class Updater implements InstallEventListener {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mDchaService = null;
         }
     };
 
-    public boolean bindDchaService() {
+    public boolean isBindDchaService() {
         return activity.bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    private boolean installPackage() {
+    private boolean isInstallPackage() {
         if (mDchaService != null) {
             try {
                 boolean bl = mDchaService.installApp(new File(activity.getExternalCacheDir(), "update.apk").getPath(), 1);
+
                 activity.unbindService(mDchaServiceConnection);
+
                 return bl;
             } catch (RemoteException ignored) {
             }
@@ -265,6 +264,7 @@ public class Updater implements InstallEventListener {
     private boolean trySessionInstall() {
         SplitInstaller splitInstaller = new SplitInstaller();
         int sessionId;
+
         try {
             sessionId = splitInstaller.splitCreateSession(activity).i;
             if (sessionId < 0) {
@@ -273,6 +273,7 @@ public class Updater implements InstallEventListener {
         } catch (Exception ignored) {
             return false;
         }
+
         try {
             if (!splitInstaller.splitWriteSession(activity, new File(activity.getExternalCacheDir(), "update.apk"), sessionId).bl) {
                 return false;
@@ -280,6 +281,7 @@ public class Updater implements InstallEventListener {
         } catch (Exception ignored) {
             return false;
         }
+
         try {
             return splitInstaller.splitCommitSession(activity, sessionId, 1).bl;
         } catch (Exception ignored) {
@@ -288,37 +290,37 @@ public class Updater implements InstallEventListener {
     }
 
     private HashMap<String, String> parseUpdateXml(String url) {
-
         HashMap<String, String> map = new HashMap<>();
-        HttpURLConnection mHttpURLConnection;
+        HttpURLConnection httpURLConnection;
 
         try {
-            mHttpURLConnection = (HttpURLConnection) new URL(url).openConnection();
-            mHttpURLConnection.setConnectTimeout(5000);
-            InputStream is = mHttpURLConnection.getInputStream();
+            httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
+            httpURLConnection.setConnectTimeout(5000);
+            InputStream is = httpURLConnection.getInputStream();
             BufferedInputStream bis = new BufferedInputStream(is);
-            DocumentBuilderFactory document_builder_factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder document_builder = document_builder_factory.newDocumentBuilder();
-            Document document = document_builder.parse(bis);
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(bis);
             Element root = document.getDocumentElement();
 
             if (root.getTagName().equals("update")) {
                 NodeList nodelist = root.getChildNodes();
+
                 for (int j = 0; j < nodelist.getLength(); j++) {
                     Node node = nodelist.item(j);
+
                     if (node.getNodeType() == Node.ELEMENT_NODE) {
                         Element element = (Element) node;
-                        String name = element.getTagName();
-                        String value = element.getTextContent().trim();
-                        map.put(name, value);
+                        String tagName = element.getTagName();
+                        String textContent = element.getTextContent().trim();
+
+                        map.put(tagName, textContent);
                     }
                 }
             }
+
             return map;
-        } catch (SocketTimeoutException | MalformedURLException ignored) {
-            return null;
-        } catch (IOException | SAXException | ParserConfigurationException e) {
-            e.printStackTrace();
+        } catch (IOException | SAXException | ParserConfigurationException ignored) {
             return null;
         }
     }

@@ -25,27 +25,30 @@ public class BootCompletedReceiver extends BroadcastReceiver {
             try {
                 if (sp.getBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false)) {
                     String dchaStateString = Constants.DCHA_STATE;
+
                     try {
                         if (Preferences.GET_MODEL_ID(context) == 2) {
                             Settings.System.putInt(resolver, dchaStateString, 3);
                         }
+
                         Thread.sleep(100);
                         Settings.Global.putInt(resolver, Settings.Global.ADB_ENABLED, 1);
+
                         if (Preferences.GET_MODEL_ID(context) == 2) {
                             Settings.System.putInt(resolver, dchaStateString, 0);
                         }
-                    } catch (SecurityException | InterruptedException e) {
-                        e.printStackTrace();
+                    } catch (SecurityException | InterruptedException ignored) {
                         if (Preferences.GET_MODEL_ID(context) == 2) {
                             Settings.System.putInt(resolver, dchaStateString, 0);
                         }
+
                         /* 権限が付与されていないなら機能を無効 */
                         SharedPreferences.Editor spe = sp.edit();
                         spe.putBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false);
                         spe.apply();
                     }
                 }
-            }catch (NullPointerException e) {
+            }catch (NullPointerException ignored) {
                 SharedPreferences.Editor spe = sp.edit();
                 spe.putBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false);
                 spe.apply();
@@ -55,6 +58,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
             if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
                 Settings.System.putInt(resolver, Constants.HIDE_NAVIGATION_BAR, 0);
             }
+
             context.startService(new Intent(context, KeepService.class));
         }
     }

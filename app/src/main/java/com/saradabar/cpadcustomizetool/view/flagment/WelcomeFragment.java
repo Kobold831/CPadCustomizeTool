@@ -21,10 +21,12 @@ public class WelcomeFragment extends Fragment implements WelcomePage.OnChangeLis
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_welcome, container, false);
         TextView textView = view.findViewById(R.id.wel_scroll);
+
         textView.setText(getString(R.string.wel_terms_of_service, Constants.URL_WIKI_MAIN));
         Linkify.addLinks(textView, Pattern.compile(Constants.URL_WIKI_MAIN), "");
         view.findViewById(R.id.wel_no).setOnClickListener(v -> requireActivity().finishAffinity());
         view.findViewById(R.id.wel_yes).setOnClickListener(v -> requireActivity().finish());
+
         return view;
     }
 

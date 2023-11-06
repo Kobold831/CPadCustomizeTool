@@ -19,6 +19,8 @@ import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -28,6 +30,7 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
@@ -36,15 +39,19 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.flagment.AppSettingsFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.DeviceOwnerFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
+import com.saradabar.cpadcustomizetool.view.views.AppListView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
-public class StartActivity extends AppCompatActivity implements InstallEventListener {
+public class StartActivity extends AppCompatActivity implements InstallEventListener, DownloadEventListener {
 
     static StartActivity instance = null;
 
@@ -59,16 +66,21 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         instance = this;
         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+
         if (getActionBar() != null) getActionBar().setDisplayHomeAsUpEnabled(false);
+
         if (getIntent().getBooleanExtra("result", false)) {
             setContentView(R.layout.activity_main);
             transitionFragment(new MainFragment(), false);
             return;
         }
+
         if (dpm.isDeviceOwnerApp(getPackageName())) {
             setContentView(R.layout.activity_main_error_enable_own);
+
             findViewById(R.id.main_error_button_1).setOnClickListener(view -> new AlertDialog.Builder(view.getContext())
                     .setTitle(R.string.dialog_question_device_owner)
                     .setCancelable(false)
@@ -80,12 +92,14 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                     })
                     .setNegativeButton(R.string.dialog_common_no, null)
                     .show());
+
             findViewById(R.id.main_error_button_2).setOnClickListener(view -> {
                 try {
                     startActivity(new Intent(view.getContext(), UninstallBlockActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 } catch (ActivityNotFoundException ignored) {
                 }
             });
+
             findViewById(R.id.main_error_button_3).setOnClickListener(this::resetConf);
         } else {
             setContentView(R.layout.activity_main_error_disable_own);
@@ -130,11 +144,13 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
+
         if (getIntent().getBooleanExtra("result", false)) {
             getMenuInflater().inflate(R.menu.main, menu);
         } else {
             getMenuInflater().inflate(R.menu.sub, menu);
         }
+
         return true;
     }
 
@@ -147,7 +163,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 startActivity(new Intent(this, AppInfoActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", getIntent().getBooleanExtra("result", false)));
                 return true;
             case R.id.app_info_2:
-                startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                startActivity(new Intent(this, SelfDownloadActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 return true;
             case R.id.app_info_3:
                 menu.findItem(R.id.app_info_3).setVisible(false);
@@ -176,6 +192,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 .beginTransaction()
                 .replace(R.id.layout_main, preferenceFragmentCompat)
                 .commit();
+
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(enabled);
     }
 
@@ -185,6 +202,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 .addToBackStack(null)
                 .replace(R.id.layout_main, nextPreferenceFragment)
                 .commit();
+
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
@@ -221,7 +239,9 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                         .setMessage("")
                         .setCancelable(false)
                         .create();
+
                 if (!alertDialog.isShowing()) alertDialog.show();
+
                 ByteProgressHandler progressHandler = new ByteProgressHandler();
                 progressHandler.progressBar = progressBar;
                 progressHandler.textPercent = textPercent;
@@ -233,6 +253,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onSuccess() {
                 alertDialog.dismiss();
+
                 new DeviceOwnerFragment.TryXApkTask().cancel(true);
                 DeviceOwnerFragment.TryApkTask tryApkTask = new DeviceOwnerFragment.TryApkTask();
                 tryApkTask.setListener(apkListener());
@@ -242,12 +263,15 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onFailure() {
                 alertDialog.dismiss();
+
                 try {
                     /* 一時ファイルを消去 */
                     FileUtils.deleteDirectory(StartActivity.this.getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
+
                 new DeviceOwnerFragment.TryXApkTask().cancel(true);
+
                 new AlertDialog.Builder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure))
                         .setCancelable(false)
@@ -258,12 +282,15 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onError(String str) {
                 alertDialog.dismiss();
+
                 try {
                     /* 一時ファイルを消去 */
                     FileUtils.deleteDirectory(StartActivity.this.getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
+
                 new DeviceOwnerFragment.TryXApkTask().cancel(true);
+
                 new AlertDialog.Builder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_error) + "\n" + str)
                         .setCancelable(false)
@@ -296,17 +323,21 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onSuccess() {
                 progressDialog.dismiss();
+
                 try {
                     /* 一時ファイルを消去 */
                     FileUtils.deleteDirectory(StartActivity.this.getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
+
                 new DeviceOwnerFragment.TryApkTask().cancel(true);
+
                 AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.this)
                         .setMessage(R.string.dialog_info_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .create();
+
                 if (!alertDialog.isShowing()) {
                     alertDialog.show();
                 }
@@ -316,12 +347,15 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onFailure(String str) {
                 progressDialog.dismiss();
+
                 try {
                     /* 一時ファイルを消去 */
                     FileUtils.deleteDirectory(StartActivity.this.getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
+
                 new DeviceOwnerFragment.TryApkTask().cancel(true);
+
                 new AlertDialog.Builder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + str)
                         .setCancelable(false)
@@ -332,12 +366,15 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onError(String str) {
                 progressDialog.dismiss();
+
                 try {
                     /* 一時ファイルを消去 */
                     FileUtils.deleteDirectory(StartActivity.this.getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
+
                 new DeviceOwnerFragment.TryApkTask().cancel(true);
+
                 new AlertDialog.Builder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_error) + "\n" + str)
                         .setCancelable(false)
@@ -365,6 +402,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onSuccess() {
                 progressDialog.dismiss();
+
                 new AlertDialog.Builder(StartActivity.this)
                         .setMessage(R.string.dialog_info_success_silent_install)
                         .setCancelable(false)
@@ -376,6 +414,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onFailure() {
                 progressDialog.dismiss();
+
                 new AlertDialog.Builder(StartActivity.this)
                         .setMessage(R.string.dialog_info_failure_silent_install)
                         .setCancelable(false)
@@ -407,7 +446,9 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                             MainFragment.getInstance().resetResolution();
                         })
                         .create();
+
                 if (!alertDialog.isShowing()) alertDialog.show();
+
                 /* カウント開始 */
                 mHandler = new Handler();
                 mRunnable = new Runnable() {
@@ -416,11 +457,13 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                     public void run() {
                         alertDialog.setMessage("変更を適用しますか？\n" + i + "秒後に元の設定に戻ります");
                         mHandler.postDelayed(this, 1000);
+
                         if (i <= 0) {
                             alertDialog.dismiss();
                             mHandler.removeCallbacks(this);
                             MainFragment.getInstance().resetResolution();
                         }
+
                         i--;
                     }
                 };
@@ -442,6 +485,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     @Override
     public void onResume() {
         super.onResume();
+
         /* DchaServiceの使用可否を確認 */
         if (Preferences.GET_DCHASERVICE_FLAG(this)) {
             //DchaServiceが機能していないなら終了
@@ -470,6 +514,103 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         if (mDchaService != null) unbindService(mDchaServiceConnection);
+    }
+
+    @Override
+    public void onDownloadComplete() {
+        ArrayList<AppListView.AppData> list = new ArrayList<>();
+
+        try {
+            JSONArray jsonArray = MainFragment.getInstance().parseJson().getJSONArray("app_list");
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                AppListView.AppData data = new AppListView.AppData();
+                data.str = jsonArray.getJSONObject(i).getString("name");
+                list.add(data);
+            }
+        } catch (JSONException | IOException ignored) {
+        }
+
+        View v = getLayoutInflater().inflate(R.layout.layout_app_list, null);
+        ListView lv = v.findViewById(R.id.app_list);
+
+        lv.setAdapter(new AppListView.AppListAdapter(this, list));
+        lv.setOnItemClickListener((parent, view, position, id) -> {
+            CheckBox checkBox = lv.getChildAt(position).findViewById(R.id.v_app_list_check);
+            checkBox.setChecked(!checkBox.isChecked());
+        });
+
+        new AlertDialog.Builder(this)
+                .setView(v)
+                .setTitle("アプリを選択してください")
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                    StringBuilder str = new StringBuilder();
+                    for (int i = 0; i <lv.getCount(); i++) {
+                        CheckBox checkBox = lv.getChildAt(i).findViewById(R.id.v_app_list_check);
+                        if (checkBox.isChecked()) {
+                            try {
+                                JSONArray jsonArray = MainFragment.getInstance().parseJson().getJSONArray("app_list");
+                                str.append(jsonArray.getJSONObject(i).getString("name")).append("\n").append(jsonArray.getJSONObject(i).getString("url")).append("\n");
+                            } catch (JSONException | IOException ignored) {
+                            }
+                        }
+                    }
+                    if (str.toString().equals("")) {
+                        str = new StringBuilder("選択されていません");
+                    }
+                    new AlertDialog.Builder(this)
+                            .setMessage(str.toString())
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> dialog.dismiss())
+                            .show();
+                })
+                .show();
+    }
+
+    @Override
+    public void onUpdateAvailable(String str) {
+
+    }
+
+    @Override
+    public void onUpdateUnavailable() {
+
+    }
+
+    @Override
+    public void onSupportAvailable() {
+
+    }
+
+    @Override
+    public void onSupportUnavailable() {
+
+    }
+
+    @Override
+    public void onUpdateAvailable1(String str) {
+
+    }
+
+    @Override
+    public void onUpdateUnavailable1() {
+
+    }
+
+    @Override
+    public void onDownloadError() {
+        new AlertDialog.Builder(this)
+                .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    @Override
+    public void onConnectionError() {
+        new AlertDialog.Builder(this)
+                .setMessage("データ取得に失敗しました\nネットワークを確認してください")
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }

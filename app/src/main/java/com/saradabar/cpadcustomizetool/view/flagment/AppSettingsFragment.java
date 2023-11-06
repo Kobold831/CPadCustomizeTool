@@ -40,6 +40,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_app, rootKey);
+
         SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
         ContentResolver resolver = requireActivity().getContentResolver();
 
@@ -123,6 +124,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             list.add("デバイスオーナー");
             List<SingleListView.AppData> dataList = new ArrayList<>();
             int i = 0;
+
             for (String str : list) {
                 SingleListView.AppData data = new SingleListView.AppData();
                 data.label = str;
@@ -130,6 +132,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                 dataList.add(data);
                 i++;
             }
+
             ListView listView = v.findViewById(R.id.update_list);
             listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             listView.setAdapter(new SingleListView.AppListAdapter(getActivity(), dataList));
@@ -174,6 +177,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         break;
                 }
             });
+
             new AlertDialog.Builder(getActivity())
                     .setView(v)
                     .setTitle(getString(R.string.dialog_title_select_mode))

@@ -28,8 +28,8 @@ import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Path;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
+import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 
 import org.zeroturnaround.zip.ZipUtil;
 import org.zeroturnaround.zip.commons.FileUtils;
@@ -67,8 +67,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_owner, rootKey);
+
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
         instance = this;
+
         preUninstallBlock = findPreference("pre_owner_uninstall_block");
         swPrePermissionFrc = findPreference("pre_owner_permission_frc");
         preSessionInstall = findPreference("pre_owner_session_install");
@@ -128,23 +130,28 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
         /* 追加予定:セッション破棄 */
         preAbandonSession.setOnPreferenceClickListener(preference -> {
+            new AlertDialog.Builder(getActivity())
+                    .setMessage("")
+                    .setPositiveButton(R.string.dialog_common_ok, null)
+                    .show();
             return false;
         });
 
-        /* 追加予定:外部ストレージインストール */
-        preInstallLocation.setOnPreferenceChangeListener((preference, o) -> {
-            return true;
-        });
+        preInstallLocation.setOnPreferenceChangeListener((preference, o) -> true);
 
         /* 追加予定:権限管理 */
         preManageOrgPermission.setOnPreferenceClickListener(preference -> {
+            new AlertDialog.Builder(getActivity())
+                    .setMessage("")
+                    .setPositiveButton(R.string.dialog_common_ok, null)
+                    .show();
             return false;
         });
 
-        /* 追加予定:権限説明（ダイアログ表示） */
         preDescOrgPermission.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(getActivity())
-                    .setMessage("com.saradabar.cpadcustomizetool.permission.ACCESS_DEVICE_OWNER：\n関連アプリのプロセス間通信に使用されています\nデバイスオーナーは１つのアプリのみ付与できるため、公正かつ自由に利用できるようにすべてのアプリからアクセスできます")
+                    .setTitle("com.saradabar.cpadcustomizetool.permission.ACCESS_DEVICE_OWNER")
+                    .setMessage("関連アプリのプロセス間通信に使用されています\nデバイスオーナーは１つのアプリのみ付与できるため、公正かつ自由に利用できるようにすべてのアプリからアクセスできます")
                     .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
             return false;
@@ -195,6 +202,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void setPreferenceSettings() {
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+
         if (!dpm.isDeviceOwnerApp(requireActivity().getPackageName())) {
             preUninstallBlock.setEnabled(false);
             preClrDevOwn.setEnabled(false);
@@ -222,6 +230,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
     private String getNowOwnerPackage() {
         DevicePolicyManager devicePolicyManager = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+
         for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
             /* ユーザーアプリか確認 */
             if (app.sourceDir.startsWith("/data/app/")) {
@@ -238,6 +247,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     @Override
     public void onResume() {
         super.onResume();
+
         switch (Preferences.GET_MODEL_ID(requireActivity())) {
             case 0:
                 swPrePermissionFrc.setEnabled(false);
@@ -265,8 +275,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == Constants.REQUEST_INSTALL) {
             preSessionInstall.setEnabled(true);
+
             if (setInstallFiles(data)) {
                 String str = new File(splitInstallData[0]).getName();
                 /* ファイルの拡張子 */
@@ -284,6 +296,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                         return;
                 }
             }
+
             new AlertDialog.Builder(requireActivity())
                     .setMessage(getString(R.string.dialog_error_no_file_data))
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -299,12 +312,17 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 FileUtils.deleteDirectory(requireActivity().getExternalCacheDir());
             } catch (IOException ignored) {
             }
+
             ClipData cd = intent.getClipData();
+
             if (cd == null) {
                 /* シングルApk */
                 splitInstallData[0] = getInstallData(requireActivity(), intent.getData());
+
                 if (splitInstallData[0] == null) return false;
+
                 String str = new File(splitInstallData[0]).getName();
+
                 /* ファイルの拡張子 */
                 switch (str.substring(str.lastIndexOf("."))) {
                     case ".apk":
@@ -334,6 +352,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         try {
             if (DocumentsContract.isDocumentUri(context, uri)) {
                 String[] str = DocumentsContract.getDocumentId(uri).split(":");
+
                 switch (uri.getAuthority()) {
                     case "com.android.externalstorage.documents":
                         return Environment.getExternalStorageDirectory() + "/" + str[1];
@@ -351,6 +370,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     @SuppressLint("NewApi")
     private double getDirectorySize(File file) {
         double fileSize = 0;
+
         if (file != null) {
             try {
                 File[] list = file.listFiles();
@@ -366,6 +386,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             } catch (Exception ignored) {
             }
         }
+
         return fileSize;
     }
 
@@ -392,6 +413,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             /* zipを展開して外部ディレクトリに一時保存 */
             onProgressUpdate(getInstance().getString(R.string.progress_state_unpack));
             getInstance().totalByte = new File(str).length();
+
             try {
                 ZipUtil.unpack(new File(str), file);
             } catch (Exception e) {
@@ -401,13 +423,16 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             onProgressUpdate(getInstance().getString(R.string.progress_state_rename));
             new File(str).renameTo(new File(new File(str).getParent() + File.separator + new File(str).getName().replaceFirst("\\..*", ".xapk")));
             File[] list = file.listFiles();
+
             if (list != null) {
                 int c = 0;
+
                 /* ディレクトリのなかのファイルを取得 */
                 for (int i = 0; i < list.length; i++) {
                     /* obbデータを取得 */
                     if (list[i].isDirectory()) {
                         c++;
+
                         try {
                             /* obbデータをコピー */
                             onProgressUpdate(getInstance().getString(R.string.progress_state_copy_file));
@@ -423,6 +448,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                     } else {
                         onProgressUpdate(getInstance().getString(R.string.progress_state_check_file));
                         str = list[i].getName();
+
                         /* apkファイルならパスをインストールデータへ */
                         if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
                             getInstance().splitInstallData[i - c] = list[i].getPath();
@@ -448,14 +474,17 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 mListener.onError(getInstance().getString(R.string.installer_status_unknown_error));
                 return;
             }
+
             if (result.equals(true)) {
                 mListener.onSuccess();
                 return;
             }
+
             if (result.equals(false)) {
                 mListener.onFailure();
                 return;
             }
+
             mListener.onError(result.toString());
         }
 
@@ -479,7 +508,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         @SuppressLint("NewApi")
         public int getLoadedBytePercent() {
             double fileSize = 0;
+
             if (getInstance().totalByte <= 0) return 0;
+
             if (obbPath1 == null) {
                 fileSize = getInstance().getDirectorySize(new File(Path.getTemporaryPath(getInstance().requireActivity())));
             } else {
@@ -488,6 +519,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 } catch (IOException ignored) {
                 }
             }
+
             return (int) Math.floor(100 * fileSize / getInstance().totalByte);
         }
 
@@ -498,7 +530,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         @SuppressLint("NewApi")
         public int getLoadedCurrentByte() {
             double fileSize = 0;
+
             if (getInstance().totalByte <= 0) return 0;
+
             if (obbPath1 == null) {
                 fileSize = getInstance().getDirectorySize(new File(Path.getTemporaryPath(getInstance().requireActivity())));
             } else {
@@ -507,6 +541,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 } catch (IOException ignored) {
                 }
             }
+
             return (int) fileSize / (1024 * 1024);
         }
     }
@@ -525,14 +560,17 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         protected Object doInBackground(Object... value) {
             SplitInstaller splitInstaller = new SplitInstaller();
             int sessionId;
+
             try {
                 sessionId = splitInstaller.splitCreateSession(getInstance().requireActivity()).i;
+
                 if (sessionId < 0) {
                     return false;
                 }
             } catch (Exception e) {
                 return e.getMessage();
             }
+
             /* インストールデータの長さ回数繰り返す */
             for (String str : getInstance().splitInstallData) {
                 /* 配列の中身を確認 */
@@ -549,6 +587,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                     break;
                 }
             }
+
             try {
                 return splitInstaller.splitCommitSession(getInstance().requireActivity(), sessionId, 0).bl;
             } catch (Exception e) {
@@ -562,13 +601,16 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 mListener.onError(getInstance().getString(R.string.installer_status_unknown_error));
                 return;
             }
+
             if (result.equals(true)) {
                 return;
             }
+
             if (result.equals(false)) {
                 mListener.onFailure("");
                 return;
             }
+
             mListener.onError(result.toString());
         }
 

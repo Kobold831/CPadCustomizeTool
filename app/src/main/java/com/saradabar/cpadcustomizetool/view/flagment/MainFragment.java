@@ -27,27 +27,42 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.DocumentsContract;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
+import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
+import com.saradabar.cpadcustomizetool.util.Variables;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.views.LauncherView;
 import com.saradabar.cpadcustomizetool.view.views.NormalModeView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -98,7 +113,8 @@ public class MainFragment extends PreferenceFragmentCompat {
             preResolution,
             preResetResolution,
             preDeviceOwnerFn,
-            preSystemUpdate;
+            preSystemUpdate,
+            preGetApp;
 
     public static MainFragment getInstance() {//インスタンスを取得
         return instance;
@@ -109,6 +125,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+
             try {
                 swDchaState.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
@@ -121,6 +138,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+
             try {
                 swNavigation.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
@@ -133,6 +151,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+
             try {
                 //noinspection deprecation
                 swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
@@ -146,6 +165,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+
             try {
                 swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
@@ -273,6 +293,7 @@ public class MainFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_main, rootKey);
+
         instance = this;
         /* サービスのインターフェースを取得 */
         bindDchaService(Constants.FLAG_CHECK, true);
@@ -301,6 +322,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         preResetResolution = findPreference("pre_reset_resolution");
         preDeviceOwnerFn = findPreference("pre_device_owner_fn");
         preSystemUpdate = findPreference("pre_system_update");
+        preGetApp = findPreference("pre_get_app");
 
         /* オブサーバーを有効化 */
         isObsDchaState = true;
@@ -836,6 +858,11 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
+        preGetApp.setOnPreferenceClickListener(preference -> {
+            new AsyncFileDownload(requireActivity(), "http://192.168.1.2/test/ct/json/appList.json", new File(new File(requireActivity().getExternalCacheDir(), "appList.json").getPath())).execute();
+            return false;
+        });
+
         /* 端末ごとにPreferenceの状態を設定 */
         switch (Preferences.GET_MODEL_ID(getActivity())) {
             case 0:
@@ -884,6 +911,25 @@ public class MainFragment extends PreferenceFragmentCompat {
         } else {
             getPreferenceScreen().removePreference(preEnableDchaService);
         }
+    }
+
+    public JSONObject parseJson() throws JSONException, IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(requireActivity().getExternalCacheDir(), "appList.json").getPath()));
+        JSONObject json;
+
+        StringBuilder data = new StringBuilder();
+        String str = bufferedReader.readLine();
+
+        while(str != null){
+            data.append(str);
+            str = bufferedReader.readLine();
+        }
+
+        json = new JSONObject(data.toString());
+
+        bufferedReader.close();
+
+        return json;
     }
 
     /* 確認ダイアログ */
@@ -937,23 +983,28 @@ public class MainFragment extends PreferenceFragmentCompat {
     /* 初期化 */
     private void initialize() {
         SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+
         try {
             swDchaState.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE) != 0);
         } catch (Settings.SettingNotFoundException ignored) {
         }
+
         try {
             swNavigation.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != 0);
         } catch (Settings.SettingNotFoundException ignored) {
         }
+
         try {
             //noinspection deprecation
             swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
         } catch (Settings.SettingNotFoundException ignored) {
         }
+
         try {
             swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
         } catch (Settings.SettingNotFoundException ignored) {
         }
+
         swDeviceAdmin.setChecked(((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), AdministratorReceiver.class)));
         swKeepNavigation.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false));
         swKeepUnkSrc.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false));
@@ -961,11 +1012,14 @@ public class MainFragment extends PreferenceFragmentCompat {
         swKeepAdb.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false));
         swKeepLauncher.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false));
         preLauncher.setSummary(getLauncherName());
+
         String normalLauncherName = null;
+
         try {
             normalLauncherName = (String) requireActivity().getPackageManager().getApplicationLabel(requireActivity().getPackageManager().getApplicationInfo(Preferences.GET_NORMAL_LAUNCHER(getActivity()), 0));
         } catch (PackageManager.NameNotFoundException ignored) {
         }
+
         if (normalLauncherName == null) {
             preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_no_setting_launcher));
         } else {
@@ -993,20 +1047,26 @@ public class MainFragment extends PreferenceFragmentCompat {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         if (mDchaService != null) requireActivity().getApplicationContext().unbindService(mDchaServiceConnection);
+
         if (mDchaUtilService != null) requireActivity().getApplicationContext().unbindService(mDchaUtilServiceConnection);
+
         if (isObsDchaState) {
             requireActivity().getContentResolver().unregisterContentObserver(obsDchaState);
             isObsDchaState = false;
         }
+
         if (isObsNavigation) {
             requireActivity().getContentResolver().unregisterContentObserver(obsNavigation);
             isObsNavigation = false;
         }
+
         if (isObsUnkSrc) {
             requireActivity().getContentResolver().unregisterContentObserver(obsUnkSrc);
             isObsUnkSrc = false;
         }
+
         if (isObsAdb) {
             requireActivity().getContentResolver().unregisterContentObserver(obsAdb);
             isObsAdb = false;
@@ -1017,17 +1077,22 @@ public class MainFragment extends PreferenceFragmentCompat {
     @Override
     public void onResume() {
         super.onResume();
+
         if (requireActivity().getActionBar() != null) requireActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
+
         if (!preLauncher.isEnabled()) preLauncher.setEnabled(true);
 
         /* オブザーバー有効 */
         isObsDchaState = true;
         requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, obsDchaState);
+
         isObsNavigation = true;
         requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, obsNavigation);
+
         isObsUnkSrc = true;
         //noinspection deprecation
         requireActivity().getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, obsUnkSrc);
+
         isObsAdb = true;
         requireActivity().getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED), false, obsAdb);
 
@@ -1060,6 +1125,7 @@ public class MainFragment extends PreferenceFragmentCompat {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         switch (requestCode) {
             case Constants.REQUEST_INSTALL:
                 preSilentInstall.setEnabled(true);
@@ -1069,6 +1135,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                 } catch (NullPointerException ignored) {
                     installData = null;
                 }
+
                 if (installData != null) {
                     installTask silent = new installTask();
                     silent.setListener(StartActivity.getInstance().installListener());
@@ -1082,11 +1149,13 @@ public class MainFragment extends PreferenceFragmentCompat {
                 break;
             case Constants.REQUEST_SYSTEM_UPDATE:
                 preSystemUpdate.setEnabled(true);
+
                 try {
                     systemUpdateFilePath = getFilePath(getActivity(), data.getData());
                 } catch (Exception ignored) {
                     systemUpdateFilePath = null;
                 }
+
                 if (systemUpdateFilePath != null) {
                     if (!bindDchaService(Constants.FLAG_SYSTEM_UPDATE, true)) {
                         new AlertDialog.Builder(getActivity())
@@ -1108,6 +1177,7 @@ public class MainFragment extends PreferenceFragmentCompat {
     private String getFilePath(Context context, Uri uri) {
         if (DocumentsContract.isDocumentUri(context, uri)) {
             String[] str = DocumentsContract.getDocumentId(uri).split(":");
+
             switch (uri.getAuthority()) {
                 case "com.android.externalstorage.documents":
                     return Environment.getExternalStorageDirectory() + "/" + str[1];
@@ -1117,11 +1187,13 @@ public class MainFragment extends PreferenceFragmentCompat {
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
+
         return null;
     }
 
     /* インストールタスク */
     public static class installTask extends AsyncTask<Boolean, Void, Boolean> {
+
         private Listener mListener;
 
         @Override
@@ -1156,6 +1228,7 @@ public class MainFragment extends PreferenceFragmentCompat {
 
     /* 解像度タスク */
     public static class resolutionTask extends AsyncTask<Boolean, Void, Boolean> {
+
         private Listener mListener;
 
         @Override
@@ -1169,6 +1242,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                 if (result) mListener.onSuccess();
                 else mListener.onFailure();
             };
+
             new Handler().postDelayed(runnable, 1000);
         }
 
@@ -1207,6 +1281,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                 height = 1200;
                 break;
         }
+
         if (!bindDchaService(Constants.FLAG_RESOLUTION, false)) {
             new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.dialog_error)

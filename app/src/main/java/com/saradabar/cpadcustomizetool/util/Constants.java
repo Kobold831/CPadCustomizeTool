@@ -5,6 +5,7 @@ import android.content.Intent;
 import java.io.File;
 
 public class Constants {
+
     public static final int FLAG_TEST = -1;
     public static final int FLAG_CHECK = 0;
     public static final int FLAG_SET_DCHA_STATE_0 = 1;

@@ -3,8 +3,8 @@ package com.saradabar.cpadcustomizetool.data.connection;
 import android.app.Activity;
 import android.os.AsyncTask;
 
-import com.saradabar.cpadcustomizetool.data.event.UpdateEventListener;
-import com.saradabar.cpadcustomizetool.data.event.UpdateEventListenerList;
+import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
+import com.saradabar.cpadcustomizetool.data.event.DownloadEventListenerList;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -18,18 +18,19 @@ import java.net.URL;
 
 public class AsyncFileDownload extends AsyncTask<String, Void, Boolean> {
 
-	UpdateEventListenerList updateListeners;
-	String fileUrl;
+	DownloadEventListenerList downloadEventListenerList;
+	String url;
 	File outputFile;
 	FileOutputStream fileOutputStream;
 	BufferedInputStream bufferedInputStream;
 	int totalByte = 0, currentByte = 0;
 
-	public AsyncFileDownload(Activity activity, String url, File oFile) {
-		updateListeners = new UpdateEventListenerList();
-		updateListeners.addEventListener((UpdateEventListener) activity);
-		fileUrl = url;
-		outputFile = oFile;
+	public AsyncFileDownload(Activity activity, String str, File file) {
+		url = str;
+		outputFile = file;
+		downloadEventListenerList = new DownloadEventListenerList();
+
+		downloadEventListenerList.addEventListener((DownloadEventListener) activity);
 	}
 
 	@Override
@@ -37,14 +38,14 @@ public class AsyncFileDownload extends AsyncTask<String, Void, Boolean> {
 		final byte[] buffer = new byte[1024];
 
 		try {
-			HttpURLConnection mHttpURLConnection;
-			mHttpURLConnection = (HttpURLConnection) new URL(fileUrl).openConnection();
-			mHttpURLConnection.setReadTimeout(5000);
-			mHttpURLConnection.setConnectTimeout(5000);
-			InputStream mInputStream = mHttpURLConnection.getInputStream();
-			bufferedInputStream = new BufferedInputStream(mInputStream, 1024);
+			HttpURLConnection httpURLConnection;
+			httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
+			httpURLConnection.setReadTimeout(5000);
+			httpURLConnection.setConnectTimeout(5000);
+			InputStream inputStream = httpURLConnection.getInputStream();
+			bufferedInputStream = new BufferedInputStream(inputStream, 1024);
 			fileOutputStream = new FileOutputStream(outputFile);
-			totalByte = mHttpURLConnection.getContentLength();
+			totalByte = httpURLConnection.getContentLength();
 		} catch (SocketTimeoutException | MalformedURLException ignored) {
 			return false;
 		} catch (IOException ignored) {
@@ -57,9 +58,11 @@ public class AsyncFileDownload extends AsyncTask<String, Void, Boolean> {
 
 		try {
 			int len;
+
 			while ((len = bufferedInputStream.read(buffer)) != -1) {
 				fileOutputStream.write(buffer, 0, len);
 				currentByte += len;
+
 				if (isCancelled()) break;
 			}
 		} catch (IOException ignored) {
@@ -70,6 +73,7 @@ public class AsyncFileDownload extends AsyncTask<String, Void, Boolean> {
 			close();
 		} catch (IOException ignored) {
 		}
+
 		return true;
 	}
 
@@ -80,9 +84,9 @@ public class AsyncFileDownload extends AsyncTask<String, Void, Boolean> {
 	@Override
 	protected void onPostExecute(Boolean result) {
 		if (result != null) {
-			if (result) updateListeners.downloadCompleteNotify();
-			else updateListeners.connectionErrorNotify();
-		} else updateListeners.downloadErrorNotify();
+			if (result) downloadEventListenerList.downloadCompleteNotify();
+			else downloadEventListenerList.downloadErrorNotify();
+		} else downloadEventListenerList.connectionErrorNotify();
 	}
 
 	@Override

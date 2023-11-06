@@ -19,10 +19,12 @@ public class ByteProgressHandler extends Handler {
     @Override
     public void handleMessage(@NonNull Message msg) {
         super.handleMessage(msg);
+
         if (!tryXApkTask.isCancelled() || tryXApkTask.getStatus() != AsyncTask.Status.FINISHED) {
             progressBar.setProgress(tryXApkTask.getLoadedBytePercent());
             textPercent.setText(progressBar.getProgress() + "%");
             textByte.setText(tryXApkTask.getLoadedCurrentByte() + " / " + tryXApkTask.getLoadedTotalByte() + " MB");
+
             sendEmptyMessageDelayed(0, 100);
         }
     }

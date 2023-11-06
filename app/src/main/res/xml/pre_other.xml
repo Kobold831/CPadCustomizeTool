@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-        <PreferenceCategory
-            app:iconSpaceReserved="false">
-                <Preference
-                    app:iconSpaceReserved="false"
-                    android:key="pre_other_start_settings"
-                    android:title="@string/pre_other_title_settings" />
 
-                <Preference
-                    app:iconSpaceReserved="false"
-                    android:key="pre_other_start_dev_settings"
-                    android:title="@string/pre_other_title_development" />
+    <PreferenceCategory
+        app:iconSpaceReserved="false">
 
-                <Preference
-                    app:iconSpaceReserved="false"
-                    android:key="pre_other_start_ui_adjustment"
-                    android:title="@string/pre_other_title_adjustment" />
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_other_start_settings"
+            android:title="@string/pre_other_title_settings" />
 
-                <Preference
-                    app:iconSpaceReserved="false"
-                    android:key="pre_other_screen_off_time"
-                    android:title="@string/pre_other_title_screen_off_time" />
-        </PreferenceCategory>
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_other_start_dev_settings"
+            android:title="@string/pre_other_title_development" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_other_start_ui_adjustment"
+            android:title="@string/pre_other_title_adjustment" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_other_screen_off_time"
+            android:title="@string/pre_other_title_screen_off_time" />
+    </PreferenceCategory>
 </PreferenceScreen>

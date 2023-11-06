@@ -35,16 +35,16 @@ public class UninstallBlockActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.layout_uninstall_list);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         administratorComponent = Common.getAdministratorComponent(this);
         DevicePolicyManager devicePolicyManager = (DevicePolicyManager)this.getSystemService("device_policy");
-
         final PackageManager pm = getPackageManager();
         final List<ApplicationInfo> installedAppList = pm.getInstalledApplications(0);
-
         final List<AppData> dataList = new ArrayList<>();
+
         for (ApplicationInfo app : installedAppList) {
             /* ユーザーアプリか確認 */
             if (app.sourceDir.startsWith("/data/app/")) {
@@ -59,6 +59,7 @@ public class UninstallBlockActivity extends Activity {
         final ListView listView = findViewById(R.id.un_list);
         Button unDisableButton = findViewById(R.id.un_button_disable);
         Button unEnableButton = findViewById(R.id.un_button_enable);
+
         listView.setAdapter(new AppListAdapter(this, dataList));
         listView.setOnItemClickListener((parent, view, position, id) -> {
             AppData item = dataList.get(position);
@@ -153,6 +154,7 @@ public class UninstallBlockActivity extends Activity {
             finish();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 }

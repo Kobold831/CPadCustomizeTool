@@ -11,8 +11,8 @@ android {
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 22
 
-        versionCode = 39
-        versionName = "1.6.0"
+        versionCode = 40
+        versionName = "1.7.0"
 
         multiDexEnabled = true
     }

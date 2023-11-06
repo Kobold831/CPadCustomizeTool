@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 
 import com.aurora.store.data.service.IInstallResult;
 import com.saradabar.cpadcustomizetool.R;
@@ -34,6 +35,7 @@ public class DeviceOwnerService extends Service {
         @Override
         public boolean isDeviceOwnerApp() {
             DevicePolicyManager dpm = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
+
             try {
                 return dpm.isDeviceOwnerApp(getPackageName());
             } catch (SecurityException ignored) {
@@ -56,8 +58,9 @@ public class DeviceOwnerService extends Service {
         @Override
         public boolean isInstallPackages(String str, List<Uri> uriList) {
             int sessionId;
+
             try {
-                sessionId = createSession(getPackageManager().getPackageInstaller());
+                sessionId = createSession(getBaseContext(), getPackageManager().getPackageInstaller());
                 if (sessionId < 0) {
                     getPackageManager().getPackageInstaller().abandonSession(sessionId);
                     return false;
@@ -65,6 +68,7 @@ public class DeviceOwnerService extends Service {
             } catch (IOException ignored) {
                 return false;
             }
+
             for (Uri uri : uriList) {
                 try {
                     if (!writeSession(getPackageManager().getPackageInstaller(), sessionId, new File(Environment.getExternalStorageDirectory() + uri.getPath().replace("/external_files", "")))) {
@@ -154,7 +158,6 @@ public class DeviceOwnerService extends Service {
 
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
-                unbindService(this);
             }
         }, Context.BIND_AUTO_CREATE);
     }
@@ -178,17 +181,21 @@ public class DeviceOwnerService extends Service {
         }
     }
 
-    public static int createSession(PackageInstaller packageInstaller) throws IOException {
+    public static int createSession(Context context, PackageInstaller packageInstaller) throws IOException {
         PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
-        params.setInstallLocation(PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY);
+
+        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pre_owner_install_location", false)) {
+            params.setInstallLocation(PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
+        } else params.setInstallLocation(PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY);
+
         return packageInstaller.createSession(params);
     }
 
     public static boolean writeSession(PackageInstaller packageInstaller, int sessionId, File apkFile) throws IOException {
         long sizeBytes = -1;
         String apkPath = apkFile.getAbsolutePath();
-
         File file = new File(apkPath);
+
         if (file.isFile()) {
             sizeBytes = file.length();
         }
@@ -196,15 +203,18 @@ public class DeviceOwnerService extends Service {
         PackageInstaller.Session session = null;
         InputStream in = null;
         OutputStream out = null;
+
         try {
             session = packageInstaller.openSession(sessionId);
             in = new FileInputStream(apkPath);
             out = session.openWrite(getRandomString(), 0, sizeBytes);
             byte[] buffer = new byte[65536];
             int c;
+
             while ((c = in.read(buffer)) != -1) {
                 out.write(buffer, 0, c);
             }
+
             session.fsync(out);
             return true;
         } catch (Exception ignored) {
@@ -218,6 +228,7 @@ public class DeviceOwnerService extends Service {
 
     public static boolean commitSession(PackageInstaller packageInstaller, int sessionId, Context context) throws IOException {
         PackageInstaller.Session session = null;
+
         try {
             session = packageInstaller.openSession(sessionId);
             Intent intent = new Intent(context, DeviceOwnerService.class).putExtra("REQUEST_SESSION", sessionId);
@@ -227,6 +238,7 @@ public class DeviceOwnerService extends Service {
                     intent,
                     PendingIntent.FLAG_CANCEL_CURRENT
             );
+
             session.commit(pendingIntent.getIntentSender());
             return true;
         } catch (Exception ignored) {
@@ -242,6 +254,7 @@ public class DeviceOwnerService extends Service {
         StringBuilder builder;
         theAlphaNumericS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         builder = new StringBuilder(5);
+
         for (int m = 0; m < 5; m++) {
             int myindex = (int) (theAlphaNumericS.length() * Math.random());
             builder.append(theAlphaNumericS.charAt(myindex));

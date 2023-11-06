@@ -35,9 +35,12 @@ public class NormalActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
         bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
+
         ActivityManager activityManager = (ActivityManager)this.getSystemService(ACTIVITY_SERVICE);
+
         Runnable runnable = () -> {
             if (!startCheck()) {
                 Toast.toast(this, R.string.toast_not_completed_settings);
@@ -62,6 +65,7 @@ public class NormalActivity extends Activity {
             }
             finishAndRemoveTask();
         };
+
         new Handler().postDelayed(runnable, 10);
     }
 
@@ -112,6 +116,7 @@ public class NormalActivity extends Activity {
                 finishAndRemoveTask();
             }
         }
+
         return true;
     }
 
@@ -123,13 +128,13 @@ public class NormalActivity extends Activity {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mDchaService = null;
         }
     };
 
     @Override
     public void onPause() {
         super.onPause();
+
         finishAndRemoveTask();
     }
 }

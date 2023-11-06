@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
+import android.preference.PreferenceManager;
 
 import com.saradabar.cpadcustomizetool.data.service.InstallService;
 
@@ -35,10 +36,12 @@ public class SplitInstaller {
     }
 
     public SessionId splitCreateSession(Context context) throws Exception {
-        int sessionId = createSession(context.getPackageManager().getPackageInstaller());
+        int sessionId = createSession(context, context.getPackageManager().getPackageInstaller());
+
         if (sessionId < 0) {
             return new SessionId(false, -1);
         }
+
         return new SessionId(true, sessionId);
     }
 
@@ -50,17 +53,21 @@ public class SplitInstaller {
         return new Result(commitSession(context.getPackageManager().getPackageInstaller(), sessionId, context, code));
     }
 
-    private int createSession(PackageInstaller packageInstaller) throws IOException {
+    private int createSession(Context context, PackageInstaller packageInstaller) throws IOException {
         PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
-        params.setInstallLocation(PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY);
+
+        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pre_owner_install_location", false)) {
+            params.setInstallLocation(PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
+        } else params.setInstallLocation(PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY);
+
         return packageInstaller.createSession(params);
     }
 
     private boolean writeSession(PackageInstaller packageInstaller, int sessionId, File apkFile) throws IOException {
         long sizeBytes = -1;
         String apkPath = apkFile.getAbsolutePath();
-
         File file = new File(apkPath);
+
         if (file.isFile()) {
             sizeBytes = file.length();
         }
@@ -68,15 +75,18 @@ public class SplitInstaller {
         PackageInstaller.Session session = null;
         InputStream in = null;
         OutputStream out = null;
+
         try {
             session = packageInstaller.openSession(sessionId);
             in = new FileInputStream(apkPath);
             out = session.openWrite(getRandomString(), 0, sizeBytes);
             byte[] buffer = new byte[65536];
             int c;
+
             while ((c = in.read(buffer)) != -1) {
                 out.write(buffer, 0, c);
             }
+
             session.fsync(out);
             return true;
         } catch (Exception ignored) {
@@ -90,9 +100,11 @@ public class SplitInstaller {
 
     private boolean commitSession(PackageInstaller packageInstaller, int sessionId, Context context, int code) {
         PackageInstaller.Session session = null;
+
         try {
             session = packageInstaller.openSession(sessionId);
             Intent intent;
+
             switch (code) {
                 case 0:
                     intent = new Intent(context, InstallService.class).putExtra("REQUEST_CODE", 0).putExtra("REQUEST_SESSION", sessionId);
@@ -104,12 +116,14 @@ public class SplitInstaller {
                     intent = new Intent(context, InstallService.class).putExtra("REQUEST_CODE", 0).putExtra("REQUEST_SESSION", sessionId);
                     break;
             }
+
             PendingIntent pendingIntent = PendingIntent.getService(
                     context,
                     sessionId,
                     intent,
                     PendingIntent.FLAG_CANCEL_CURRENT
             );
+
             session.commit(pendingIntent.getIntentSender());
             return true;
         } catch (Exception ignored) {
@@ -125,6 +139,7 @@ public class SplitInstaller {
         StringBuilder builder;
         theAlphaNumericS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         builder = new StringBuilder(5);
+
         for (int m = 0; m < 5; m++) {
             int myindex = (int) (theAlphaNumericS.length() * Math.random());
             builder.append(theAlphaNumericS.charAt(myindex));

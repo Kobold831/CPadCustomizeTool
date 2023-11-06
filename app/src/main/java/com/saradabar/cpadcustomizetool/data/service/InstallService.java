@@ -24,11 +24,13 @@ public class InstallService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         postStatus(intent.getIntExtra("REQUEST_SESSION", -1), intent.getIntExtra("REQUEST_CODE", 0), intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1), intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE));
         stopSelf();
+
         return START_NOT_STICKY;
     }
 
     private void postStatus(int sessionId, int code, int status, String extra) {
         InstallEventListenerList installEventListener = new InstallEventListenerList();
+
         switch (code) {
             case 0:
                 installEventListener.addEventListener(StartActivity.getInstance());
@@ -36,6 +38,7 @@ public class InstallService extends Service {
             case 1:
                 installEventListener.addEventListener(Updater.getInstance());
         }
+
         switch (status) {
             case PackageInstaller.STATUS_SUCCESS:
                 try {
