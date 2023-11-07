@@ -92,19 +92,13 @@ public class Checker {
         }
     }
 
-    private HashMap<String, String> parseSupportXml(String url) {
+    private HashMap<String, String> parseSupportXml(String str) {
         HashMap<String, String> map = new HashMap<>();
-        HttpURLConnection httpURLConnection;
 
         try {
-            httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
+            HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(str).openConnection();
             httpURLConnection.setConnectTimeout(5000);
-            InputStream is = httpURLConnection.getInputStream();
-            BufferedInputStream bis = new BufferedInputStream(is);
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(bis);
-            Element root = document.getDocumentElement();
+            Element root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new BufferedInputStream(httpURLConnection.getInputStream())).getDocumentElement();
 
             if (root.getTagName().equals("support")) {
                 NodeList nodelist = root.getChildNodes();
@@ -114,10 +108,7 @@ public class Checker {
 
                     if (node.getNodeType() == Node.ELEMENT_NODE) {
                         Element element = (Element) node;
-                        String tagName = element.getTagName();
-                        String textContent = element.getTextContent().trim();
-
-                        map.put(tagName, textContent);
+                        map.put(element.getTagName(), element.getTextContent().trim());
                     }
                 }
             }

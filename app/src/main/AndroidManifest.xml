@@ -70,7 +70,7 @@
             android:theme="@style/MainPreferenceTheme" />
 
         <activity
-            android:name=".view.activity.SelfDownloadActivity"
+            android:name=".view.activity.SelfUpdateActivity"
             android:label="@string/activity_self_update"
             android:theme="@style/MainTheme"
             tools:ignore="InnerclassSeparator" />

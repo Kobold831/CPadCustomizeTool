@@ -24,7 +24,7 @@ import com.saradabar.cpadcustomizetool.util.Variables;
 
 import java.io.File;
 
-public class SelfDownloadActivity extends Activity implements DownloadEventListener {
+public class SelfUpdateActivity extends Activity implements DownloadEventListener {
 
     private ProgressDialog loadingDialog;
 
@@ -103,11 +103,11 @@ public class SelfDownloadActivity extends Activity implements DownloadEventListe
                 .show();
     }
 
-    private void showUpdateDialog(String mString) {
+    private void showUpdateDialog(String str) {
         View view = getLayoutInflater().inflate(R.layout.view_update, null);
-        TextView mTextView = view.findViewById(R.id.update_information);
+        TextView tv = view.findViewById(R.id.update_information);
 
-        mTextView.setText(mString);
+        tv.setText(str);
 
         view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
             try {

@@ -31,6 +31,7 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 
+import org.zeroturnaround.zip.ZipException;
 import org.zeroturnaround.zip.ZipUtil;
 import org.zeroturnaround.zip.commons.FileUtils;
 
@@ -41,7 +42,7 @@ import java.nio.file.Paths;
 
 public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
-    String[] splitInstallData = new String[256];
+    public String[] splitInstallData = new String[256];
 
     double totalByte;
 
@@ -406,27 +407,35 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         @Override
         protected Object doInBackground(Object... value) {
             String str = new File(getInstance().splitInstallData[0]).getParent() + File.separator + new File(getInstance().splitInstallData[0]).getName().replaceFirst("\\..*", ".zip");
+
             /* 拡張子.xapkを.zipに変更 */
             onProgressUpdate(getInstance().getString(R.string.progress_state_rename));
+
             new File(getInstance().splitInstallData[0]).renameTo(new File(str));
             File file = new File(Path.getTemporaryPath(getInstance().requireActivity()));
+
             /* zipを展開して外部ディレクトリに一時保存 */
             onProgressUpdate(getInstance().getString(R.string.progress_state_unpack));
+
             getInstance().totalByte = new File(str).length();
 
             try {
                 ZipUtil.unpack(new File(str), file);
+            } catch (ZipException e) {
+                return "圧縮ファイルが無効のため展開できません\n" + e.getMessage();
             } catch (Exception e) {
                 return getInstance().getString(R.string.installer_status_no_allocatable_space) + e.getMessage();
             }
+
             /* 拡張子.zipを.xapkに変更 */
             onProgressUpdate(getInstance().getString(R.string.progress_state_rename));
+
             new File(str).renameTo(new File(new File(str).getParent() + File.separator + new File(str).getName().replaceFirst("\\..*", ".xapk")));
+
             File[] list = file.listFiles();
 
             if (list != null) {
                 int c = 0;
-
                 /* ディレクトリのなかのファイルを取得 */
                 for (int i = 0; i < list.length; i++) {
                     /* obbデータを取得 */

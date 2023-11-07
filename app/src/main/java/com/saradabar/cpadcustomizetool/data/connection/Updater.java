@@ -157,10 +157,8 @@ public class Updater implements InstallEventListener {
     public void installApk(Context context) {
         switch (Preferences.GET_UPDATE_MODE(activity)) {
             case 0:
-                Uri uri = Uri.fromFile(new File(new File(context.getExternalCacheDir(), "update.apk").getPath()));
-
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(uri, "application/vnd.android.package-archive");
+                intent.setDataAndType(Uri.fromFile(new File(new File(context.getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive");
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 activity.startActivityForResult(intent, Constants.REQUEST_UPDATE);
                 break;
@@ -250,11 +248,7 @@ public class Updater implements InstallEventListener {
     private boolean isInstallPackage() {
         if (mDchaService != null) {
             try {
-                boolean bl = mDchaService.installApp(new File(activity.getExternalCacheDir(), "update.apk").getPath(), 1);
-
-                activity.unbindService(mDchaServiceConnection);
-
-                return bl;
+                return mDchaService.installApp(new File(activity.getExternalCacheDir(), "update.apk").getPath(), 1);
             } catch (RemoteException ignored) {
             }
         }
@@ -289,19 +283,13 @@ public class Updater implements InstallEventListener {
         }
     }
 
-    private HashMap<String, String> parseUpdateXml(String url) {
+    private HashMap<String, String> parseUpdateXml(String str) {
         HashMap<String, String> map = new HashMap<>();
-        HttpURLConnection httpURLConnection;
 
         try {
-            httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
+            HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(str).openConnection();
             httpURLConnection.setConnectTimeout(5000);
-            InputStream is = httpURLConnection.getInputStream();
-            BufferedInputStream bis = new BufferedInputStream(is);
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(bis);
-            Element root = document.getDocumentElement();
+            Element root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new BufferedInputStream(httpURLConnection.getInputStream())).getDocumentElement();
 
             if (root.getTagName().equals("update")) {
                 NodeList nodelist = root.getChildNodes();
@@ -311,10 +299,7 @@ public class Updater implements InstallEventListener {
 
                     if (node.getNodeType() == Node.ELEMENT_NODE) {
                         Element element = (Element) node;
-                        String tagName = element.getTagName();
-                        String textContent = element.getTextContent().trim();
-
-                        map.put(tagName, textContent);
+                        map.put(element.getTagName(), element.getTextContent().trim());
                     }
                 }
             }

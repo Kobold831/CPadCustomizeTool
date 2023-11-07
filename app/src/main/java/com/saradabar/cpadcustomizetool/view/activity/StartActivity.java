@@ -58,7 +58,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     IDchaService mDchaService;
     Menu menu;
 
-    public static StartActivity getInstance() {//インスタンスを取得
+    public static StartActivity getInstance() {
         return instance;
     }
 
@@ -163,7 +163,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 startActivity(new Intent(this, AppInfoActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", getIntent().getBooleanExtra("result", false)));
                 return true;
             case R.id.app_info_2:
-                startActivity(new Intent(this, SelfDownloadActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 return true;
             case R.id.app_info_3:
                 menu.findItem(R.id.app_info_3).setVisible(false);

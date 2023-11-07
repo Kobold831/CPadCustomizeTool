@@ -38,12 +38,10 @@ public class AsyncFileDownload extends AsyncTask<String, Void, Boolean> {
 		final byte[] buffer = new byte[1024];
 
 		try {
-			HttpURLConnection httpURLConnection;
-			httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
+			HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
 			httpURLConnection.setReadTimeout(5000);
 			httpURLConnection.setConnectTimeout(5000);
-			InputStream inputStream = httpURLConnection.getInputStream();
-			bufferedInputStream = new BufferedInputStream(inputStream, 1024);
+			bufferedInputStream = new BufferedInputStream(httpURLConnection.getInputStream(), 1024);
 			fileOutputStream = new FileOutputStream(outputFile);
 			totalByte = httpURLConnection.getContentLength();
 		} catch (SocketTimeoutException | MalformedURLException ignored) {

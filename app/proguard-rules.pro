@@ -1,2 +1,3 @@
 -keep class org.slf4j.*
+-keep class org.zeroturnaround.zip.*
 -dontwarn org.slf4j.impl.*

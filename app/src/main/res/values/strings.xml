@@ -193,8 +193,7 @@
 
     <!-- アプリ情報 -->
     <string name="info_app_info">アプリの情報</string>
-    <string name="info_app_state_not_use">アプリの状態：このアプリは使用できません / このアプリは開発者により使用制限が行われているか、開発が停止した可能性があります</string>
-    <string name="info_app_state_use">アプリの状態：リリースバージョン / このアプリはサポートされており、使用可能です</string>
+    <string name="info_app_state">アプリの状態：%1$s / %2$s</string>
     <string name="info_development">開発者</string>
     <string name="info_development_label">Kobold</string>
     <string name="info_organization">CTabLab</string>

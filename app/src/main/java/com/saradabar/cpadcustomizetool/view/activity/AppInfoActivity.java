@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Toast;
@@ -44,26 +45,19 @@ public class AppInfoActivity extends Activity {
 
     @SuppressLint("SetTextI18n")
     private void showInformation() {
-        PackageInfo pi = new PackageInfo();
-
-        try {
-            pi = getPackageManager().getPackageInfo(getPackageName(), 0);
-        } catch (Exception ignored) {
-        }
-
         TextView text1 = findViewById(R.id.menu_text_1),
                 text2 = findViewById(R.id.menu_text_2),
                 text3 = findViewById(R.id.menu_text_3),
                 text4 = findViewById(R.id.menu_text_4),
                 text5 = findViewById(R.id.menu_text_5);
 
-        text1.setText("アプリ名：" + getApplicationInfo().loadLabel(getPackageManager()).toString());
-        text2.setText("パッケージ名：" + pi.packageName);
-        text3.setText("バージョン：" + pi.versionName);
-        text4.setText("バージョンコード：" + pi.versionCode);
+        text1.setText("アプリ名：" + getApplicationInfo().loadLabel(getPackageManager()));
+        text2.setText("パッケージ名：" + BuildConfig.APPLICATION_ID);
+        text3.setText("バージョン：" + BuildConfig.VERSION_NAME);
+        text4.setText("バージョンコード：" + BuildConfig.VERSION_CODE);
 
-        if (getIntent().getBooleanExtra("result", false)) text5.setText(R.string.info_app_state_use);
-        else text5.setText(R.string.info_app_state_not_use);
+        if (getIntent().getBooleanExtra("result", false)) text5.setText(getString(R.string.info_app_state, BuildConfig.BUILD_TYPE, "無制限モード"));
+        else text5.setText(getString(R.string.info_app_state, BuildConfig.BUILD_TYPE, "制限モード"));
     }
 
     @Override
