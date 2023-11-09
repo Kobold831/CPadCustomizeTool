@@ -60,7 +60,6 @@ public class OtherFragment extends PreferenceFragmentCompat {
                     } else {
                         Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
                         startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                        new Handler().postDelayed(() -> Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0), 1000);
                     }
                 } catch (ActivityNotFoundException ignored) {
                 }

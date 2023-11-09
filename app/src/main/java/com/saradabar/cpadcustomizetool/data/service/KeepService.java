@@ -33,24 +33,21 @@ public class KeepService extends Service {
         return instance;
     }
 
-    private void KeepHome() {
+    private void KeepLauncher() {
         bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
+        SharedPreferences sp = getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
 
-        Runnable runnable = () -> {
-            SharedPreferences sp = getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
-            if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false) && !getHomePackageName().equals(sp.getString(Constants.KEY_SAVE_KEEP_HOME, null)) && mDchaService != null) {
-                try {
-                    mDchaService.clearDefaultPreferredApp(getHomePackageName());
-                    mDchaService.setDefaultPreferredHomeApp(sp.getString(Constants.KEY_SAVE_KEEP_HOME, null));
-                } catch (Exception ex) {
-                    CrashHandler.LogOverWrite(ex, this);
-                }
+        if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false) && !getLauncherPackageName().equals(sp.getString(Constants.KEY_SAVE_KEEP_HOME, null)) && mDchaService != null) {
+            try {
+                mDchaService.clearDefaultPreferredApp(getLauncherPackageName());
+                mDchaService.setDefaultPreferredHomeApp(sp.getString(Constants.KEY_SAVE_KEEP_HOME, null));
+            } catch (Exception ex) {
+                CrashHandler.LogOverWrite(ex, this);
             }
-        };
-        new Handler().postDelayed(runnable, 1000);
+        }
     }
 
-    private String getHomePackageName() {
+    private String getLauncherPackageName() {
         return getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0).activityInfo.packageName;
     }
 
@@ -167,7 +164,7 @@ public class KeepService extends Service {
 
         if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
             isHomeObserverEnable = true;
-            KeepHome();
+            KeepLauncher();
         }
 
         if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
@@ -241,7 +238,7 @@ public class KeepService extends Service {
 
         if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
             isHomeObserverEnable = true;
-            KeepHome();
+            KeepLauncher();
         }
     }
 

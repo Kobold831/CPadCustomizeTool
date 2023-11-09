@@ -42,7 +42,7 @@ import java.nio.file.Paths;
 
 public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
-    public String[] splitInstallData = new String[256];
+    String[] splitInstallData = new String[256];
 
     double totalByte;
 
