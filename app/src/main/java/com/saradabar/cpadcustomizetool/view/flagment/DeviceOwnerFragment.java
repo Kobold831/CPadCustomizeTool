@@ -49,13 +49,13 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     Preference preUninstallBlock,
             preSessionInstall,
             preAbandonSession,
-            preInstallLocation,
             preManageOrgPermission,
             preDescOrgPermission,
             preClrDevOwn,
             preNowSetOwnPkg;
 
-    SwitchPreference swPrePermissionFrc;
+    SwitchPreference swPrePermissionFrc,
+            swInstallLocation;
 
     @SuppressLint("StaticFieldLeak")
     private static DeviceOwnerFragment instance = null;
@@ -76,7 +76,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         swPrePermissionFrc = findPreference("pre_owner_permission_frc");
         preSessionInstall = findPreference("pre_owner_session_install");
         preAbandonSession = findPreference("pre_owner_abandon_session");
-        preInstallLocation = findPreference("pre_owner_install_location");
+        swInstallLocation = findPreference("pre_owner_install_location");
         preManageOrgPermission = findPreference("pre_owner_manage_org_permission");
         preDescOrgPermission = findPreference("pre_owner_desc_org_permission");
         preClrDevOwn = findPreference("pre_owner_clr_dev_own");
@@ -138,7 +138,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preInstallLocation.setOnPreferenceChangeListener((preference, o) -> true);
+        swInstallLocation.setOnPreferenceChangeListener((preference, o) -> true);
 
         /* 追加予定:権限管理 */
         preManageOrgPermission.setOnPreferenceClickListener(preference -> {
@@ -182,6 +182,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 preSessionInstall.setEnabled(false);
                 preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preAbandonSession.setEnabled(false);
+                preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swInstallLocation.setEnabled(false);
+                swInstallLocation.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 setPreferenceSettings();
                 break;
             case 1:
@@ -193,6 +197,14 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 preClrDevOwn.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 preSessionInstall.setEnabled(false);
                 preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preAbandonSession.setEnabled(false);
+                preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swInstallLocation.setEnabled(false);
+                swInstallLocation.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preManageOrgPermission.setEnabled(false);
+                preManageOrgPermission.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preDescOrgPermission.setEnabled(false);
+                preDescOrgPermission.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
             case 2:
                 setPreferenceSettings();
@@ -209,10 +221,18 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             preClrDevOwn.setEnabled(false);
             swPrePermissionFrc.setEnabled(false);
             preSessionInstall.setEnabled(false);
+            preAbandonSession.setEnabled(false);
+            swInstallLocation.setEnabled(false);
+            preManageOrgPermission.setEnabled(false);
+            preDescOrgPermission.setEnabled(false);
             preUninstallBlock.setSummary(getString(R.string.pre_owner_sum_not_use_function));
             preClrDevOwn.setSummary(getString(R.string.pre_owner_sum_not_use_function));
             swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_not_use_function));
             preSessionInstall.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            preAbandonSession.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            swInstallLocation.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            preManageOrgPermission.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            preDescOrgPermission.setSummary(getString(R.string.pre_owner_sum_not_use_function));
         } else {
             if (Preferences.GET_MODEL_ID(requireActivity()) != 0) {
                 switch (dpm.getPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
@@ -255,17 +275,29 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 preSessionInstall.setEnabled(false);
                 preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preAbandonSession.setEnabled(false);
+                preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swInstallLocation.setEnabled(false);
+                swInstallLocation.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 setPreferenceSettings();
                 break;
             case 1:
                 swPrePermissionFrc.setEnabled(false);
                 swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preUninstallBlock.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preClrDevOwn.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 preUninstallBlock.setEnabled(false);
+                preUninstallBlock.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 preClrDevOwn.setEnabled(false);
+                preClrDevOwn.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 preSessionInstall.setEnabled(false);
                 preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preAbandonSession.setEnabled(false);
+                preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swInstallLocation.setEnabled(false);
+                swInstallLocation.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preManageOrgPermission.setEnabled(false);
+                preManageOrgPermission.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preDescOrgPermission.setEnabled(false);
+                preDescOrgPermission.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
             case 2:
                 setPreferenceSettings();
@@ -282,19 +314,23 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
             if (setInstallFiles(data)) {
                 String str = new File(splitInstallData[0]).getName();
+
                 /* ファイルの拡張子 */
-                switch (str.substring(str.lastIndexOf("."))) {
-                    case ".apk":
-                        TryApkTask at = new TryApkTask();
-                        at.setListener(StartActivity.getInstance().apkListener());
-                        at.execute();
-                        return;
-                    case ".XAPK":
-                    case ".xapk":
-                        TryXApkTask xat = new TryXApkTask();
-                        xat.setListener(StartActivity.getInstance().xApkListener());
-                        xat.execute();
-                        return;
+                if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
+                    TryApkTask at = new TryApkTask();
+                    at.setListener(StartActivity.getInstance().apkListener());
+                    at.execute();
+                    return;
+                } else if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".xapk")) {
+                    TryXApkTask xat = new TryXApkTask();
+                    xat.setListener(StartActivity.getInstance().xApkListener());
+                    xat.execute();
+                    return;
+                } else if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
+                    TryApkMTask amt = new TryApkMTask();
+                    amt.setListener(StartActivity.getInstance().apkMListener());
+                    amt.execute();
+                    return;
                 }
             }
 
@@ -325,14 +361,11 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 String str = new File(splitInstallData[0]).getName();
 
                 /* ファイルの拡張子 */
-                switch (str.substring(str.lastIndexOf("."))) {
-                    case ".apk":
-                    case ".XAPK":
-                    case ".xapk":
-                        break;
-                    default:
-                        /* 未対応またはインストールファイルでないなら終了 */
-                        return false;
+                if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk") || str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".xapk") || str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
+                    return splitInstallData != null;
+                } else {
+                    /* 未対応またはインストールファイルでないなら終了 */
+                    return false;
                 }
             } else {
                 /* マルチApk */
@@ -389,6 +422,139 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         }
 
         return fileSize;
+    }
+
+    /* 解凍コピータスク */
+    public static class TryApkMTask extends AsyncTask<Object, Void, Object> {
+
+        public static TryApkMTask.Listener mListener;
+
+        @Override
+        protected void onPreExecute() {
+            mListener.onShow();
+        }
+
+        @Override
+        protected Object doInBackground(Object... value) {
+            String str = new File(getInstance().splitInstallData[0]).getParent() + File.separator + new File(getInstance().splitInstallData[0]).getName().replaceFirst("\\..*", ".zip");
+
+            /* 拡張子.apkmを.zipに変更 */
+            onProgressUpdate(getInstance().getString(R.string.progress_state_rename));
+
+            new File(getInstance().splitInstallData[0]).renameTo(new File(str));
+            File file = new File(Path.getTemporaryPath(getInstance().requireActivity()));
+
+            /* zipを展開して外部ディレクトリに一時保存 */
+            onProgressUpdate(getInstance().getString(R.string.progress_state_unpack));
+
+            getInstance().totalByte = new File(str).length();
+
+            try {
+                ZipUtil.unpack(new File(str), file);
+            } catch (ZipException e) {
+                return "圧縮ファイルが無効のため展開できません\n" + e.getMessage();
+            } catch (Exception e) {
+                return getInstance().getString(R.string.installer_status_no_allocatable_space) + e.getMessage();
+            }
+
+            /* 拡張子.zipを.apkmに変更 */
+            onProgressUpdate(getInstance().getString(R.string.progress_state_rename));
+
+            new File(str).renameTo(new File(new File(str).getParent() + File.separator + new File(str).getName().replaceFirst("\\..*", ".apkm")));
+
+            File[] list = file.listFiles();
+
+            if (list != null) {
+                int c = 0;
+                /* ディレクトリのなかのファイルを取得 */
+                for (int i = 0; i < list.length; i++) {
+                    if (list[i].isDirectory()) {
+                        c++;
+                    } else {
+                        onProgressUpdate(getInstance().getString(R.string.progress_state_check_file));
+                        str = list[i].getName();
+
+                        /* apkファイルならパスをインストールデータへ */
+                        if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
+                            getInstance().splitInstallData[i - c] = list[i].getPath();
+                        } else {
+                            /* apkファイルでなかったときのリストの順番を修正 */
+                            c++;
+                        }
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        private void onProgressUpdate(String str) {
+            mListener.onProgressUpdate(str);
+        }
+
+        @Override
+        protected void onPostExecute(Object result) {
+            if (result == null) {
+                mListener.onError(getInstance().getString(R.string.installer_status_unknown_error));
+                return;
+            }
+
+            if (result.equals(true)) {
+                mListener.onSuccess();
+                return;
+            }
+
+            if (result.equals(false)) {
+                mListener.onFailure();
+                return;
+            }
+
+            mListener.onError(result.toString());
+        }
+
+        public void setListener(TryApkMTask.Listener listener) {
+            mListener = listener;
+        }
+
+        /* StartActivity */
+        public interface Listener {
+            void onShow();
+
+            void onSuccess();
+
+            void onFailure();
+
+            void onError(String str);
+
+            void onProgressUpdate(String str);
+        }
+
+        @SuppressLint("NewApi")
+        public int getLoadedBytePercent() {
+            double fileSize = 0;
+
+            if (getInstance().totalByte <= 0) return 0;
+
+            fileSize = getInstance().getDirectorySize(new File(Path.getTemporaryPath(getInstance().requireActivity())));
+
+            return (int) Math.floor(100 * fileSize / getInstance().totalByte);
+        }
+
+        public int getLoadedTotalByte() {
+            return (int) getInstance().totalByte / (1024 * 1024);
+        }
+
+        @SuppressLint("NewApi")
+        public int getLoadedCurrentByte() {
+            double fileSize = 0;
+
+            if (getInstance().totalByte <= 0) return 0;
+
+            fileSize = getInstance().getDirectorySize(new File(Path.getTemporaryPath(getInstance().requireActivity())));
+
+            return (int) fileSize / (1024 * 1024);
+        }
     }
 
     /* 解凍コピータスク */

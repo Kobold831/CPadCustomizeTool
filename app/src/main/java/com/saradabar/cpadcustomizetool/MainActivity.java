@@ -21,7 +21,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
-import com.saradabar.cpadcustomizetool.data.connection.Checker;
 import com.saradabar.cpadcustomizetool.data.connection.Updater;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
@@ -35,7 +34,13 @@ import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WelAppActivity;
 import com.stephentuso.welcome.WelcomeHelper;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
@@ -112,52 +117,79 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
     private void updateCheck() {
         showLdDialog();
-        new Updater(this, Constants.URL_UPDATE_CHECK, 1).updateCheck();
+        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
     }
 
     private void supportCheck() {
-        if (!Preferences.GET_UPDATE_FLAG(this)) showLdDialog();
-        new Checker(this, Constants.URL_SUPPORT_CHECK).supportCheck();
+        showLdDialog();
+        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_SUPPORT_CHECK).execute();
     }
 
-    @Override
-    public void onDownloadComplete() {
-        new Handler().post(() -> new Updater(this, Constants.URL_UPDATE_CHECK, 1).installApk(this));
-    }
+    public JSONObject parseJson() throws JSONException, IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(getExternalCacheDir(), "Check.json").getPath()));
+        JSONObject json;
 
-    @Override
-    public void onUpdateAvailable(String str) {
-    }
+        StringBuilder data = new StringBuilder();
+        String str = bufferedReader.readLine();
 
-    @Override
-    public void onUpdateUnavailable() {
-    }
-
-    public void onSupportAvailable() {
-        cancelLdDialog();
-        showSupportDialog();
-    }
-
-    public void onSupportUnavailable() {
-        cancelLdDialog();
-
-        if (Preferences.GET_SETTINGS_FLAG(this)) {
-            if (supportModelCheck()) checkDchaService();
-            else supportModelError();
-        } else {
-            new WelcomeHelper(this, WelAppActivity.class).forceShow();
+        while(str != null){
+            data.append(str);
+            str = bufferedReader.readLine();
         }
+
+        json = new JSONObject(data.toString());
+
+        bufferedReader.close();
+
+        return json;
     }
 
     @Override
-    public void onUpdateAvailable1(String str) {
-        cancelLdDialog();
-        showUpdateDialog(str);
-    }
+    public void onDownloadComplete(int reqCode) {
+        switch (reqCode) {
+            case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
+                try {
+                    JSONObject jsonObj1 = parseJson();
+                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                    JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
 
-    @Override
-    public void onUpdateUnavailable1() {
-        supportCheck();
+                    if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
+                        cancelLdDialog();
+                        showUpdateDialog(jsonObj3.getString("description"));
+                    } else {
+                        cancelLdDialog();
+                        supportCheck();
+                    }
+                } catch (JSONException | IOException ignored) {
+                }
+                break;
+            case Constants.REQUEST_DOWNLOAD_SUPPORT_CHECK:
+                try {
+                    JSONObject jsonObj1 = parseJson();
+                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                    JSONObject jsonObj3 = jsonObj2.getJSONObject("support");
+
+                    if (jsonObj3.getInt("supportCode") == 0) {
+                        cancelLdDialog();
+                        if (Preferences.GET_SETTINGS_FLAG(this)) {
+                            if (supportModelCheck()) checkDchaService();
+                            else supportModelError();
+                        } else {
+                            new WelcomeHelper(this, WelAppActivity.class).forceShow();
+                        }
+                    } else {
+                        cancelLdDialog();
+                        showSupportDialog();
+                    }
+                } catch (JSONException | IOException ignored) {
+                }
+                break;
+            case Constants.REQUEST_DOWNLOAD_APK:
+                new Handler().post(() -> new Updater(this).installApk(this));
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -165,10 +197,10 @@ public class MainActivity extends Activity implements DownloadEventListener {
         cancelLdDialog();
         new AlertDialog.Builder(this)
                 .setCancelable(false)
-                .setTitle(R.string.dialog_title_update)
+                .setTitle(R.string.dialog_title_common_error)
                 .setIcon(R.drawable.alert)
-                .setMessage(R.string.dialog_error)
-                .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> finishAndRemoveTask())
+                .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
                 .show();
     }
 
@@ -180,7 +212,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setTitle(R.string.dialog_title_common_error)
                 .setIcon(R.drawable.alert)
                 .setMessage(R.string.dialog_error_start_connection)
-                .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> finishAndRemoveTask())
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
                 .show();
     }
 
@@ -195,9 +227,9 @@ public class MainActivity extends Activity implements DownloadEventListener {
         }
 
         View view = getLayoutInflater().inflate(R.layout.view_update, null);
-        TextView mTextView = view.findViewById(R.id.update_information);
+        TextView tv = view.findViewById(R.id.update_information);
 
-        mTextView.setText(str);
+        tv.setText(str);
         view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
             try {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_UPDATE_INFO)).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
@@ -211,7 +243,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                    AsyncFileDownload asyncFileDownload = new AsyncFileDownload(this, Variables.DOWNLOAD_FILE_URL, new File(new File(getExternalCacheDir(), "update.apk").getPath()));
+                    AsyncFileDownload asyncFileDownload = new AsyncFileDownload(this, Variables.DOWNLOAD_FILE_URL, new File(new File(getExternalCacheDir(), "update.apk").getPath()), Constants.REQUEST_DOWNLOAD_APK);
                     asyncFileDownload.execute();
                     ProgressDialog progressDialog = new ProgressDialog(this);
                     progressDialog.setTitle(R.string.dialog_title_update);
@@ -355,7 +387,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
             startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", result));
             overridePendingTransition(0, 0);
             finish();
-        } else tosDialog();
+        } else WarningDialog();
     }
 
     /* Pad3起動設定チェック */
@@ -368,7 +400,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 overridePendingTransition(0, 0);
                 finish();
             }
-        } else tosDialog();
+        } else WarningDialog();
     }
 
     /* PadNeo起動設定チェック */
@@ -381,11 +413,11 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 overridePendingTransition(0, 0);
                 finish();
             }
-        } else tosDialog();
+        } else WarningDialog();
     }
 
     /* 初回起動お知らせ */
-    public void tosDialog() {
+    public void WarningDialog() {
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_notice_start)

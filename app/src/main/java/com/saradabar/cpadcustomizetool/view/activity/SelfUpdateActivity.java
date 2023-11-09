@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
@@ -22,7 +23,13 @@ import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Toast;
 import com.saradabar.cpadcustomizetool.util.Variables;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class SelfUpdateActivity extends Activity implements DownloadEventListener {
 
@@ -33,48 +40,55 @@ public class SelfUpdateActivity extends Activity implements DownloadEventListene
         super.onCreate(savedInstanceState);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
+
         showLoadingDialog();
+        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
+    }
 
-        new Updater(this, Constants.URL_UPDATE_CHECK, 0).updateCheck();
+    public JSONObject parseJson() throws JSONException, IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(getExternalCacheDir(), "Check.json").getPath()));
+        JSONObject json;
+
+        StringBuilder data = new StringBuilder();
+        String str = bufferedReader.readLine();
+
+        while(str != null){
+            data.append(str);
+            str = bufferedReader.readLine();
+        }
+
+        json = new JSONObject(data.toString());
+
+        bufferedReader.close();
+
+        return json;
     }
 
     @Override
-    public void onUpdateAvailable(String str) {
-        cancelLoadingDialog();
+    public void onDownloadComplete(int reqCode) {
+        switch (reqCode) {
+            case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
+                try {
+                    JSONObject jsonObj1 = parseJson();
+                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                    JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
 
-        new Handler().post(() -> showUpdateDialog(str));
-    }
-
-    @Override
-    public void onUpdateUnavailable() {
-        cancelLoadingDialog();
-
-        new Handler().post(this::showNoUpdateDialog);
-    }
-
-    @Override
-    public void onDownloadComplete() {
-        new Handler().post(() -> new Updater(this, Constants.URL_UPDATE_CHECK, 0).installApk(this));
-    }
-
-    @Override
-    public void onSupportAvailable() {
-
-    }
-
-    @Override
-    public void onSupportUnavailable() {
-
-    }
-
-    @Override
-    public void onUpdateAvailable1(String str) {
-
-    }
-
-    @Override
-    public void onUpdateUnavailable1() {
-
+                    if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
+                        cancelLoadingDialog();
+                        showUpdateDialog(jsonObj3.getString("description"));
+                    } else {
+                        cancelLoadingDialog();
+                        showNoUpdateDialog();
+                    }
+                } catch (JSONException | IOException ignored) {
+                }
+                break;
+            case Constants.REQUEST_DOWNLOAD_APK:
+                new Handler().post(() -> new Updater(this).installApk(this));
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -122,7 +136,8 @@ public class SelfUpdateActivity extends Activity implements DownloadEventListene
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                    AsyncFileDownload asyncFileDownload = initFileLoader();
+                    AsyncFileDownload asyncFileDownload = new AsyncFileDownload(this, Variables.DOWNLOAD_FILE_URL, new File(new File(getExternalCacheDir(), "update.apk").getPath()), Constants.REQUEST_DOWNLOAD_APK);
+                    asyncFileDownload.execute();
                     ProgressDialog progressDialog = new ProgressDialog(this);
                     progressDialog.setTitle(R.string.dialog_title_update);
                     progressDialog.setMessage("アップデートファイルをサーバーからダウンロード中・・・");
@@ -152,19 +167,16 @@ public class SelfUpdateActivity extends Activity implements DownloadEventListene
                 .show();
     }
 
-    private AsyncFileDownload initFileLoader() {
-        AsyncFileDownload asyncfiledownload = new AsyncFileDownload(this, Variables.DOWNLOAD_FILE_URL, new File(new File(getExternalCacheDir(), "update.apk").getPath()));
-        asyncfiledownload.execute();
-
-        return asyncfiledownload;
-    }
-
     private void showLoadingDialog() {
         loadingDialog = ProgressDialog.show(this, "", getString(R.string.progress_state_update_check), true);
+        loadingDialog.show();
     }
 
     private void cancelLoadingDialog() {
-        if (loadingDialog != null) loadingDialog.cancel();
+        try {
+            if (loadingDialog != null) loadingDialog.dismiss();
+        } catch (Exception ignored) {
+        }
     }
 
     @Override

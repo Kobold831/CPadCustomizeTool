@@ -43,6 +43,7 @@ import com.saradabar.cpadcustomizetool.view.views.AppListView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.IOException;
@@ -56,6 +57,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     static StartActivity instance = null;
 
     IDchaService mDchaService;
+    ProgressDialog loadingDialog;
     Menu menu;
 
     public static StartActivity getInstance() {
@@ -221,6 +223,90 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         return bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
+    public DeviceOwnerFragment.TryApkMTask.Listener apkMListener() {
+        return new DeviceOwnerFragment.TryApkMTask.Listener() {
+            AlertDialog alertDialog;
+
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onShow() {
+                View view = getLayoutInflater().inflate(R.layout.view_progress, null);
+                ProgressBar progressBar = view.findViewById(R.id.progress);
+                progressBar.setProgress(0);
+                TextView textPercent = view.findViewById(R.id.progress_percent);
+                TextView textByte = view.findViewById(R.id.progress_byte);
+                textPercent.setText(progressBar.getProgress() + getString(R.string.percent));
+                alertDialog = new AlertDialog.Builder(StartActivity.this)
+                        .setView(view)
+                        .setMessage("")
+                        .setCancelable(false)
+                        .create();
+
+                if (!alertDialog.isShowing()) alertDialog.show();
+
+                ByteProgressHandler progressHandler = new ByteProgressHandler(1);
+                progressHandler.progressBar = progressBar;
+                progressHandler.textPercent = textPercent;
+                progressHandler.textByte = textByte;
+                progressHandler.tryApkMTask = new DeviceOwnerFragment.TryApkMTask();
+                progressHandler.sendEmptyMessage(0);
+            }
+
+            @Override
+            public void onSuccess() {
+                alertDialog.dismiss();
+
+                new DeviceOwnerFragment.TryApkMTask().cancel(true);
+                DeviceOwnerFragment.TryApkTask tryApkTask = new DeviceOwnerFragment.TryApkTask();
+                tryApkTask.setListener(apkListener());
+                tryApkTask.execute();
+            }
+
+            @Override
+            public void onFailure() {
+                alertDialog.dismiss();
+
+                try {
+                    /* 一時ファイルを消去 */
+                    FileUtils.deleteDirectory(StartActivity.this.getExternalCacheDir());
+                } catch (IOException ignored) {
+                }
+
+                new DeviceOwnerFragment.TryApkMTask().cancel(true);
+
+                new AlertDialog.Builder(StartActivity.this)
+                        .setMessage(getString(R.string.dialog_info_failure))
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            @Override
+            public void onError(String str) {
+                alertDialog.dismiss();
+
+                try {
+                    /* 一時ファイルを消去 */
+                    FileUtils.deleteDirectory(StartActivity.this.getExternalCacheDir());
+                } catch (IOException ignored) {
+                }
+
+                new DeviceOwnerFragment.TryApkMTask().cancel(true);
+
+                new AlertDialog.Builder(StartActivity.this)
+                        .setMessage(getString(R.string.dialog_error) + "\n" + str)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            @Override
+            public void onProgressUpdate(String str) {
+                alertDialog.setMessage(str);
+            }
+        };
+    }
+
     public DeviceOwnerFragment.TryXApkTask.Listener xApkListener() {
         return new DeviceOwnerFragment.TryXApkTask.Listener() {
             AlertDialog alertDialog;
@@ -242,7 +328,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 if (!alertDialog.isShowing()) alertDialog.show();
 
-                ByteProgressHandler progressHandler = new ByteProgressHandler();
+                ByteProgressHandler progressHandler = new ByteProgressHandler(0);
                 progressHandler.progressBar = progressBar;
                 progressHandler.textPercent = textPercent;
                 progressHandler.textByte = textByte;
@@ -519,83 +605,67 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     }
 
     @Override
-    public void onDownloadComplete() {
-        ArrayList<AppListView.AppData> list = new ArrayList<>();
+    public void onDownloadComplete(int reqCode) {
+        switch (reqCode) {
+            case Constants.REQUEST_DOWNLOAD_APP_CHECK:
+                ArrayList<AppListView.AppData> list = new ArrayList<>();
 
-        try {
-            JSONArray jsonArray = MainFragment.getInstance().parseJson().getJSONArray("app_list");
+                try {
+                    JSONObject jsonObj1 = MainFragment.getInstance().parseJson();
+                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                    JSONArray jsonArray = jsonObj2.getJSONArray("appList");
 
-            for (int i = 0; i < jsonArray.length(); i++) {
-                AppListView.AppData data = new AppListView.AppData();
-                data.str = jsonArray.getJSONObject(i).getString("name");
-                list.add(data);
-            }
-        } catch (JSONException | IOException ignored) {
-        }
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        AppListView.AppData data = new AppListView.AppData();
+                        data.str = jsonArray.getJSONObject(i).getString("name");
+                        list.add(data);
+                    }
+                } catch (JSONException | IOException ignored) {
+                }
 
-        View v = getLayoutInflater().inflate(R.layout.layout_app_list, null);
-        ListView lv = v.findViewById(R.id.app_list);
+                View v = getLayoutInflater().inflate(R.layout.layout_app_list, null);
+                ListView lv = v.findViewById(R.id.app_list);
 
-        lv.setAdapter(new AppListView.AppListAdapter(this, list));
-        lv.setOnItemClickListener((parent, view, position, id) -> {
-            CheckBox checkBox = lv.getChildAt(position).findViewById(R.id.v_app_list_check);
-            checkBox.setChecked(!checkBox.isChecked());
-        });
+                lv.setAdapter(new AppListView.AppListAdapter(this, list));
+                lv.setOnItemClickListener((parent, view, position, id) -> {
+                    CheckBox checkBox = lv.getChildAt(position).findViewById(R.id.v_app_list_check);
+                    checkBox.setChecked(!checkBox.isChecked());
+                });
 
-        new AlertDialog.Builder(this)
-                .setView(v)
-                .setTitle("アプリを選択してください")
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                    StringBuilder str = new StringBuilder();
-                    for (int i = 0; i <lv.getCount(); i++) {
-                        CheckBox checkBox = lv.getChildAt(i).findViewById(R.id.v_app_list_check);
-                        if (checkBox.isChecked()) {
-                            try {
-                                JSONArray jsonArray = MainFragment.getInstance().parseJson().getJSONArray("app_list");
-                                str.append(jsonArray.getJSONObject(i).getString("name")).append("\n").append(jsonArray.getJSONObject(i).getString("url")).append("\n");
-                            } catch (JSONException | IOException ignored) {
+                cancelLdDialog();
+
+                new AlertDialog.Builder(this)
+                        .setView(v)
+                        .setTitle("アプリを選択してください")
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            StringBuilder str = new StringBuilder();
+                            for (int i = 0; i <lv.getCount(); i++) {
+                                CheckBox checkBox = lv.getChildAt(i).findViewById(R.id.v_app_list_check);
+                                if (checkBox.isChecked()) {
+                                    try {
+                                        JSONObject jsonObj1 = MainFragment.getInstance().parseJson();
+                                        JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                                        JSONArray jsonArray = jsonObj2.getJSONArray("appList");
+                                        str.append(jsonArray.getJSONObject(i).getString("name")).append("\n").append(jsonArray.getJSONObject(i).getString("url")).append("\n");
+                                    } catch (JSONException | IOException ignored) {
+                                    }
+                                }
                             }
-                        }
-                    }
-                    if (str.toString().equals("")) {
-                        str = new StringBuilder("選択されていません");
-                    }
-                    new AlertDialog.Builder(this)
-                            .setMessage(str.toString())
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> dialog.dismiss())
-                            .show();
-                })
-                .show();
-    }
-
-    @Override
-    public void onUpdateAvailable(String str) {
-
-    }
-
-    @Override
-    public void onUpdateUnavailable() {
-
-    }
-
-    @Override
-    public void onSupportAvailable() {
-
-    }
-
-    @Override
-    public void onSupportUnavailable() {
-
-    }
-
-    @Override
-    public void onUpdateAvailable1(String str) {
-
-    }
-
-    @Override
-    public void onUpdateUnavailable1() {
-
+                            if (str.toString().equals("")) {
+                                str = new StringBuilder("選択されていません");
+                            }
+                            new AlertDialog.Builder(this)
+                                    .setMessage(str.toString())
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> dialog.dismiss())
+                                    .show();
+                        })
+                        .show();
+                break;
+            case Constants.REQUEST_DOWNLOAD_APK:
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -612,5 +682,17 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 .setMessage("データ取得に失敗しました\nネットワークを確認してください")
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                 .show();
+    }
+
+    public void showLdDialog() {
+        loadingDialog = ProgressDialog.show(this, "", getString(R.string.progress_state_connecting), true);
+        loadingDialog.show();
+    }
+
+    public void cancelLdDialog() {
+        try {
+            if (loadingDialog != null) loadingDialog.dismiss();
+        } catch (Exception ignored) {
+        }
     }
 }

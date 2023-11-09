@@ -20,21 +20,22 @@ public class AsyncFileDownload extends AsyncTask<String, Void, Boolean> {
 
 	DownloadEventListenerList downloadEventListenerList;
 	String url;
+	int reqCode;
 	File outputFile;
 	FileOutputStream fileOutputStream;
 	BufferedInputStream bufferedInputStream;
 	int totalByte = 0, currentByte = 0;
 
-	public AsyncFileDownload(Activity activity, String str, File file) {
+	public AsyncFileDownload(Activity activity, String str, File file, int i) {
 		url = str;
 		outputFile = file;
+		reqCode = i;
 		downloadEventListenerList = new DownloadEventListenerList();
-
 		downloadEventListenerList.addEventListener((DownloadEventListener) activity);
 	}
 
 	@Override
-	protected Boolean doInBackground(String... mString) {
+	protected Boolean doInBackground(String... str) {
 		final byte[] buffer = new byte[1024];
 
 		try {
@@ -82,7 +83,7 @@ public class AsyncFileDownload extends AsyncTask<String, Void, Boolean> {
 	@Override
 	protected void onPostExecute(Boolean result) {
 		if (result != null) {
-			if (result) downloadEventListenerList.downloadCompleteNotify();
+			if (result) downloadEventListenerList.downloadCompleteNotify(reqCode);
 			else downloadEventListenerList.downloadErrorNotify();
 		} else downloadEventListenerList.connectionErrorNotify();
 	}

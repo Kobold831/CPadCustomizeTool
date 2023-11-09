@@ -27,16 +27,13 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.DocumentsContract;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
@@ -48,12 +45,10 @@ import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
-import com.saradabar.cpadcustomizetool.util.Variables;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.views.LauncherView;
 import com.saradabar.cpadcustomizetool.view.views.NormalModeView;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,8 +56,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -859,7 +852,8 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         preGetApp.setOnPreferenceClickListener(preference -> {
-            new AsyncFileDownload(requireActivity(), "http://192.168.1.2/test/ct/json/appList.json", new File(new File(requireActivity().getExternalCacheDir(), "appList.json").getPath())).execute();
+            StartActivity.getInstance().showLdDialog();
+            new AsyncFileDownload(requireActivity(), "https://raw.githubusercontent.com/Kobold831/Server/main/Check.json", new File(new File(requireActivity().getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_APP_CHECK).execute();
             return false;
         });
 
@@ -914,7 +908,7 @@ public class MainFragment extends PreferenceFragmentCompat {
     }
 
     public JSONObject parseJson() throws JSONException, IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(requireActivity().getExternalCacheDir(), "appList.json").getPath()));
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(requireActivity().getExternalCacheDir(), "Check.json").getPath()));
         JSONObject json;
 
         StringBuilder data = new StringBuilder();

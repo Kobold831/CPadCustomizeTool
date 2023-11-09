@@ -11,36 +11,12 @@ public class DownloadEventListenerList {
 		listeners.add(l);
 	}
 
-	public void downloadCompleteNotify() {
-		for (DownloadEventListener listener : listeners) listener.onDownloadComplete();
-	}
-
-	public void updateAvailableNotify(String str) {
-		for (DownloadEventListener listener : listeners) listener.onUpdateAvailable(str);
-	}
-
-	public void updateUnavailableNotify() {
-		for (DownloadEventListener listener : listeners) listener.onUpdateUnavailable();
-	}
-
-	public void updateAvailableNotify1(String str) {
-		for (DownloadEventListener listener : listeners) listener.onUpdateAvailable1(str);
-	}
-
-	public void updateUnavailableNotify1() {
-		for (DownloadEventListener listener : listeners) listener.onUpdateUnavailable1();
+	public void downloadCompleteNotify(int reqCode) {
+		for (DownloadEventListener listener : listeners) listener.onDownloadComplete(reqCode);
 	}
 
 	public void downloadErrorNotify() {
 		for (DownloadEventListener listener : listeners) listener.onDownloadError();
-	}
-
-	public void supportAvailableNotify() {
-		for (DownloadEventListener listener : listeners) listener.onSupportAvailable();
-	}
-
-	public void supportUnavailableNotify() {
-		for (DownloadEventListener listener : listeners) listener.onSupportUnavailable();
 	}
 
 	public void connectionErrorNotify() {

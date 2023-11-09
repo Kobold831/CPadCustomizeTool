@@ -80,7 +80,7 @@
     <string name="pre_app_title_usb">デバイス起動時のUSBデバッグを有効</string>
     <string name="pre_app_title_update">アップデートモードを選択</string>
     <string name="pre_app_title_crash_history">クラッシュ履歴</string>
-    <string name="pre_app_title_delete_crash_history">クラッシュ履歴消去</string>
+    <string name="pre_app_title_delete_crash_history">クラッシュ履歴の消去</string>
     <string name="pre_app_sum_dcha">DchaServiceでシステム設定を変更します</string>
     <string name="pre_app_sum_usb">有効にすると、デバイス起動時にUSBデバッグが無効にされるのを防ぎます</string>
     <string name="pre_app_sum_confirmation_dcha">この機能を使用するには、\"DchaServiceを使用\"を押して内容を確認してください</string>

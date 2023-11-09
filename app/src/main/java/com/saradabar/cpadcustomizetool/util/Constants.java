@@ -29,6 +29,11 @@ public class Constants {
     public static final int REQUEST_PERMISSION = 3;
     public static final int REQUEST_SYSTEM_UPDATE = 4;
 
+    public static final int REQUEST_DOWNLOAD_UPDATE_CHECK = 0;
+    public static final int REQUEST_DOWNLOAD_SUPPORT_CHECK = 1;
+    public static final int REQUEST_DOWNLOAD_APK = 2;
+    public static final int REQUEST_DOWNLOAD_APP_CHECK = 3;
+
     public static final String URL_UPDATE_CHECK = "https://github.com/Kobold831/Server/raw/main/CPadCustomizeTool_Update.xml";
     public static final String URL_SUPPORT_CHECK = "https://github.com/Kobold831/Server/raw/main/CPadCustomizeTool_Support.xml";
     public static final String URL_UPDATE_INFO = "https://docs.google.com/document/d/1uh-FrHM5o84uh7zXw3W_FRIDuzJo8NcVnUD8Rrw4CMQ/";
