@@ -32,6 +32,7 @@ import com.saradabar.cpadcustomizetool.util.Variables;
 import com.saradabar.cpadcustomizetool.view.activity.CrashLogActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WelAppActivity;
+import com.stephentuso.welcome.BuildConfig;
 import com.stephentuso.welcome.WelcomeHelper;
 
 import org.json.JSONException;
@@ -116,12 +117,12 @@ public class MainActivity extends Activity implements DownloadEventListener {
     }
 
     private void updateCheck() {
-        showLdDialog();
+        showLoadingDialog();
         new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
     }
 
     private void supportCheck() {
-        showLdDialog();
+        showLoadingDialog();
         new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_SUPPORT_CHECK).execute();
     }
 
@@ -152,12 +153,13 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     JSONObject jsonObj1 = parseJson();
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
+                    Variables.DOWNLOAD_FILE_URL = jsonObj3.getString("url");
 
                     if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
-                        cancelLdDialog();
+                        cancelLoadingDialog();
                         showUpdateDialog(jsonObj3.getString("description"));
                     } else {
-                        cancelLdDialog();
+                        cancelLoadingDialog();
                         supportCheck();
                     }
                 } catch (JSONException | IOException ignored) {
@@ -170,7 +172,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("support");
 
                     if (jsonObj3.getInt("supportCode") == 0) {
-                        cancelLdDialog();
+                        cancelLoadingDialog();
                         if (Preferences.GET_SETTINGS_FLAG(this)) {
                             if (supportModelCheck()) checkDchaService();
                             else supportModelError();
@@ -178,7 +180,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                             new WelcomeHelper(this, WelAppActivity.class).forceShow();
                         }
                     } else {
-                        cancelLdDialog();
+                        cancelLoadingDialog();
                         showSupportDialog();
                     }
                 } catch (JSONException | IOException ignored) {
@@ -194,7 +196,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
     @Override
     public void onDownloadError() {
-        cancelLdDialog();
+        cancelLoadingDialog();
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_common_error)
@@ -206,7 +208,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
     @Override
     public void onConnectionError() {
-        cancelLdDialog();
+        cancelLoadingDialog();
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_common_error)
@@ -253,7 +255,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.dialog_common_cancel), (dialog2, which2) -> {
                         asyncFileDownload.cancel(true);
                         if (isNetworkState()) {
-                            showLdDialog();
+                            showLoadingDialog();
                             supportCheck();
                         } else networkError();
                     });
@@ -265,7 +267,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 })
                 .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
                     if (isNetworkState()) {
-                        showLdDialog();
+                        showLoadingDialog();
                         supportCheck();
                     } else networkError();
                 })
@@ -289,12 +291,12 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .show();
     }
 
-    private void showLdDialog() {
+    private void showLoadingDialog() {
         loadingDialog = ProgressDialog.show(this, "", getString(R.string.progress_state_connecting), true);
         loadingDialog.show();
     }
 
-    private void cancelLdDialog() {
+    private void cancelLoadingDialog() {
         try {
             if (loadingDialog != null) loadingDialog.dismiss();
         } catch (Exception ignored) {
@@ -485,7 +487,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
         switch (requestCode) {
             case Constants.REQUEST_UPDATE:
                 if (isNetworkState()) {
-                    showLdDialog();
+                    showLoadingDialog();
                     supportCheck();
                 } else networkError();
                 break;
