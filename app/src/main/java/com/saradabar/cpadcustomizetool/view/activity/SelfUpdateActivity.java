@@ -42,7 +42,7 @@ public class SelfUpdateActivity extends Activity implements DownloadEventListene
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         showLoadingDialog();
-        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
+        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
     }
 
     public JSONObject parseJson() throws JSONException, IOException {
@@ -72,6 +72,7 @@ public class SelfUpdateActivity extends Activity implements DownloadEventListene
                     JSONObject jsonObj1 = parseJson();
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
+                    Variables.DOWNLOAD_FILE_URL = jsonObj3.getString("url");
 
                     if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
                         cancelLoadingDialog();

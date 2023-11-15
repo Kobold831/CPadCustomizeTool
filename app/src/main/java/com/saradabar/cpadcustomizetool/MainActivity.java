@@ -32,7 +32,6 @@ import com.saradabar.cpadcustomizetool.util.Variables;
 import com.saradabar.cpadcustomizetool.view.activity.CrashLogActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WelAppActivity;
-import com.stephentuso.welcome.BuildConfig;
 import com.stephentuso.welcome.WelcomeHelper;
 
 import org.json.JSONException;
@@ -118,12 +117,12 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
     private void updateCheck() {
         showLoadingDialog();
-        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
+        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
     }
 
     private void supportCheck() {
         showLoadingDialog();
-        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_SUPPORT_CHECK).execute();
+        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_SUPPORT_CHECK).execute();
     }
 
     public JSONObject parseJson() throws JSONException, IOException {
@@ -203,6 +202,13 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setIcon(R.drawable.alert)
                 .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
+                .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
+                    result = false;
+                    if (Preferences.GET_SETTINGS_FLAG(this)) {
+                        if (supportModelCheck()) checkDchaService();
+                        else supportModelError();
+                    } else new WelcomeHelper(this, WelAppActivity.class).forceShow();
+                })
                 .show();
     }
 
@@ -215,6 +221,13 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setIcon(R.drawable.alert)
                 .setMessage(R.string.dialog_error_start_connection)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
+                .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
+                    result = false;
+                    if (Preferences.GET_SETTINGS_FLAG(this)) {
+                        if (supportModelCheck()) checkDchaService();
+                        else supportModelError();
+                    } else new WelcomeHelper(this, WelAppActivity.class).forceShow();
+                })
                 .show();
     }
 

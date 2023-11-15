@@ -853,7 +853,7 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         preGetApp.setOnPreferenceClickListener(preference -> {
             StartActivity.getInstance().showLdDialog();
-            new AsyncFileDownload(requireActivity(), "https://raw.githubusercontent.com/Kobold831/Server/main/Check.json", new File(new File(requireActivity().getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_APP_CHECK).execute();
+            new AsyncFileDownload(requireActivity(), "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(requireActivity().getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_APP_CHECK).execute();
             return false;
         });
 
