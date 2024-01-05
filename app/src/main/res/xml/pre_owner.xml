@@ -37,17 +37,6 @@
 
         <Preference
             app:iconSpaceReserved="false"
-            android:key="pre_owner_manage_org_permission"
-            android:title="ACCESS_DEVICE_OWNER権限の管理"
-            android:summary="不正なアプリの悪用を防ぎます" />
-
-        <Preference
-            app:iconSpaceReserved="false"
-            android:key="pre_owner_desc_org_permission"
-            android:title="ACCESS_DEVICE_OWNER権限の説明" />
-
-        <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_owner_clr_dev_own"
             android:title="@string/pre_owner_title_device_owner" />
 

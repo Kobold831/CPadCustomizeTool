@@ -34,12 +34,11 @@ public class Constants {
     public static final int REQUEST_DOWNLOAD_APK = 2;
     public static final int REQUEST_DOWNLOAD_APP_CHECK = 3;
 
-    public static final String URL_UPDATE_CHECK = "https://github.com/Kobold831/Server/raw/main/CPadCustomizeTool_Update.xml";
-    public static final String URL_SUPPORT_CHECK = "https://github.com/Kobold831/Server/raw/main/CPadCustomizeTool_Support.xml";
+    public static final String URL_CHECK = "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json";
     public static final String URL_UPDATE_INFO = "https://docs.google.com/document/d/1uh-FrHM5o84uh7zXw3W_FRIDuzJo8NcVnUD8Rrw4CMQ/";
-    public static final String URL_UPDATE = "https://is.gd/W5XR2Z";
-    public static final String URL_WIKI_DISCORD = "https://ctabwiki.nerrog.net/?Discord";
-    public static final String URL_WIKI_MAIN = "https://ctabwiki.nerrog.net/";
+    public static final String URL_UPDATE = "";
+    public static final String URL_WIKI_DISCORD = "";
+    public static final String URL_WIKI_MAIN = "";
     public static final String URL_GITHUB = "https://github.com/Kobold831/CPadCustomizeTool";
 
     public static final String DCHA_STATE = "dcha_state";

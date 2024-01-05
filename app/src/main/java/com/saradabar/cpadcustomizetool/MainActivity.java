@@ -66,15 +66,23 @@ public class MainActivity extends Activity implements DownloadEventListener {
     }
 
     private void firstCheck() {
-        /* ネットワークチェック */
-        if (!isNetworkState()) {
-            networkError();
+        /* アップデートチェックの可否を確認 */
+        if (Preferences.GET_UPDATE_FLAG(this)) {
+            /* ネットワークチェック */
+            if (!isNetworkState()) {
+                networkError();
+                return;
+            } else updateCheck();
             return;
         }
 
-        /* アップデートチェックの可否を確認 */
-        if (Preferences.GET_UPDATE_FLAG(this)) updateCheck();
-        else supportCheck();
+        /* いろいろ確認 */
+        if (Preferences.GET_SETTINGS_FLAG(this)) {
+            if (supportModelCheck()) checkDchaService();
+            else supportModelError();
+        } else {
+            new WelcomeHelper(this, WelAppActivity.class).forceShow();
+        }
     }
 
     private void crashError() {
@@ -106,7 +114,6 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setMessage(R.string.dialog_error_start_wifi)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
                 .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
-                    result = false;
                     if (Preferences.GET_SETTINGS_FLAG(this)) {
                         if (supportModelCheck()) checkDchaService();
                         else supportModelError();
@@ -120,10 +127,10 @@ public class MainActivity extends Activity implements DownloadEventListener {
         new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
     }
 
-    private void supportCheck() {
-        showLoadingDialog();
-        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_SUPPORT_CHECK).execute();
-    }
+//    private void supportCheck() {
+//        showLoadingDialog();
+//        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_SUPPORT_CHECK).execute();
+//    }
 
     public JSONObject parseJson() throws JSONException, IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(getExternalCacheDir(), "Check.json").getPath()));
@@ -159,7 +166,12 @@ public class MainActivity extends Activity implements DownloadEventListener {
                         showUpdateDialog(jsonObj3.getString("description"));
                     } else {
                         cancelLoadingDialog();
-                        supportCheck();
+                        if (Preferences.GET_SETTINGS_FLAG(this)) {
+                            if (supportModelCheck()) checkDchaService();
+                            else supportModelError();
+                        } else {
+                            new WelcomeHelper(this, WelAppActivity.class).forceShow();
+                        }
                     }
                 } catch (JSONException | IOException ignored) {
                 }
@@ -267,10 +279,12 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     progressDialog.setProgress(0);
                     progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.dialog_common_cancel), (dialog2, which2) -> {
                         asyncFileDownload.cancel(true);
-                        if (isNetworkState()) {
-                            showLoadingDialog();
-                            supportCheck();
-                        } else networkError();
+                        if (Preferences.GET_SETTINGS_FLAG(this)) {
+                            if (supportModelCheck()) checkDchaService();
+                            else supportModelError();
+                        } else {
+                            new WelcomeHelper(this, WelAppActivity.class).forceShow();
+                        }
                     });
                     progressDialog.show();
                     ProgressHandler progressHandler = new ProgressHandler();
@@ -279,10 +293,12 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     progressHandler.sendEmptyMessage(0);
                 })
                 .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
-                    if (isNetworkState()) {
-                        showLoadingDialog();
-                        supportCheck();
-                    } else networkError();
+                    if (Preferences.GET_SETTINGS_FLAG(this)) {
+                        if (supportModelCheck()) checkDchaService();
+                        else supportModelError();
+                    } else {
+                        new WelcomeHelper(this, WelAppActivity.class).forceShow();
+                    }
                 })
                 .show();
     }
@@ -499,10 +515,12 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
         switch (requestCode) {
             case Constants.REQUEST_UPDATE:
-                if (isNetworkState()) {
-                    showLoadingDialog();
-                    supportCheck();
-                } else networkError();
+                if (Preferences.GET_SETTINGS_FLAG(this)) {
+                    if (supportModelCheck()) checkDchaService();
+                    else supportModelError();
+                } else {
+                    new WelcomeHelper(this, WelAppActivity.class).forceShow();
+                }
                 break;
             case WelcomeHelper.DEFAULT_WELCOME_SCREEN_REQUEST:
             case Constants.REQUEST_PERMISSION:

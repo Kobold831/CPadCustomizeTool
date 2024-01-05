@@ -905,6 +905,9 @@ public class MainFragment extends PreferenceFragmentCompat {
         } else {
             getPreferenceScreen().removePreference(preEnableDchaService);
         }
+
+        preGetApp.setEnabled(false);
+        preGetApp.setSummary("この機能は使用できません");
     }
 
     public JSONObject parseJson() throws JSONException, IOException {

@@ -86,7 +86,7 @@
     <string name="pre_app_sum_confirmation_dcha">この機能を使用するには、\"DchaServiceを使用\"を押して内容を確認してください</string>
     
     <!-- デバイスオーナー設定 -->
-    <string name="pre_owner_title_uninstall_block">ユーザーアプリのアンインストールを無効</string>
+    <string name="pre_owner_title_uninstall_block">アンインストールブロッカー</string>
     <string name="pre_owner_title_permission">ランタイム権限を強制付与</string>
     <string name="pre_owner_title_silent_install">サイレントインストール</string>
     <string name="pre_owner_title_device_owner">デバイスオーナーを解除</string>
@@ -162,7 +162,7 @@
     <string name="dialog_error">エラーが発生しました</string>
     <string name="dialog_error_start_use">このアプリは使用できません\n続行する場合機能が制限されます</string>
     <string name="dialog_error_start_connection">サーバーと接続できませんでした\n通信状態を確認してください</string>
-    <string name="dialog_error_start_wifi">通信エラーが発生しました\nネットワークに接続してください\n続行する場合機能が制限されます</string>
+    <string name="dialog_error_start_wifi">通信エラーが発生しました\nネットワークに接続してください</string>
     <string name="dialog_error_start_dcha_service">”DchaService”が動作していません\nこのアプリは使用できません\n\n”DchaService”を使用しない場合、”続行”を押してください</string>
     <string name="dialog_error_start_cpad">この端末はサポートされていません\nこのアプリは使用できません</string>
     <string name="dialog_error_start_permission">システム設定の変更が許可されていません\n”設定”を押した後に表示されるスイッチを有効にし許可してください</string>
@@ -195,9 +195,9 @@
     <string name="info_app_info">アプリの情報</string>
     <string name="info_app_state">アプリの状態：%1$s / %2$s</string>
     <string name="info_development">開発者</string>
-    <string name="info_development_label">Kobold</string>
-    <string name="info_organization">CTabLab</string>
-    <string name="info_organization_label">CTabLabに参加して提案・不具合報告をしてください\n下のボタンより参加可能です</string>
+    <string name="info_development_label">こぼるど</string>
+    <string name="info_organization">SmileTabLabo</string>
+    <string name="info_organization_label">%1$sに参加して提案・不具合報告をしてください\n下のボタンより参加可能です</string>
     <string name="info_organization_button">参加</string>
     <string name="info_library">外部ライブラリー</string>
     <string name="info_library_wel_label">・Copyright 2015\-2017 Stephen Tuso\nwelcome-android</string>

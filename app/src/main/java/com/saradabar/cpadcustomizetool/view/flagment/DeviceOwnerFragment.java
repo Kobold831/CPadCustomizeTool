@@ -49,8 +49,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     Preference preUninstallBlock,
             preSessionInstall,
             preAbandonSession,
-            preManageOrgPermission,
-            preDescOrgPermission,
             preClrDevOwn,
             preNowSetOwnPkg;
 
@@ -77,8 +75,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         preSessionInstall = findPreference("pre_owner_session_install");
         preAbandonSession = findPreference("pre_owner_abandon_session");
         swInstallLocation = findPreference("pre_owner_install_location");
-        preManageOrgPermission = findPreference("pre_owner_manage_org_permission");
-        preDescOrgPermission = findPreference("pre_owner_desc_org_permission");
         preClrDevOwn = findPreference("pre_owner_clr_dev_own");
         preNowSetOwnPkg = findPreference("pre_owner_now_set_own_pkg");
 
@@ -140,24 +136,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
         swInstallLocation.setOnPreferenceChangeListener((preference, o) -> true);
 
-        /* 追加予定:権限管理 */
-        preManageOrgPermission.setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(getActivity())
-                    .setMessage("")
-                    .setPositiveButton(R.string.dialog_common_ok, null)
-                    .show();
-            return false;
-        });
-
-        preDescOrgPermission.setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(getActivity())
-                    .setTitle("com.saradabar.cpadcustomizetool.permission.ACCESS_DEVICE_OWNER")
-                    .setMessage("関連アプリのプロセス間通信に使用されています\nデバイスオーナーは１つのアプリのみ付与できるため、公正かつ自由に利用できるようにすべてのアプリからアクセスできます")
-                    .setPositiveButton(R.string.dialog_common_ok, null)
-                    .show();
-            return false;
-        });
-
         preClrDevOwn.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.dialog_question_device_owner)
@@ -201,15 +179,16 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 swInstallLocation.setEnabled(false);
                 swInstallLocation.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preManageOrgPermission.setEnabled(false);
-                preManageOrgPermission.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preDescOrgPermission.setEnabled(false);
-                preDescOrgPermission.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
             case 2:
                 setPreferenceSettings();
                 break;
         }
+
+        preAbandonSession.setEnabled(false);
+        swInstallLocation.setEnabled(false);
+        preAbandonSession.setSummary("この機能は使用できません");
+        swInstallLocation.setSummary("この機能は使用できません");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -223,16 +202,12 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             preSessionInstall.setEnabled(false);
             preAbandonSession.setEnabled(false);
             swInstallLocation.setEnabled(false);
-            preManageOrgPermission.setEnabled(false);
-            preDescOrgPermission.setEnabled(false);
             preUninstallBlock.setSummary(getString(R.string.pre_owner_sum_not_use_function));
             preClrDevOwn.setSummary(getString(R.string.pre_owner_sum_not_use_function));
             swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_not_use_function));
             preSessionInstall.setSummary(getString(R.string.pre_owner_sum_not_use_function));
             preAbandonSession.setSummary(getString(R.string.pre_owner_sum_not_use_function));
             swInstallLocation.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            preManageOrgPermission.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            preDescOrgPermission.setSummary(getString(R.string.pre_owner_sum_not_use_function));
         } else {
             if (Preferences.GET_MODEL_ID(requireActivity()) != 0) {
                 switch (dpm.getPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
@@ -294,15 +269,16 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 swInstallLocation.setEnabled(false);
                 swInstallLocation.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preManageOrgPermission.setEnabled(false);
-                preManageOrgPermission.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preDescOrgPermission.setEnabled(false);
-                preDescOrgPermission.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
             case 2:
                 setPreferenceSettings();
                 break;
         }
+
+        preAbandonSession.setEnabled(false);
+        swInstallLocation.setEnabled(false);
+        preAbandonSession.setSummary("この機能は使用できません");
+        swInstallLocation.setSummary("この機能は使用できません");
     }
 
     @Override
