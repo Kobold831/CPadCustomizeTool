@@ -58,6 +58,7 @@
     <string name="pre_main_title_launcher">変更するランチャーを設定</string>
     <string name="pre_main_title_device_owner">デバイスオーナーの機能</string>
     <string name="pre_main_title_system_update">システムアップデート</string>
+    <string name="pre_main_title_dhizuku_permission_req">Dhizukuアクセス権限リクエスト</string>
     <string name="pre_main_sum_message_1">ではこの機能は使用できません</string>
     <string name="pre_main_sum_message_2">変更するランチャーは</string>
     <string name="pre_main_sum_message_3">に設定されています</string>
@@ -158,6 +159,9 @@
     <string name="dialog_info_failure_silent_install">サイレントインストールに失敗しました</string>
     <string name="dialog_info_success_silent_install">サイレントインストールに成功しました</string>
     <string name="dialog_info_update_caution">遷移先のページより新しいバージョンのapkファイルをダウンロードしてadbでインストールしてください</string>
+    <string name="dialog_info_dhizuku_grant_permission">Dhizukuへのアクセス権限は付与されました</string>
+    <string name="dialog_info_dhizuku_deny_permission">Dhizukuへのアクセス権限は拒否されました</string>
+    <string name="dialog_info_dhizuku_already_grant_permission">Dhizukuへのアクセス権限は付与されています</string>
     <!-- ダイアログエラー -->
     <string name="dialog_error">エラーが発生しました</string>
     <string name="dialog_error_start_use">このアプリは使用できません\n続行する場合機能が制限されます</string>
@@ -173,6 +177,7 @@
     <string name="dialog_error_no_file_data">ファイルデータを取得できませんでした</string>
     <string name="dialog_error_not_work_mode">選択されたモードは機能していないため設定できません</string>
     <string name="dialog_error_reset_update_mode">デバイスオーナーではありません\nアップデートモードをリセットしました</string>
+    <string name="dialog_error_dhizuku_conn_failure">Dhizukuとの通信に失敗しました</string>
     <!-- ダイアログ操作許可 -->
     <string name="dialog_question_reboot">再起動しますか？</string>
     <string name="dialog_question_dcha_service">この機能を使用したことによるすべての問題を開発者は一切責任を負いません\nDchaServiceの機能を使用しますか?</string>
@@ -199,10 +204,12 @@
     <string name="info_organization">SmileTabLabo</string>
     <string name="info_organization_label">%1$sに参加して提案・不具合報告をしてください\n下のボタンより参加可能です</string>
     <string name="info_organization_button">参加</string>
-    <string name="info_library">外部ライブラリー</string>
-    <string name="info_library_wel_label">・Copyright 2015\-2017 Stephen Tuso\nwelcome-android</string>
-    <string name="info_library_zip_label">・Copyright 2012 ZeroTurnaround LLC.\nZeroTurnaround ZIP Library</string>
-    <string name="info_library_yib_label">・YiB-PC\ncpadmaterial.png \\ ex.png \\ navigationbar.png\nウォークスルーの追加</string>
+    <string name="info_library">外部ライブラリー / 謝辞</string>
+    <string name="info_library_wel_label">・welcome-android\nCopyright 2015\-2017 Stephen Tuso</string>
+    <string name="info_library_zip_label">・ZeroTurnaround ZIP Library\nCopyright 2012 ZeroTurnaround LLC.</string>
+    <string name="info_library_yib_label">・よびばいと\n画像の提供（cpadmaterial.png / ex.png / navigationbar.png）\nウォークスルーの追加</string>
+    <string name="info_library_dhizuku_label">・Dhizuku-API\nCopyright © 2023 R0S</string>
+    <string name="info_library_other_label">敬称略・順不同で記載しています</string>
     <string name="info_github">GitHub</string>
     <string name="info_github_label">このアプリのソースコードを取得できます</string>
     <string name="info_github_button">取得</string>

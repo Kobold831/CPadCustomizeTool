@@ -13,4 +13,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "CPad Customize Tool"
-include(":app")
+include(":app", ":dhizuku-api")

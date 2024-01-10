@@ -27,6 +27,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.DocumentsContract;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
@@ -34,10 +35,13 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
 
+import com.rosan.dhizuku.api.Dhizuku;
+import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
@@ -106,6 +110,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             preResolution,
             preResetResolution,
             preDeviceOwnerFn,
+            preDhizukuPermissionReq,
             preSystemUpdate,
             preGetApp;
 
@@ -314,6 +319,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         preResolution = findPreference("pre_resolution");
         preResetResolution = findPreference("pre_reset_resolution");
         preDeviceOwnerFn = findPreference("pre_device_owner_fn");
+        preDhizukuPermissionReq = findPreference("pre_dhizuku_permission_req");
         preSystemUpdate = findPreference("pre_system_update");
         preGetApp = findPreference("pre_get_app");
 
@@ -834,6 +840,42 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         preDeviceOwnerFn.setOnPreferenceClickListener(preference -> {
             StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
+            return false;
+        });
+
+        preDhizukuPermissionReq.setOnPreferenceClickListener(preference -> {
+            if (!Dhizuku.init(requireActivity())) {
+                new AlertDialog.Builder(requireActivity())
+                        .setMessage(R.string.dialog_error_dhizuku_conn_failure)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            if (!Dhizuku.isPermissionGranted()) {
+                Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
+                    @Override
+                    public void onRequestPermission(int grantResult) {
+                        requireActivity().runOnUiThread(() -> {
+                            if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                                new AlertDialog.Builder(requireActivity())
+                                        .setMessage(R.string.dialog_info_dhizuku_grant_permission)
+                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                        .show();
+                            } else {
+                                new AlertDialog.Builder(requireActivity())
+                                        .setMessage(R.string.dialog_info_dhizuku_deny_permission)
+                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                        .show();
+                            }
+                        });
+                    }
+                });
+            } else {
+                new AlertDialog.Builder(requireActivity())
+                        .setMessage(R.string.dialog_info_dhizuku_already_grant_permission)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
             return false;
         });
 

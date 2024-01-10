@@ -47,4 +47,5 @@ dependencies {
     implementation("androidx.preference:preference:1.2.1")
     implementation("com.stephentuso:welcome:1.4.1")
     implementation("org.zeroturnaround:zt-zip:1.12")
+    implementation(project(":dhizuku-api"))
 }

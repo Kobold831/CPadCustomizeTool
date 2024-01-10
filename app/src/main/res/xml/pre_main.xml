@@ -173,6 +173,11 @@
         android:key="pre_device_owner_fn"
         android:title="@string/pre_main_title_device_owner" />
 
+    <Preference
+        app:iconSpaceReserved="false"
+        android:key="pre_dhizuku_permission_req"
+        android:title="@string/pre_main_title_dhizuku_permission_req" />
+
     <SwitchPreference
         app:iconSpaceReserved="false"
         android:key="pre_device_admin"
