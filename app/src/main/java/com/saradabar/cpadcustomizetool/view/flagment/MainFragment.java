@@ -849,6 +849,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                         .setMessage(R.string.dialog_error_dhizuku_conn_failure)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
+                return false;
             }
 
             if (!Dhizuku.isPermissionGranted()) {
