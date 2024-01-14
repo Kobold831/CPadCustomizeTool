@@ -49,59 +49,66 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
     IDchaService mDchaService;
     ProgressDialog loadingDialog;
-    boolean result = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
 
+        /* 前回クラッシュしているかどうか */
         if (Preferences.GET_CRASH(this)) {
+            /* クラッシュダイアログ表示 */
             crashError();
-            return;
-        }
-
-        firstCheck();
-    }
-
-    private void firstCheck() {
-        /* アップデートチェックの可否を確認 */
-        if (Preferences.GET_UPDATE_FLAG(this)) {
-            /* ネットワークチェック */
-            if (!isNetworkState()) {
-                networkError();
-                return;
-            } else updateCheck();
-            return;
-        }
-
-        /* いろいろ確認 */
-        if (Preferences.GET_SETTINGS_FLAG(this)) {
-            if (supportModelCheck()) checkDchaService();
-            else supportModelError();
         } else {
-            new WelcomeHelper(this, WelAppActivity.class).forceShow();
+            /* 起動処理 */
+            firstCheck();
         }
     }
 
     private void crashError() {
         new AlertDialog.Builder(this)
                 .setCancelable(false)
-                .setMessage("前回" + getApplicationInfo().loadLabel(getPackageManager()).toString() + "が予期せずに終了しました\n繰り返し発生する場合は\"ログを見る\"を押してクラッシュログを開発者に送信してください")
+                .setMessage(getString(R.string.dialog_error_crash, getApplicationInfo().loadLabel(getPackageManager())))
                 .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> {
                     Preferences.SET_CRASH(this, false);
                     firstCheck();
                 })
-                .setNeutralButton("ログを見る", (dialog, which) -> startActivity(new Intent(this, CrashLogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                .setNeutralButton(R.string.dialog_common_check, (dialog, which) -> startActivity(new Intent(this, CrashLogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
                 .show();
+    }
+
+    private void firstCheck() {
+        /* アップデートチェックするか確認 */
+        if (Preferences.GET_UPDATE_FLAG(this)) {
+            /* ネットワークチェック */
+            if (!isNetworkState()) {
+                networkError();
+            } else {
+                /* アップデートチェック */
+                updateCheck();
+            }
+            return;
+        }
+
+        /* 初回起動か確認 */
+        if (Preferences.GET_SETTINGS_FLAG(this)) {
+            /* 初回起動ではないならサポート端末か確認 */
+            if (supportModelCheck()) {
+                /* DchaServiceを確認 */
+                checkDchaService();
+            } else {
+                supportModelError();
+            }
+        } else {
+            /* 初回起動はウォークスルー起動 */
+            new WelcomeHelper(this, WelAppActivity.class).forceShow();
+        }
     }
 
     /* ネットワークの接続を確認 */
     private boolean isNetworkState() {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
         return (networkInfo != null && networkInfo.isConnected());
     }
 
@@ -122,20 +129,16 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .show();
     }
 
+    /* アップデートチェック */
     private void updateCheck() {
         showLoadingDialog();
         new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
     }
 
-//    private void supportCheck() {
-//        showLoadingDialog();
-//        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_SUPPORT_CHECK).execute();
-//    }
-
+    /* json読み取り */
     public JSONObject parseJson() throws JSONException, IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(getExternalCacheDir(), "Check.json").getPath()));
         JSONObject json;
-
         StringBuilder data = new StringBuilder();
         String str = bufferedReader.readLine();
 
@@ -145,15 +148,15 @@ public class MainActivity extends Activity implements DownloadEventListener {
         }
 
         json = new JSONObject(data.toString());
-
         bufferedReader.close();
-
         return json;
     }
 
+    /* ダウンロード完了 */
     @Override
     public void onDownloadComplete(int reqCode) {
         switch (reqCode) {
+            /* アップデートチェック要求の場合 */
             case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
                 try {
                     JSONObject jsonObj1 = parseJson();
@@ -166,37 +169,21 @@ public class MainActivity extends Activity implements DownloadEventListener {
                         showUpdateDialog(jsonObj3.getString("description"));
                     } else {
                         cancelLoadingDialog();
-                        if (Preferences.GET_SETTINGS_FLAG(this)) {
-                            if (supportModelCheck()) checkDchaService();
-                            else supportModelError();
-                        } else {
-                            new WelcomeHelper(this, WelAppActivity.class).forceShow();
-                        }
-                    }
-                } catch (JSONException | IOException ignored) {
-                }
-                break;
-            case Constants.REQUEST_DOWNLOAD_SUPPORT_CHECK:
-                try {
-                    JSONObject jsonObj1 = parseJson();
-                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-                    JSONObject jsonObj3 = jsonObj2.getJSONObject("support");
 
-                    if (jsonObj3.getInt("supportCode") == 0) {
-                        cancelLoadingDialog();
                         if (Preferences.GET_SETTINGS_FLAG(this)) {
-                            if (supportModelCheck()) checkDchaService();
-                            else supportModelError();
+                            if (supportModelCheck()) {
+                                checkDchaService();
+                            } else {
+                                supportModelError();
+                            }
                         } else {
                             new WelcomeHelper(this, WelAppActivity.class).forceShow();
                         }
-                    } else {
-                        cancelLoadingDialog();
-                        showSupportDialog();
                     }
                 } catch (JSONException | IOException ignored) {
                 }
                 break;
+            /* APKダウンロード要求の場合 */
             case Constants.REQUEST_DOWNLOAD_APK:
                 new Handler().post(() -> new Updater(this).installApk(this));
                 break;
@@ -205,6 +192,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
         }
     }
 
+    /* ダウンロードエラー */
     @Override
     public void onDownloadError() {
         cancelLoadingDialog();
@@ -215,15 +203,21 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
                 .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
-                    result = false;
                     if (Preferences.GET_SETTINGS_FLAG(this)) {
-                        if (supportModelCheck()) checkDchaService();
-                        else supportModelError();
-                    } else new WelcomeHelper(this, WelAppActivity.class).forceShow();
+                        if (supportModelCheck()) {
+                            checkDchaService();
+                        } else {
+                            supportModelError();
+                        }
+                    } else {
+                        new WelcomeHelper(this, WelAppActivity.class).forceShow();
+                    }
                 })
                 .show();
     }
 
+
+    /* サーバー接続エラー */
     @Override
     public void onConnectionError() {
         cancelLoadingDialog();
@@ -234,16 +228,22 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setMessage(R.string.dialog_error_start_connection)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
                 .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
-                    result = false;
                     if (Preferences.GET_SETTINGS_FLAG(this)) {
-                        if (supportModelCheck()) checkDchaService();
-                        else supportModelError();
-                    } else new WelcomeHelper(this, WelAppActivity.class).forceShow();
+                        if (supportModelCheck()) {
+                            checkDchaService();
+                        } else {
+                            supportModelError();
+                        }
+                    } else {
+                        new WelcomeHelper(this, WelAppActivity.class).forceShow();
+                    }
                 })
                 .show();
     }
 
+    /* アップデートダイアログ */
     private void showUpdateDialog(String str) {
+        /* 初回起動ならモデルIDをセット */
         if (!Preferences.GET_SETTINGS_FLAG(this)) {
             switch (Build.MODEL) {
                 case "TAB-A05-BD":
@@ -303,31 +303,18 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .show();
     }
 
-    private void showSupportDialog() {
-        new AlertDialog.Builder(this)
-                .setCancelable(false)
-                .setTitle(R.string.dialog_title_common_error)
-                .setIcon(R.drawable.alert)
-                .setMessage(R.string.dialog_error_start_use)
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
-                .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
-                    result = false;
-                    if (Preferences.GET_SETTINGS_FLAG(this)) {
-                        if (supportModelCheck()) checkDchaService();
-                        else supportModelError();
-                    } else new WelcomeHelper(this, WelAppActivity.class).forceShow();
-                })
-                .show();
-    }
-
+    /* ローディングダイアログを表示する */
     private void showLoadingDialog() {
         loadingDialog = ProgressDialog.show(this, "", getString(R.string.progress_state_connecting), true);
         loadingDialog.show();
     }
 
+    /* ろ＾ディングダイアログを非表示にする */
     private void cancelLoadingDialog() {
         try {
-            if (loadingDialog != null) loadingDialog.dismiss();
+            if (loadingDialog != null) {
+                loadingDialog.dismiss();
+            }
         } catch (Exception ignored) {
         }
     }
@@ -336,7 +323,11 @@ public class MainActivity extends Activity implements DownloadEventListener {
     private boolean supportModelCheck() {
         String[] modelName = {"TAB-A03-BS", "TAB-A03-BR", "TAB-A03-BR2", "TAB-A03-BR3", "TAB-A05-BD", "TAB-A05-BA1"};
 
-        for (String string : modelName) if (Objects.equals(string, Build.MODEL)) return true;
+        for (String string : modelName) {
+            if (Objects.equals(string, Build.MODEL)) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -353,6 +344,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
     /* DchaService動作チェック */
     private void checkDchaService() {
+        /* DchaServiceを使用するか確認 */
         if (!Preferences.GET_DCHASERVICE_FLAG(this)) {
             switch (Build.MODEL) {
                 case "TAB-A03-BR3":
@@ -369,8 +361,8 @@ public class MainActivity extends Activity implements DownloadEventListener {
             return;
         }
 
-        /* DchaServiceの使用可否を確認 */
-        if (!isBindDchaService()) {
+        /* DchaServiceが機能しているか */
+        if (!tryBindDchaService()) {
             new AlertDialog.Builder(this)
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_common_error)
@@ -415,10 +407,12 @@ public class MainActivity extends Activity implements DownloadEventListener {
         Preferences.SET_MODEL_ID(0, this);
 
         if (Preferences.GET_SETTINGS_FLAG(this)) {
-            startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", result));
+            startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             overridePendingTransition(0, 0);
             finish();
-        } else WarningDialog();
+        } else {
+            WarningDialog();
+        }
     }
 
     /* Pad3起動設定チェック */
@@ -427,11 +421,13 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
         if (Preferences.GET_SETTINGS_FLAG(this)) {
             if (isPermissionCheck()) {
-                startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", result));
+                startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 overridePendingTransition(0, 0);
                 finish();
             }
-        } else WarningDialog();
+        } else {
+            WarningDialog();
+        }
     }
 
     /* PadNeo起動設定チェック */
@@ -440,11 +436,13 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
         if (Preferences.GET_SETTINGS_FLAG(this)) {
             if (isPermissionCheck()) {
-                startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", result));
+                startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 overridePendingTransition(0, 0);
                 finish();
             }
-        } else WarningDialog();
+        } else {
+            WarningDialog();
+        }
     }
 
     /* 初回起動お知らせ */
@@ -456,7 +454,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                     if (isPermissionCheck()) {
                         Preferences.SET_SETTINGS_FLAG(true, this);
-                        startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", result));
+                        startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         overridePendingTransition(0, 0);
                         finish();
                     }
@@ -464,7 +462,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .show();
     }
 
-    /* 権限設定 */
+    /* システム設定変更権限か付与されているか確認 */
     private boolean isPermissionCheck() {
         if (isWriteSystemPermissionCheck()) {
             new AlertDialog.Builder(this)
@@ -473,8 +471,9 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     .setMessage(R.string.dialog_error_start_permission)
                     .setIcon(R.drawable.alert)
                     .setPositiveButton(R.string.dialog_common_settings, (dialog, which) -> {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             startActivityForResult(new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.fromParts("package", getPackageName(), null)).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION), Constants.REQUEST_PERMISSION);
+                        }
                     })
                     .setNeutralButton(R.string.dialog_common_exit, (dialogInterface, i) -> finishAndRemoveTask())
                     .show();
@@ -488,9 +487,9 @@ public class MainActivity extends Activity implements DownloadEventListener {
     private boolean isWriteSystemPermissionCheck() {
         boolean canWrite = true;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             canWrite = Settings.System.canWrite(this);
-
+        }
         return !canWrite;
     }
 
@@ -505,27 +504,33 @@ public class MainActivity extends Activity implements DownloadEventListener {
         }
     };
 
-    public boolean isBindDchaService() {
+    /* DchaServiceへバインド */
+    public boolean tryBindDchaService() {
         return bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         switch (requestCode) {
             case Constants.REQUEST_UPDATE:
                 if (Preferences.GET_SETTINGS_FLAG(this)) {
-                    if (supportModelCheck()) checkDchaService();
-                    else supportModelError();
+                    if (supportModelCheck()) {
+                        checkDchaService();
+                    } else {
+                        supportModelError();
+                    }
                 } else {
                     new WelcomeHelper(this, WelAppActivity.class).forceShow();
                 }
                 break;
             case WelcomeHelper.DEFAULT_WELCOME_SCREEN_REQUEST:
             case Constants.REQUEST_PERMISSION:
-                if (supportModelCheck()) checkDchaService();
-                else supportModelError();
+                if (supportModelCheck()) {
+                    checkDchaService();
+                } else {
+                    supportModelError();
+                }
                 break;
         }
     }
@@ -533,7 +538,8 @@ public class MainActivity extends Activity implements DownloadEventListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        if (mDchaService != null) unbindService(mDchaServiceConnection);
+        if (mDchaService != null) {
+            unbindService(mDchaServiceConnection);
+        }
     }
 }

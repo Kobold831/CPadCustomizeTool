@@ -1,8 +1,6 @@
 <resources>
     <!-- アプリ・アクティビティ -->
     <string name="app_name">CPad Customize Tool</string>
-    <string name="permission_group_label">デバイスオーナーへのアクセス</string>
-    <string name="permission_group_description">デバイスオーナー機能を提供します</string>
     <string name="activity_main">カスタマイズツール</string>
     <string name="activity_start">設定</string>
     <string name="activity_emergency">緊急モード</string>
@@ -106,13 +104,6 @@
     <string name="pre_other_title_adjustment">システムUI調整ツールを起動</string>
     <string name="pre_other_title_screen_off_time">スクリーンのタイムアウト</string>
 
-    <!-- メイン設定エラー -->
-    <string name="main_error_message_enable_own">このアプリは現在使用できません\n\nデバイスオーナーを解除する場合は、\"デバイスオーナーを解除\"を押してください\n\nアンインストールブロックを解除する場合は、\"アンインストールブロックを開く\"を押してください\n\n\"デフォルト設定に戻す\"を押すと実行中の維持サービスが停止し、今まで操作した設定がデフォルト状態にクリアされます</string>
-    <string name="main_error_message_disable_own">このアプリは現在使用できません\n\n\"デフォルト設定に戻す\"を押すと実行中の維持サービスが停止し、今まで操作した設定がデフォルト状態にクリアされます</string>
-    <string name="main_error_button_1">デバイスオーナーを解除</string>
-    <string name="main_error_button_2">アンインストールブロックを開く</string>
-    <string name="main_error_button_3">デフォルト設定に戻す</string>
-
     <!-- その他の設定 -->
     <string name="un_text_1">すべて無効</string>
     <string name="un_text_2">すべて有効</string>
@@ -131,6 +122,7 @@
     <string name="dialog_common_exit">終了</string>
     <string name="dialog_common_cancel">キャンセル</string>
     <string name="dialog_common_continue">続行</string>
+    <string name="dialog_common_check">確認</string>
     <!-- ダイアログタイトル -->
     <string name="dialog_title_update">アプリの更新</string>
     <string name="dialog_title_common_error">起動エラー</string>
@@ -163,8 +155,8 @@
     <string name="dialog_info_dhizuku_deny_permission">Dhizukuへのアクセス権限は拒否されました</string>
     <string name="dialog_info_dhizuku_already_grant_permission">Dhizukuへのアクセス権限は付与されています</string>
     <!-- ダイアログエラー -->
+    <string name="dialog_error_crash">前回%1$sが予期せずに終了しました\n繰り返し発生する場合は"確認"を押してクラッシュログを開発者に送信してください</string>
     <string name="dialog_error">エラーが発生しました</string>
-    <string name="dialog_error_start_use">このアプリは使用できません\n続行する場合機能が制限されます</string>
     <string name="dialog_error_start_connection">サーバーと接続できませんでした\n通信状態を確認してください</string>
     <string name="dialog_error_start_wifi">通信エラーが発生しました\nネットワークに接続してください</string>
     <string name="dialog_error_start_dcha_service">”DchaService”が動作していません\nこのアプリは使用できません\n\n”DchaService”を使用しない場合、”続行”を押してください</string>
