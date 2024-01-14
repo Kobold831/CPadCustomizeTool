@@ -130,7 +130,6 @@
         <service
             android:name=".data.service.DeviceOwnerService"
             android:label="@string/app_name"
-            android:permission="com.saradabar.cpadcustomizetool.permission.ACCESS_DEVICE_OWNER"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.saradabar.cpadcustomizetool.data.service.DeviceOwnerService"/>
