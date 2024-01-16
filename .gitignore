@@ -9,5 +9,3 @@
 # Android Studio Signing APK
 /app/debug/
 /app/release/
-# Dhizuku-api
-/dhizuku-api/build/

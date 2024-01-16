@@ -1,2 +1,0 @@
-configurations.create("default")
-artifacts.add("default", file('Dhizuku-API-2.4.aar'))
