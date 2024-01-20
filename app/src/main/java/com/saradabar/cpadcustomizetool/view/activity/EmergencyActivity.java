@@ -99,8 +99,11 @@ public class EmergencyActivity extends Activity {
             }
 
             try {
-                if (Preferences.isEmergencySettingsDchaState(this))
-                    Settings.System.putInt(resolver, Constants.DCHA_STATE, 3);
+                if (Preferences.isEmergencySettingsDchaState(this)) {
+                    if (isCfmDialog()) {
+                        Settings.System.putInt(resolver, Constants.DCHA_STATE, 3);
+                    }
+                }
 
                 if (Preferences.isEmergencySettingsNavigationBar(this))
                     Settings.System.putInt(resolver, Constants.HIDE_NAVIGATION_BAR, 1);
@@ -110,8 +113,11 @@ public class EmergencyActivity extends Activity {
             }
         } else {
             try {
-                if (Preferences.isEmergencySettingsDchaState(this))
-                    Settings.System.putInt(resolver, Constants.DCHA_STATE, 0);
+                if (Preferences.isEmergencySettingsDchaState(this)) {
+                    if (isCfmDialog()) {
+                        Settings.System.putInt(resolver, Constants.DCHA_STATE, 0);
+                    }
+                }
 
                 if (Preferences.isEmergencySettingsNavigationBar(this))
                     Settings.System.putInt(resolver, Constants.HIDE_NAVIGATION_BAR, 0);
@@ -165,6 +171,14 @@ public class EmergencyActivity extends Activity {
             }
         }
         return true;
+    }
+
+    private boolean isCfmDialog() {
+        if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
+            return Preferences.GET_CONFIRMATION(this);
+        } else {
+            return true;
+        }
     }
 
     ServiceConnection mDchaServiceConnection = new ServiceConnection() {

@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -606,10 +607,13 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                                             new AlertDialog.Builder(this)
                                                     .setMessage("http://またはhttps://を含むURLを指定してください")
                                                     .setView(view)
+                                                    .setCancelable(false)
                                                     .setPositiveButton(R.string.dialog_common_ok, (dialog3, which3) -> {
+                                                        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editText.getWindowToken(), 0);
                                                         Variables.DOWNLOAD_FILE_URL = editText.getText().toString();
                                                         startDownload();
                                                     })
+                                                    .setNegativeButton(R.string.dialog_common_cancel, null)
                                                     .show();
                                         }
                                     })
