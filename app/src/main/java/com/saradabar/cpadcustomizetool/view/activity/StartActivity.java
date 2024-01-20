@@ -595,6 +595,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
     @Override
     public void onDownloadError() {
+        cancelLdDialog();
         new AlertDialog.Builder(this)
                 .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -603,6 +604,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
     @Override
     public void onConnectionError() {
+        cancelLdDialog();
         new AlertDialog.Builder(this)
                 .setMessage("データ取得に失敗しました\nネットワークを確認してください")
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())

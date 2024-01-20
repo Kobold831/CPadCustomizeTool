@@ -70,25 +70,27 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         });
 
         swAdb.setOnPreferenceChangeListener((preference, newValue) -> {
-            if (Common.isCfmDialog(requireActivity())) {
-                return false;
+            if (isCfmDialog()) {
+                try {
+                    if (Preferences.GET_MODEL_ID(requireActivity()) == 2)
+                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
+                    Thread.sleep(100);
+                    Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
+                    if (Preferences.GET_MODEL_ID(requireActivity()) == 2)
+                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
+                    sp.edit().putBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, (boolean) newValue).apply();
+                } catch (SecurityException | InterruptedException ignored) {
+                    if (Preferences.GET_MODEL_ID(requireActivity()) == 2)
+                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
+                    Toast.toast(requireActivity(), R.string.toast_not_change);
+                    swAdb.setChecked(false);
+                    return false;
+                }
+                return true;
+            } else {
+                cfmDialog();
             }
-            try {
-                if (Preferences.GET_MODEL_ID(requireActivity()) == 2)
-                    Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
-                Thread.sleep(100);
-                Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
-                if (Preferences.GET_MODEL_ID(requireActivity()) == 2)
-                    Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
-                sp.edit().putBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, (boolean) newValue).apply();
-            } catch (SecurityException | InterruptedException ignored) {
-                if (Preferences.GET_MODEL_ID(requireActivity()) == 2)
-                    Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
-                Toast.toast(requireActivity(), R.string.toast_not_change);
-                swAdb.setChecked(false);
-                return false;
-            }
-            return true;
+            return false;
         });
 
         preCrashLog.setOnPreferenceClickListener(preference -> {
@@ -153,14 +155,18 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         listView.invalidateViews();
                         break;
                     case 2:
-                        if (MainFragment.getInstance().tryBindDchaService(Constants.FLAG_CHECK, true) && Preferences.GET_MODEL_ID(requireActivity()) != 0) {
-                            Preferences.SET_UPDATE_MODE(requireActivity(), (int) id);
-                            listView.invalidateViews();
+                        if (isCfmDialog()) {
+                            if (MainFragment.getInstance().tryBindDchaService(Constants.FLAG_CHECK, true) && Preferences.GET_MODEL_ID(requireActivity()) != 0) {
+                                Preferences.SET_UPDATE_MODE(requireActivity(), (int) id);
+                                listView.invalidateViews();
+                            } else {
+                                new AlertDialog.Builder(requireActivity())
+                                        .setMessage(getString(R.string.dialog_error_not_work_mode))
+                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                        .show();
+                            }
                         } else {
-                            new AlertDialog.Builder(requireActivity())
-                                    .setMessage(getString(R.string.dialog_error_not_work_mode))
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                                    .show();
+                            cfmDialog();
                         }
                         break;
                     case 3:
@@ -199,5 +205,32 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                 swAdb.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
         }
+    }
+
+    private boolean isCfmDialog() {
+        if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
+            return Preferences.GET_CONFIRMATION(requireActivity());
+        } else {
+            return true;
+        }
+    }
+
+    private void cfmDialog() {
+        new AlertDialog.Builder(requireActivity())
+                .setCancelable(false)
+                .setTitle(getString(R.string.dialog_question_are_you_sure))
+                .setMessage(getString(R.string.dialog_confirmation))
+                .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> new AlertDialog.Builder(requireActivity())
+                        .setCancelable(false)
+                        .setTitle(getString(R.string.dialog_title_final_confirmation))
+                        .setMessage(getString(R.string.dialog_final_confirmation))
+                        .setPositiveButton(R.string.dialog_common_cancel, (dialog1, which1) -> dialog.dismiss())
+                        .setNeutralButton(R.string.dialog_common_continue, (dialog1, which1) -> {
+                            Preferences.SET_CONFIRMATION(true, requireActivity());
+                            dialog1.dismiss();
+                        })
+                        .show())
+                .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }

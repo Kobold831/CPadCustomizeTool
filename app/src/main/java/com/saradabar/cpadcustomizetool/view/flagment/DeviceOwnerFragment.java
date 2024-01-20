@@ -40,8 +40,6 @@ import java.util.Objects;
 
 public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
-    DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
-
     String[] splitInstallData = new String[256];
 
     double totalByte;
@@ -68,6 +66,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.pre_owner, rootKey);
 
         instance = this;
+        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
         preUninstallBlock = findPreference("pre_owner_uninstall_block");
         swPrePermissionFrc = findPreference("pre_owner_permission_frc");
         preSessionInstall = findPreference("pre_owner_session_install");
@@ -155,6 +154,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     /* 初期化 */
     @SuppressLint("NewApi")
     private void initialize() {
+        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
         if (dpm.isDeviceOwnerApp(requireActivity().getPackageName())) {
             if (Preferences.GET_MODEL_ID(requireActivity()) != 0) {
                 switch (dpm.getPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
@@ -227,6 +227,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     }
 
     private String getDeviceOwnerPackage() {
+        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
         for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
             /* ユーザーアプリか確認 */
             if (app.sourceDir.startsWith("/data/app/")) {

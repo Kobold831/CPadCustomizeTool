@@ -60,7 +60,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                         startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         return false;
                     } else if (Constants.COUNT_DCHA_COMPLETED_FILE.exists()) {
-                        if (Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0) != 3) {
+                        if (Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0) != 0) {
                             startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         } else {
                             Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);

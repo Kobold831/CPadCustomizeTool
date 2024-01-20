@@ -110,35 +110,6 @@ public class Common {
         return null;
     }
 
-    /* 確認ダイアログ */
-    public static boolean isCfmDialog(Context context) {
-        if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
-            if (!Preferences.GET_CONFIRMATION(context)) {
-                new AlertDialog.Builder(context)
-                        .setCancelable(false)
-                        .setTitle(context.getString(R.string.dialog_question_are_you_sure))
-                        .setMessage(context.getString(R.string.dialog_confirmation))
-                        .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> new AlertDialog.Builder(context)
-                                .setCancelable(false)
-                                .setTitle(context.getString(R.string.dialog_title_final_confirmation))
-                                .setMessage(context.getString(R.string.dialog_final_confirmation))
-                                .setPositiveButton(R.string.dialog_common_continue, (dialog1, which1) -> {
-                                    Preferences.SET_CONFIRMATION(true, context);
-                                    dialog1.dismiss();
-                                })
-                                .setNegativeButton(R.string.dialog_common_cancel, (dialog1, which1) -> dialog.dismiss())
-                                .show())
-                        .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> dialog.dismiss())
-                        .show();
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            return false;
-        }
-    }
-
     public static JSONObject parseJson(Context context) throws JSONException, IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(context.getExternalCacheDir(), "Check.json").getPath()));
         JSONObject json;

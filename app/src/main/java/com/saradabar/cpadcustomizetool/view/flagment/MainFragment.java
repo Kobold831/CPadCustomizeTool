@@ -193,13 +193,17 @@ public class MainFragment extends PreferenceFragmentCompat {
             if (isDchaReq) {
                 switch (req) {
                     case Constants.FLAG_SET_DCHA_STATE_0:
-                        if (Common.isCfmDialog(requireActivity())) {
+                        if (isCfmDialog()) {
                             mDchaService.setSetupStatus(0);
+                        } else {
+                            cfmDialog();
                         }
                         break;
                     case Constants.FLAG_SET_DCHA_STATE_3:
-                        if (Common.isCfmDialog(requireActivity())) {
+                        if (isCfmDialog()) {
                             mDchaService.setSetupStatus(3);
+                        } else {
+                            cfmDialog();
                         }
                         break;
                     case Constants.FLAG_HIDE_NAVIGATION_BAR:
@@ -250,13 +254,17 @@ public class MainFragment extends PreferenceFragmentCompat {
     private void chgSetting(int req) {
         switch (req) {
             case Constants.FLAG_SET_DCHA_STATE_0:
-                if (Common.isCfmDialog(requireActivity())) {
+                if (isCfmDialog()) {
                     Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
+                } else {
+                    cfmDialog();
                 }
                 break;
             case Constants.FLAG_SET_DCHA_STATE_3:
-                if (Common.isCfmDialog(requireActivity())) {
+                if (isCfmDialog()) {
                     Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
+                } else {
+                    cfmDialog();
                 }
                 break;
             case Constants.FLAG_HIDE_NAVIGATION_BAR:
@@ -417,20 +425,90 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         swKeepAdb.setOnPreferenceChangeListener((preference, o) -> {
-            if (Common.isCfmDialog(requireActivity())) {
-                return false;
+            if (isCfmDialog()) {
+                requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, (boolean) o).apply();
+                if ((boolean) o) {
+                    try {
+                        if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
+                        }
+                        Thread.sleep(100);
+                        Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
+                        if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                        }
+                        requireActivity().startService(new Intent(getActivity(), KeepService.class));
+                        requireActivity().startService(Constants.PROTECT_KEEP_SERVICE);
+                        for (ActivityManager.RunningServiceInfo serviceInfo : ((ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE)) {
+                            if (!KeepService.class.getName().equals(serviceInfo.service.getClassName())) {
+                                try {
+                                    KeepService.getInstance().startService();
+                                } catch (NullPointerException ignored) {
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        if (Preferences.GET_MODEL_ID(requireActivity()) == 2) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                        }
+                        Toast.toast(getActivity(), R.string.toast_not_change);
+                        requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false).apply();
+                        swKeepAdb.setChecked(false);
+                        return false;
+                    }
+                } else {
+                    SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+                    if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                        requireActivity().stopService(Constants.PROTECT_KEEP_SERVICE);
+                    }
+                    for (ActivityManager.RunningServiceInfo serviceInfo : ((ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE))
+                        if (KeepService.class.getName().equals(serviceInfo.service.getClassName())) {
+                            KeepService.getInstance().stopService(4);
+                            return true;
+                        }
+                }
+                return true;
+            } else {
+                requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, (boolean) o).apply();
+                if ((boolean) o) {
+                    try {
+                        Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
+                        requireActivity().startService(new Intent(getActivity(), KeepService.class));
+                        requireActivity().startService(Constants.PROTECT_KEEP_SERVICE);
+                        for (ActivityManager.RunningServiceInfo serviceInfo : ((ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE)) {
+                            if (!KeepService.class.getName().equals(serviceInfo.service.getClassName())) {
+                                try {
+                                    KeepService.getInstance().startService();
+                                } catch (NullPointerException ignored) {
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        Toast.toast(getActivity(), R.string.toast_not_change);
+                        requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false).apply();
+                        swKeepAdb.setChecked(false);
+                        return false;
+                    }
+                } else {
+                    SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+                    if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                        requireActivity().stopService(Constants.PROTECT_KEEP_SERVICE);
+                    }
+                    for (ActivityManager.RunningServiceInfo serviceInfo : ((ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE))
+                        if (KeepService.class.getName().equals(serviceInfo.service.getClassName())) {
+                            KeepService.getInstance().stopService(4);
+                            return true;
+                        }
+                }
             }
-            requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, (boolean) o).apply();
-            if ((boolean) o) {
-                try {
-                    if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
-                        chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
-                    }
-                    Thread.sleep(100);
-                    Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
-                    if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
-                        chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
-                    }
+            return false;
+        });
+
+        swKeepDchaState.setOnPreferenceChangeListener((preference, o) -> {
+            if (isCfmDialog()) {
+                requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, (boolean) o).apply();
+                if ((boolean) o) {
+                    chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                     requireActivity().startService(new Intent(getActivity(), KeepService.class));
                     requireActivity().startService(Constants.PROTECT_KEEP_SERVICE);
                     for (ActivityManager.RunningServiceInfo serviceInfo : ((ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE)) {
@@ -441,59 +519,23 @@ public class MainFragment extends PreferenceFragmentCompat {
                             }
                         }
                     }
-                } catch (Exception e) {
-                    if (Preferences.GET_MODEL_ID(requireActivity()) == 2) {
-                        chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                } else {
+                    SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+                    if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                        requireActivity().stopService(Constants.PROTECT_KEEP_SERVICE);
                     }
-                    Toast.toast(getActivity(), R.string.toast_not_change);
-                    requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false).apply();
-                    swKeepAdb.setChecked(false);
-                    return false;
-                }
-            } else {
-                SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
-                if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
-                    requireActivity().stopService(Constants.PROTECT_KEEP_SERVICE);
-                }
-                for (ActivityManager.RunningServiceInfo serviceInfo : ((ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE))
-                    if (KeepService.class.getName().equals(serviceInfo.service.getClassName())) {
-                        KeepService.getInstance().stopService(4);
-                        return true;
-                    }
-            }
-            return true;
-        });
-
-        swKeepDchaState.setOnPreferenceChangeListener((preference, o) -> {
-            if (Common.isCfmDialog(requireActivity())) {
-                return false;
-            }
-            requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, (boolean) o).apply();
-            if ((boolean) o) {
-                chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
-                requireActivity().startService(new Intent(getActivity(), KeepService.class));
-                requireActivity().startService(Constants.PROTECT_KEEP_SERVICE);
-                for (ActivityManager.RunningServiceInfo serviceInfo : ((ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE)) {
-                    if (!KeepService.class.getName().equals(serviceInfo.service.getClassName())) {
-                        try {
-                            KeepService.getInstance().startService();
-                        } catch (NullPointerException ignored) {
+                    for (ActivityManager.RunningServiceInfo serviceInfo : ((ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE)) {
+                        if (KeepService.class.getName().equals(serviceInfo.service.getClassName())) {
+                            KeepService.getInstance().stopService(2);
+                            return true;
                         }
                     }
                 }
+                return true;
             } else {
-                SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
-                if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
-                    requireActivity().stopService(Constants.PROTECT_KEEP_SERVICE);
-                }
-                for (ActivityManager.RunningServiceInfo serviceInfo : ((ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE)) {
-                    if (KeepService.class.getName().equals(serviceInfo.service.getClassName())) {
-                        KeepService.getInstance().stopService(2);
-                        return true;
-                    }
-                }
+                cfmDialog();
             }
-            return true;
+            return false;
         });
 
         swKeepLauncher.setOnPreferenceChangeListener((preference, o) -> {
@@ -553,37 +595,58 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         swAdb.setOnPreferenceChangeListener((preference, o) -> {
-            if (Common.isCfmDialog(requireActivity())) {
-                return false;
-            }
-            if ((boolean) o) {
-                try {
-                    if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
-                        chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
-                        Thread.sleep(100);
-                    }
-                    chgSetting(Constants.FLAG_USB_DEBUG_TRUE);
-                    if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
-                        chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
-                    }
-                } catch (SecurityException | InterruptedException ignored) {
-                    if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
-                        chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
-                    }
-                    Toast.toast(requireActivity(), R.string.toast_not_change);
+            if (isCfmDialog()) {
+                if ((boolean) o) {
                     try {
-                        swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
-                    } catch (Settings.SettingNotFoundException ignored1) {
+                        if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
+                            Thread.sleep(100);
+                        }
+                        chgSetting(Constants.FLAG_USB_DEBUG_TRUE);
+                        if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                        }
+                    } catch (SecurityException | InterruptedException ignored) {
+                        if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                        }
+                        Toast.toast(requireActivity(), R.string.toast_not_change);
+                        try {
+                            swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
+                        } catch (Settings.SettingNotFoundException ignored1) {
+                        }
+                    }
+                } else {
+                    try {
+                        chgSetting(Constants.FLAG_USB_DEBUG_FALSE);
+                    } catch (SecurityException ignored) {
+                        Toast.toast(requireActivity(), R.string.toast_not_change);
+                        try {
+                            swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
+                        } catch (Settings.SettingNotFoundException ignored1) {
+                        }
                     }
                 }
             } else {
-                try {
-                    chgSetting(Constants.FLAG_USB_DEBUG_FALSE);
-                } catch (SecurityException ignored) {
-                    Toast.toast(requireActivity(), R.string.toast_not_change);
+                if ((boolean) o) {
                     try {
-                        swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
-                    } catch (Settings.SettingNotFoundException ignored1) {
+                        chgSetting(Constants.FLAG_USB_DEBUG_TRUE);
+                    } catch (SecurityException ignored) {
+                        Toast.toast(requireActivity(), R.string.toast_not_change);
+                        try {
+                            swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
+                        } catch (Settings.SettingNotFoundException ignored1) {
+                        }
+                    }
+                } else {
+                    try {
+                        chgSetting(Constants.FLAG_USB_DEBUG_FALSE);
+                    } catch (SecurityException ignored) {
+                        Toast.toast(requireActivity(), R.string.toast_not_change);
+                        try {
+                            swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
+                        } catch (Settings.SettingNotFoundException ignored1) {
+                        }
                     }
                 }
             }
@@ -689,9 +752,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         preEnableDchaService.setOnPreferenceClickListener(preference -> {
-            if (Common.isCfmDialog(requireActivity())) {
-                return false;
-            } else {
+            if (isCfmDialog()) {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle(R.string.dialog_title_dcha_service)
                         .setMessage(R.string.dialog_question_dcha_service)
@@ -710,8 +771,10 @@ public class MainFragment extends PreferenceFragmentCompat {
                         })
                         .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> dialog.dismiss())
                         .show();
-                return false;
+            } else {
+                cfmDialog();
             }
+            return false;
         });
 
         preLauncher.setOnPreferenceClickListener(preference -> {
@@ -879,6 +942,26 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
+        /* DchaServiceを使用するか */
+        if (!Preferences.GET_DCHASERVICE_FLAG(requireActivity())) {
+            for (Preference preference : Arrays.asList(
+                    preSilentInstall,
+                    preLauncher,
+                    swKeepLauncher,
+                    findPreference("category_emergency"),
+                    findPreference("category_normal"),
+                    preReboot,
+                    preRebootShortcut,
+                    preResolution,
+                    preResetResolution,
+                    preSystemUpdate
+            )) {
+                getPreferenceScreen().removePreference(preference);
+            }
+        } else {
+            getPreferenceScreen().removePreference(preEnableDchaService);
+        }
+
         /* 初期化 */
         initialize();
     }
@@ -896,7 +979,7 @@ public class MainFragment extends PreferenceFragmentCompat {
     /* 再起動ショートカットを作成 */
     private void makeRebootShortcut() {
         requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN)
-                .setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.RebootActivity"))
+                        .setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.RebootActivity"))
                 .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.reboot))
                 .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_reboot));
         Toast.toast(requireActivity(), R.string.toast_common_success);
@@ -991,26 +1074,33 @@ public class MainFragment extends PreferenceFragmentCompat {
             swDeviceAdmin.setEnabled(false);
             swDeviceAdmin.setSummary(getString(R.string.pre_main_sum_already_device_owner));
         }
+    }
 
-        /* DchaServiceを使用するか */
-        if (!Preferences.GET_DCHASERVICE_FLAG(requireActivity())) {
-            for (Preference preference : Arrays.asList(
-                    preSilentInstall,
-                    preLauncher,
-                    swKeepLauncher,
-                    findPreference("category_emergency"),
-                    findPreference("category_normal"),
-                    preReboot,
-                    preRebootShortcut,
-                    preResolution,
-                    preResetResolution,
-                    preSystemUpdate
-            )) {
-                getPreferenceScreen().removePreference(preference);
-            }
+    private boolean isCfmDialog() {
+        if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
+            return Preferences.GET_CONFIRMATION(requireActivity());
         } else {
-            getPreferenceScreen().removePreference(preEnableDchaService);
+            return true;
         }
+    }
+
+    private void cfmDialog() {
+        new AlertDialog.Builder(requireActivity())
+                .setCancelable(false)
+                .setTitle(getString(R.string.dialog_question_are_you_sure))
+                .setMessage(getString(R.string.dialog_confirmation))
+                .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> new AlertDialog.Builder(requireActivity())
+                        .setCancelable(false)
+                        .setTitle(getString(R.string.dialog_title_final_confirmation))
+                        .setMessage(getString(R.string.dialog_final_confirmation))
+                        .setPositiveButton(R.string.dialog_common_cancel, (dialog1, which1) -> dialog.dismiss())
+                        .setNeutralButton(R.string.dialog_common_continue, (dialog1, which1) -> {
+                            Preferences.SET_CONFIRMATION(true, requireActivity());
+                            dialog1.dismiss();
+                        })
+                        .show())
+                .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
     /* アクティビティ破棄 */

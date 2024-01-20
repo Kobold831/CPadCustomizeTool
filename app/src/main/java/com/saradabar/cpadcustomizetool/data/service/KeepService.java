@@ -114,20 +114,26 @@ public class KeepService extends Service {
 
             try {
                 if (Settings.Global.getInt(getContentResolver(), Settings.Global.ADB_ENABLED) == 0) {
-                    if (Preferences.GET_MODEL_ID(getApplicationContext()) == 2) {
-                        Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 3);
-                    }
+                    if (isCfmDialog(getBaseContext())) {
+                        if (Preferences.GET_MODEL_ID(getApplicationContext()) == 2) {
+                            Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 3);
+                        }
 
-                    Thread.sleep(100);
-                    Settings.Global.putInt(getContentResolver(), Settings.Global.ADB_ENABLED, 1);
+                        Thread.sleep(100);
+                        Settings.Global.putInt(getContentResolver(), Settings.Global.ADB_ENABLED, 1);
 
-                    if (Preferences.GET_MODEL_ID(getApplicationContext()) == 2) {
-                        Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
+                        if (Preferences.GET_MODEL_ID(getApplicationContext()) == 2) {
+                            Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
+                        }
+                    } else {
+                        Settings.Global.putInt(getContentResolver(), Settings.Global.ADB_ENABLED, 1);
                     }
                 }
             } catch (Exception ignored) {
-                if (Preferences.GET_MODEL_ID(getApplicationContext()) == 2) {
-                    Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
+                if (isCfmDialog(getBaseContext())) {
+                    if (Preferences.GET_MODEL_ID(getApplicationContext()) == 2) {
+                        Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
+                    }
                 }
 
                 getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false).apply();
@@ -306,6 +312,14 @@ public class KeepService extends Service {
         if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
             stopService(Constants.KEEP_SERVICE);
             stopService(Constants.PROTECT_KEEP_SERVICE);
+        }
+    }
+
+    private boolean isCfmDialog(Context context) {
+        if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
+            return Preferences.GET_CONFIRMATION(context);
+        } else {
+            return true;
         }
     }
 }
