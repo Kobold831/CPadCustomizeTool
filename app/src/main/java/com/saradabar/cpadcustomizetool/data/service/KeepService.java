@@ -12,6 +12,7 @@ import android.os.IBinder;
 import android.provider.Settings;
 
 import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
@@ -42,7 +43,7 @@ public class KeepService extends Service {
                 mDchaService.clearDefaultPreferredApp(getLauncherPackageName());
                 mDchaService.setDefaultPreferredHomeApp(sp.getString(Constants.KEY_SAVE_KEEP_HOME, null));
             } catch (Exception ex) {
-                CrashHandler.LogOverWrite(ex, this);
+                Common.LogOverWrite(this, ex);
             }
         }
     }

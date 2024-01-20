@@ -18,6 +18,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
@@ -55,11 +56,16 @@ public class OtherFragment extends PreferenceFragmentCompat {
         preStartDevSettings.setOnPreferenceClickListener(preference -> {
             if (Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) == 1) {
                 try {
-                    if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0) != 3) {
+                    if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists()) {
                         startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                    } else {
-                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
-                        startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                        return false;
+                    } else if (Constants.COUNT_DCHA_COMPLETED_FILE.exists()) {
+                        if (Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0) != 3) {
+                            startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                        } else {
+                            Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
+                            startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                        }
                     }
                 } catch (ActivityNotFoundException ignored) {
                 }
@@ -135,7 +141,6 @@ public class OtherFragment extends PreferenceFragmentCompat {
     @Override
     public void onResume() {
         super.onResume();
-
         setSummaryScreenOffTimeConvert();
     }
 

@@ -18,6 +18,7 @@ import java.io.OutputStream;
 public class SplitInstaller {
 
     public static class Result {
+
         public final boolean bl;
 
         public Result(boolean result) {

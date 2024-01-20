@@ -27,6 +27,7 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.flagment.AppSettingsFragment;
@@ -535,7 +536,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 ArrayList<AppListView.AppData> list = new ArrayList<>();
 
                 try {
-                    JSONObject jsonObj1 = MainFragment.getInstance().parseJson();
+                    JSONObject jsonObj1 = Common.parseJson(this);
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONArray jsonArray = jsonObj2.getJSONArray("appList");
 
@@ -567,7 +568,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                                 CheckBox checkBox = lv.getChildAt(i).findViewById(R.id.v_app_list_check);
                                 if (checkBox.isChecked()) {
                                     try {
-                                        JSONObject jsonObj1 = MainFragment.getInstance().parseJson();
+                                        JSONObject jsonObj1 = Common.parseJson(this);
                                         JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                                         JSONArray jsonArray = jsonObj2.getJSONArray("appList");
                                         str.append(jsonArray.getJSONObject(i).getString("name")).append("\n").append(jsonArray.getJSONObject(i).getString("url")).append("\n");

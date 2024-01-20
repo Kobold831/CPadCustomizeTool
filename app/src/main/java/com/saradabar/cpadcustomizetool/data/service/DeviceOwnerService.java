@@ -29,13 +29,12 @@ import java.util.List;
 
 public class DeviceOwnerService extends Service {
 
-    /* 追加予定:すべての機能 */
     protected IDeviceOwnerService.Stub mDeviceOwnerServiceStub = new IDeviceOwnerService.Stub() {
+
+        final DevicePolicyManager dpm = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
 
         @Override
         public boolean isDeviceOwnerApp() {
-            DevicePolicyManager dpm = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
-
             try {
                 return dpm.isDeviceOwnerApp(getPackageName());
             } catch (SecurityException ignored) {
@@ -44,19 +43,18 @@ public class DeviceOwnerService extends Service {
         }
 
         @Override
-        public void setUninstallBlocked(String str, boolean bl) {
-            DevicePolicyManager dpm = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
-            dpm.setUninstallBlocked(new ComponentName(getApplicationContext(), AdministratorReceiver.class), str, bl);
+        public void setUninstallBlocked(String packageName, boolean uninstallBlocked) {
+            dpm.setUninstallBlocked(new ComponentName(getBaseContext(), AdministratorReceiver.class), packageName, uninstallBlocked);
         }
 
         @Override
-        public boolean isUninstallBlocked(String str) {
-            DevicePolicyManager dpm = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
-            return dpm.isUninstallBlocked(new ComponentName(getApplicationContext(), AdministratorReceiver.class), str);
+        public boolean isUninstallBlocked(String packageName) {
+            return dpm.isUninstallBlocked(new ComponentName(getBaseContext(), AdministratorReceiver.class), packageName);
         }
 
         @Override
-        public boolean isInstallPackages(String str, List<Uri> uriList) {
+        public boolean tryInstallPackages(String packageName, List<Uri> uriList) {
+
             int sessionId;
 
             try {
@@ -101,8 +99,9 @@ public class DeviceOwnerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null)
+        if (intent != null) {
             postStatus(intent.getIntExtra("REQUEST_SESSION", -1), intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1), intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME), intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE));
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -181,17 +180,18 @@ public class DeviceOwnerService extends Service {
         }
     }
 
-    public static int createSession(Context context, PackageInstaller packageInstaller) throws IOException {
+    private int createSession(Context context, PackageInstaller packageInstaller) throws IOException {
+
         PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
 
         if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pre_owner_install_location", false)) {
             params.setInstallLocation(PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
         } else params.setInstallLocation(PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY);
-
         return packageInstaller.createSession(params);
     }
 
-    public static boolean writeSession(PackageInstaller packageInstaller, int sessionId, File apkFile) throws IOException {
+    private boolean writeSession(PackageInstaller packageInstaller, int sessionId, File apkFile) throws IOException {
+
         long sizeBytes = -1;
         String apkPath = apkFile.getAbsolutePath();
         File file = new File(apkPath);
@@ -226,7 +226,8 @@ public class DeviceOwnerService extends Service {
         }
     }
 
-    public static boolean commitSession(PackageInstaller packageInstaller, int sessionId, Context context) throws IOException {
+    private boolean commitSession(PackageInstaller packageInstaller, int sessionId, Context context) throws IOException {
+
         PackageInstaller.Session session = null;
 
         try {
@@ -249,7 +250,8 @@ public class DeviceOwnerService extends Service {
         }
     }
 
-    public static String getRandomString() {
+    private String getRandomString() {
+
         String theAlphaNumericS;
         StringBuilder builder;
         theAlphaNumericS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
