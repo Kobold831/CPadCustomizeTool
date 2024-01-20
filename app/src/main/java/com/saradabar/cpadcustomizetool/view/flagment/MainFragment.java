@@ -15,6 +15,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.database.ContentObserver;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
@@ -26,6 +27,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.DocumentsContract;
+import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -61,6 +63,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
@@ -1169,8 +1172,8 @@ public class MainFragment extends PreferenceFragmentCompat {
                 preSilentInstall.setEnabled(true);
                 /* シングルApk */
                 try {
-                    installData = getFilePath(getActivity(), data.getData());
-                } catch (NullPointerException ignored) {
+                    installData = getFilePath(requireActivity(), data.getData());
+                } catch (Exception ignored) {
                     installData = null;
                 }
 
@@ -1179,7 +1182,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                     silent.setListener(StartActivity.getInstance().installListener());
                     silent.execute();
                 } else {
-                    new AlertDialog.Builder(getActivity())
+                    new AlertDialog.Builder(requireActivity())
                             .setMessage(getString(R.string.dialog_error_no_file_data))
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                             .show();
@@ -1189,7 +1192,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                 preSystemUpdate.setEnabled(true);
 
                 try {
-                    systemUpdateFilePath = getFilePath(getActivity(), data.getData());
+                    systemUpdateFilePath = getFilePath(requireActivity(), data.getData());
                 } catch (Exception ignored) {
                     systemUpdateFilePath = null;
                 }
@@ -1214,18 +1217,24 @@ public class MainFragment extends PreferenceFragmentCompat {
     /* 選択したファイルデータを取得 */
     private String getFilePath(Context context, Uri uri) {
         if (DocumentsContract.isDocumentUri(context, uri)) {
-            String[] str = DocumentsContract.getDocumentId(uri).split(":");
-
-            switch (uri.getAuthority()) {
+            switch (Objects.requireNonNull(uri.getAuthority())) {
+                /* 内部ストレージ */
                 case "com.android.externalstorage.documents":
+                    String[] str = DocumentsContract.getDocumentId(uri).split(":");
                     return Environment.getExternalStorageDirectory() + "/" + str[1];
+                /* ダウンロード */
                 case "com.android.providers.downloads.documents":
-                    return str[1];
+                    try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null, null)) {
+                        if (cursor != null && cursor.moveToFirst()) {
+                            return Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DOWNLOADS + "/" + cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME));
+                        }
+                    }
+                default:
+                    return null;
             }
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
-
         return null;
     }
 

@@ -9,12 +9,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
+import android.provider.OpenableColumns;
 
 import androidx.annotation.RequiresApi;
 import androidx.preference.Preference;
@@ -39,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
@@ -330,7 +333,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
             if (cd == null) {
                 /* シングルApk */
-                splitInstallData[0] = getInstallData(requireActivity(), intent.getData());
+                splitInstallData[0] = getFilePath(requireActivity(), intent.getData());
 
                 if (splitInstallData[0] == null) return false;
 
@@ -347,7 +350,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 /* マルチApk */
                 for (int i = 0; i < cd.getItemCount(); i++) {
                     /* 処理 */
-                    splitInstallData[i] = getInstallData(requireActivity(), cd.getItemAt(i).getUri());
+                    splitInstallData[i] = getFilePath(requireActivity(), cd.getItemAt(i).getUri());
                 }
             }
             return splitInstallData != null;
@@ -357,22 +360,25 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     }
 
     /* 選択したファイルデータを取得 */
-    /* 修正予定:すべての場所からファイルデータを適切に取得できない */
-    private String getInstallData(Context context, Uri uri) {
-        try {
-            if (DocumentsContract.isDocumentUri(context, uri)) {
-                String[] str = DocumentsContract.getDocumentId(uri).split(":");
-
-                switch (uri.getAuthority()) {
-                    case "com.android.externalstorage.documents":
-                        return Environment.getExternalStorageDirectory() + "/" + str[1];
-                    case "com.android.providers.downloads.documents":
-                        return str[1];
-                }
-            } else if ("file".equalsIgnoreCase(uri.getScheme())) {
-                return uri.getPath();
+    private String getFilePath(Context context, Uri uri) {
+        if (DocumentsContract.isDocumentUri(context, uri)) {
+            switch (Objects.requireNonNull(uri.getAuthority())) {
+                /* 内部ストレージ */
+                case "com.android.externalstorage.documents":
+                    String[] str = DocumentsContract.getDocumentId(uri).split(":");
+                    return Environment.getExternalStorageDirectory() + "/" + str[1];
+                /* ダウンロード */
+                case "com.android.providers.downloads.documents":
+                    try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null, null)) {
+                        if (cursor != null && cursor.moveToFirst()) {
+                            return Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DOWNLOADS + "/" + cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME));
+                        }
+                    }
+                default:
+                    return null;
             }
-        } catch (Exception ignored) {
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
         }
         return null;
     }
