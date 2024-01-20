@@ -193,5 +193,5 @@
         app:iconSpaceReserved="false"
         android:key="pre_get_app"
         android:title="アプリを取得(ベータ機能)"
-        android:summary="ランチャー、ブラウザ、そのほかの最小限のアプリを取得してインストールします\n表示されるダイアログからアプリを選択してください" />
+        android:summary="インストールするには表示されるダイアログからアプリを選択してください\nインストーラーはアプリ設定→アップデートモードを選択の設定に準拠します" />
 </PreferenceScreen>

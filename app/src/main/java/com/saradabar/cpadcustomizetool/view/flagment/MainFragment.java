@@ -1027,7 +1027,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         if (normalLauncherName == null) {
             preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_no_setting_launcher));
         } else {
-            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_message_2) + normalLauncherName + getString(R.string.pre_main_sum_message_3));
+            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_message_2, normalLauncherName));
         }
 
         /* 維持スイッチが有効のときサービスが停止していたら起動 */

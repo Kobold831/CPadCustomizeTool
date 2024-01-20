@@ -185,7 +185,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 break;
             /* APKダウンロード要求の場合 */
             case Constants.REQUEST_DOWNLOAD_APK:
-                new Handler().post(() -> new Updater(this).installApk(this));
+                new Handler().post(() -> new Updater(this).installApk(this, 0));
                 break;
             default:
                 break;

@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -13,9 +14,12 @@ import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,24 +28,31 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
+import com.saradabar.cpadcustomizetool.data.connection.Updater;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
+import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
+import com.saradabar.cpadcustomizetool.util.Variables;
 import com.saradabar.cpadcustomizetool.view.flagment.AppSettingsFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.DeviceOwnerFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
 import com.saradabar.cpadcustomizetool.view.views.AppListView;
+import com.stephentuso.welcome.WelcomeHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.zeroturnaround.zip.commons.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
@@ -550,7 +561,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 View v = getLayoutInflater().inflate(R.layout.layout_app_list, null);
                 ListView lv = v.findViewById(R.id.app_list);
-
                 lv.setAdapter(new AppListView.AppListAdapter(this, list));
                 lv.setOnItemClickListener((parent, view, position, id) -> {
                     CheckBox checkBox = lv.getChildAt(position).findViewById(R.id.v_app_list_check);
@@ -561,9 +571,11 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 new AlertDialog.Builder(this)
                         .setView(v)
-                        .setTitle("アプリを選択してください")
+                        .setTitle("アプリを選択してください（１つのみチェック）")
+                        .setMessage("選択したあとOKを押すと詳細な情報が表示されます")
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             StringBuilder str = new StringBuilder();
+
                             for (int i = 0; i <lv.getCount(); i++) {
                                 CheckBox checkBox = lv.getChildAt(i).findViewById(R.id.v_app_list_check);
                                 if (checkBox.isChecked()) {
@@ -571,22 +583,43 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                                         JSONObject jsonObj1 = Common.parseJson(this);
                                         JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                                         JSONArray jsonArray = jsonObj2.getJSONArray("appList");
-                                        str.append(jsonArray.getJSONObject(i).getString("name")).append("\n").append(jsonArray.getJSONObject(i).getString("url")).append("\n");
+                                        str.append(jsonArray.getJSONObject(i).getString("name")).append("\n").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
+                                        Variables.DOWNLOAD_FILE_URL = jsonArray.getJSONObject(i).getString("url");
                                     } catch (JSONException | IOException ignored) {
                                     }
                                 }
                             }
+
                             if (str.toString().equals("")) {
-                                str = new StringBuilder("選択されていません");
+                                return;
                             }
+
                             new AlertDialog.Builder(this)
-                                    .setMessage(str.toString())
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> dialog.dismiss())
+                                    .setMessage(str + "\n" + "よろしければOKを押下してください")
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
+                                        if (!Objects.equals(Variables.DOWNLOAD_FILE_URL, "MYURL")) {
+                                            startDownload();
+                                            dialog.dismiss();
+                                        } else {
+                                            View view = getLayoutInflater().inflate(R.layout.view_app_url, null);
+                                            EditText editText = view.findViewById(R.id.edit_app_url);
+                                            new AlertDialog.Builder(this)
+                                                    .setMessage("http://またはhttps://を含むURLを指定してください")
+                                                    .setView(view)
+                                                    .setPositiveButton(R.string.dialog_common_ok, (dialog3, which3) -> {
+                                                        Variables.DOWNLOAD_FILE_URL = editText.getText().toString();
+                                                        startDownload();
+                                                    })
+                                                    .show();
+                                        }
+                                    })
                                     .show();
                         })
                         .show();
                 break;
+            /* APKダウンロード要求の場合 */
             case Constants.REQUEST_DOWNLOAD_APK:
+                new Handler().post(() -> new Updater(this).installApk(this, 1));
                 break;
             default:
                 break;
@@ -623,5 +656,23 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             }
         } catch (Exception ignored) {
         }
+    }
+
+    private void startDownload() {
+        AsyncFileDownload asyncFileDownload = new AsyncFileDownload(this, Variables.DOWNLOAD_FILE_URL, new File(new File(getExternalCacheDir(), "update.apk").getPath()), Constants.REQUEST_DOWNLOAD_APK);
+        asyncFileDownload.execute();
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("インストール");
+        progressDialog.setMessage("インストールファイルをサーバーからダウンロード中...");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setProgress(0);
+        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.dialog_common_cancel), (dialog3, which3) -> {
+            asyncFileDownload.cancel(true);
+        });
+        progressDialog.show();
+        ProgressHandler progressHandler = new ProgressHandler();
+        progressHandler.progressDialog = progressDialog;
+        progressHandler.asyncfiledownload = asyncFileDownload;
+        progressHandler.sendEmptyMessage(0);
     }
 }

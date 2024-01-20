@@ -69,15 +69,15 @@ public class Common {
     public static void LogOverWrite(Context context, Throwable throwable) {
         StringWriter stringWriter = new StringWriter();
         throwable.printStackTrace(new PrintWriter(stringWriter));
-        String message = "- ログ開始:\n" +
+        String message = "- ログ開始 -\n" +
                 getNowDate() + ":\n" +
                 "- デバイス情報:\n" +
                 Build.FINGERPRINT + "\n" +
                 "- 例外原因:\n" +
                 throwable.getCause() + "\n" +
                 "- スタックトレース\n" +
-                stringWriter + "\n" +
-                "- ログ終了:\n";
+                stringWriter +
+                "- ログ終了 -\n\n";
 
         if (Preferences.GET_CRASH_LOG(context) != null) {
             Preferences.SAVE_CRASH_LOG(context, String.join(",", Preferences.GET_CRASH_LOG(context)).replace("    ", "") + message);

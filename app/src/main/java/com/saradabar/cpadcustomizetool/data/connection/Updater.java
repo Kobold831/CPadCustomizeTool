@@ -89,25 +89,44 @@ public class Updater implements InstallEventListener {
                 .show();
     }
 
-    public void installApk(Context context) {
+    public void installApk(Context context, int flag) {
         switch (Preferences.GET_UPDATE_MODE(activity)) {
             case 0:
                 activity.startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(context.getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_UPDATE);
                 break;
             case 1:
-                new AlertDialog.Builder(activity)
-                        .setCancelable(false)
-                        .setTitle(R.string.dialog_title_update)
-                        .setMessage(R.string.dialog_info_update_caution)
-                        .setPositiveButton(R.string.dialog_common_yes, (dialog2, which2) -> {
-                            try {
-                                activity.startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_UPDATE)), Constants.REQUEST_UPDATE);
-                            } catch (ActivityNotFoundException ignored) {
-                                Toast.toast(activity, R.string.toast_unknown_activity);
-                                activity.finish();
-                            }
-                        })
-                        .show();
+                switch (flag) {
+                    case 0:
+                        new AlertDialog.Builder(activity)
+                                .setCancelable(false)
+                                .setTitle(R.string.dialog_title_update)
+                                .setMessage(R.string.dialog_info_update_caution)
+                                .setPositiveButton(R.string.dialog_common_yes, (dialog2, which2) -> {
+                                    try {
+                                        activity.startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_UPDATE)), Constants.REQUEST_UPDATE);
+                                    } catch (ActivityNotFoundException ignored) {
+                                        Toast.toast(activity, R.string.toast_unknown_activity);
+                                        activity.finish();
+                                    }
+                                })
+                                .show();
+                        break;
+                    case 1:
+                        new AlertDialog.Builder(activity)
+                                .setCancelable(false)
+                                .setTitle("インストール")
+                                .setMessage("遷移先のページよりapkファイルをダウンロードしてadbでインストールしてください")
+                                .setPositiveButton(R.string.dialog_common_yes, (dialog2, which2) -> {
+                                    try {
+                                        activity.startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_UPDATE)), Constants.REQUEST_UPDATE);
+                                    } catch (ActivityNotFoundException ignored) {
+                                        Toast.toast(activity, R.string.toast_unknown_activity);
+                                        activity.finish();
+                                    }
+                                })
+                                .show();
+                        break;
+                }
                 break;
             case 2:
                 ProgressDialog progressDialog = new ProgressDialog(activity);

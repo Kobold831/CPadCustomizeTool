@@ -58,8 +58,7 @@
     <string name="pre_main_title_system_update">システムアップデート</string>
     <string name="pre_main_title_dhizuku_permission_req">Dhizukuアクセス権限リクエスト</string>
     <string name="pre_main_sum_message_1">ではこの機能は使用できません</string>
-    <string name="pre_main_sum_message_2">変更するランチャーは</string>
-    <string name="pre_main_sum_message_3">に設定されています</string>
+    <string name="pre_main_sum_message_2">変更するランチャーは%1$sに設定されています</string>
     <string name="pre_main_sum_keep_home">設定中のホームランチャーを維持します</string>
     <string name="pre_main_sum_change_settings">デフォルトではすべての設定が変更されます</string>
     <string name="pre_main_sum_change_to_normal_mode_settings">デフォルトではすべての設定が変更されます</string>

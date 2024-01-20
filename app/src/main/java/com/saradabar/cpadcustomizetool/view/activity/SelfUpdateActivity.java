@@ -85,7 +85,7 @@ public class SelfUpdateActivity extends Activity implements DownloadEventListene
                 }
                 break;
             case Constants.REQUEST_DOWNLOAD_APK:
-                new Handler().post(() -> new Updater(this).installApk(this));
+                new Handler().post(() -> new Updater(this).installApk(this, 0));
                 break;
             default:
                 break;
