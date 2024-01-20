@@ -21,6 +21,7 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.R;
 
@@ -28,8 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UninstallBlockActivity extends Activity {
-
-    private ComponentName administratorComponent;
 
     @SuppressLint("WrongConstant")
     @Override
@@ -39,7 +38,6 @@ public class UninstallBlockActivity extends Activity {
         setContentView(R.layout.layout_uninstall_list);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        administratorComponent = Common.getAdministratorComponent(this);
         DevicePolicyManager devicePolicyManager = (DevicePolicyManager)this.getSystemService("device_policy");
         final PackageManager pm = getPackageManager();
         final List<ApplicationInfo> installedAppList = pm.getInstalledApplications(0);
@@ -64,7 +62,7 @@ public class UninstallBlockActivity extends Activity {
         listView.setOnItemClickListener((parent, view, position, id) -> {
             AppData item = dataList.get(position);
             String selectPackage = Uri.fromParts("package", item.packName, null).toString();
-            devicePolicyManager.setUninstallBlocked(administratorComponent, selectPackage.replace("package:", ""), !devicePolicyManager.isUninstallBlocked(administratorComponent, selectPackage.replace("package:", "")));
+            devicePolicyManager.setUninstallBlocked(new ComponentName(this, AdministratorReceiver.class), selectPackage.replace("package:", ""), !devicePolicyManager.isUninstallBlocked(new ComponentName(this, AdministratorReceiver.class), selectPackage.replace("package:", "")));
             /* listviewの更新 */
             listView.invalidateViews();
         });
@@ -73,7 +71,7 @@ public class UninstallBlockActivity extends Activity {
         /* 無効 */
         unDisableButton.setOnClickListener(v -> {
             for (AppData appData : dataList) {
-                devicePolicyManager.setUninstallBlocked(administratorComponent, appData.packName, false);
+                devicePolicyManager.setUninstallBlocked(new ComponentName(this, AdministratorReceiver.class), appData.packName, false);
             }
             ((Switch) AppListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
             /* listviewの更新 */
@@ -83,7 +81,7 @@ public class UninstallBlockActivity extends Activity {
         /* 有効 */
         unEnableButton.setOnClickListener(v -> {
             for (AppData appData : dataList) {
-                devicePolicyManager.setUninstallBlocked(administratorComponent, appData.packName, true);
+                devicePolicyManager.setUninstallBlocked(new ComponentName(this, AdministratorReceiver.class), appData.packName, true);
             }
             ((Switch) AppListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
             /* listviewの更新 */
@@ -102,7 +100,6 @@ public class UninstallBlockActivity extends Activity {
         private final LayoutInflater mInflater;
 
         private final DevicePolicyManager dpm;
-        private final ComponentName administratorComponent;
 
         @SuppressLint("StaticFieldLeak")
         public static View view;
@@ -110,7 +107,6 @@ public class UninstallBlockActivity extends Activity {
         public AppListAdapter(Context context, List<AppData> dataList) {
             super(context, R.layout.view_uninstall_item);
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            administratorComponent = Common.getAdministratorComponent(context);
             dpm = (DevicePolicyManager)context.getSystemService(DEVICE_POLICY_SERVICE);
             addAll(dataList);
         }
@@ -136,7 +132,7 @@ public class UninstallBlockActivity extends Activity {
             holder.textLabel.setText(data.label);
             holder.imageIcon.setImageDrawable(data.icon);
 
-            ((Switch)convertView.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(administratorComponent, data.packName));
+            ((Switch)convertView.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), AdministratorReceiver.class), data.packName));
 
             return convertView;
         }

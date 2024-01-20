@@ -155,20 +155,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     /* 初期化 */
     @SuppressLint("NewApi")
     private void initialize() {
-        if (!dpm.isDeviceOwnerApp(requireActivity().getPackageName())) {
-            preUninstallBlock.setEnabled(false);
-            preClrDevOwn.setEnabled(false);
-            swPrePermissionFrc.setEnabled(false);
-            preSessionInstall.setEnabled(false);
-            preAbandonSession.setEnabled(false);
-            swInstallLocation.setEnabled(false);
-            preUninstallBlock.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            preClrDevOwn.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            preSessionInstall.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            preAbandonSession.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            swInstallLocation.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-        } else {
+        if (dpm.isDeviceOwnerApp(requireActivity().getPackageName())) {
             if (Preferences.GET_MODEL_ID(requireActivity()) != 0) {
                 switch (dpm.getPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
                     case DevicePolicyManager.PERMISSION_POLICY_PROMPT:
@@ -181,7 +168,21 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                         break;
                 }
             }
+        } else {
+            preUninstallBlock.setEnabled(false);
+            preClrDevOwn.setEnabled(false);
+            swPrePermissionFrc.setEnabled(false);
+            preSessionInstall.setEnabled(false);
+            preAbandonSession.setEnabled(false);
+            swInstallLocation.setEnabled(false);
+            preUninstallBlock.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            preClrDevOwn.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            preSessionInstall.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            preAbandonSession.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            swInstallLocation.setSummary(getString(R.string.pre_owner_sum_not_use_function));
         }
+
 
         if (getDeviceOwnerPackage() != null) {
             preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_message_1) + getDeviceOwnerPackage() + getString(R.string.pre_owner_sum_message_2));

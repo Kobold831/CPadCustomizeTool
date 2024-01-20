@@ -1,11 +1,9 @@
 package com.saradabar.cpadcustomizetool.util;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -37,23 +35,22 @@ import java.util.Objects;
 
 public class Common {
 
-    public static ComponentName getAdministratorComponent(Context context) {
-        return new ComponentName(context, com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver.class);
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public static void setPermissionGrantState(Context context, String packageName, int grantState) {
+        DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        for (String permission : getRuntimePermissions(context, packageName)) {
+            dpm.setPermissionGrantState(new ComponentName(context, AdministratorReceiver.class), packageName, permission, grantState);
+        }
     }
 
-    public static void setPermissionGrantState(Context context, String packageName, int i) {
-        DevicePolicyManager devicePolicyManager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            for (String permission : getRuntimePermissions(context, packageName)) {
-                devicePolicyManager.setPermissionGrantState(new ComponentName(context, AdministratorReceiver.class), packageName, permission, i);
-            }
-        }
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public static String[] getRuntimePermissions(Context context, String packageName) {
+        return new ArrayList<>(Arrays.asList(getRequiredPermissions(context, packageName))).toArray(new String[0]);
     }
 
     public static String[] getRequiredPermissions(Context context, String packageName) {
         try {
-            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
-            String[] str = packageInfo.requestedPermissions;
+            String[] str = context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS).requestedPermissions;
             if (str != null && str.length > 0) {
                 return str;
             } else {
@@ -62,11 +59,6 @@ public class Common {
         } catch (Exception ignored) {
             return new String[0];
         }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    public static String[] getRuntimePermissions(Context context, String packageName) {
-        return new ArrayList<>(Arrays.asList(getRequiredPermissions(context, packageName))).toArray(new String[0]);
     }
 
     public static String getNowDate() {
@@ -150,7 +142,6 @@ public class Common {
     public static JSONObject parseJson(Context context) throws JSONException, IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(context.getExternalCacheDir(), "Check.json").getPath()));
         JSONObject json;
-
         StringBuilder data = new StringBuilder();
         String str = bufferedReader.readLine();
 
@@ -162,7 +153,6 @@ public class Common {
         json = new JSONObject(data.toString());
 
         bufferedReader.close();
-
         return json;
     }
 }
