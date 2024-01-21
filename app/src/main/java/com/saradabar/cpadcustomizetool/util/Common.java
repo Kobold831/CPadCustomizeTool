@@ -13,6 +13,7 @@ import android.provider.OpenableColumns;
 
 import androidx.annotation.RequiresApi;
 
+import com.rosan.dhizuku.api.Dhizuku;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 
 import org.json.JSONException;
@@ -123,5 +124,12 @@ public class Common {
 
         bufferedReader.close();
         return json;
+    }
+
+    public static boolean isDhizukuActive(Context context) {
+        if (Dhizuku.init(context)) {
+            return Dhizuku.isPermissionGranted();
+        }
+        return false;
     }
 }

@@ -182,7 +182,8 @@
     <Preference
         app:iconSpaceReserved="false"
         android:key="pre_dhizuku_permission_req"
-        android:title="@string/pre_main_title_dhizuku_permission_req" />
+        android:title="@string/pre_main_title_dhizuku_permission_req"
+        android:summary="デバイスオーナーがDhizukuに設定されている場合はタップして権限をリクエストできます\n承認後「デバイスオーナーの機能」を使用できます"/>
 
     <SwitchPreference
         app:iconSpaceReserved="false"

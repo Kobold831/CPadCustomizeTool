@@ -143,7 +143,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             listView.setOnItemClickListener((parent, mView, position, id) -> {
                 switch (position) {
                     case 0:
-                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CTZ) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
                             Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
@@ -177,6 +177,17 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         break;
                     case 3:
                         if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName()) && Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                            listView.invalidateViews();
+                        } else {
+                            new AlertDialog.Builder(requireActivity())
+                                    .setMessage(getString(R.string.dialog_error_not_work_mode))
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                    .show();
+                        }
+                        break;
+                    case 4:
+                        if (Common.isDhizukuActive(requireActivity())) {
                             Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {

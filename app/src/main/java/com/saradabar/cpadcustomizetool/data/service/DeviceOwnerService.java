@@ -31,10 +31,9 @@ public class DeviceOwnerService extends Service {
 
     protected IDeviceOwnerService.Stub mDeviceOwnerServiceStub = new IDeviceOwnerService.Stub() {
 
-        final DevicePolicyManager dpm = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
-
         @Override
         public boolean isDeviceOwnerApp() {
+            DevicePolicyManager dpm = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
             try {
                 return dpm.isDeviceOwnerApp(getPackageName());
             } catch (SecurityException ignored) {
@@ -44,11 +43,13 @@ public class DeviceOwnerService extends Service {
 
         @Override
         public void setUninstallBlocked(String packageName, boolean uninstallBlocked) {
+            DevicePolicyManager dpm = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
             dpm.setUninstallBlocked(new ComponentName(getBaseContext(), AdministratorReceiver.class), packageName, uninstallBlocked);
         }
 
         @Override
         public boolean isUninstallBlocked(String packageName) {
+            DevicePolicyManager dpm = (DevicePolicyManager) getBaseContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
             return dpm.isUninstallBlocked(new ComponentName(getBaseContext(), AdministratorReceiver.class), packageName);
         }
 

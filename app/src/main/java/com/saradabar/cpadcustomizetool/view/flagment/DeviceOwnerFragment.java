@@ -8,19 +8,27 @@ import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.RemoteException;
 
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
 
+import com.rosan.dhizuku.api.Dhizuku;
+import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.installer.SplitInstaller;
+import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
+import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Path;
@@ -36,9 +44,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Objects;
 
+import jp.co.benesse.dcha.dchaservice.IDchaService;
+
 public class DeviceOwnerFragment extends PreferenceFragmentCompat {
+
+    IDhizukuService mUserService;
 
     String[] splitInstallData = new String[256];
 
@@ -169,18 +182,25 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 }
             }
         } else {
-            preUninstallBlock.setEnabled(false);
-            preClrDevOwn.setEnabled(false);
-            swPrePermissionFrc.setEnabled(false);
-            preSessionInstall.setEnabled(false);
-            preAbandonSession.setEnabled(false);
-            swInstallLocation.setEnabled(false);
-            preUninstallBlock.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            preClrDevOwn.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            preSessionInstall.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            preAbandonSession.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            swInstallLocation.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            if (!Common.isDhizukuActive(requireActivity())) {
+                preUninstallBlock.setEnabled(false);
+                preUninstallBlock.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+                preClrDevOwn.setEnabled(false);
+                preClrDevOwn.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+                swPrePermissionFrc.setEnabled(false);
+                swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+                preSessionInstall.setEnabled(false);
+                preSessionInstall.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+                swInstallLocation.setEnabled(false);
+                swInstallLocation.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            } else {
+                preUninstallBlock.setEnabled(false);
+                preClrDevOwn.setEnabled(false);
+                preClrDevOwn.setSummary("Dhizukuがデバイスオーナーのためこの機能は使用できません");
+                swPrePermissionFrc.setEnabled(false);
+                preSessionInstall.setSummary("「分割APK」のインストールに対応しています\n「分割APK」をインストールするにはファイルを長押しして選択してください\n「xapk・apkm」はDhizukuがデバイスオーナーかつテスト中のため対応していません");
+                swInstallLocation.setEnabled(false);
+            }
         }
 
 
@@ -247,6 +267,20 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         initialize();
     }
 
+    public boolean bindUserService() {
+        DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(requireActivity(), DhizukuService.class));
+        return Dhizuku.bindUserService(args, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                mUserService = IDhizukuService.Stub.asInterface(iBinder);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+            }
+        });
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -257,22 +291,43 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             if (trySetInstallData(data)) {
                 String str = new File(splitInstallData[0]).getName();
 
-                /* ファイルの拡張子 */
-                if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
-                    TryApkTask at = new TryApkTask();
-                    at.setListener(StartActivity.getInstance().apkListener());
-                    at.execute();
-                    return;
-                } else if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".xapk")) {
-                    TryXApkTask xat = new TryXApkTask();
-                    xat.setListener(StartActivity.getInstance().xApkListener());
-                    xat.execute();
-                    return;
-                } else if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
-                    TryApkMTask amt = new TryApkMTask();
-                    amt.setListener(StartActivity.getInstance().apkMListener());
-                    amt.execute();
-                    return;
+                if (Common.isDhizukuActive(requireActivity())) {
+                    if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
+                        if (bindUserService()) {
+                            Runnable runnable = () -> {
+                                try {
+                                    mUserService.tryInstallPackages("", splitInstallData);
+                                } catch (RemoteException ignored) {
+                                }
+                            };
+                            new Handler().postDelayed(runnable, 5000);
+                        }
+                        return;
+                    } else {
+                        new AlertDialog.Builder(requireActivity())
+                                .setMessage("apkまたは分割apkのみ対応")
+                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                .show();
+                        return;
+                    }
+                } else {
+                    /* ファイルの拡張子 */
+                    if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
+                        TryApkTask at = new TryApkTask();
+                        at.setListener(StartActivity.getInstance().apkListener());
+                        at.execute();
+                        return;
+                    } else if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".xapk")) {
+                        TryXApkTask xat = new TryXApkTask();
+                        xat.setListener(StartActivity.getInstance().xApkListener());
+                        xat.execute();
+                        return;
+                    } else if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
+                        TryApkMTask amt = new TryApkMTask();
+                        amt.setListener(StartActivity.getInstance().apkMListener());
+                        amt.execute();
+                        return;
+                    }
                 }
             }
 
