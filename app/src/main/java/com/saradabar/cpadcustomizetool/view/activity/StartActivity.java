@@ -510,7 +510,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     public void onResume() {
         super.onResume();
         /* DchaServiceが機能していな場合は再起動 */
-        if (Preferences.GET_DCHASERVICE_FLAG(this)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
             if (!tryBindDchaService()) {
                 startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 finish();

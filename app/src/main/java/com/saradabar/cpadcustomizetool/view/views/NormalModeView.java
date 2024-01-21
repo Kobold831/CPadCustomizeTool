@@ -11,6 +11,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
@@ -64,7 +65,7 @@ public class NormalModeView {
         /* ランチャーに設定されているかの確認 */
         private boolean isLauncher(String s) {
             try {
-                return Objects.equals(s, Preferences.GET_NORMAL_LAUNCHER(getContext()));
+                return Objects.equals(s, Preferences.load(getContext(), Constants.KEY_NORMAL_LAUNCHER, ""));
             } catch (NullPointerException ignored) {
                 return false;
             }

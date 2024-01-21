@@ -111,6 +111,7 @@
                 android:text="@string/info_organization" />
 
             <TextView
+                android:id="@+id/menu_text_organization"
                 android:gravity="center"
                 android:layout_marginTop="10dp"
                 android:layout_width="wrap_content"

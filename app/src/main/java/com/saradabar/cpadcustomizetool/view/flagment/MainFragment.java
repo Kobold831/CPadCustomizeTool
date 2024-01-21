@@ -3,6 +3,7 @@ package com.saradabar.cpadcustomizetool.view.flagment;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -325,13 +326,13 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         /* リスナーを有効化 */
         swDchaState.setOnPreferenceChangeListener((preference, o) -> {
-            if (!Preferences.GET_CHANGE_SETTINGS_DCHA_FLAG(getActivity())) {
+            if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false)) {
                 if ((boolean) o) {
                     chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
                 } else {
                     chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                 }
-            } else if (Preferences.GET_CHANGE_SETTINGS_DCHA_FLAG(getActivity())) {
+            } else if (Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false)) {
                 if ((boolean) o) {
                     tryBindDchaService(Constants.FLAG_SET_DCHA_STATE_3, true);
                 } else {
@@ -342,13 +343,13 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         swNavigation.setOnPreferenceChangeListener((preference, o) -> {
-            if (!Preferences.GET_CHANGE_SETTINGS_DCHA_FLAG(getActivity())) {
+            if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false)) {
                 if ((boolean) o) {
                     chgSetting(Constants.FLAG_HIDE_NAVIGATION_BAR);
                 } else {
                     chgSetting(Constants.FLAG_VIEW_NAVIGATION_BAR);
                 }
-            } else if (Preferences.GET_CHANGE_SETTINGS_DCHA_FLAG(getActivity())) {
+            } else if (Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false)) {
                 if ((boolean) o) {
                     tryBindDchaService(Constants.FLAG_HIDE_NAVIGATION_BAR, true);
                 } else {
@@ -429,12 +430,12 @@ public class MainFragment extends PreferenceFragmentCompat {
                 requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, (boolean) o).apply();
                 if ((boolean) o) {
                     try {
-                        if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                             chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
                         }
                         Thread.sleep(100);
                         Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
-                        if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                             chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                         }
                         requireActivity().startService(new Intent(getActivity(), KeepService.class));
@@ -448,7 +449,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                             }
                         }
                     } catch (Exception e) {
-                        if (Preferences.GET_MODEL_ID(requireActivity()) == 2) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                             chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                         }
                         Toast.toast(getActivity(), R.string.toast_not_change);
@@ -500,8 +501,8 @@ public class MainFragment extends PreferenceFragmentCompat {
                             return true;
                         }
                 }
+                return true;
             }
-            return false;
         });
 
         swKeepDchaState.setOnPreferenceChangeListener((preference, o) -> {
@@ -598,16 +599,16 @@ public class MainFragment extends PreferenceFragmentCompat {
             if (isCfmDialog()) {
                 if ((boolean) o) {
                     try {
-                        if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                             chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
                             Thread.sleep(100);
                         }
                         chgSetting(Constants.FLAG_USB_DEBUG_TRUE);
-                        if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                             chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                         }
                     } catch (SecurityException | InterruptedException ignored) {
-                        if (Preferences.GET_MODEL_ID(getActivity()) == 2) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                             chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                         }
                         Toast.toast(requireActivity(), R.string.toast_not_change);
@@ -716,7 +717,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             listView.setAdapter(new NormalModeView.AppListAdapter(requireActivity(), dataList));
             listView.setOnItemClickListener((parent, mView, position, id) -> {
-                Preferences.SET_NORMAL_LAUNCHER(Uri.fromParts("package", installedAppList.get(position).activityInfo.packageName, null).toString().replace("package:", ""), getActivity());
+                Preferences.save(requireActivity(), Constants.KEY_NORMAL_LAUNCHER, Uri.fromParts("package", installedAppList.get(position).activityInfo.packageName, null).toString().replace("package:", ""));
                 /* listviewの更新 */
                 listView.invalidateViews();
                 initialize();
@@ -763,7 +764,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                                         .show();
                             } else {
-                                Preferences.SET_DCHASERVICE_FLAG(true, getActivity());
+                                Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, true);
                                 requireActivity().finish();
                                 requireActivity().overridePendingTransition(0, 0);
                                 startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", true));
@@ -943,7 +944,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         /* DchaServiceを使用するか */
-        if (!Preferences.GET_DCHASERVICE_FLAG(requireActivity())) {
+        if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, false)) {
             for (Preference preference : Arrays.asList(
                     preSilentInstall,
                     preLauncher,
@@ -1020,7 +1021,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         String normalLauncherName = null;
 
         try {
-            normalLauncherName = (String) requireActivity().getPackageManager().getApplicationLabel(requireActivity().getPackageManager().getApplicationInfo(Preferences.GET_NORMAL_LAUNCHER(getActivity()), 0));
+            normalLauncherName = (String) requireActivity().getPackageManager().getApplicationLabel(requireActivity().getPackageManager().getApplicationInfo(Preferences.load(requireActivity(), Constants.KEY_NORMAL_LAUNCHER, ""), 0));
         } catch (PackageManager.NameNotFoundException ignored) {
         }
 
@@ -1047,12 +1048,12 @@ public class MainFragment extends PreferenceFragmentCompat {
         }
 
         /* 端末ごとにPreferenceの状態を設定 */
-        switch (Preferences.GET_MODEL_ID(requireActivity())) {
-            case 0:
+        switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+            case Constants.MODEL_CT2:
                 preSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 preSilentInstall.setEnabled(false);
                 break;
-            case 1:
+            case Constants.MODEL_CT3:
                 if (!Build.ID.contains("01.")) {
                     swKeepUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                     swKeepUnkSrc.setEnabled(false);
@@ -1062,7 +1063,8 @@ public class MainFragment extends PreferenceFragmentCompat {
                 swDeviceAdmin.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 swDeviceAdmin.setEnabled(false);
                 break;
-            case 2:
+            case Constants.MODEL_CTX:
+            case Constants.MODEL_CTZ:
                 swUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 swKeepUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 swUnkSrc.setEnabled(false);
@@ -1078,7 +1080,7 @@ public class MainFragment extends PreferenceFragmentCompat {
 
     private boolean isCfmDialog() {
         if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
-            return Preferences.GET_CONFIRMATION(requireActivity());
+            return Preferences.load(requireActivity(), Constants.KEY_FLAG_CONFIRMATION, false);
         } else {
             return true;
         }
@@ -1095,7 +1097,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                         .setMessage(getString(R.string.dialog_final_confirmation))
                         .setPositiveButton(R.string.dialog_common_cancel, (dialog1, which1) -> dialog.dismiss())
                         .setNeutralButton(R.string.dialog_common_continue, (dialog1, which1) -> {
-                            Preferences.SET_CONFIRMATION(true, requireActivity());
+                            Preferences.save(requireActivity(), Constants.KEY_FLAG_CONFIRMATION, true);
                             dialog1.dismiss();
                         })
                         .show())
@@ -1284,13 +1286,14 @@ public class MainFragment extends PreferenceFragmentCompat {
 
     /* 解像度のリセット */
     public void resetResolution() {
-        switch (Preferences.GET_MODEL_ID(requireActivity())) {
-            case 0:
-            case 1:
+        switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+            case Constants.MODEL_CT2:
+            case Constants.MODEL_CT3:
                 width = 1280;
                 height = 800;
                 break;
-            case 2:
+            case Constants.MODEL_CTX:
+            case Constants.MODEL_CTZ:
                 width = 1920;
                 height = 1200;
                 break;

@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 public class CrashLogActivity extends Activity {
@@ -28,8 +29,8 @@ public class CrashLogActivity extends Activity {
         textView = findViewById(R.id.textView);
         scrollView = findViewById(R.id.scrollView);
 
-        if (Preferences.GET_CRASH_LOG(this).length() != 0) {
-            addText(Preferences.GET_CRASH_LOG(this));
+        if (Preferences.load(this, Constants.KEY_CRASH_LOG, "").length() != 0) {
+            addText(Preferences.load(this, Constants.KEY_CRASH_LOG, ""));
         } else {
             addText(getString(R.string.logger_empty));
         }

@@ -22,7 +22,7 @@
     <string name="wel_title">利用規約</string>
     <string name="wel_disagree">同意しない</string>
     <string name="wel_agree">同意する</string>
-    <string name="wel_terms_of_service">このアプリを利用する場合、「同意する」を押した時点で、%1$sの許諾契約およびこの規約に同意するものとし、開発者は一切の問題において責任を負わないものとします</string>
+    <string name="wel_terms_of_service">このアプリの利用を開始するには、必ずこの利用規約をお読みいただき、同意してください\n「同意する」を押した時点で、この規約に同意したことになります\n開発者は一切の問題において責任を負わないものとします</string>
 
     <!-- メイン設定 -->
     <string name="pre_main_category_system_ui">システムUI設定</string>
@@ -189,7 +189,7 @@
 
     <!-- アプリ情報 -->
     <string name="info_app_info">アプリの情報</string>
-    <string name="info_app_state">アプリの状態：%1$s / %2$s</string>
+    <string name="info_app_state">アプリの状態：%1$s</string>
     <string name="info_development">開発者</string>
     <string name="info_development_label">こぼるど</string>
     <string name="info_organization">SmileTabLabo</string>

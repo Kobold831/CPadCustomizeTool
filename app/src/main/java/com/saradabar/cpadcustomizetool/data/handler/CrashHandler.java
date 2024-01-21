@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.saradabar.cpadcustomizetool.util.Common;
+import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import java.io.PrintWriter;
@@ -29,7 +30,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     @Override
     public void uncaughtException(@NonNull Thread thread, @NonNull Throwable throwable) {
         Common.LogOverWrite(mContext, throwable);
-        Preferences.SET_CRASH(mContext, true);
+        Preferences.save(mContext, Constants.KEY_FLAG_CRASH_LOG, true);
         mDefaultUncaughtExceptionHandler.uncaughtException(thread, throwable);
     }
 }

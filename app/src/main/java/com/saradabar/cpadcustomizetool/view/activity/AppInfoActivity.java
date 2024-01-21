@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -24,7 +23,7 @@ public class AppInfoActivity extends Activity {
         setContentView(R.layout.activity_app_info);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        showInformation();
+        initialize();
 
         findViewById(R.id.info_button).setOnClickListener(view -> {
             try {
@@ -44,20 +43,20 @@ public class AppInfoActivity extends Activity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void showInformation() {
+    private void initialize() {
         TextView text1 = findViewById(R.id.menu_text_1),
                 text2 = findViewById(R.id.menu_text_2),
                 text3 = findViewById(R.id.menu_text_3),
                 text4 = findViewById(R.id.menu_text_4),
-                text5 = findViewById(R.id.menu_text_5);
+                text5 = findViewById(R.id.menu_text_5),
+                text6 = findViewById(R.id.menu_text_organization);
 
         text1.setText("アプリ名：" + getApplicationInfo().loadLabel(getPackageManager()));
         text2.setText("パッケージ名：" + BuildConfig.APPLICATION_ID);
         text3.setText("バージョン：" + BuildConfig.VERSION_NAME);
         text4.setText("バージョンコード：" + BuildConfig.VERSION_CODE);
-
-        if (getIntent().getBooleanExtra("result", false)) text5.setText(getString(R.string.info_app_state, BuildConfig.BUILD_TYPE, "無制限モード"));
-        else text5.setText(getString(R.string.info_app_state, BuildConfig.BUILD_TYPE, "制限モード"));
+        text5.setText(getString(R.string.info_app_state, BuildConfig.BUILD_TYPE));
+        text6.setText(getString(R.string.info_organization_label, getString(R.string.info_organization)));
     }
 
     @Override

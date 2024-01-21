@@ -156,7 +156,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     private void initialize() {
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
         if (dpm.isDeviceOwnerApp(requireActivity().getPackageName())) {
-            if (Preferences.GET_MODEL_ID(requireActivity()) != 0) {
+            if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
                 switch (dpm.getPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
                     case DevicePolicyManager.PERMISSION_POLICY_PROMPT:
                         swPrePermissionFrc.setChecked(false);
@@ -190,9 +190,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_no_device_owner));
         }
 
-        switch (Preferences.GET_MODEL_ID(requireActivity())) {
+        switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
             /* チャレンジパッド２ */
-            case 0:
+            case Constants.MODEL_CT2:
                 swPrePermissionFrc.setEnabled(false);
                 swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 preSessionInstall.setEnabled(false);
@@ -203,7 +203,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 swInstallLocation.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
             /* チャレンジパッド３ */
-            case 1:
+            case Constants.MODEL_CT3:
                 swPrePermissionFrc.setEnabled(false);
                 swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 preUninstallBlock.setEnabled(false);
@@ -218,8 +218,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 swInstallLocation.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
             /* チャレンジパッドNEO・NEXT */
-            case 2:
+            case Constants.MODEL_CTX:
                 break;
+            case Constants.MODEL_CTZ:
         }
 
         preAbandonSession.setEnabled(false);

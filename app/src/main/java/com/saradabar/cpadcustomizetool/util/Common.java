@@ -1,6 +1,5 @@
 package com.saradabar.cpadcustomizetool.util;
 
-import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,7 +13,6 @@ import android.provider.OpenableColumns;
 
 import androidx.annotation.RequiresApi;
 
-import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 
 import org.json.JSONException;
@@ -79,10 +77,10 @@ public class Common {
                 stringWriter +
                 "- ログ終了 -\n\n";
 
-        if (Preferences.GET_CRASH_LOG(context) != null) {
-            Preferences.SAVE_CRASH_LOG(context, String.join(",", Preferences.GET_CRASH_LOG(context)).replace("    ", "") + message);
+        if (!Preferences.load(context, Constants.KEY_CRASH_LOG, "").equals("")) {
+            Preferences.save(context, Constants.KEY_CRASH_LOG, String.join(",", Preferences.load(context, Constants.KEY_CRASH_LOG, "")).replace("    ", "") + message);
         } else {
-            Preferences.SAVE_CRASH_LOG(context, message);
+            Preferences.save(context, Constants.KEY_CRASH_LOG, message);
         }
     }
 

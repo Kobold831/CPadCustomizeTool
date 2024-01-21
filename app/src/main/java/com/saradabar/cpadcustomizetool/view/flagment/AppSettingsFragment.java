@@ -50,8 +50,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         preDelCrashLog = findPreference("pre_app_del_crash_log");
         preUpdateMode = findPreference("pre_app_update_mode");
 
-        swUpdateCheck.setChecked(!Preferences.GET_UPDATE_FLAG(requireActivity()));
-        swUseDcha.setChecked(Preferences.GET_CHANGE_SETTINGS_DCHA_FLAG(requireActivity()));
+        swUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_UPDATE, false));
+        swUseDcha.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false));
 
         try {
             swAdb.setChecked(sp.getBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false));
@@ -60,27 +60,27 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         }
 
         swUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
-            Preferences.SET_UPDATE_FLAG(!((boolean) newValue), requireActivity());
+            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE, !((boolean) newValue));
             return true;
         });
 
         swUseDcha.setOnPreferenceChangeListener((preference, newValue) -> {
-            Preferences.SET_CHANGE_SETTINGS_DCHA_FLAG((boolean) newValue, requireActivity());
+            Preferences.save(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, (boolean) newValue);
             return true;
         });
 
         swAdb.setOnPreferenceChangeListener((preference, newValue) -> {
             if (isCfmDialog()) {
                 try {
-                    if (Preferences.GET_MODEL_ID(requireActivity()) == 2)
+                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ)
                         Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
                     Thread.sleep(100);
                     Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
-                    if (Preferences.GET_MODEL_ID(requireActivity()) == 2)
+                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ)
                         Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
                     sp.edit().putBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, (boolean) newValue).apply();
                 } catch (SecurityException | InterruptedException ignored) {
-                    if (Preferences.GET_MODEL_ID(requireActivity()) == 2)
+                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ)
                         Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
                     Toast.toast(requireActivity(), R.string.toast_not_change);
                     swAdb.setChecked(false);
@@ -88,7 +88,10 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                 }
                 return true;
             } else {
-                cfmDialog();
+                new AlertDialog.Builder(requireActivity())
+                        .setMessage("未改造デバイスでは不要なため設定できません")
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
             }
             return false;
         });
@@ -102,7 +105,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             new AlertDialog.Builder(requireActivity())
                     .setMessage("消去しますか？")
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                        if (Preferences.REMOVE_CRASH_LOG(requireActivity())) {
+                        if (Preferences.delete(requireActivity(), Constants.KEY_CRASH_LOG)) {
                             new AlertDialog.Builder(requireActivity())
                                     .setMessage("消去しました")
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
@@ -140,8 +143,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             listView.setOnItemClickListener((parent, mView, position, id) -> {
                 switch (position) {
                     case 0:
-                        if (Preferences.GET_MODEL_ID(requireActivity()) != 2) {
-                            Preferences.SET_UPDATE_MODE(requireActivity(), (int) id);
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CTZ) {
+                            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
                             new AlertDialog.Builder(requireActivity())
@@ -151,13 +154,13 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         }
                         break;
                     case 1:
-                        Preferences.SET_UPDATE_MODE(requireActivity(), (int) id);
+                        Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                         listView.invalidateViews();
                         break;
                     case 2:
-                        if (isCfmDialog()) {
-                            if (MainFragment.getInstance().tryBindDchaService(Constants.FLAG_CHECK, true) && Preferences.GET_MODEL_ID(requireActivity()) != 0) {
-                                Preferences.SET_UPDATE_MODE(requireActivity(), (int) id);
+                        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+                            if (MainFragment.getInstance().tryBindDchaService(Constants.FLAG_CHECK, true) && Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                                Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                                 listView.invalidateViews();
                             } else {
                                 new AlertDialog.Builder(requireActivity())
@@ -166,12 +169,15 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                                         .show();
                             }
                         } else {
-                            cfmDialog();
+                            new AlertDialog.Builder(requireActivity())
+                                    .setMessage(getString(R.string.pre_app_sum_confirmation_dcha))
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                    .show();
                         }
                         break;
                     case 3:
-                        if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName()) && Preferences.GET_MODEL_ID(requireActivity()) != 0) {
-                            Preferences.SET_UPDATE_MODE(requireActivity(), (int) id);
+                        if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName()) && Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
                             new AlertDialog.Builder(requireActivity())
@@ -191,16 +197,16 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        if (!Preferences.GET_DCHASERVICE_FLAG(requireActivity())) {
-            Preferences.SET_CHANGE_SETTINGS_DCHA_FLAG(false, requireActivity());
+        if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+            Preferences.save(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false);
             swUseDcha.setChecked(false);
             swUseDcha.setSummary(getString(R.string.pre_app_sum_confirmation_dcha));
             swUseDcha.setEnabled(false);
         }
 
-        switch (Preferences.GET_MODEL_ID(requireActivity())) {
-            case 0:
-            case 1:
+        switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+            case Constants.MODEL_CT2:
+            case Constants.MODEL_CT3:
                 swAdb.setEnabled(false);
                 swAdb.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
@@ -209,7 +215,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
     private boolean isCfmDialog() {
         if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
-            return Preferences.GET_CONFIRMATION(requireActivity());
+            return Preferences.load(requireActivity(), Constants.KEY_FLAG_CONFIRMATION, false);
         } else {
             return true;
         }
@@ -226,7 +232,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         .setMessage(getString(R.string.dialog_final_confirmation))
                         .setPositiveButton(R.string.dialog_common_cancel, (dialog1, which1) -> dialog.dismiss())
                         .setNeutralButton(R.string.dialog_common_continue, (dialog1, which1) -> {
-                            Preferences.SET_CONFIRMATION(true, requireActivity());
+                            Preferences.save(requireActivity(), Constants.KEY_FLAG_CONFIRMATION, true);
                             dialog1.dismiss();
                         })
                         .show())

@@ -28,7 +28,7 @@ public class RebootActivity extends Activity {
 
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
 
-        if (Preferences.GET_DCHASERVICE_FLAG(this)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
             startReboot();
         } else {
             Toast.toast(this, R.string.toast_use_not_dcha);

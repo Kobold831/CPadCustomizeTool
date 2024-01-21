@@ -70,7 +70,9 @@ public class KeepService extends Service {
 
             try {
                 if (Settings.System.getInt(getContentResolver(), Constants.DCHA_STATE) == 3) {
-                    Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
+                    if (isCfmDialog(getBaseContext())) {
+                        Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
+                    }
                 }
             } catch (Settings.SettingNotFoundException ignored) {
             }
@@ -115,14 +117,14 @@ public class KeepService extends Service {
             try {
                 if (Settings.Global.getInt(getContentResolver(), Settings.Global.ADB_ENABLED) == 0) {
                     if (isCfmDialog(getBaseContext())) {
-                        if (Preferences.GET_MODEL_ID(getApplicationContext()) == 2) {
+                        if (Preferences.load(getBaseContext(), Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTX || Preferences.load(getBaseContext(), Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTZ) {
                             Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 3);
                         }
 
                         Thread.sleep(100);
                         Settings.Global.putInt(getContentResolver(), Settings.Global.ADB_ENABLED, 1);
 
-                        if (Preferences.GET_MODEL_ID(getApplicationContext()) == 2) {
+                        if (Preferences.load(getBaseContext(), Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTX || Preferences.load(getBaseContext(), Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTZ) {
                             Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
                         }
                     } else {
@@ -131,7 +133,7 @@ public class KeepService extends Service {
                 }
             } catch (Exception ignored) {
                 if (isCfmDialog(getBaseContext())) {
-                    if (Preferences.GET_MODEL_ID(getApplicationContext()) == 2) {
+                    if (Preferences.load(getBaseContext(), Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTX || Preferences.load(getBaseContext(), Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTZ) {
                         Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
                     }
                 }
@@ -317,7 +319,7 @@ public class KeepService extends Service {
 
     private boolean isCfmDialog(Context context) {
         if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
-            return Preferences.GET_CONFIRMATION(context);
+            return Preferences.load(context, Constants.KEY_FLAG_CONFIRMATION, false);
         } else {
             return true;
         }

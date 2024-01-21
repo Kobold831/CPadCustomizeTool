@@ -4,6 +4,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
+        app:allowDividerAbove="false"
         android:title="@string/pre_app_category_start_settings">
 
         <SwitchPreference
@@ -14,6 +15,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
+        app:allowDividerAbove="false"
         android:title="@string/pre_app_category_settings">
 
         <SwitchPreference
@@ -31,6 +33,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
+        app:allowDividerAbove="false"
         android:title="@string/pre_app_category_update">
 
         <Preference
@@ -41,6 +44,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
+        app:allowDividerAbove="false"
         android:title="@string/pre_app_category_log">
 
         <Preference

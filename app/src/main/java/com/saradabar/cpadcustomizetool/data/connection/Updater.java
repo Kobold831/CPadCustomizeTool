@@ -90,7 +90,7 @@ public class Updater implements InstallEventListener {
     }
 
     public void installApk(Context context, int flag) {
-        switch (Preferences.GET_UPDATE_MODE(activity)) {
+        switch (Preferences.load(activity, Constants.KEY_FLAG_UPDATE_MODE, 1)) {
             case 0:
                 activity.startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(context.getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_UPDATE);
                 break;
@@ -118,7 +118,7 @@ public class Updater implements InstallEventListener {
                                 .setMessage("遷移先のページよりapkファイルをダウンロードしてadbでインストールしてください")
                                 .setPositiveButton(R.string.dialog_common_yes, (dialog2, which2) -> {
                                     try {
-                                        activity.startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_UPDATE)), Constants.REQUEST_UPDATE);
+                                        activity.startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(Variables.DOWNLOAD_FILE_URL)), Constants.REQUEST_UPDATE);
                                     } catch (ActivityNotFoundException ignored) {
                                         Toast.toast(activity, R.string.toast_unknown_activity);
                                         activity.finish();
@@ -145,6 +145,8 @@ public class Updater implements InstallEventListener {
                                     .setMessage(R.string.dialog_error)
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
                                     .show();
+                        } else {
+                            progressDialog.dismiss();
                         }
                     };
                     new Handler().postDelayed(runnable, 10);
@@ -168,9 +170,9 @@ public class Updater implements InstallEventListener {
                                 .show();
                     }
                 } else {
-                    if (Preferences.GET_MODEL_ID(activity) == 2) {
-                        Preferences.SET_UPDATE_MODE(activity, 1);
-                    } else Preferences.SET_UPDATE_MODE(activity, 0);
+                    if (Preferences.load(activity, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTX || Preferences.load(activity, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTZ) {
+                        Preferences.save(activity, Constants.KEY_FLAG_UPDATE_MODE, 1);
+                    } else Preferences.save(activity, Constants.KEY_FLAG_UPDATE_MODE, 0);
                     new AlertDialog.Builder(activity)
                             .setCancelable(false)
                             .setMessage(activity.getString(R.string.dialog_error_reset_update_mode))

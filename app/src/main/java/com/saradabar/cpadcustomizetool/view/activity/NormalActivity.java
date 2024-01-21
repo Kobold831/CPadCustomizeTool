@@ -70,7 +70,7 @@ public class NormalActivity extends Activity {
     }
 
     private boolean startCheck() {
-        return Preferences.GET_SETTINGS_FLAG(this);
+        return Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false);
     }
 
     private boolean setSystemSettings() {
@@ -84,12 +84,12 @@ public class NormalActivity extends Activity {
 
         if (Preferences.isNormalModeSettingsNavigationBar(this)) Settings.System.putInt(resolver, Constants.HIDE_NAVIGATION_BAR, 0);
 
-        if (Objects.equals(Preferences.GET_NORMAL_LAUNCHER(this), null)) return false;
+        if (Objects.equals(Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, ""), "")) return false;
 
         if (Preferences.isNormalModeSettingsActivity(this)) {
             try {
                 PackageManager pm = getPackageManager();
-                Intent intent = pm.getLaunchIntentForPackage(Preferences.GET_NORMAL_LAUNCHER(this));
+                Intent intent = pm.getLaunchIntentForPackage(Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, ""));
                 startActivity(intent);
             } catch (Exception ignored) {
                 return false;
@@ -99,7 +99,7 @@ public class NormalActivity extends Activity {
     }
 
     private boolean setDchaSettings() {
-        if (!Preferences.GET_DCHASERVICE_FLAG(getApplicationContext())) {
+        if (!Preferences.load(getApplicationContext(), Constants.KEY_FLAG_DCHA_SERVICE, false)) {
             Toast.toast(getApplicationContext(), R.string.toast_use_not_dcha);
             return false;
         }
@@ -113,7 +113,7 @@ public class NormalActivity extends Activity {
             try {
                 if (activityInfo != null) {
                     mDchaService.clearDefaultPreferredApp(activityInfo.packageName);
-                    mDchaService.setDefaultPreferredHomeApp(Preferences.GET_NORMAL_LAUNCHER(getApplicationContext()));
+                    mDchaService.setDefaultPreferredHomeApp(Preferences.load(getApplicationContext(), Constants.KEY_NORMAL_LAUNCHER, ""));
                 }
             } catch (RemoteException ignored) {
                 Toast.toast(getApplicationContext(), R.string.toast_not_install_launcher);
@@ -126,7 +126,7 @@ public class NormalActivity extends Activity {
 
     private boolean isCfmDialog() {
         if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
-            return Preferences.GET_CONFIRMATION(this);
+            return Preferences.load(this, Constants.KEY_FLAG_CONFIRMATION, false);
         } else {
             return true;
         }

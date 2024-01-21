@@ -27,18 +27,18 @@ public class BootCompletedReceiver extends BroadcastReceiver {
                     String dchaStateString = Constants.DCHA_STATE;
 
                     try {
-                        if (Preferences.GET_MODEL_ID(context) == 2) {
+                        if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                             Settings.System.putInt(resolver, dchaStateString, 3);
                         }
 
                         Thread.sleep(100);
                         Settings.Global.putInt(resolver, Settings.Global.ADB_ENABLED, 1);
 
-                        if (Preferences.GET_MODEL_ID(context) == 2) {
+                        if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                             Settings.System.putInt(resolver, dchaStateString, 0);
                         }
                     } catch (SecurityException | InterruptedException ignored) {
-                        if (Preferences.GET_MODEL_ID(context) == 2) {
+                        if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                             Settings.System.putInt(resolver, dchaStateString, 0);
                         }
 

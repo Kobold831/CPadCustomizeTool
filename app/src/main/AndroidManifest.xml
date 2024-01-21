@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-sdk tools:overrideLibrary="rikka.shizuku.api, rikka.shizuku.provider, rikka.shizuku.shared, rikka.shizuku.aidl" />
+
     <uses-permission
         android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
@@ -34,7 +36,7 @@
             android:clearTaskOnLaunch="true"
             android:name=".MainActivity"
             android:label="@string/activity_main"
-            android:theme="@style/StartTheme"
+            android:theme="@style/NoActionBarTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,18 +49,18 @@
         <activity
             android:name=".view.activity.StartActivity"
             android:label="@string/activity_start"
-            android:theme="@style/MainPreferenceTheme" />
+            android:theme="@style/PreferenceTheme" />
 
         <activity
             android:name=".view.activity.SelfUpdateActivity"
             android:label="@string/activity_self_update"
-            android:theme="@style/MainTheme"
+            android:theme="@style/ActionBarTheme"
             tools:ignore="InnerclassSeparator" />
 
         <activity
             android:name=".view.activity.AppInfoActivity"
             android:label="@string/activity_app_info"
-            android:theme="@style/MainTheme"
+            android:theme="@style/ActionBarTheme"
             tools:ignore="InnerclassSeparator" />
 
         <activity
@@ -66,7 +68,7 @@
             android:documentLaunchMode="always"
             android:name=".view.activity.EmergencyActivity"
             android:label="@string/activity_emergency"
-            android:theme="@style/ActivityTheme"
+            android:theme="@style/DialogNoActionBarTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -78,7 +80,7 @@
             android:documentLaunchMode="always"
             android:name=".view.activity.NormalActivity"
             android:label="@string/activity_normal"
-            android:theme="@style/ActivityTheme"
+            android:theme="@style/DialogNoActionBarTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -91,7 +93,7 @@
             android:name=".view.activity.RebootActivity"
             android:label="@string/activity_reboot"
             android:icon="@drawable/reboot"
-            android:theme="@style/ActivityTheme"
+            android:theme="@style/DialogNoActionBarTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -100,12 +102,12 @@
 
         <activity
             android:name=".view.activity.UninstallBlockActivity"
-            android:theme="@style/MainTheme"
+            android:theme="@style/ActionBarTheme"
             android:label="@string/activity_uninstall_block" />
 
         <activity
             android:name=".view.activity.CrashLogActivity"
-            android:theme="@style/MainTheme"
+            android:theme="@style/ActionBarTheme"
             android:label="@string/activity_crash_log" />
 
         <service
@@ -170,5 +172,14 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
+
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL"
+            tools:ignore="MissingClass" />
     </application>
 </manifest>

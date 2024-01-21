@@ -9,6 +9,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import java.util.List;
@@ -58,7 +59,7 @@ public class SingleListView {
         /* ランチャーに設定されているかの確認 */
         private boolean isUpdater(int i) {
             try {
-                return Objects.equals(i, Preferences.GET_UPDATE_MODE(getContext()));
+                return Objects.equals(i, Preferences.load(getContext(), Constants.KEY_FLAG_UPDATE_MODE, 1));
             } catch (NullPointerException ignored) {
                 return false;
             }

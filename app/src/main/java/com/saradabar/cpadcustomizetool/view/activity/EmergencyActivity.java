@@ -72,7 +72,7 @@ public class EmergencyActivity extends Activity {
     }
 
     private boolean startCheck() {
-        return Preferences.GET_SETTINGS_FLAG(this);
+        return Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false);
     }
 
     private boolean setSystemSettings(boolean study) {
@@ -141,7 +141,7 @@ public class EmergencyActivity extends Activity {
 
         if (!Preferences.isEmergencySettingsLauncher(this) && !Preferences.isEmergencySettingsRemoveTask(this)) return true;
 
-        if (!Preferences.GET_DCHASERVICE_FLAG(getApplicationContext())) {
+        if (!Preferences.load(getApplicationContext(), Constants.KEY_FLAG_DCHA_SERVICE, false)) {
             Toast.toast(getApplicationContext(), R.string.toast_use_not_dcha);
             setSystemSettings(false);
             return false;
@@ -175,7 +175,7 @@ public class EmergencyActivity extends Activity {
 
     private boolean isCfmDialog() {
         if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
-            return Preferences.GET_CONFIRMATION(this);
+            return Preferences.load(this, Constants.KEY_FLAG_CONFIRMATION, false);
         } else {
             return true;
         }

@@ -130,7 +130,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
             new Handler().postDelayed(runnable, 10);
             return false;
         });
-        if (Preferences.GET_MODEL_ID(getActivity()) == 0) {
+        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT2) {
             preStartUiAdjustment.setEnabled(false);
             preStartUiAdjustment.setSummary(Build.MODEL + "ではこの機能は使用できません");
         }

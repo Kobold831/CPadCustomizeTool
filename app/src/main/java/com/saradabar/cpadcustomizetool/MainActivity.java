@@ -56,7 +56,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
 
         /* 前回クラッシュしているかどうか */
-        if (Preferences.GET_CRASH(this)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_CRASH_LOG, false)) {
             /* クラッシュダイアログ表示 */
             crashError();
         } else {
@@ -70,7 +70,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setCancelable(false)
                 .setMessage(getString(R.string.dialog_error_crash, getApplicationInfo().loadLabel(getPackageManager())))
                 .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> {
-                    Preferences.SET_CRASH(this, false);
+                    Preferences.save(this, Constants.KEY_FLAG_CRASH_LOG, false);
                     firstCheck();
                 })
                 .setNeutralButton(R.string.dialog_common_check, (dialog, which) -> startActivity(new Intent(this, CrashLogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
@@ -79,7 +79,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
     private void firstCheck() {
         /* アップデートチェックするか確認 */
-        if (Preferences.GET_UPDATE_FLAG(this)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_UPDATE, false)) {
             /* ネットワークチェック */
             if (!isNetworkState()) {
                 networkError();
@@ -91,7 +91,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
         }
 
         /* 初回起動か確認 */
-        if (Preferences.GET_SETTINGS_FLAG(this)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
             /* 初回起動ではないならサポート端末か確認 */
             if (supportModelCheck()) {
                 /* DchaServiceを確認 */
@@ -121,7 +121,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setMessage(R.string.dialog_error_start_wifi)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
                 .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
-                    if (Preferences.GET_SETTINGS_FLAG(this)) {
+                    if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
                         if (supportModelCheck()) checkDchaService();
                         else supportModelError();
                     } else new WelcomeHelper(this, WelAppActivity.class).forceShow();
@@ -170,7 +170,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     } else {
                         cancelLoadingDialog();
 
-                        if (Preferences.GET_SETTINGS_FLAG(this)) {
+                        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
                             if (supportModelCheck()) {
                                 checkDchaService();
                             } else {
@@ -203,7 +203,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
                 .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
-                    if (Preferences.GET_SETTINGS_FLAG(this)) {
+                    if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
                         if (supportModelCheck()) {
                             checkDchaService();
                         } else {
@@ -228,7 +228,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setMessage(R.string.dialog_error_start_connection)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
                 .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
-                    if (Preferences.GET_SETTINGS_FLAG(this)) {
+                    if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
                         if (supportModelCheck()) {
                             checkDchaService();
                         } else {
@@ -244,11 +244,13 @@ public class MainActivity extends Activity implements DownloadEventListener {
     /* アップデートダイアログ */
     private void showUpdateDialog(String str) {
         /* 初回起動ならモデルIDをセット */
-        if (!Preferences.GET_SETTINGS_FLAG(this)) {
+        if (!Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
             switch (Build.MODEL) {
                 case "TAB-A05-BD":
+                    Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTX);
+                    break;
                 case "TAB-A05-BA1":
-                    Preferences.SET_MODEL_ID(2, this);
+                    Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTZ);
                     break;
             }
         }
@@ -279,7 +281,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     progressDialog.setProgress(0);
                     progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.dialog_common_cancel), (dialog2, which2) -> {
                         asyncFileDownload.cancel(true);
-                        if (Preferences.GET_SETTINGS_FLAG(this)) {
+                        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
                             if (supportModelCheck()) checkDchaService();
                             else supportModelError();
                         } else {
@@ -293,7 +295,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     progressHandler.sendEmptyMessage(0);
                 })
                 .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
-                    if (Preferences.GET_SETTINGS_FLAG(this)) {
+                    if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
                         if (supportModelCheck()) checkDchaService();
                         else supportModelError();
                     } else {
@@ -345,17 +347,19 @@ public class MainActivity extends Activity implements DownloadEventListener {
     /* DchaService動作チェック */
     private void checkDchaService() {
         /* DchaServiceを使用するか確認 */
-        if (!Preferences.GET_DCHASERVICE_FLAG(this)) {
+        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
             switch (Build.MODEL) {
                 case "TAB-A03-BR3":
-                    confCheckPad3();
+                    confCheckCT3();
                     break;
                 case "TAB-A05-BD":
+                    confCheckCTX();
+                    break;
                 case "TAB-A05-BA1":
-                    confCheckPadNEO();
+                    confCheckCTZ();
                     break;
                 default:
-                    confCheckPad2();
+                    confCheckCT2();
                     break;
             }
             return;
@@ -370,17 +374,19 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     .setIcon(R.drawable.alert)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
                     .setNeutralButton(R.string.dialog_common_continue, (dialogInterface, i) -> {
-                        Preferences.SET_DCHASERVICE_FLAG(false, this);
+                        Preferences.save(this, Constants.KEY_FLAG_DCHA_SERVICE, false);
                         switch (Build.MODEL) {
                             case "TAB-A03-BR3":
-                                confCheckPad3();
+                                confCheckCT3();
                                 break;
                             case "TAB-A05-BD":
+                                confCheckCTX();
+                                break;
                             case "TAB-A05-BA1":
-                                confCheckPadNEO();
+                                confCheckCTZ();
                                 break;
                             default:
-                                confCheckPad2();
+                                confCheckCT2();
                                 break;
                         }
                     })
@@ -390,23 +396,25 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
         switch (Build.MODEL) {
             case "TAB-A03-BR3":
-                confCheckPad3();
+                confCheckCT3();
                 break;
             case "TAB-A05-BD":
+                confCheckCTX();
+                break;
             case "TAB-A05-BA1":
-                confCheckPadNEO();
+                confCheckCTZ();
                 break;
             default:
-                confCheckPad2();
+                confCheckCT2();
                 break;
         }
     }
 
     /* Pad2起動設定チェック */
-    private void confCheckPad2() {
-        Preferences.SET_MODEL_ID(0, this);
+    private void confCheckCT2() {
+        Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2);
 
-        if (Preferences.GET_SETTINGS_FLAG(this)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
             startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             overridePendingTransition(0, 0);
             finish();
@@ -416,10 +424,10 @@ public class MainActivity extends Activity implements DownloadEventListener {
     }
 
     /* Pad3起動設定チェック */
-    private void confCheckPad3() {
-        Preferences.SET_MODEL_ID(1, this);
+    private void confCheckCT3() {
+        Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT3);
 
-        if (Preferences.GET_SETTINGS_FLAG(this)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
             if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 overridePendingTransition(0, 0);
@@ -430,11 +438,26 @@ public class MainActivity extends Activity implements DownloadEventListener {
         }
     }
 
-    /* PadNeo起動設定チェック */
-    private void confCheckPadNEO() {
-        Preferences.SET_MODEL_ID(2, this);
+    /* NEO起動設定チェック */
+    private void confCheckCTX() {
+        Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTX);
 
-        if (Preferences.GET_SETTINGS_FLAG(this)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
+            if (isPermissionCheck()) {
+                startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                overridePendingTransition(0, 0);
+                finish();
+            }
+        } else {
+            WarningDialog();
+        }
+    }
+
+    /* NEXT起動設定チェック */
+    private void confCheckCTZ() {
+        Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTZ);
+
+        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
             if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 overridePendingTransition(0, 0);
@@ -453,7 +476,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setMessage(R.string.dialog_notice_start)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                     if (isPermissionCheck()) {
-                        Preferences.SET_SETTINGS_FLAG(true, this);
+                        Preferences.save(this, Constants.KEY_FLAG_SETTINGS, true);
                         startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         overridePendingTransition(0, 0);
                         finish();
@@ -514,7 +537,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case Constants.REQUEST_UPDATE:
-                if (Preferences.GET_SETTINGS_FLAG(this)) {
+                if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
                     if (supportModelCheck()) {
                         checkDchaService();
                     } else {

@@ -6,6 +6,11 @@ import java.io.File;
 
 public class Constants {
 
+    public static final int MODEL_CT2 = 0;
+    public static final int MODEL_CT3 = 1;
+    public static final int MODEL_CTX = 2;
+    public static final int MODEL_CTZ = 3;
+
     public static final int FLAG_TEST = -1;
     public static final int FLAG_CHECK = 0;
     public static final int FLAG_SET_DCHA_STATE_0 = 1;
@@ -43,6 +48,18 @@ public class Constants {
 
     public static final String DCHA_STATE = "dcha_state";
     public static final String HIDE_NAVIGATION_BAR = "hide_navigation_bar";
+
+    public static final String KEY_FLAG_SETTINGS = "settings";
+    public static final String KEY_FLAG_UPDATE = "update";
+    public static final String KEY_MODEL_NAME = "model_name";
+    public static final String KEY_FLAG_DCHA_SERVICE = "dcha_service";
+    public static final String KEY_FLAG_SETTINGS_DCHA = "settings_dcha";
+    public static final String KEY_NORMAL_LAUNCHER = "normal_launcher";
+    public static final String KEY_FLAG_UPDATE_MODE = "update_mode";
+    public static final String KEY_FLAG_CONFIRMATION = "confirmation";
+    public static final String KEY_CRASH_LOG = "crash_log";
+    public static final String KEY_FLAG_CRASH_LOG = "crash";
+
     public static final String KEY_EMERGENCY_SETTINGS = "emergency_settings";
     public static final String KEY_NORMAL_SETTINGS = "normal_settings";
     public static final String SHARED_PREFERENCE_KEY = "CustomizeTool";
