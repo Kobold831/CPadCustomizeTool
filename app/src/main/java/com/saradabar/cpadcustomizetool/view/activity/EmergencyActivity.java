@@ -135,8 +135,6 @@ public class EmergencyActivity extends Activity {
             startActivity(new Intent().setClassName(packageName, className));
         } catch (Exception e) {
             Toast.toast(this, R.string.toast_not_course);
-            setSystemSettings(false);
-            return false;
         }
 
         if (!Preferences.isEmergencySettingsLauncher(this) && !Preferences.isEmergencySettingsRemoveTask(this)) return true;

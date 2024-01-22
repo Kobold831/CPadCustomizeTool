@@ -5,9 +5,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import java.util.List;
 
@@ -43,6 +46,10 @@ public class AppListView {
             final AppListView.AppData data = getItem(position);
 
             holder.tv.setText(data.str);
+
+            /* RadioButtonの更新 */
+            RadioButton button = convertView.findViewById(R.id.v_app_list_radio);
+            button.setChecked(Preferences.load(getContext(), Constants.KEY_RADIO_TMP, 0) == position);
 
             return convertView;
         }

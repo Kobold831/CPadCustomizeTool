@@ -7,22 +7,18 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
 import android.os.Build;
-import android.os.Environment;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
 
 import androidx.annotation.Keep;
 import androidx.annotation.RequiresApi;
 
 import com.rosan.dhizuku.shared.DhizukuVariables;
-import com.saradabar.cpadcustomizetool.data.installer.SplitInstaller;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 public class DhizukuService extends IDhizukuService.Stub {
 
@@ -61,7 +57,7 @@ public class DhizukuService extends IDhizukuService.Stub {
         int sessionId;
 
         try {
-            sessionId = createSession(context, context.getPackageManager().getPackageInstaller());
+            sessionId = createSession(context.getPackageManager().getPackageInstaller());
             if (sessionId < 0) {
                 context.getPackageManager().getPackageInstaller().abandonSession(sessionId);
                 return false;
@@ -102,13 +98,9 @@ public class DhizukuService extends IDhizukuService.Stub {
         }
     }
 
-    private int createSession(Context context, PackageInstaller packageInstaller) throws IOException {
-
+    private int createSession(PackageInstaller packageInstaller) throws IOException {
         PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
-
-        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pre_owner_install_location", false)) {
-            params.setInstallLocation(PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
-        } else params.setInstallLocation(PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY);
+        params.setInstallLocation(PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
         return packageInstaller.createSession(params);
     }
 
@@ -154,7 +146,7 @@ public class DhizukuService extends IDhizukuService.Stub {
 
         try {
             session = packageInstaller.openSession(sessionId);
-            Intent intent = new Intent(context, DeviceOwnerService.class).putExtra("REQUEST_SESSION", sessionId);
+            Intent intent = new Intent(context, InstallService.class).putExtra("REQUEST_CODE", 0).putExtra("REQUEST_SESSION", sessionId);
             PendingIntent pendingIntent = PendingIntent.getService(
                     context,
                     sessionId,

@@ -92,7 +92,6 @@ public class NormalActivity extends Activity {
                 Intent intent = pm.getLaunchIntentForPackage(Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, ""));
                 startActivity(intent);
             } catch (Exception ignored) {
-                return false;
             }
         }
         return true;

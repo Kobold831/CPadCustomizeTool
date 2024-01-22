@@ -3,18 +3,25 @@ package com.saradabar.cpadcustomizetool.util;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 
 import androidx.annotation.RequiresApi;
 
 import com.rosan.dhizuku.api.Dhizuku;
+import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
+import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
+import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,11 +41,24 @@ import java.util.Objects;
 
 public class Common {
 
+    public static IDhizukuService mDhizukuService;
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     public static void setPermissionGrantState(Context context, String packageName, int grantState) {
-        DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        for (String permission : getRuntimePermissions(context, packageName)) {
-            dpm.setPermissionGrantState(new ComponentName(context, AdministratorReceiver.class), packageName, permission, grantState);
+        if (isDhizukuActive(context)) {
+            if (tryBindDhizukuService(context)) {
+                try {
+                    for (String permission : getRuntimePermissions(context, packageName)) {
+                        mDhizukuService.setPermissionGrantState(packageName, permission, grantState);
+                    }
+                } catch (RemoteException ignored) {
+                }
+            }
+        } else {
+            DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            for (String permission : getRuntimePermissions(context, packageName)) {
+                dpm.setPermissionGrantState(new ComponentName(context, AdministratorReceiver.class), packageName, permission, grantState);
+            }
         }
     }
 
@@ -131,5 +151,27 @@ public class Common {
             return Dhizuku.isPermissionGranted();
         }
         return false;
+    }
+
+    public static boolean tryBindDhizukuService(Context context) {
+        DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
+        return Dhizuku.bindUserService(args, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+            }
+        });
+    }
+
+    public static boolean isCfmDialog(Context context) {
+        if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
+            return Preferences.load(context, Constants.KEY_FLAG_CONFIRMATION, false);
+        } else {
+            return true;
+        }
     }
 }

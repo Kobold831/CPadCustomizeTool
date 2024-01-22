@@ -1,5 +1,9 @@
 package com.saradabar.cpadcustomizetool.view.flagment;
 
+import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
+
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -194,14 +198,14 @@ public class MainFragment extends PreferenceFragmentCompat {
             if (isDchaReq) {
                 switch (req) {
                     case Constants.FLAG_SET_DCHA_STATE_0:
-                        if (isCfmDialog()) {
+                        if (isCfmDialog(requireActivity())) {
                             mDchaService.setSetupStatus(0);
                         } else {
                             cfmDialog();
                         }
                         break;
                     case Constants.FLAG_SET_DCHA_STATE_3:
-                        if (isCfmDialog()) {
+                        if (isCfmDialog(requireActivity())) {
                             mDchaService.setSetupStatus(3);
                         } else {
                             cfmDialog();
@@ -255,14 +259,14 @@ public class MainFragment extends PreferenceFragmentCompat {
     private void chgSetting(int req) {
         switch (req) {
             case Constants.FLAG_SET_DCHA_STATE_0:
-                if (isCfmDialog()) {
+                if (isCfmDialog(requireActivity())) {
                     Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
                 } else {
                     cfmDialog();
                 }
                 break;
             case Constants.FLAG_SET_DCHA_STATE_3:
-                if (isCfmDialog()) {
+                if (isCfmDialog(requireActivity())) {
                     Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
                 } else {
                     cfmDialog();
@@ -426,7 +430,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         swKeepAdb.setOnPreferenceChangeListener((preference, o) -> {
-            if (isCfmDialog()) {
+            if (isCfmDialog(requireActivity())) {
                 requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, (boolean) o).apply();
                 if ((boolean) o) {
                     try {
@@ -506,7 +510,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         swKeepDchaState.setOnPreferenceChangeListener((preference, o) -> {
-            if (isCfmDialog()) {
+            if (isCfmDialog(requireActivity())) {
                 requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, (boolean) o).apply();
                 if ((boolean) o) {
                     chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
@@ -596,7 +600,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         swAdb.setOnPreferenceChangeListener((preference, o) -> {
-            if (isCfmDialog()) {
+            if (isCfmDialog(requireActivity())) {
                 if ((boolean) o) {
                     try {
                         if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
@@ -753,7 +757,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         preEnableDchaService.setOnPreferenceClickListener(preference -> {
-            if (isCfmDialog()) {
+            if (isCfmDialog(requireActivity())) {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle(R.string.dialog_title_dcha_service)
                         .setMessage(R.string.dialog_question_dcha_service)
@@ -882,7 +886,16 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         preDeviceOwnerFn.setOnPreferenceClickListener(preference -> {
-            StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
+            if (Common.isDhizukuActive(requireActivity())) {
+                if (tryBindDhizukuService(requireActivity())) {
+                    Runnable runnable = () -> {
+                        StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
+                    };
+                    new Handler().postDelayed(runnable, 1000);
+                } else return false;
+            } else {
+                StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
+            }
             return false;
         });
 
@@ -1074,15 +1087,13 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName())) {
             swDeviceAdmin.setEnabled(false);
-            swDeviceAdmin.setSummary(getString(R.string.pre_main_sum_already_device_owner));
+            swDeviceAdmin.setSummary("このアプリがデバイスオーナーのため不要です");
+            preDhizukuPermissionReq.setEnabled(false);
+            preDhizukuPermissionReq.setSummary("このアプリがデバイスオーナーのため不要です");
         }
-    }
 
-    private boolean isCfmDialog() {
-        if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
-            return Preferences.load(requireActivity(), Constants.KEY_FLAG_CONFIRMATION, false);
-        } else {
-            return true;
+        if (isDhizukuActive(requireActivity())) {
+            preDeviceOwnerFn.setSummary("Dhizukuがデバイスオーナーになっています\nDhizukuと通信するためタップしたあと遷移に時間がかかります");
         }
     }
 

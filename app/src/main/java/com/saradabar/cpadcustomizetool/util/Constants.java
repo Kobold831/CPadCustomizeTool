@@ -3,6 +3,7 @@ package com.saradabar.cpadcustomizetool.util;
 import android.content.Intent;
 
 import java.io.File;
+import java.io.StringReader;
 
 public class Constants {
 
@@ -59,6 +60,7 @@ public class Constants {
     public static final String KEY_FLAG_CONFIRMATION = "confirmation";
     public static final String KEY_CRASH_LOG = "crash_log";
     public static final String KEY_FLAG_CRASH_LOG = "crash";
+    public static final String KEY_RADIO_TMP = "key_radio_tmp";
 
     public static final String KEY_EMERGENCY_SETTINGS = "emergency_settings";
     public static final String KEY_NORMAL_SETTINGS = "normal_settings";

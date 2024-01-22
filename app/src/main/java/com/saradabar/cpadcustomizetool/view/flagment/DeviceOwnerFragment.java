@@ -1,5 +1,9 @@
 package com.saradabar.cpadcustomizetool.view.flagment;
 
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+import static com.saradabar.cpadcustomizetool.util.Common.mDhizukuService;
+import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
@@ -8,27 +12,21 @@ import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.RemoteException;
 
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
 
-import com.rosan.dhizuku.api.Dhizuku;
-import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.installer.SplitInstaller;
-import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
-import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Path;
@@ -44,14 +42,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Objects;
 
-import jp.co.benesse.dcha.dchaservice.IDchaService;
-
 public class DeviceOwnerFragment extends PreferenceFragmentCompat {
-
-    IDhizukuService mUserService;
 
     String[] splitInstallData = new String[256];
 
@@ -63,8 +56,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             preClrDevOwn,
             preNowSetOwnPkg;
 
-    SwitchPreference swPrePermissionFrc,
-            swInstallLocation;
+    SwitchPreference swPrePermissionFrc;
 
     @SuppressLint("StaticFieldLeak")
     private static DeviceOwnerFragment instance = null;
@@ -84,7 +76,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         swPrePermissionFrc = findPreference("pre_owner_permission_frc");
         preSessionInstall = findPreference("pre_owner_session_install");
         preAbandonSession = findPreference("pre_owner_abandon_session");
-        swInstallLocation = findPreference("pre_owner_install_location");
         preClrDevOwn = findPreference("pre_owner_clr_dev_own");
         preNowSetOwnPkg = findPreference("pre_owner_now_set_own_pkg");
 
@@ -100,7 +91,17 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             if ((boolean) o) {
                 swPrePermissionFrc.setChecked(true);
                 swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_forced));
-                dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
+
+                if (isDhizukuActive(requireActivity())) {
+                    if (tryBindDhizukuService(requireActivity())) {
+                        try {
+                            mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
+                        } catch (RemoteException ignored) {
+                        }
+                    } else return false;
+                } else {
+                    dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
+                }
                 for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
                     /* ユーザーアプリか確認 */
                     if (app.sourceDir.startsWith("/data/app/")) {
@@ -110,7 +111,16 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             } else {
                 swPrePermissionFrc.setChecked(false);
                 swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
-                dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_PROMPT);
+                if (isDhizukuActive(requireActivity())) {
+                    if (tryBindDhizukuService(requireActivity())) {
+                        try {
+                            mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_PROMPT);
+                        } catch (RemoteException ignored) {
+                        }
+                    } else return false;
+                } else {
+                    dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_PROMPT);
+                }
                 for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
                     /* ユーザーアプリか確認 */
                     if (app.sourceDir.startsWith("/data/app/")) {
@@ -143,8 +153,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                     .show();
             return false;
         });
-
-        swInstallLocation.setOnPreferenceChangeListener((preference, o) -> true);
 
         preClrDevOwn.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
@@ -182,7 +190,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 }
             }
         } else {
-            if (!Common.isDhizukuActive(requireActivity())) {
+            if (!isDhizukuActive(requireActivity())) {
                 preUninstallBlock.setEnabled(false);
                 preUninstallBlock.setSummary(getString(R.string.pre_owner_sum_not_use_function));
                 preClrDevOwn.setEnabled(false);
@@ -191,15 +199,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_not_use_function));
                 preSessionInstall.setEnabled(false);
                 preSessionInstall.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-                swInstallLocation.setEnabled(false);
-                swInstallLocation.setSummary(getString(R.string.pre_owner_sum_not_use_function));
             } else {
-                preUninstallBlock.setEnabled(false);
                 preClrDevOwn.setEnabled(false);
                 preClrDevOwn.setSummary("Dhizukuがデバイスオーナーのためこの機能は使用できません");
-                swPrePermissionFrc.setEnabled(false);
-                preSessionInstall.setSummary("「分割APK」のインストールに対応しています\n「分割APK」をインストールするにはファイルを長押しして選択してください\n「xapk・apkm」はDhizukuがデバイスオーナーかつテスト中のため対応していません");
-                swInstallLocation.setEnabled(false);
+                preSessionInstall.setSummary("「分割APK」のインストールに対応しています\n「分割APK」をインストールするにはファイルを長押しして選択してください\n「xapk・apkm」はDhizukuがデバイスオーナーかつテスト中のため対応していません\nインストールの成否はテスト中のためAndroidシステムの通知で判断してください");
             }
         }
 
@@ -219,8 +222,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 preAbandonSession.setEnabled(false);
                 preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                swInstallLocation.setEnabled(false);
-                swInstallLocation.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
             /* チャレンジパッド３ */
             case Constants.MODEL_CT3:
@@ -234,8 +235,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 preAbandonSession.setEnabled(false);
                 preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                swInstallLocation.setEnabled(false);
-                swInstallLocation.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
             /* チャレンジパッドNEO・NEXT */
             case Constants.MODEL_CTX:
@@ -267,20 +266,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         initialize();
     }
 
-    public boolean bindUserService() {
-        DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(requireActivity(), DhizukuService.class));
-        return Dhizuku.bindUserService(args, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                mUserService = IDhizukuService.Stub.asInterface(iBinder);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        });
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -291,12 +276,12 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             if (trySetInstallData(data)) {
                 String str = new File(splitInstallData[0]).getName();
 
-                if (Common.isDhizukuActive(requireActivity())) {
+                if (isDhizukuActive(requireActivity())) {
                     if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
-                        if (bindUserService()) {
+                        if (tryBindDhizukuService(requireActivity())) {
                             Runnable runnable = () -> {
                                 try {
-                                    mUserService.tryInstallPackages("", splitInstallData);
+                                    mDhizukuService.tryInstallPackages("", splitInstallData);
                                 } catch (RemoteException ignored) {
                                 }
                             };

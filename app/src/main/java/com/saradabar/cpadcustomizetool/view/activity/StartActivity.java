@@ -16,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -43,7 +42,6 @@ import com.saradabar.cpadcustomizetool.view.flagment.AppSettingsFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.DeviceOwnerFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
 import com.saradabar.cpadcustomizetool.view.views.AppListView;
-import com.stephentuso.welcome.WelcomeHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -562,24 +560,25 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 View v = getLayoutInflater().inflate(R.layout.layout_app_list, null);
                 ListView lv = v.findViewById(R.id.app_list);
+                lv.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
                 lv.setAdapter(new AppListView.AppListAdapter(this, list));
                 lv.setOnItemClickListener((parent, view, position, id) -> {
-                    CheckBox checkBox = lv.getChildAt(position).findViewById(R.id.v_app_list_check);
-                    checkBox.setChecked(!checkBox.isChecked());
+                    Preferences.save(this, Constants.KEY_RADIO_TMP, (int) id);
+                    lv.invalidateViews();
                 });
 
                 cancelLdDialog();
 
                 new AlertDialog.Builder(this)
                         .setView(v)
-                        .setTitle("アプリを選択してください（１つのみチェック）")
+                        .setTitle("アプリを選択してください")
                         .setMessage("選択したあとOKを押すと詳細な情報が表示されます")
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             StringBuilder str = new StringBuilder();
 
                             for (int i = 0; i <lv.getCount(); i++) {
-                                CheckBox checkBox = lv.getChildAt(i).findViewById(R.id.v_app_list_check);
-                                if (checkBox.isChecked()) {
+                                RadioButton radioButton = lv.getChildAt(i).findViewById(R.id.v_app_list_radio);
+                                if (radioButton.isChecked()) {
                                     try {
                                         JSONObject jsonObj1 = Common.parseJson(this);
                                         JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");

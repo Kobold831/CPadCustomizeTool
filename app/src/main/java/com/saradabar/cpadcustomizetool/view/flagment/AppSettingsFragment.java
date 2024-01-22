@@ -1,5 +1,8 @@
 package com.saradabar.cpadcustomizetool.view.flagment;
 
+import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+
 import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
@@ -70,7 +73,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         });
 
         swAdb.setOnPreferenceChangeListener((preference, newValue) -> {
-            if (isCfmDialog()) {
+            if (isCfmDialog(requireActivity())) {
                 try {
                     if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ)
                         Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
@@ -124,8 +127,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             list.add("ADB");
             list.add("DchaService");
             list.add("デバイスオーナー");
-            list.add("Dhizuku");
-            list.add("Shizuku");
+            list.add("Dhizuku（使用不可）");
+            list.add("Shizuku（使用不可）");
             List<SingleListView.AppData> dataList = new ArrayList<>();
             int i = 0;
 
@@ -187,15 +190,15 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         }
                         break;
                     case 4:
-                        if (Common.isDhizukuActive(requireActivity())) {
-                            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
-                            listView.invalidateViews();
-                        } else {
-                            new AlertDialog.Builder(requireActivity())
-                                    .setMessage(getString(R.string.dialog_error_not_work_mode))
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                                    .show();
-                        }
+//                        if (isDhizukuActive(requireActivity())) {
+//                            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+//                            listView.invalidateViews();
+//                        } else {
+//                            new AlertDialog.Builder(requireActivity())
+//                                    .setMessage(getString(R.string.dialog_error_not_work_mode))
+//                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+//                                    .show();
+//                        }
                         break;
                 }
             });
@@ -222,32 +225,5 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                 swAdb.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
         }
-    }
-
-    private boolean isCfmDialog() {
-        if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
-            return Preferences.load(requireActivity(), Constants.KEY_FLAG_CONFIRMATION, false);
-        } else {
-            return true;
-        }
-    }
-
-    private void cfmDialog() {
-        new AlertDialog.Builder(requireActivity())
-                .setCancelable(false)
-                .setTitle(getString(R.string.dialog_question_are_you_sure))
-                .setMessage(getString(R.string.dialog_confirmation))
-                .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> new AlertDialog.Builder(requireActivity())
-                        .setCancelable(false)
-                        .setTitle(getString(R.string.dialog_title_final_confirmation))
-                        .setMessage(getString(R.string.dialog_final_confirmation))
-                        .setPositiveButton(R.string.dialog_common_cancel, (dialog1, which1) -> dialog.dismiss())
-                        .setNeutralButton(R.string.dialog_common_continue, (dialog1, which1) -> {
-                            Preferences.save(requireActivity(), Constants.KEY_FLAG_CONFIRMATION, true);
-                            dialog1.dismiss();
-                        })
-                        .show())
-                .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> dialog.dismiss())
-                .show();
     }
 }

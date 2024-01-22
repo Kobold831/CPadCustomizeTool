@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
-import android.preference.PreferenceManager;
 
 import com.saradabar.cpadcustomizetool.data.service.InstallService;
 
@@ -37,7 +36,7 @@ public class SplitInstaller {
     }
 
     public SessionId splitCreateSession(Context context) throws Exception {
-        int sessionId = createSession(context, context.getPackageManager().getPackageInstaller());
+        int sessionId = createSession(context.getPackageManager().getPackageInstaller());
 
         if (sessionId < 0) {
             return new SessionId(false, -1);
@@ -54,13 +53,9 @@ public class SplitInstaller {
         return new Result(commitSession(context.getPackageManager().getPackageInstaller(), sessionId, context, code));
     }
 
-    private int createSession(Context context, PackageInstaller packageInstaller) throws IOException {
+    private int createSession(PackageInstaller packageInstaller) throws IOException {
         PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
-
-        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pre_owner_install_location", false)) {
-            params.setInstallLocation(PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
-        } else params.setInstallLocation(PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY);
-
+        params.setInstallLocation(PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
         return packageInstaller.createSession(params);
     }
 

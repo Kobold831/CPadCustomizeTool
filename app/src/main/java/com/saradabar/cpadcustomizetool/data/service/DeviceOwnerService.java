@@ -59,7 +59,7 @@ public class DeviceOwnerService extends Service {
             int sessionId;
 
             try {
-                sessionId = createSession(getBaseContext(), getPackageManager().getPackageInstaller());
+                sessionId = createSession(getPackageManager().getPackageInstaller());
                 if (sessionId < 0) {
                     getPackageManager().getPackageInstaller().abandonSession(sessionId);
                     return false;
@@ -181,13 +181,9 @@ public class DeviceOwnerService extends Service {
         }
     }
 
-    private int createSession(Context context, PackageInstaller packageInstaller) throws IOException {
-
+    private int createSession(PackageInstaller packageInstaller) throws IOException {
         PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
-
-        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pre_owner_install_location", false)) {
-            params.setInstallLocation(PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
-        } else params.setInstallLocation(PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY);
+        params.setInstallLocation(PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
         return packageInstaller.createSession(params);
     }
 

@@ -1,5 +1,8 @@
 package com.saradabar.cpadcustomizetool.Receiver;
 
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
+
 import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,10 +10,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.os.Build;
+import android.os.Handler;
+import android.os.RemoteException;
 
 import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.util.Common;
+import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
+import com.saradabar.cpadcustomizetool.view.flagment.DeviceOwnerFragment;
 
 import java.util.Objects;
 
@@ -28,10 +35,24 @@ public class PackageAddedReceiver extends BroadcastReceiver {
 
             if (sp.getBoolean("permission_forced", false)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
-                        /* ユーザーアプリか確認 */
-                        if (app.sourceDir.startsWith("/data/app/")) {
-                            Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
+                    if (isDhizukuActive(context)) {
+                        if (tryBindDhizukuService(context)) {
+                            Runnable runnable = () -> {
+                                for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
+                                    /* ユーザーアプリか確認 */
+                                    if (app.sourceDir.startsWith("/data/app/")) {
+                                        Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
+                                    }
+                                }
+                            };
+                            new Handler().postDelayed(runnable, 5000);
+                        }
+                    } else {
+                        for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
+                            /* ユーザーアプリか確認 */
+                            if (app.sourceDir.startsWith("/data/app/")) {
+                                Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
+                            }
                         }
                     }
                 }

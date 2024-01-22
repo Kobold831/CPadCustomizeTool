@@ -28,13 +28,7 @@
             app:iconSpaceReserved="false"
             android:key="pre_owner_abandon_session"
             android:title="インストールセッション破棄"
-            android:summary="インストールで問題が発生した場合に使用してください。" />
-
-        <SwitchPreference
-            app:iconSpaceReserved="false"
-            android:key="pre_owner_install_location"
-            android:title="外部ストレージにインストール"
-            android:summary="アプリを外部ストレージ(SDカートなど)に保存する場合は有効にしてください" />
+            android:summary="インストールで問題が発生した場合に使用してください" />
 
         <Preference
             app:iconSpaceReserved="false"
