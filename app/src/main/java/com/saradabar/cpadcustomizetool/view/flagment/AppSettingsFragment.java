@@ -1,9 +1,7 @@
 package com.saradabar.cpadcustomizetool.view.flagment;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
-import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
@@ -17,11 +15,10 @@ import android.widget.ListView;
 
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
@@ -33,7 +30,7 @@ import java.util.List;
 
 public class AppSettingsFragment extends PreferenceFragmentCompat {
 
-    SwitchPreference swUpdateCheck,
+    SwitchPreferenceCompat swUpdateCheck,
             swUseDcha,
             swAdb;
 
@@ -92,7 +89,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                 }
                 return true;
             } else {
-                new AlertDialog.Builder(requireActivity())
+                new MaterialAlertDialogBuilder(requireActivity())
                         .setMessage("未改造デバイスでは不要なため設定できません")
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
@@ -151,7 +148,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                             Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
-                            new AlertDialog.Builder(requireActivity())
+                            new MaterialAlertDialogBuilder(requireActivity())
                                     .setMessage(getString(R.string.dialog_error_not_work_mode))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                     .show();
@@ -167,13 +164,13 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                                 Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                                 listView.invalidateViews();
                             } else {
-                                new AlertDialog.Builder(requireActivity())
+                                new MaterialAlertDialogBuilder(requireActivity())
                                         .setMessage(getString(R.string.dialog_error_not_work_mode))
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                         .show();
                             }
                         } else {
-                            new AlertDialog.Builder(requireActivity())
+                            new MaterialAlertDialogBuilder(requireActivity())
                                     .setMessage(getString(R.string.pre_app_sum_confirmation_dcha))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                     .show();
@@ -184,7 +181,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                             Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
-                            new AlertDialog.Builder(requireActivity())
+                            new MaterialAlertDialogBuilder(requireActivity())
                                     .setMessage(getString(R.string.dialog_error_not_work_mode))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                     .show();

@@ -1,7 +1,5 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;

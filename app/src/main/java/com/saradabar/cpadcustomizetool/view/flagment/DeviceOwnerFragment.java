@@ -5,7 +5,6 @@ import static com.saradabar.cpadcustomizetool.util.Common.mDhizukuService;
 import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -22,8 +21,9 @@ import android.os.RemoteException;
 
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.installer.SplitInstaller;
@@ -56,7 +56,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             preClrDevOwn,
             preNowSetOwnPkg;
 
-    SwitchPreference swPrePermissionFrc;
+    SwitchPreferenceCompat swPrePermissionFrc;
 
     @SuppressLint("StaticFieldLeak")
     private static DeviceOwnerFragment instance = null;
@@ -137,7 +137,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/*"}).addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), ""), Constants.REQUEST_INSTALL);
             } catch (ActivityNotFoundException ignored) {
                 preSessionInstall.setEnabled(true);
-                new AlertDialog.Builder(requireActivity())
+                new MaterialAlertDialogBuilder(requireActivity())
                         .setMessage(getString(R.string.dialog_error_no_file_browse))
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
@@ -147,7 +147,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
         /* 追加予定:セッション破棄 */
         preAbandonSession.setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setMessage("この機能は使用できません")
                     .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
@@ -155,7 +155,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         });
 
         preClrDevOwn.setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setMessage(R.string.dialog_question_device_owner)
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                         dpm.clearDeviceOwnerApp(requireActivity().getPackageName());
@@ -289,7 +289,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                         }
                         return;
                     } else {
-                        new AlertDialog.Builder(requireActivity())
+                        new MaterialAlertDialogBuilder(requireActivity())
                                 .setMessage("apkまたは分割apkのみ対応")
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                 .show();
@@ -316,7 +316,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 }
             }
 
-            new AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setMessage(getString(R.string.dialog_error_no_file_data))
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                     .show();

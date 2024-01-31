@@ -12,7 +12,7 @@
             android:title="@string/pre_owner_title_uninstall_block"
             android:summary="@string/pre_owner_sum_uninstall_block" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_owner_permission_frc"
             android:title="@string/pre_owner_title_permission"

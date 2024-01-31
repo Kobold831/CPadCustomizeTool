@@ -2,7 +2,6 @@ package com.saradabar.cpadcustomizetool.data.connection;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
@@ -17,6 +16,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListenerList;
@@ -73,7 +73,7 @@ public class Updater implements InstallEventListener {
     /* 失敗 */
     @Override
     public void onInstallFailure(String str) {
-        new AlertDialog.Builder(activity)
+        new MaterialAlertDialogBuilder(activity)
                 .setMessage(activity.getString(R.string.dialog_info_failure_silent_install) + "\n" + str)
                 .setCancelable(false)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
@@ -82,7 +82,7 @@ public class Updater implements InstallEventListener {
 
     @Override
     public void onInstallError(String str) {
-        new AlertDialog.Builder(activity)
+        new MaterialAlertDialogBuilder(activity)
                 .setMessage(activity.getString(R.string.dialog_error) + "\n" + str)
                 .setCancelable(false)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
@@ -97,7 +97,7 @@ public class Updater implements InstallEventListener {
             case 1:
                 switch (flag) {
                     case 0:
-                        new AlertDialog.Builder(activity)
+                        new MaterialAlertDialogBuilder(activity)
                                 .setCancelable(false)
                                 .setTitle(R.string.dialog_title_update)
                                 .setMessage(R.string.dialog_info_update_caution)
@@ -112,7 +112,7 @@ public class Updater implements InstallEventListener {
                                 .show();
                         break;
                     case 1:
-                        new AlertDialog.Builder(activity)
+                        new MaterialAlertDialogBuilder(activity)
                                 .setCancelable(false)
                                 .setTitle("インストール")
                                 .setMessage("遷移先のページよりapkファイルをダウンロードしてadbでインストールしてください")
@@ -140,7 +140,7 @@ public class Updater implements InstallEventListener {
                         if (!isInstallPackage()) {
                             progressDialog.dismiss();
 
-                            new AlertDialog.Builder(activity)
+                            new MaterialAlertDialogBuilder(activity)
                                     .setCancelable(false)
                                     .setMessage(R.string.dialog_error)
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
@@ -153,7 +153,7 @@ public class Updater implements InstallEventListener {
                 } else {
                     progressDialog.dismiss();
 
-                    new AlertDialog.Builder(activity)
+                    new MaterialAlertDialogBuilder(activity)
                             .setCancelable(false)
                             .setMessage(R.string.dialog_error)
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
@@ -163,7 +163,7 @@ public class Updater implements InstallEventListener {
             case 3:
                 if (((DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(activity.getPackageName())) {
                     if (!trySessionInstall()) {
-                        new AlertDialog.Builder(activity)
+                        new MaterialAlertDialogBuilder(activity)
                                 .setCancelable(false)
                                 .setMessage(R.string.dialog_error)
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
@@ -173,7 +173,7 @@ public class Updater implements InstallEventListener {
                     if (Preferences.load(activity, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTX || Preferences.load(activity, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTZ) {
                         Preferences.save(activity, Constants.KEY_FLAG_UPDATE_MODE, 1);
                     } else Preferences.save(activity, Constants.KEY_FLAG_UPDATE_MODE, 0);
-                    new AlertDialog.Builder(activity)
+                    new MaterialAlertDialogBuilder(activity)
                             .setCancelable(false)
                             .setMessage(activity.getString(R.string.dialog_error_reset_update_mode))
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())

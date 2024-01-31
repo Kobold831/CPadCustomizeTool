@@ -7,7 +7,7 @@
         app:allowDividerAbove="false"
         android:title="@string/pre_app_category_start_settings">
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_app_update_check"
             android:title="@string/pre_app_title_update_check" />
@@ -18,13 +18,13 @@
         app:allowDividerAbove="false"
         android:title="@string/pre_app_category_settings">
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_app_use_dcha"
             android:title="@string/pre_app_title_dcha"
             android:summary="@string/pre_app_sum_dcha" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_app_adb"
             android:title="@string/pre_app_title_usb"

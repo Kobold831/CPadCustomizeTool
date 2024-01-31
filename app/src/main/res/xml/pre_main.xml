@@ -8,22 +8,22 @@
         android:title="@string/pre_main_category_system_ui"
         android:key="1">
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_dcha_state"
             android:title="@string/pre_main_title_system_ui" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_keep_dcha_state"
             android:title="@string/pre_main_title_keep_system_ui" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_navigation"
             android:title="@string/pre_main_title_navigation_bar" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_keep_navigation"
             android:title="@string/pre_main_title_keep_navigation_bar" />
@@ -35,22 +35,22 @@
         android:title="@string/pre_main_category_system"
         android:key="2">
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_unk_src"
             android:title="@string/pre_main_title_non_market" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_keep_unk_src"
             android:title="@string/pre_main_title_keep_non_market" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_adb"
             android:title="@string/pre_main_title_usb_debug" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_keep_adb"
             android:title="@string/pre_main_title_keep_usb_debug" />
@@ -62,7 +62,7 @@
         android:key="pre_launcher"
         android:title="@string/pre_main_title_change_home" />
 
-    <SwitchPreference
+    <SwitchPreferenceCompat
         app:iconSpaceReserved="false"
         android:key="pre_keep_launcher"
         android:title="@string/pre_main_title_keep_home"
@@ -185,7 +185,7 @@
         android:title="@string/pre_main_title_dhizuku_permission_req"
         android:summary="デバイスオーナーがDhizukuに設定されている場合はタップして権限をリクエストできます\n承認後「デバイスオーナーの機能」を使用できます"/>
 
-    <SwitchPreference
+    <SwitchPreferenceCompat
         app:iconSpaceReserved="false"
         android:key="pre_device_admin"
         android:title="@string/pre_main_title_device_admin"

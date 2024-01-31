@@ -1,6 +1,5 @@
 package com.saradabar.cpadcustomizetool.view.flagment;
 
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -123,7 +122,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                     setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
                     setSummaryScreenOffTimeConvert();
                 } catch (Exception ignored) {
-                    new AlertDialog.Builder(getActivity())
+                    new MaterialAlertDialogBuilder(requireActivity())
                             .setMessage(R.string.dialog_error)
                             .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                             .show();

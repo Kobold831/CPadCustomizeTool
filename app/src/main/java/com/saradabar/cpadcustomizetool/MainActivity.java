@@ -18,7 +18,6 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -116,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     /* ネットワークエラー */
     private void networkError() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_common_error)
                 .setIcon(R.drawable.alert)
@@ -198,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     @Override
     public void onDownloadError() {
         cancelLoadingDialog();
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_common_error)
                 .setIcon(R.drawable.alert)
@@ -223,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     @Override
     public void onConnectionError() {
         cancelLoadingDialog();
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_common_error)
                 .setIcon(R.drawable.alert)
@@ -269,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             }
         });
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setView(view)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
@@ -337,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     /* 端末チェックエラー */
     private void supportModelError() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_common_error)
                 .setMessage(R.string.dialog_error_start_cpad)
@@ -369,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
         /* DchaServiceが機能しているか */
         if (!tryBindDchaService()) {
-            new AlertDialog.Builder(this)
+            new MaterialAlertDialogBuilder(this)
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_common_error)
                     .setMessage(R.string.dialog_error_start_dcha_service)
@@ -490,7 +489,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     /* システム設定変更権限か付与されているか確認 */
     private boolean isPermissionCheck() {
         if (isWriteSystemPermissionCheck()) {
-            new AlertDialog.Builder(this)
+            new MaterialAlertDialogBuilder(this)
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_grant_permission)
                     .setMessage(R.string.dialog_error_start_permission)

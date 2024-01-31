@@ -3,7 +3,6 @@ package com.saradabar.cpadcustomizetool.view.activity;
 import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -26,12 +25,12 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.dialog.MaterialDialogs;
 import com.google.android.material.snackbar.Snackbar;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.MainActivity;
@@ -42,7 +41,6 @@ import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
-import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Variables;
@@ -124,9 +122,9 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     }
 
     /* 戻るボタン */
+    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         menu.findItem(R.id.app_info_3).setVisible(true);
         getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         transitionFragment(new MainFragment(), false);
@@ -184,7 +182,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 TextView textPercent = view.findViewById(R.id.progress_percent);
                 TextView textByte = view.findViewById(R.id.progress_byte);
                 textPercent.setText(progressBar.getProgress() + getString(R.string.percent));
-                alertDialog = new AlertDialog.Builder(StartActivity.this)
+                alertDialog = new MaterialAlertDialogBuilder(StartActivity.this)
                         .setView(view)
                         .setMessage("")
                         .setCancelable(false)
@@ -222,7 +220,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 new DeviceOwnerFragment.TryApkMTask().cancel(true);
 
-                new AlertDialog.Builder(StartActivity.this)
+                new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure))
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -268,7 +266,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 TextView textPercent = view.findViewById(R.id.progress_percent);
                 TextView textByte = view.findViewById(R.id.progress_byte);
                 textPercent.setText(progressBar.getProgress() + getString(R.string.percent));
-                alertDialog = new AlertDialog.Builder(StartActivity.this)
+                alertDialog = new MaterialAlertDialogBuilder(StartActivity.this)
                         .setView(view)
                         .setMessage("")
                         .setCancelable(false)
@@ -306,7 +304,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 new DeviceOwnerFragment.TryXApkTask().cancel(true);
 
-                new AlertDialog.Builder(StartActivity.this)
+                new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure))
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -325,7 +323,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 new DeviceOwnerFragment.TryXApkTask().cancel(true);
 
-                new AlertDialog.Builder(StartActivity.this)
+                new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_error) + "\n" + str)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -366,7 +364,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 new DeviceOwnerFragment.TryApkTask().cancel(true);
 
-                AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.this)
+                AlertDialog alertDialog = new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(R.string.dialog_info_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -390,7 +388,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 new DeviceOwnerFragment.TryApkTask().cancel(true);
 
-                new AlertDialog.Builder(StartActivity.this)
+                new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + str)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -409,7 +407,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 new DeviceOwnerFragment.TryApkTask().cancel(true);
 
-                new AlertDialog.Builder(StartActivity.this)
+                new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_error) + "\n" + str)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -437,7 +435,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             public void onSuccess() {
                 progressDialog.dismiss();
 
-                new AlertDialog.Builder(StartActivity.this)
+                new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(R.string.dialog_info_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -449,7 +447,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             public void onFailure() {
                 progressDialog.dismiss();
 
-                new AlertDialog.Builder(StartActivity.this)
+                new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(R.string.dialog_info_failure_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -466,7 +464,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onSuccess() {
                 /* 設定変更カウントダウンダイアログ表示 */
-                AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.this)
+                AlertDialog alertDialog = new MaterialAlertDialogBuilder(StartActivity.this)
                         .setTitle(R.string.dialog_title_resolution)
                         .setCancelable(false)
                         .setMessage("")
@@ -507,7 +505,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             /* 失敗 */
             @Override
             public void onFailure() {
-                new AlertDialog.Builder(StartActivity.this)
+                new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure))
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
@@ -659,7 +657,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     @Override
     public void onDownloadError() {
         cancelLdDialog();
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                 .show();
@@ -668,7 +666,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     @Override
     public void onConnectionError() {
         cancelLdDialog();
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setMessage("データ取得に失敗しました\nネットワークを確認してください")
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                 .show();

@@ -6,8 +6,6 @@ import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.app.AlertDialog;
-import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -39,7 +37,7 @@ import android.widget.TextView;
 
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.rosan.dhizuku.api.Dhizuku;
@@ -85,7 +83,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             installData,
             systemUpdateFilePath;
 
-    SwitchPreference swDchaState,
+    SwitchPreferenceCompat swDchaState,
             swKeepDchaState,
             swNavigation,
             swKeepNavigation,
@@ -764,7 +762,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                         .setMessage(R.string.dialog_question_dcha_service)
                         .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                             if (!tryBindDchaService(Constants.FLAG_CHECK, true)) {
-                                new AlertDialog.Builder(getActivity())
+                                new MaterialAlertDialogBuilder(requireActivity())
                                         .setMessage(R.string.dialog_error_not_work_dcha)
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                                         .show();
@@ -820,7 +818,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                 startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/vnd.android.package-archive").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false), ""), Constants.REQUEST_INSTALL);
             } catch (ActivityNotFoundException ignored) {
                 preSilentInstall.setEnabled(true);
-                new AlertDialog.Builder(requireActivity())
+                new MaterialAlertDialogBuilder(requireActivity())
                         .setMessage(getString(R.string.dialog_error_no_file_browse))
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
@@ -839,7 +837,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             }
 
             View view = requireActivity().getLayoutInflater().inflate(R.layout.view_resolution, null);
-            new AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setView(view)
                     .setTitle(R.string.dialog_title_resolution)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
@@ -850,7 +848,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                             width = Integer.parseInt(editTextWidth.getText().toString());
                             height = Integer.parseInt(editTextHeight.getText().toString());
                             if (width < 300 || height < 300) {
-                                new AlertDialog.Builder(requireActivity())
+                                new MaterialAlertDialogBuilder(requireActivity())
                                         .setTitle(R.string.dialog_title_error)
                                         .setMessage(R.string.dialog_error_illegal_value)
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
@@ -861,7 +859,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                                 resolutionTask.execute();
                             }
                         } catch (NumberFormatException ignored) {
-                            new AlertDialog.Builder(requireActivity())
+                            new MaterialAlertDialogBuilder(requireActivity())
                                     .setTitle(R.string.dialog_title_error)
                                     .setMessage(R.string.dialog_error_illegal_value)
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
@@ -902,7 +900,7 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         preDhizukuPermissionReq.setOnPreferenceClickListener(preference -> {
             if (!Dhizuku.init(requireActivity())) {
-                new AlertDialog.Builder(requireActivity())
+                new MaterialAlertDialogBuilder(requireActivity())
                         .setMessage(R.string.dialog_error_dhizuku_conn_failure)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
@@ -915,12 +913,12 @@ public class MainFragment extends PreferenceFragmentCompat {
                     public void onRequestPermission(int grantResult) {
                         requireActivity().runOnUiThread(() -> {
                             if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                                new AlertDialog.Builder(requireActivity())
+                                new MaterialAlertDialogBuilder(requireActivity())
                                         .setMessage(R.string.dialog_info_dhizuku_grant_permission)
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                         .show();
                             } else {
-                                new AlertDialog.Builder(requireActivity())
+                                new MaterialAlertDialogBuilder(requireActivity())
                                         .setMessage(R.string.dialog_info_dhizuku_deny_permission)
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                         .show();
@@ -943,7 +941,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                 startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/zip").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false), ""), Constants.REQUEST_SYSTEM_UPDATE);
             } catch (ActivityNotFoundException ignored) {
                 preSystemUpdate.setEnabled(true);
-                new AlertDialog.Builder(requireActivity())
+                new MaterialAlertDialogBuilder(requireActivity())
                         .setMessage(getString(R.string.dialog_error_no_file_browse))
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
@@ -1099,11 +1097,11 @@ public class MainFragment extends PreferenceFragmentCompat {
     }
 
     private void cfmDialog() {
-        new AlertDialog.Builder(requireActivity())
+        new MaterialAlertDialogBuilder(requireActivity())
                 .setCancelable(false)
                 .setTitle(getString(R.string.dialog_question_are_you_sure))
                 .setMessage(getString(R.string.dialog_confirmation))
-                .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> new AlertDialog.Builder(requireActivity())
+                .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> new MaterialAlertDialogBuilder(requireActivity())
                         .setCancelable(false)
                         .setTitle(getString(R.string.dialog_title_final_confirmation))
                         .setMessage(getString(R.string.dialog_final_confirmation))
@@ -1187,7 +1185,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                     silent.setListener(StartActivity.getInstance().installListener());
                     silent.execute();
                 } else {
-                    new AlertDialog.Builder(requireActivity())
+                    new MaterialAlertDialogBuilder(requireActivity())
                             .setMessage(getString(R.string.dialog_error_no_file_data))
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                             .show();
@@ -1204,13 +1202,13 @@ public class MainFragment extends PreferenceFragmentCompat {
 
                 if (systemUpdateFilePath != null) {
                     if (!tryBindDchaService(Constants.FLAG_SYSTEM_UPDATE, true)) {
-                        new AlertDialog.Builder(getActivity())
+                        new MaterialAlertDialogBuilder(requireActivity())
                                 .setMessage(R.string.dialog_error)
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                 .show();
                     }
                 } else {
-                    new AlertDialog.Builder(requireActivity())
+                    new MaterialAlertDialogBuilder(requireActivity())
                             .setMessage(getString(R.string.dialog_error_no_file_data))
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                             .show();
@@ -1312,7 +1310,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         }
 
         if (!tryBindDchaService(Constants.FLAG_RESOLUTION, false)) {
-            new AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setMessage(R.string.dialog_error)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                     .show();
