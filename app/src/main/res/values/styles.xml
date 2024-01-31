@@ -1,24 +1,19 @@
-<resources>
-    <style name="NoActionBarTheme" parent="android:Theme.Material.Light.NoActionBar">
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="NoActionBarTheme" parent="Theme.Material3.Light.NoActionBar">
         <item name="android:colorAccent">@color/red</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="ActionBarTheme" parent="android:Theme.Material.Light">
+    <style name="ActionBarTheme" parent="Theme.Material3.Light">
         <item name="android:colorAccent">@color/red</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="DialogNoActionBarTheme" parent="android:Theme.Material.Light.Dialog.NoActionBar">
         <item name="android:colorAccent">@color/red</item>
-    </style>
-
-    <style name="PreferenceTheme" parent="Theme.AppCompat.Light">
-        <item name="android:colorAccent">@color/red</item>
-        <item name="actionBarTheme">@style/TranslucentActionBar</item>
-    </style>
-
-    <style name="TranslucentActionBar">
-        <item name="colorPrimary">@android:color/transparent</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="windowActionBarOverlay">true</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 </resources>

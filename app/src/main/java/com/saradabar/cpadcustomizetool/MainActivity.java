@@ -1,7 +1,5 @@
 package com.saradabar.cpadcustomizetool;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -20,6 +18,10 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
 import com.saradabar.cpadcustomizetool.data.connection.Updater;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
@@ -45,7 +47,7 @@ import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
-public class MainActivity extends Activity implements DownloadEventListener {
+public class MainActivity extends AppCompatActivity implements DownloadEventListener {
 
     IDchaService mDchaService;
     ProgressDialog loadingDialog;
@@ -66,7 +68,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
     }
 
     private void crashError() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setCancelable(false)
                 .setMessage(getString(R.string.dialog_error_crash, getApplicationInfo().loadLabel(getPackageManager())))
                 .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> {
@@ -470,7 +472,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
     /* 初回起動お知らせ */
     public void WarningDialog() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_notice_start)
                 .setMessage(R.string.dialog_notice_start)

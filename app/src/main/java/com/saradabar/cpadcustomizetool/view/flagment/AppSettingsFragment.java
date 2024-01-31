@@ -19,6 +19,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -105,11 +106,11 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         });
 
         preDelCrashLog.setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setMessage("消去しますか？")
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                         if (Preferences.delete(requireActivity(), Constants.KEY_CRASH_LOG)) {
-                            new AlertDialog.Builder(requireActivity())
+                            new MaterialAlertDialogBuilder(requireActivity())
                                     .setMessage("消去しました")
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                                     .show();
@@ -203,7 +204,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                 }
             });
 
-            new AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setView(v)
                     .setTitle(getString(R.string.dialog_title_select_mode))
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())

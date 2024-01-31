@@ -17,6 +17,7 @@ import android.widget.TextView;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -89,8 +90,9 @@ public class OtherFragment extends PreferenceFragmentCompat {
             EditText editText = view.findViewById(R.id.time_out_edit);
             editText.setHint(getString(R.string.layout_time_out_hint, String.valueOf(Integer.MAX_VALUE)));
             setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
-            new AlertDialog.Builder(getActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setView(view)
+                    .setCancelable(false)
                     .setTitle("スクリーンのタイムアウト")
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editText.getWindowToken(), 0);
@@ -99,18 +101,19 @@ public class OtherFragment extends PreferenceFragmentCompat {
                                 Settings.System.putInt(requireActivity().getContentResolver(), "screen_off_timeout", Integer.parseInt(editText.getText().toString()));
                                 setSummaryScreenOffTimeConvert();
                             } else {
-                                new AlertDialog.Builder(getActivity())
+                                new MaterialAlertDialogBuilder(requireActivity())
                                         .setMessage("最低値5000以下の値を設定することはできません")
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                                         .show();
                             }
                         } catch (Exception ignored) {
-                            new AlertDialog.Builder(getActivity())
+                            new MaterialAlertDialogBuilder(requireActivity())
                                     .setMessage(R.string.dialog_error)
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                                     .show();
                         }
                     })
+                    .setNegativeButton(R.string.dialog_common_cancel, null)
                     .show();
             button.setOnClickListener(view1 -> {
                 ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editText.getWindowToken(), 0);

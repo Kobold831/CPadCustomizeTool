@@ -41,6 +41,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
 import com.saradabar.cpadcustomizetool.R;
@@ -665,7 +666,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                 }
             } else {
                 swDeviceAdmin.setChecked(true);
-                new AlertDialog.Builder(requireActivity())
+                new MaterialAlertDialogBuilder(requireActivity())
                         .setTitle(R.string.dialog_title_dcha_service)
                         .setMessage(R.string.dialog_question_device_admin)
                         .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
@@ -688,7 +689,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             textView.setTextSize(16);
             textView.setTextColor(Color.RED);
             textView.setPadding(35, 0, 35, 0);
-            new AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setTitle(R.string.dialog_title_emergency_manual)
                     .setMessage(R.string.dialog_emergency_manual)
                     .setView(textView)
@@ -698,7 +699,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         preNorManual.setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setTitle(R.string.dialog_title_normal_manual)
                     .setMessage(R.string.dialog_normal_manual)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -726,7 +727,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                 listView.invalidateViews();
                 initialize();
             });
-            new AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setView(view)
                     .setTitle(R.string.dialog_title_launcher)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -735,7 +736,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         preReboot.setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setMessage(R.string.dialog_question_reboot)
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> tryBindDchaService(Constants.FLAG_REBOOT, true))
                     .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> dialog.dismiss())
@@ -758,7 +759,7 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         preEnableDchaService.setOnPreferenceClickListener(preference -> {
             if (isCfmDialog(requireActivity())) {
-                new AlertDialog.Builder(requireActivity())
+                new MaterialAlertDialogBuilder(requireActivity())
                         .setTitle(R.string.dialog_title_dcha_service)
                         .setMessage(R.string.dialog_question_dcha_service)
                         .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
@@ -800,7 +801,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                 setLauncherPackage = Uri.fromParts("package", installedAppList.get(position).activityInfo.packageName, null).toString().replace("package:", "");
                 tryBindDchaService(Constants.FLAG_SET_LAUNCHER, true);
             });
-            new AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setView(v)
                     .setTitle(R.string.dialog_title_launcher)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -830,7 +831,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         preResolution.setOnPreferenceClickListener(preference -> {
             /* DchaUtilServiceが機能しているか */
             if (!tryBindDchaService(Constants.FLAG_CHECK, false)) {
-                new AlertDialog.Builder(requireActivity())
+                new MaterialAlertDialogBuilder(requireActivity())
                         .setMessage(R.string.dialog_error_not_work_dcha_util)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
@@ -875,7 +876,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         preResetResolution.setOnPreferenceClickListener(preference -> {
             /* DchaUtilServiceが機能しているか */
             if (!tryBindDchaService(Constants.FLAG_CHECK, false)) {
-                new AlertDialog.Builder(requireActivity())
+                new MaterialAlertDialogBuilder(requireActivity())
                         .setMessage(R.string.dialog_error_not_work_dcha_util)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
@@ -928,7 +929,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                     }
                 });
             } else {
-                new AlertDialog.Builder(requireActivity())
+                new MaterialAlertDialogBuilder(requireActivity())
                         .setMessage(R.string.dialog_info_dhizuku_already_grant_permission)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();

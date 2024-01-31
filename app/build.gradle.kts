@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdk = 33
+    compileSdk = 34
     namespace = "com.saradabar.cpadcustomizetool"
 
     defaultConfig {
@@ -45,6 +45,7 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to arrayOf("*.jar"))))
+    implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.preference:preference:1.2.1")
     implementation("com.stephentuso:welcome:1.4.1")
     implementation("org.zeroturnaround:zt-zip:1.12")

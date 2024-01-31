@@ -6,6 +6,8 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +15,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
@@ -31,7 +36,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class SelfUpdateActivity extends Activity implements DownloadEventListener {
+public class SelfUpdateActivity extends AppCompatActivity implements DownloadEventListener {
 
     private ProgressDialog loadingDialog;
 
@@ -39,7 +44,10 @@ public class SelfUpdateActivity extends Activity implements DownloadEventListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
 
         showLoadingDialog();
         new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
@@ -96,7 +104,7 @@ public class SelfUpdateActivity extends Activity implements DownloadEventListene
     public void onDownloadError() {
         cancelLoadingDialog();
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
                 .setIcon(R.drawable.alert)
@@ -109,7 +117,7 @@ public class SelfUpdateActivity extends Activity implements DownloadEventListene
     public void onConnectionError() {
         cancelLoadingDialog();
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
                 .setIcon(R.drawable.alert)
@@ -132,7 +140,7 @@ public class SelfUpdateActivity extends Activity implements DownloadEventListene
             }
         });
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setView(view)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
@@ -159,7 +167,7 @@ public class SelfUpdateActivity extends Activity implements DownloadEventListene
     }
 
     private void showNoUpdateDialog() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
                 .setMessage(R.string.dialog_info_no_update)

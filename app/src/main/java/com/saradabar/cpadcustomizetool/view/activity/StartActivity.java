@@ -1,5 +1,7 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
+import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -8,6 +10,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -26,6 +30,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.dialog.MaterialDialogs;
+import com.google.android.material.snackbar.Snackbar;
+import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
@@ -72,12 +80,15 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         super.onCreate(savedInstanceState);
         instance = this;
 
-        if (getActionBar() != null) {
-            getActionBar().setDisplayHomeAsUpEnabled(false);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
         setContentView(R.layout.activity_main);
         transitionFragment(new MainFragment(), false);
+
+        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
     }
 
     /* メニュー表示 */
@@ -115,6 +126,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     /* 戻るボタン */
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         menu.findItem(R.id.app_info_3).setVisible(true);
         getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         transitionFragment(new MainFragment(), false);
@@ -542,11 +554,26 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     @Override
     public void onDownloadComplete(int reqCode) {
         switch (reqCode) {
+            case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
+                try {
+                    JSONObject jsonObj1 = parseJson(this);
+                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                    JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
+                    Variables.DOWNLOAD_FILE_URL = jsonObj3.getString("url");
+
+                    if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
+                        Snackbar.make(findViewById(android.R.id.content),"更新があります！", Snackbar.LENGTH_LONG).setAction("更新", v ->
+                                        startActivity(new Intent(v.getContext(), SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                                .show();
+                    }
+                } catch (JSONException | IOException ignored) {
+                }
+                break;
             case Constants.REQUEST_DOWNLOAD_APP_CHECK:
                 ArrayList<AppListView.AppData> list = new ArrayList<>();
 
                 try {
-                    JSONObject jsonObj1 = Common.parseJson(this);
+                    JSONObject jsonObj1 = parseJson(this);
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONArray jsonArray = jsonObj2.getJSONArray("appList");
 
@@ -569,7 +596,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 cancelLdDialog();
 
-                new AlertDialog.Builder(this)
+                new MaterialAlertDialogBuilder(this)
                         .setView(v)
                         .setTitle("アプリを選択してください")
                         .setMessage("選択したあとOKを押すと詳細な情報が表示されます")
@@ -580,7 +607,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                                 RadioButton radioButton = lv.getChildAt(i).findViewById(R.id.v_app_list_radio);
                                 if (radioButton.isChecked()) {
                                     try {
-                                        JSONObject jsonObj1 = Common.parseJson(this);
+                                        JSONObject jsonObj1 = parseJson(this);
                                         JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                                         JSONArray jsonArray = jsonObj2.getJSONArray("appList");
                                         str.append(jsonArray.getJSONObject(i).getString("name")).append("\n").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
@@ -594,7 +621,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                                 return;
                             }
 
-                            new AlertDialog.Builder(this)
+                            new MaterialAlertDialogBuilder(this)
                                     .setMessage(str + "\n" + "よろしければOKを押下してください")
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                         if (!Objects.equals(Variables.DOWNLOAD_FILE_URL, "MYURL")) {
@@ -603,7 +630,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                                         } else {
                                             View view = getLayoutInflater().inflate(R.layout.view_app_url, null);
                                             EditText editText = view.findViewById(R.id.edit_app_url);
-                                            new AlertDialog.Builder(this)
+                                            new MaterialAlertDialogBuilder(this)
                                                     .setMessage("http://またはhttps://を含むURLを指定してください")
                                                     .setView(view)
                                                     .setCancelable(false)

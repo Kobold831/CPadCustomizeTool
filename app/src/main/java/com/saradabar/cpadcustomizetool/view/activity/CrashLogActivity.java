@@ -1,6 +1,8 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -8,12 +10,13 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
-public class CrashLogActivity extends Activity {
+public class CrashLogActivity extends AppCompatActivity {
 
     TextView textView;
     ScrollView scrollView;
@@ -24,7 +27,10 @@ public class CrashLogActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_crash_log);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
 
         textView = findViewById(R.id.textView);
         scrollView = findViewById(R.id.scrollView);

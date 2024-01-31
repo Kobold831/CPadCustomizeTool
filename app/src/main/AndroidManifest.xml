@@ -49,7 +49,7 @@
         <activity
             android:name=".view.activity.StartActivity"
             android:label="@string/activity_start"
-            android:theme="@style/PreferenceTheme" />
+            android:theme="@style/ActionBarTheme" />
 
         <activity
             android:name=".view.activity.SelfUpdateActivity"

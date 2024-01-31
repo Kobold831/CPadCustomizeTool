@@ -11,6 +11,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,6 +28,8 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -33,7 +37,7 @@ import com.saradabar.cpadcustomizetool.util.Common;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UninstallBlockActivity extends Activity {
+public class UninstallBlockActivity extends AppCompatActivity {
 
     @SuppressLint("WrongConstant")
     @Override
@@ -41,7 +45,10 @@ public class UninstallBlockActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.layout_uninstall_list);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
 
         DevicePolicyManager dpm = (DevicePolicyManager) this.getSystemService("device_policy");
         final PackageManager pm = getPackageManager();
