@@ -31,8 +31,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.Snackbar;
-import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
@@ -85,8 +83,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
         setContentView(R.layout.activity_main);
         transitionFragment(new MainFragment(), false);
-
-        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
     }
 
     /* メニュー表示 */
@@ -552,21 +548,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     @Override
     public void onDownloadComplete(int reqCode) {
         switch (reqCode) {
-            case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
-                try {
-                    JSONObject jsonObj1 = parseJson(this);
-                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-                    JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
-                    Variables.DOWNLOAD_FILE_URL = jsonObj3.getString("url");
-
-                    if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
-                        Snackbar.make(findViewById(android.R.id.content),"更新があります！", Snackbar.LENGTH_LONG).setAction("更新", v ->
-                                        startActivity(new Intent(v.getContext(), SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
-                                .show();
-                    }
-                } catch (JSONException | IOException ignored) {
-                }
-                break;
             case Constants.REQUEST_DOWNLOAD_APP_CHECK:
                 ArrayList<AppListView.AppData> list = new ArrayList<>();
 
