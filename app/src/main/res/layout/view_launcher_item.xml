@@ -17,12 +17,12 @@
 
     <ImageView
         android:layout_gravity="center"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:id="@+id/launcher_image"
-        android:layout_marginStart="10dp"
-        android:layout_width="50dip"
-        android:layout_height="50dip"
+        android:layout_marginStart="8dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:contentDescription="@string/layout_img_content_description" />
 
     <TextView

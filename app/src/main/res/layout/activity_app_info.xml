@@ -4,13 +4,12 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:padding="40dp"
+        android:padding="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <LinearLayout
-            android:layout_marginHorizontal="10dp"
             android:layout_marginBottom="20dp"
             android:orientation="vertical"
             android:gravity="center_horizontal"
@@ -29,7 +28,7 @@
             <TextView
                 android:layout_marginStart="20dp"
                 android:layout_gravity="start"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/menu_text_1" />
@@ -37,7 +36,7 @@
             <TextView
                 android:layout_marginStart="20dp"
                 android:layout_gravity="start"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/menu_text_2" />
@@ -45,14 +44,14 @@
             <TextView
                 android:layout_marginStart="20dp"
                 android:layout_gravity="start"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/menu_text_3" />
 
             <TextView
                 android:layout_gravity="start"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginStart="20dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -61,7 +60,7 @@
             <TextView
                 android:layout_marginStart="20dp"
                 android:layout_gravity="start"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="20dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -72,7 +71,6 @@
             android:layout_marginBottom="20dp"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:layout_marginHorizontal="10dp"
             android:background="@drawable/shape_rounded_corners"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -86,7 +84,7 @@
                 android:text="@string/info_development" />
 
             <TextView
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="20dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -97,7 +95,6 @@
             android:layout_marginBottom="20dp"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:layout_marginHorizontal="10dp"
             android:background="@drawable/shape_rounded_corners"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -113,13 +110,13 @@
             <TextView
                 android:id="@+id/menu_text_organization"
                 android:gravity="center"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/info_organization_label" />
 
             <Button
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="20dp"
                 android:id="@+id/info_button"
                 android:layout_width="wrap_content"
@@ -131,7 +128,6 @@
             android:layout_marginBottom="20dp"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:layout_marginHorizontal="10dp"
             android:background="@drawable/shape_rounded_corners"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -147,7 +143,7 @@
             <TextView
                 android:layout_gravity="start"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/info_library_wel_label" />
@@ -155,7 +151,7 @@
             <TextView
                 android:layout_gravity="start"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/info_library_zip_label" />
@@ -163,7 +159,7 @@
             <TextView
                 android:layout_gravity="start"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/info_library_yib_label" />
@@ -171,7 +167,7 @@
             <TextView
                 android:layout_gravity="start"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/info_library_dhizuku_label" />
@@ -180,7 +176,7 @@
                 android:layout_gravity="start"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="20dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -190,7 +186,6 @@
         <LinearLayout
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:layout_marginHorizontal="10dp"
             android:background="@drawable/shape_rounded_corners"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -204,13 +199,13 @@
                 android:text="@string/info_github" />
 
             <TextView
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/info_github_label" />
 
             <Button
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="20dp"
                 android:id="@+id/download_button"
                 android:layout_width="wrap_content"

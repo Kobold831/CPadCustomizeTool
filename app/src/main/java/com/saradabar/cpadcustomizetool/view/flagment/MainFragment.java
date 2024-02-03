@@ -31,16 +31,12 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -1098,6 +1094,8 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         if (isDhizukuActive(requireActivity())) {
             preDeviceOwnerFn.setSummary("Dhizukuがデバイスオーナーになっています\nDhizukuと通信するためタップしたあと遷移に時間がかかります");
+        } else {
+            preDeviceOwnerFn.setSummary("");
         }
     }
 

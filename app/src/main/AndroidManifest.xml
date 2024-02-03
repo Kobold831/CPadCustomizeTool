@@ -139,7 +139,11 @@
         <service
             android:name=".data.service.InstallService"
             android:label="@string/app_name"
-            android:exported="false" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.saradabar.cpadcustomizetool.data.service.InstallService"/>
+            </intent-filter>
+        </service>
 
         <receiver
             android:name=".Receiver.PackageAddedReceiver"

@@ -6,13 +6,12 @@
     android:id="@+id/scrollView">
 
     <TextView
-        android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="vertical"
         android:id="@+id/textView"
         android:fontFamily="monospace"
-        android:padding="10dp"
+        android:padding="8dp"
         android:textSize="11sp"
         android:scrollbarAlwaysDrawVerticalTrack="true"
         android:textIsSelectable="true" />

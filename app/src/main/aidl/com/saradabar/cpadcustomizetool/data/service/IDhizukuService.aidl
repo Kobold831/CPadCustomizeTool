@@ -6,4 +6,5 @@ interface IDhizukuService {
     void setPermissionPolicy(int policy) = 23;
     void setPermissionGrantState(String packageName, String permission, int grantState) = 24;
     boolean tryInstallPackages(String packageName, in String[] installData) = 25;
+    void clearDeviceOwnerApp(String packageName) = 26;
 }

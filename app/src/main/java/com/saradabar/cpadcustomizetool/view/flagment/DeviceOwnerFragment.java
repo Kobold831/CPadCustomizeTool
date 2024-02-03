@@ -12,11 +12,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInstaller;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.RemoteException;
 
 import androidx.preference.Preference;
@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
@@ -145,10 +146,16 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        /* 追加予定:セッション破棄 */
         preAbandonSession.setOnPreferenceClickListener(preference -> {
+            for (PackageInstaller.SessionInfo sessionInfo : requireActivity().getPackageManager().getPackageInstaller().getMySessions()) {
+                try {
+                    requireActivity().getPackageManager().getPackageInstaller().abandonSession(sessionInfo.getSessionId());
+                } catch (Exception ignored) {
+                }
+            }
+
             new MaterialAlertDialogBuilder(requireActivity())
-                    .setMessage("この機能は使用できません")
+                    .setMessage("セッションを破棄しました")
                     .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
             return false;
@@ -158,7 +165,16 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             new MaterialAlertDialogBuilder(requireActivity())
                     .setMessage(R.string.dialog_question_device_owner)
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                        dpm.clearDeviceOwnerApp(requireActivity().getPackageName());
+                        if (isDhizukuActive(requireActivity())) {
+                            if (tryBindDhizukuService(requireActivity())) {
+                                try {
+                                    mDhizukuService.clearDeviceOwnerApp(requireActivity().getPackageName());
+                                } catch (RemoteException ignored) {
+                                }
+                            }
+                        } else {
+                            dpm.clearDeviceOwnerApp(requireActivity().getPackageName());
+                        }
                         requireActivity().finish();
                         requireActivity().overridePendingTransition(0, 0);
                         startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
@@ -199,13 +215,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_not_use_function));
                 preSessionInstall.setEnabled(false);
                 preSessionInstall.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            } else {
-                preClrDevOwn.setEnabled(false);
-                preClrDevOwn.setSummary("Dhizukuがデバイスオーナーのためこの機能は使用できません");
-                preSessionInstall.setSummary("「分割APK」のインストールに対応しています\n「分割APK」をインストールするにはファイルを長押しして選択してください\n「xapk・apkm」はDhizukuがデバイスオーナーかつテスト中のため対応していません\nインストールの成否はテスト中のためAndroidシステムの通知で判断してください");
+                preAbandonSession.setEnabled(false);
+                preAbandonSession.setSummary(getString(R.string.pre_owner_sum_not_use_function));
             }
         }
-
 
         if (getDeviceOwnerPackage() != null) {
             preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_message_1) + getDeviceOwnerPackage() + getString(R.string.pre_owner_sum_message_2));
@@ -238,12 +251,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 break;
             /* チャレンジパッドNEO・NEXT */
             case Constants.MODEL_CTX:
-                break;
             case Constants.MODEL_CTZ:
+                break;
         }
-
-        preAbandonSession.setEnabled(false);
-        preAbandonSession.setSummary("この機能は使用できません");
     }
 
     private String getDeviceOwnerPackage() {
@@ -276,43 +286,22 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             if (trySetInstallData(data)) {
                 String str = new File(splitInstallData[0]).getName();
 
-                if (isDhizukuActive(requireActivity())) {
-                    if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
-                        if (tryBindDhizukuService(requireActivity())) {
-                            Runnable runnable = () -> {
-                                try {
-                                    mDhizukuService.tryInstallPackages("", splitInstallData);
-                                } catch (RemoteException ignored) {
-                                }
-                            };
-                            new Handler().postDelayed(runnable, 5000);
-                        }
-                        return;
-                    } else {
-                        new MaterialAlertDialogBuilder(requireActivity())
-                                .setMessage("apkまたは分割apkのみ対応")
-                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                                .show();
-                        return;
-                    }
-                } else {
-                    /* ファイルの拡張子 */
-                    if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
-                        TryApkTask at = new TryApkTask();
-                        at.setListener(StartActivity.getInstance().apkListener());
-                        at.execute();
-                        return;
-                    } else if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".xapk")) {
-                        TryXApkTask xat = new TryXApkTask();
-                        xat.setListener(StartActivity.getInstance().xApkListener());
-                        xat.execute();
-                        return;
-                    } else if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
-                        TryApkMTask amt = new TryApkMTask();
-                        amt.setListener(StartActivity.getInstance().apkMListener());
-                        amt.execute();
-                        return;
-                    }
+                /* ファイルの拡張子 */
+                if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
+                    TryApkTask at = new TryApkTask();
+                    at.setListener(StartActivity.getInstance().apkListener());
+                    at.execute();
+                    return;
+                } else if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".xapk")) {
+                    TryXApkTask xat = new TryXApkTask();
+                    xat.setListener(StartActivity.getInstance().xApkListener());
+                    xat.execute();
+                    return;
+                } else if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
+                    TryApkMTask amt = new TryApkMTask();
+                    amt.setListener(StartActivity.getInstance().apkMListener());
+                    amt.execute();
+                    return;
                 }
             }
 
@@ -690,40 +679,51 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         @SuppressLint("UnspecifiedImmutableFlag")
         @Override
         protected Object doInBackground(Object... value) {
-            SplitInstaller splitInstaller = new SplitInstaller();
-            int sessionId;
-
-            try {
-                sessionId = splitInstaller.splitCreateSession(getInstance().requireActivity()).i;
-
-                if (sessionId < 0) {
-                    return false;
-                }
-            } catch (Exception e) {
-                return e.getMessage();
-            }
-
-            /* インストールデータの長さ回数繰り返す */
-            for (String str : getInstance().splitInstallData) {
-                /* 配列の中身を確認 */
-                if (str != null) {
+            if (isDhizukuActive(getInstance().requireActivity())) {
+                AtomicBoolean result = new AtomicBoolean(false);
+                if (tryBindDhizukuService(getInstance().requireActivity())) {
                     try {
-                        if (!splitInstaller.splitWriteSession(getInstance().requireActivity(), new File(str), sessionId).bl) {
-                            return false;
-                        }
-                    } catch (Exception e) {
-                        return e.getMessage();
+                        result.set(mDhizukuService.tryInstallPackages("", getInstance().splitInstallData));
+                    } catch (RemoteException ignored) {
                     }
-                } else {
-                    /* つぎの配列がnullなら終了 */
-                    break;
                 }
-            }
+                return result.get();
+            } else {
+                SplitInstaller splitInstaller = new SplitInstaller();
+                int sessionId;
 
-            try {
-                return splitInstaller.splitCommitSession(getInstance().requireActivity(), sessionId, 0).bl;
-            } catch (Exception e) {
-                return e.getMessage();
+                try {
+                    sessionId = splitInstaller.splitCreateSession(getInstance().requireActivity()).i;
+
+                    if (sessionId < 0) {
+                        return false;
+                    }
+                } catch (Exception e) {
+                    return e.getMessage();
+                }
+
+                /* インストールデータの長さ回数繰り返す */
+                for (String str : getInstance().splitInstallData) {
+                    /* 配列の中身を確認 */
+                    if (str != null) {
+                        try {
+                            if (!splitInstaller.splitWriteSession(getInstance().requireActivity(), new File(str), sessionId).bl) {
+                                return false;
+                            }
+                        } catch (Exception e) {
+                            return e.getMessage();
+                        }
+                    } else {
+                        /* つぎの配列がnullなら終了 */
+                        break;
+                    }
+                }
+
+                try {
+                    return splitInstaller.splitCommitSession(getInstance().requireActivity(), sessionId, 0).bl;
+                } catch (Exception e) {
+                    return e.getMessage();
+                }
             }
         }
 

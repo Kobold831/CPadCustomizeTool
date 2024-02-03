@@ -16,7 +16,7 @@
         android:id="@+id/update_button"
         android:layout_gravity="center"
         android:layout_marginStart="20dp"
-        android:paddingVertical="10dp" />
+        android:paddingVertical="8dp" />
 
     <TextView
         android:gravity="center_vertical"
@@ -27,5 +27,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:paddingVertical="10dp" />
+        android:paddingVertical="8dp" />
 </LinearLayout>

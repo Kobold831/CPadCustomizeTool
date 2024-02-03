@@ -483,6 +483,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         return new MainFragment.resolutionTask.Listener() {
             Handler mHandler;
             Runnable mRunnable;
+
             /* 成功 */
             @Override
             public void onSuccess() {
@@ -508,6 +509,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 mHandler = new Handler();
                 mRunnable = new Runnable() {
                     int i = 10;
+
                     @Override
                     public void run() {
                         alertDialog.setMessage("変更を適用しますか？\n" + i + "秒後に元の設定に戻ります");
@@ -610,7 +612,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             StringBuilder str = new StringBuilder();
 
-                            for (int i = 0; i <lv.getCount(); i++) {
+                            for (int i = 0; i < lv.getCount(); i++) {
                                 RadioButton radioButton = lv.getChildAt(i).findViewById(R.id.v_app_list_radio);
                                 if (radioButton.isChecked()) {
                                     try {

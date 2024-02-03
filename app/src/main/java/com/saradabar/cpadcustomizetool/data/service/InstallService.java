@@ -11,8 +11,6 @@ import com.saradabar.cpadcustomizetool.data.connection.Updater;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListenerList;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 
-import java.io.IOException;
-
 public class InstallService extends Service {
 
     @Override
@@ -37,6 +35,7 @@ public class InstallService extends Service {
                 break;
             case 1:
                 installEventListener.addEventListener(Updater.getInstance());
+                break;
         }
 
         switch (status) {

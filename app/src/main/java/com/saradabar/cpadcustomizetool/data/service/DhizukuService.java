@@ -98,6 +98,11 @@ public class DhizukuService extends IDhizukuService.Stub {
         }
     }
 
+    @Override
+    public void clearDeviceOwnerApp(String packageName) throws RemoteException {
+        dpm.clearDeviceOwnerApp(packageName);
+    }
+
     private int createSession(PackageInstaller packageInstaller) throws IOException {
         PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
         params.setInstallLocation(PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
@@ -146,7 +151,7 @@ public class DhizukuService extends IDhizukuService.Stub {
 
         try {
             session = packageInstaller.openSession(sessionId);
-            Intent intent = new Intent(context, InstallService.class).putExtra("REQUEST_CODE", 0).putExtra("REQUEST_SESSION", sessionId);
+            Intent intent = new Intent("com.saradabar.cpadcustomizetool.data.service.InstallService").setPackage("com.saradabar.cpadcustomizetool").putExtra("REQUEST_CODE", 0).putExtra("REQUEST_SESSION", sessionId);
             PendingIntent pendingIntent = PendingIntent.getService(
                     context,
                     sessionId,

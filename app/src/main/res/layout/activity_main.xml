@@ -16,7 +16,7 @@
         app:trackCornerRadius="8dp" />
 
     <FrameLayout
-        android:layout_marginHorizontal="40dp"
+        android:layout_marginHorizontal="20dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/layout_main" />
