@@ -16,6 +16,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
@@ -41,6 +42,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.layout_progress);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -145,18 +147,9 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                     AsyncFileDownload asyncFileDownload = new AsyncFileDownload(this, Variables.DOWNLOAD_FILE_URL, new File(new File(getExternalCacheDir(), "update.apk").getPath()), Constants.REQUEST_DOWNLOAD_APK);
                     asyncFileDownload.execute();
-                    ProgressDialog progressDialog = new ProgressDialog(this);
-                    progressDialog.setTitle(R.string.dialog_title_update);
-                    progressDialog.setMessage("アップデートファイルをサーバーからダウンロード中・・・");
-                    progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                    progressDialog.setProgress(0);
-                    progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "キャンセル", (dialog2, which2) -> {
-                        asyncFileDownload.cancel(true);
-                        finish();
-                    });
-                    progressDialog.show();
                     ProgressHandler progressHandler = new ProgressHandler();
-                    progressHandler.progressDialog = progressDialog;
+                    progressHandler.linearProgressIndicator = findViewById(R.id.layout_progress_main);
+                    progressHandler.textView = findViewById(R.id.layout_text_progress);
                     progressHandler.asyncfiledownload = asyncFileDownload;
                     progressHandler.sendEmptyMessage(0);
                 })
@@ -175,13 +168,20 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     }
 
     private void showLoadingDialog() {
-        loadingDialog = ProgressDialog.show(this, "", getString(R.string.progress_state_update_check), true);
-        loadingDialog.show();
+        TextView textView = findViewById(R.id.layout_text_progress);
+        textView.setText("ただいま　サーバーと通信中です");
+        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
+        linearProgressIndicator.show();
     }
 
     private void cancelLoadingDialog() {
+        TextView textView = findViewById(R.id.layout_text_progress);
+        textView.setText("");
         try {
-            if (loadingDialog != null) loadingDialog.dismiss();
+            LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
+            if (linearProgressIndicator.isShown()) {
+                linearProgressIndicator.hide();
+            }
         } catch (Exception ignored) {
         }
     }

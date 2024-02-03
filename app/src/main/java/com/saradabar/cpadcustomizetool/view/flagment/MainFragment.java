@@ -31,12 +31,16 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -94,7 +98,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             swKeepLauncher,
             swDeviceAdmin;
 
-    Preference preEnableDchaService,
+    public Preference preEnableDchaService,
             preEmgManual,
             preSelNorLauncher,
             preNorManual,
@@ -950,7 +954,8 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         preGetApp.setOnPreferenceClickListener(preference -> {
-            StartActivity.getInstance().showLdDialog();
+            preGetApp.setSummary("通信中です...");
+            StartActivity.getInstance().showLoadingDialog();
             new AsyncFileDownload(requireActivity(), "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(requireActivity().getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_APP_CHECK).execute();
             return false;
         });

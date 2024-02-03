@@ -67,6 +67,7 @@
     <string name="pre_main_sum_silent_install">分割APKは非対応です\n分割APKは「デバイスオーナーの機能」→サイレントインストールでインストールできます</string>
     <string name="pre_main_sum_already_device_owner">デバイスオーナーのため変更できません</string>
     <string name="pre_main_sum_no_setting_launcher">変更するランチャーは設定されていません</string>
+    <string name="pre_main_sum_get_app">インストールするには表示されるダイアログからアプリを選択してください\nインストーラーはアプリ設定→アップデートモードを選択の設定に準拠します</string>
 
     <!-- アプリ設定 -->
     <string name="pre_app_category_start_settings">起動設定</string>

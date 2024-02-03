@@ -51,7 +51,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         preDelCrashLog = findPreference("pre_app_del_crash_log");
         preUpdateMode = findPreference("pre_app_update_mode");
 
-        swUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_UPDATE, false));
+        swUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_UPDATE, true));
         swUseDcha.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false));
 
         try {

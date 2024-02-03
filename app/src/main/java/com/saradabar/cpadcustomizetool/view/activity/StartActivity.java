@@ -3,10 +3,8 @@ package com.saradabar.cpadcustomizetool.view.activity;
 import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
@@ -31,6 +29,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
@@ -63,7 +62,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
     static StartActivity instance = null;
     IDchaService mDchaService;
-    ProgressDialog loadingDialog;
     Menu menu;
 
     public static StartActivity getInstance() {
@@ -335,22 +333,26 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
     public DeviceOwnerFragment.TryApkTask.Listener apkListener() {
         return new DeviceOwnerFragment.TryApkTask.Listener() {
-            ProgressDialog progressDialog;
 
             /* プログレスバーの表示 */
             @Override
             public void onShow() {
-                progressDialog = new ProgressDialog(StartActivity.this);
-                progressDialog.setTitle("");
-                progressDialog.setMessage(getString(R.string.progress_state_installing));
-                progressDialog.setCancelable(false);
-                progressDialog.show();
+                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(getString(R.string.progress_state_installing));
+                LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+                linearProgressIndicator.show();
             }
 
             /* 成功 */
             @Override
             public void onSuccess() {
-                progressDialog.dismiss();
+                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
+                try {
+                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+                    if (linearProgressIndicator.isShown()) {
+                        linearProgressIndicator.hide();
+                    }
+                } catch (Exception ignored) {
+                }
 
                 try {
                     /* 一時ファイルを消去 */
@@ -374,7 +376,14 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             /* 失敗 */
             @Override
             public void onFailure(String str) {
-                progressDialog.dismiss();
+                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
+                try {
+                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+                    if (linearProgressIndicator.isShown()) {
+                        linearProgressIndicator.hide();
+                    }
+                } catch (Exception ignored) {
+                }
 
                 try {
                     /* 一時ファイルを消去 */
@@ -393,7 +402,14 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
             @Override
             public void onError(String str) {
-                progressDialog.dismiss();
+                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
+                try {
+                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+                    if (linearProgressIndicator.isShown()) {
+                        linearProgressIndicator.hide();
+                    }
+                } catch (Exception ignored) {
+                }
 
                 try {
                     /* 一時ファイルを消去 */
@@ -414,22 +430,26 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
     public MainFragment.installTask.Listener installListener() {
         return new MainFragment.installTask.Listener() {
-            ProgressDialog progressDialog;
 
             /* プログレスバーの表示 */
             @Override
             public void onShow() {
-                progressDialog = new ProgressDialog(StartActivity.this);
-                progressDialog.setTitle("");
-                progressDialog.setMessage(getString(R.string.progress_state_installing));
-                progressDialog.setCancelable(false);
-                progressDialog.show();
+                MainFragment.getInstance().preSilentInstall.setSummary(getString(R.string.progress_state_installing));
+                LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+                linearProgressIndicator.show();
             }
 
             /* 成功 */
             @Override
             public void onSuccess() {
-                progressDialog.dismiss();
+                MainFragment.getInstance().preSilentInstall.setSummary(R.string.pre_main_sum_silent_install);
+                try {
+                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+                    if (linearProgressIndicator.isShown()) {
+                        linearProgressIndicator.hide();
+                    }
+                } catch (Exception ignored) {
+                }
 
                 new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(R.string.dialog_info_success_silent_install)
@@ -441,7 +461,14 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             /* 失敗 */
             @Override
             public void onFailure() {
-                progressDialog.dismiss();
+                MainFragment.getInstance().preSilentInstall.setSummary(R.string.pre_main_sum_silent_install);
+                try {
+                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+                    if (linearProgressIndicator.isShown()) {
+                        linearProgressIndicator.hide();
+                    }
+                } catch (Exception ignored) {
+                }
 
                 new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(R.string.dialog_info_failure_silent_install)
@@ -549,6 +576,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     public void onDownloadComplete(int reqCode) {
         switch (reqCode) {
             case Constants.REQUEST_DOWNLOAD_APP_CHECK:
+                MainFragment.getInstance().preGetApp.setSummary("インストールするには表示されるダイアログからアプリを選択してください\nインストーラーはアプリ設定→アップデートモードを選択の設定に準拠します");
                 ArrayList<AppListView.AppData> list = new ArrayList<>();
 
                 try {
@@ -573,7 +601,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                     lv.invalidateViews();
                 });
 
-                cancelLdDialog();
+                cancelLoadingDialog();
 
                 new MaterialAlertDialogBuilder(this)
                         .setView(v)
@@ -637,7 +665,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
     @Override
     public void onDownloadError() {
-        cancelLdDialog();
+        cancelLoadingDialog();
         new MaterialAlertDialogBuilder(this)
                 .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -646,42 +674,42 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
     @Override
     public void onConnectionError() {
-        cancelLdDialog();
+        cancelLoadingDialog();
         new MaterialAlertDialogBuilder(this)
                 .setMessage("データ取得に失敗しました\nネットワークを確認してください")
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
-    public void showLdDialog() {
-        loadingDialog = ProgressDialog.show(this, "", getString(R.string.progress_state_connecting), true);
-        loadingDialog.show();
+    public void showLoadingDialog() {
+        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+        linearProgressIndicator.show();
     }
 
-    public void cancelLdDialog() {
+    public void cancelLoadingDialog() {
         try {
-            if (loadingDialog != null) {
-                loadingDialog.dismiss();
+            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+        } catch (Exception ignored) {
+        }
+
+        try {
+            LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+            if (linearProgressIndicator.isShown()) {
+                linearProgressIndicator.hide();
             }
         } catch (Exception ignored) {
         }
     }
 
     private void startDownload() {
+        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+        linearProgressIndicator.show();
         AsyncFileDownload asyncFileDownload = new AsyncFileDownload(this, Variables.DOWNLOAD_FILE_URL, new File(new File(getExternalCacheDir(), "update.apk").getPath()), Constants.REQUEST_DOWNLOAD_APK);
         asyncFileDownload.execute();
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("インストール");
-        progressDialog.setMessage("インストールファイルをサーバーからダウンロード中...");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setProgress(0);
-        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.dialog_common_cancel), (dialog3, which3) -> {
-            asyncFileDownload.cancel(true);
-        });
-        progressDialog.show();
         ProgressHandler progressHandler = new ProgressHandler();
-        progressHandler.progressDialog = progressDialog;
+        progressHandler.linearProgressIndicator = linearProgressIndicator;
         progressHandler.asyncfiledownload = asyncFileDownload;
         progressHandler.sendEmptyMessage(0);
+        MainFragment.getInstance().preGetApp.setSummary("インストールファイルをサーバーからダウンロード中...");
     }
 }

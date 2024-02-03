@@ -1,10 +1,8 @@
 package com.saradabar.cpadcustomizetool;
 
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
@@ -21,6 +19,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
 import com.saradabar.cpadcustomizetool.data.connection.Updater;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
@@ -49,12 +48,12 @@ import jp.co.benesse.dcha.dchaservice.IDchaService;
 public class MainActivity extends AppCompatActivity implements DownloadEventListener {
 
     IDchaService mDchaService;
-    ProgressDialog loadingDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
+        setContentView(R.layout.layout_progress);
 
         /* 前回クラッシュしているかどうか */
         if (Preferences.load(this, Constants.KEY_FLAG_CRASH_LOG, false)) {
@@ -74,13 +73,16 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     Preferences.save(this, Constants.KEY_FLAG_CRASH_LOG, false);
                     firstCheck();
                 })
-                .setNeutralButton(R.string.dialog_common_check, (dialog, which) -> startActivity(new Intent(this, CrashLogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                .setNeutralButton(R.string.dialog_common_check, (dialog, which) -> {
+                    startActivity(new Intent(this, CrashLogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                    finish();
+                })
                 .show();
     }
 
     private void firstCheck() {
         /* アップデートチェックするか確認 */
-        if (Preferences.load(this, Constants.KEY_FLAG_UPDATE, false)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_UPDATE, true)) {
             /* ネットワークチェック */
             if (!isNetworkState()) {
                 networkError();
@@ -273,25 +275,13 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
+                    linearProgressIndicator.show();
                     AsyncFileDownload asyncFileDownload = new AsyncFileDownload(this, Variables.DOWNLOAD_FILE_URL, new File(new File(getExternalCacheDir(), "update.apk").getPath()), Constants.REQUEST_DOWNLOAD_APK);
                     asyncFileDownload.execute();
-                    ProgressDialog progressDialog = new ProgressDialog(this);
-                    progressDialog.setTitle(R.string.dialog_title_update);
-                    progressDialog.setMessage(getString(R.string.progress_state_downloading_update_file));
-                    progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                    progressDialog.setProgress(0);
-                    progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.dialog_common_cancel), (dialog2, which2) -> {
-                        asyncFileDownload.cancel(true);
-                        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
-                            if (supportModelCheck()) checkDchaService();
-                            else supportModelError();
-                        } else {
-                            new WelcomeHelper(this, WelAppActivity.class).forceShow();
-                        }
-                    });
-                    progressDialog.show();
                     ProgressHandler progressHandler = new ProgressHandler();
-                    progressHandler.progressDialog = progressDialog;
+                    progressHandler.linearProgressIndicator = linearProgressIndicator;
+                    progressHandler.textView = findViewById(R.id.layout_text_progress);
                     progressHandler.asyncfiledownload = asyncFileDownload;
                     progressHandler.sendEmptyMessage(0);
                 })
@@ -308,15 +298,18 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     /* ローディングダイアログを表示する */
     private void showLoadingDialog() {
-        loadingDialog = ProgressDialog.show(this, "", getString(R.string.progress_state_connecting), true);
-        loadingDialog.show();
+        TextView textView = findViewById(R.id.layout_text_progress);
+        textView.setText("ただいま　サーバーと通信中です");
+        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
+        linearProgressIndicator.show();
     }
 
-    /* ろ＾ディングダイアログを非表示にする */
+    /* ローディングダイアログを非表示にする */
     private void cancelLoadingDialog() {
         try {
-            if (loadingDialog != null) {
-                loadingDialog.dismiss();
+            LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
+            if (linearProgressIndicator.isShown()) {
+                linearProgressIndicator.hide();
             }
         } catch (Exception ignored) {
         }

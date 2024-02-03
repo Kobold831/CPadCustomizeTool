@@ -2,49 +2,29 @@ package com.saradabar.cpadcustomizetool.data.connection;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
-import com.saradabar.cpadcustomizetool.data.event.DownloadEventListenerList;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.installer.SplitInstaller;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
 import com.saradabar.cpadcustomizetool.util.Variables;
+import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Objects;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
@@ -129,16 +109,30 @@ public class Updater implements InstallEventListener {
                 }
                 break;
             case 2:
-                ProgressDialog progressDialog = new ProgressDialog(activity);
-                progressDialog.setTitle("");
-                progressDialog.setMessage("インストール中・・・");
-                progressDialog.setCancelable(false);
-                progressDialog.show();
+                try {
+                    LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                    linearProgressIndicator.show();
+                } catch (Exception ignored) {
+                }
+
+                try {
+                    MainFragment.getInstance().preGetApp.setSummary("インストール中...");
+                } catch (Exception ignored) {
+                }
 
                 if (isBindDchaService()) {
                     Runnable runnable = () -> {
                         if (!isInstallPackage()) {
-                            progressDialog.dismiss();
+                            try {
+                                LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                                linearProgressIndicator.hide();
+                            } catch (Exception ignored) {
+                            }
+
+                            try {
+                                MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                            } catch (Exception ignored) {
+                            }
 
                             new MaterialAlertDialogBuilder(activity)
                                     .setCancelable(false)
@@ -146,12 +140,30 @@ public class Updater implements InstallEventListener {
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
                                     .show();
                         } else {
-                            progressDialog.dismiss();
+                            try {
+                                LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                                linearProgressIndicator.hide();
+                            } catch (Exception ignored) {
+                            }
+
+                            try {
+                                MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                            } catch (Exception ignored) {
+                            }
                         }
                     };
                     new Handler().postDelayed(runnable, 10);
                 } else {
-                    progressDialog.dismiss();
+                    try {
+                        LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                        linearProgressIndicator.hide();
+                    } catch (Exception ignored) {
+                    }
+
+                    try {
+                        MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                    } catch (Exception ignored) {
+                    }
 
                     new MaterialAlertDialogBuilder(activity)
                             .setCancelable(false)

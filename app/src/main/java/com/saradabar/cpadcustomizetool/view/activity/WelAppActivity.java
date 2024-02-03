@@ -33,8 +33,8 @@ public class WelAppActivity extends WelcomeActivity {
                 .build();
     }
 
+    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
     }
 }

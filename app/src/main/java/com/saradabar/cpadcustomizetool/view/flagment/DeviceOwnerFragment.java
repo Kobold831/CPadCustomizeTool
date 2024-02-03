@@ -50,7 +50,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
     double totalByte;
 
-    Preference preUninstallBlock,
+    public Preference preUninstallBlock,
             preSessionInstall,
             preAbandonSession,
             preClrDevOwn,

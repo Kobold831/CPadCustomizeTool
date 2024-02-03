@@ -6,7 +6,7 @@
     android:orientation="vertical">
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/act_progress_main"
+        android:id="@+id/layout_progress_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:indeterminate="true"
@@ -15,9 +15,9 @@
         app:showAnimationBehavior="inward"
         app:trackCornerRadius="8dp" />
 
-    <FrameLayout
-        android:layout_marginHorizontal="40dp"
+    <TextView
+        android:id="@+id/layout_text_progress"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/layout_main" />
+        android:gravity="center"/>
 </LinearLayout>
