@@ -1,5 +1,9 @@
 package com.saradabar.cpadcustomizetool.data.connection;
 
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+import static com.saradabar.cpadcustomizetool.util.Common.mDhizukuService;
+import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
@@ -72,6 +76,10 @@ public class Updater implements InstallEventListener {
     public void installApk(Context context, int flag) {
         switch (Preferences.load(activity, Constants.KEY_FLAG_UPDATE_MODE, 1)) {
             case 0:
+                try {
+                    MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                } catch (Exception ignored) {
+                }
                 activity.startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(context.getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_UPDATE);
                 break;
             case 1:
@@ -92,6 +100,10 @@ public class Updater implements InstallEventListener {
                                 .show();
                         break;
                     case 1:
+                        try {
+                            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                        } catch (Exception ignored) {
+                        }
                         new MaterialAlertDialogBuilder(activity)
                                 .setCancelable(false)
                                 .setTitle("インストール")
@@ -116,7 +128,7 @@ public class Updater implements InstallEventListener {
                 }
 
                 try {
-                    MainFragment.getInstance().preGetApp.setSummary("インストール中...");
+                    MainFragment.getInstance().preGetApp.setSummary(R.string.progress_state_installing);
                 } catch (Exception ignored) {
                 }
 
@@ -173,8 +185,87 @@ public class Updater implements InstallEventListener {
                 }
                 break;
             case 3:
+                try {
+                    LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                    linearProgressIndicator.show();
+                } catch (Exception ignored) {
+                }
+
+                try {
+                    MainFragment.getInstance().preGetApp.setSummary(R.string.progress_state_installing);
+                } catch (Exception ignored) {
+                }
+
                 if (((DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(activity.getPackageName())) {
                     if (!trySessionInstall()) {
+                        try {
+                            LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                            linearProgressIndicator.hide();
+                        } catch (Exception ignored) {
+                        }
+
+                        try {
+                            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                        } catch (Exception ignored) {
+                        }
+                        new MaterialAlertDialogBuilder(activity)
+                                .setCancelable(false)
+                                .setMessage(R.string.dialog_error)
+                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
+                                .show();
+                    } else {
+                        try {
+                            LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                            linearProgressIndicator.hide();
+                        } catch (Exception ignored) {
+                        }
+
+                        try {
+                            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                        } catch (Exception ignored) {
+                        }
+                    }
+                } else {
+                    if (Preferences.load(activity, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTX || Preferences.load(activity, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTZ) {
+                        Preferences.save(activity, Constants.KEY_FLAG_UPDATE_MODE, 1);
+                    } else Preferences.save(activity, Constants.KEY_FLAG_UPDATE_MODE, 0);
+                    try {
+                        LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                        linearProgressIndicator.hide();
+                    } catch (Exception ignored) {
+                    }
+
+                    try {
+                        MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                    } catch (Exception ignored) {
+                    }
+                    new MaterialAlertDialogBuilder(activity)
+                            .setCancelable(false)
+                            .setMessage(activity.getString(R.string.dialog_error_reset_update_mode))
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
+                            .show();
+                }
+                break;
+            case 4:
+                if (isDhizukuActive(activity)) {
+                    if (tryBindDhizukuService(activity)) {
+                        Runnable runnable = () -> {
+                            try {
+                                String[] installData = new String[1];
+                                installData[0] = new File(activity.getExternalCacheDir(), "update.apk").getPath();
+                                if (!mDhizukuService.tryInstallPackages("", installData)) {
+                                    new MaterialAlertDialogBuilder(activity)
+                                            .setCancelable(false)
+                                            .setMessage(R.string.dialog_error)
+                                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
+                                            .show();
+                                }
+                            } catch (RemoteException ignored) {
+                            }
+                        };
+                        new Handler().postDelayed(runnable, 5000);
+                        return;
+                    } else {
                         new MaterialAlertDialogBuilder(activity)
                                 .setCancelable(false)
                                 .setMessage(R.string.dialog_error)
@@ -182,12 +273,9 @@ public class Updater implements InstallEventListener {
                                 .show();
                     }
                 } else {
-                    if (Preferences.load(activity, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTX || Preferences.load(activity, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTZ) {
-                        Preferences.save(activity, Constants.KEY_FLAG_UPDATE_MODE, 1);
-                    } else Preferences.save(activity, Constants.KEY_FLAG_UPDATE_MODE, 0);
                     new MaterialAlertDialogBuilder(activity)
                             .setCancelable(false)
-                            .setMessage(activity.getString(R.string.dialog_error_reset_update_mode))
+                            .setMessage(R.string.dialog_error)
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
                             .show();
                 }

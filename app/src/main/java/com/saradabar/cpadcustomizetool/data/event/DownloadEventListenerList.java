@@ -15,11 +15,11 @@ public class DownloadEventListenerList {
 		for (DownloadEventListener listener : listeners) listener.onDownloadComplete(reqCode);
 	}
 
-	public void downloadErrorNotify() {
-		for (DownloadEventListener listener : listeners) listener.onDownloadError();
+	public void downloadErrorNotify(int reqCode) {
+		for (DownloadEventListener listener : listeners) listener.onDownloadError(reqCode);
 	}
 
-	public void connectionErrorNotify() {
-		for (DownloadEventListener listener : listeners) listener.onConnectionError();
+	public void connectionErrorNotify(int reqCode) {
+		for (DownloadEventListener listener : listeners) listener.onConnectionError(reqCode);
 	}
 }

@@ -950,9 +950,9 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         preGetApp.setOnPreferenceClickListener(preference -> {
-            preGetApp.setSummary("通信中です...");
+            preGetApp.setSummary("サーバーと通信中です...");
             StartActivity.getInstance().showLoadingDialog();
-            new AsyncFileDownload(requireActivity(), "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(requireActivity().getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_APP_CHECK).execute();
+            new AsyncFileDownload(requireActivity(), Constants.URL_CHECK, new File(new File(requireActivity().getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_APP_CHECK).execute();
             return false;
         });
 
@@ -1087,9 +1087,9 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName())) {
             swDeviceAdmin.setEnabled(false);
-            swDeviceAdmin.setSummary("このアプリがデバイスオーナーのため不要です");
+            swDeviceAdmin.setSummary(getString(R.string.pre_main_sum_already_device_owner));
             preDhizukuPermissionReq.setEnabled(false);
-            preDhizukuPermissionReq.setSummary("このアプリがデバイスオーナーのため不要です");
+            preDhizukuPermissionReq.setSummary(getString(R.string.pre_main_sum_already_device_owner));
         }
 
         if (isDhizukuActive(requireActivity())) {

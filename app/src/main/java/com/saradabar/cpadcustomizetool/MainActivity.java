@@ -5,8 +5,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -81,18 +79,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     private void firstCheck() {
-        /* アップデートチェックするか確認 */
-        if (Preferences.load(this, Constants.KEY_FLAG_UPDATE, true)) {
-            /* ネットワークチェック */
-            if (!isNetworkState()) {
-                networkError();
-            } else {
-                /* アップデートチェック */
-                updateCheck();
-            }
-            return;
-        }
-
         /* 初回起動か確認 */
         if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
             /* 初回起動ではないならサポート端末か確認 */
@@ -103,39 +89,16 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 supportModelError();
             }
         } else {
-            /* 初回起動はウォークスルー起動 */
-            new WelcomeHelper(this, WelAppActivity.class).forceShow();
+            /* 初回起動はアップデート確認後ウォークスルー起動 */
+            /* アップデートチェック */
+            updateCheck();
         }
-    }
-
-    /* ネットワークの接続を確認 */
-    private boolean isNetworkState() {
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected());
-    }
-
-    /* ネットワークエラー */
-    private void networkError() {
-        new MaterialAlertDialogBuilder(this)
-                .setCancelable(false)
-                .setTitle(R.string.dialog_title_common_error)
-                .setIcon(R.drawable.alert)
-                .setMessage(R.string.dialog_error_start_wifi)
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
-                .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
-                    if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
-                        if (supportModelCheck()) checkDchaService();
-                        else supportModelError();
-                    } else new WelcomeHelper(this, WelAppActivity.class).forceShow();
-                })
-                .show();
     }
 
     /* アップデートチェック */
     private void updateCheck() {
         showLoadingDialog();
-        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
+        new AsyncFileDownload(this, Constants.URL_CHECK, new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
     }
 
     /* json読み取り */
@@ -145,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         StringBuilder data = new StringBuilder();
         String str = bufferedReader.readLine();
 
-        while(str != null){
+        while (str != null) {
             data.append(str);
             str = bufferedReader.readLine();
         }
@@ -172,16 +135,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         showUpdateDialog(jsonObj3.getString("description"));
                     } else {
                         cancelLoadingDialog();
-
-                        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
-                            if (supportModelCheck()) {
-                                checkDchaService();
-                            } else {
-                                supportModelError();
-                            }
-                        } else {
-                            new WelcomeHelper(this, WelAppActivity.class).forceShow();
-                        }
+                        new WelcomeHelper(this, WelAppActivity.class).forceShow();
                     }
                 } catch (JSONException | IOException ignored) {
                 }
@@ -197,65 +151,35 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     /* ダウンロードエラー */
     @Override
-    public void onDownloadError() {
+    public void onDownloadError(int reqCode) {
         cancelLoadingDialog();
-        new MaterialAlertDialogBuilder(this)
-                .setCancelable(false)
-                .setTitle(R.string.dialog_title_common_error)
-                .setIcon(R.drawable.alert)
-                .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
-                .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
-                    if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
-                        if (supportModelCheck()) {
-                            checkDchaService();
-                        } else {
-                            supportModelError();
-                        }
-                    } else {
-                        new WelcomeHelper(this, WelAppActivity.class).forceShow();
-                    }
-                })
-                .show();
+        new WelcomeHelper(this, WelAppActivity.class).forceShow();
     }
 
 
     /* サーバー接続エラー */
     @Override
-    public void onConnectionError() {
+    public void onConnectionError(int reqCode) {
         cancelLoadingDialog();
-        new MaterialAlertDialogBuilder(this)
-                .setCancelable(false)
-                .setTitle(R.string.dialog_title_common_error)
-                .setIcon(R.drawable.alert)
-                .setMessage(R.string.dialog_error_start_connection)
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
-                .setNeutralButton(R.string.dialog_common_continue, (dialog, which) -> {
-                    if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
-                        if (supportModelCheck()) {
-                            checkDchaService();
-                        } else {
-                            supportModelError();
-                        }
-                    } else {
-                        new WelcomeHelper(this, WelAppActivity.class).forceShow();
-                    }
-                })
-                .show();
+        new WelcomeHelper(this, WelAppActivity.class).forceShow();
     }
 
     /* アップデートダイアログ */
     private void showUpdateDialog(String str) {
-        /* 初回起動ならモデルIDをセット */
-        if (!Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
-            switch (Build.MODEL) {
-                case "TAB-A05-BD":
-                    Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTX);
-                    break;
-                case "TAB-A05-BA1":
-                    Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTZ);
-                    break;
-            }
+        /* モデルIDをセット */
+        switch (Build.MODEL) {
+            case "TAB-A03-BR3":
+                Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT3);
+                break;
+            case "TAB-A05-BD":
+                Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTX);
+                break;
+            case "TAB-A05-BA1":
+                Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTZ);
+                break;
+            default:
+                Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2);
+                break;
         }
 
         View view = getLayoutInflater().inflate(R.layout.view_update, null);
@@ -286,12 +210,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     progressHandler.sendEmptyMessage(0);
                 })
                 .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
-                    if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
-                        if (supportModelCheck()) checkDchaService();
-                        else supportModelError();
-                    } else {
-                        new WelcomeHelper(this, WelAppActivity.class).forceShow();
-                    }
+                    new WelcomeHelper(this, WelAppActivity.class).forceShow();
                 })
                 .show();
     }
@@ -299,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     /* ローディングダイアログを表示する */
     private void showLoadingDialog() {
         TextView textView = findViewById(R.id.layout_text_progress);
-        textView.setText("ただいま　サーバーと通信中です");
+        textView.setText("サーバーと通信中です");
         LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
         linearProgressIndicator.show();
     }
@@ -341,51 +260,34 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     /* DchaService動作チェック */
     private void checkDchaService() {
         /* DchaServiceを使用するか確認 */
-        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-            switch (Build.MODEL) {
-                case "TAB-A03-BR3":
-                    confCheckCT3();
-                    break;
-                case "TAB-A05-BD":
-                    confCheckCTX();
-                    break;
-                case "TAB-A05-BA1":
-                    confCheckCTZ();
-                    break;
-                default:
-                    confCheckCT2();
-                    break;
+        if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+            if (!tryBindDchaService()) {
+                new MaterialAlertDialogBuilder(this)
+                        .setCancelable(false)
+                        .setTitle(R.string.dialog_title_common_error)
+                        .setMessage(R.string.dialog_error_start_dcha_service)
+                        .setIcon(R.drawable.alert)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
+                        .setNeutralButton(R.string.dialog_common_continue, (dialogInterface, i) -> {
+                            Preferences.save(this, Constants.KEY_FLAG_DCHA_SERVICE, false);
+                            switch (Build.MODEL) {
+                                case "TAB-A03-BR3":
+                                    confCheckCT3();
+                                    break;
+                                case "TAB-A05-BD":
+                                    confCheckCTX();
+                                    break;
+                                case "TAB-A05-BA1":
+                                    confCheckCTZ();
+                                    break;
+                                default:
+                                    confCheckCT2();
+                                    break;
+                            }
+                        })
+                        .show();
+                return;
             }
-            return;
-        }
-
-        /* DchaServiceが機能しているか */
-        if (!tryBindDchaService()) {
-            new MaterialAlertDialogBuilder(this)
-                    .setCancelable(false)
-                    .setTitle(R.string.dialog_title_common_error)
-                    .setMessage(R.string.dialog_error_start_dcha_service)
-                    .setIcon(R.drawable.alert)
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
-                    .setNeutralButton(R.string.dialog_common_continue, (dialogInterface, i) -> {
-                        Preferences.save(this, Constants.KEY_FLAG_DCHA_SERVICE, false);
-                        switch (Build.MODEL) {
-                            case "TAB-A03-BR3":
-                                confCheckCT3();
-                                break;
-                            case "TAB-A05-BD":
-                                confCheckCTX();
-                                break;
-                            case "TAB-A05-BA1":
-                                confCheckCTZ();
-                                break;
-                            default:
-                                confCheckCT2();
-                                break;
-                        }
-                    })
-                    .show();
-            return;
         }
 
         switch (Build.MODEL) {

@@ -1,8 +1,6 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -20,9 +18,9 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
-import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
 import com.saradabar.cpadcustomizetool.data.connection.Updater;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
+import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Toast;
 import com.saradabar.cpadcustomizetool.util.Variables;
@@ -37,8 +35,6 @@ import java.io.IOException;
 
 public class SelfUpdateActivity extends AppCompatActivity implements DownloadEventListener {
 
-    private ProgressDialog loadingDialog;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +46,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         }
 
         showLoadingDialog();
-        new AsyncFileDownload(this, "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json", new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
+        new AsyncFileDownload(this, Constants.URL_CHECK, new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
     }
 
     public JSONObject parseJson() throws JSONException, IOException {
@@ -101,9 +97,8 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     }
 
     @Override
-    public void onDownloadError() {
+    public void onDownloadError(int reqCode) {
         cancelLoadingDialog();
-
         new MaterialAlertDialogBuilder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
@@ -114,9 +109,8 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     }
 
     @Override
-    public void onConnectionError() {
+    public void onConnectionError(int reqCode) {
         cancelLoadingDialog();
-
         new MaterialAlertDialogBuilder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
@@ -169,7 +163,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
 
     private void showLoadingDialog() {
         TextView textView = findViewById(R.id.layout_text_progress);
-        textView.setText("ただいま　サーバーと通信中です");
+        textView.setText("サーバーと通信中です");
         LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
         linearProgressIndicator.show();
     }

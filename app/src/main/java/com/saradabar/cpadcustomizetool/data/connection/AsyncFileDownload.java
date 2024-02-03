@@ -40,8 +40,8 @@ public class AsyncFileDownload extends AsyncTask<String, Void, Boolean> {
 
 		try {
 			HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
-			httpURLConnection.setReadTimeout(5000);
-			httpURLConnection.setConnectTimeout(5000);
+			httpURLConnection.setReadTimeout(20000);
+			httpURLConnection.setConnectTimeout(20000);
 			bufferedInputStream = new BufferedInputStream(httpURLConnection.getInputStream(), 1024);
 			fileOutputStream = new FileOutputStream(outputFile);
 			totalByte = httpURLConnection.getContentLength();
@@ -84,8 +84,8 @@ public class AsyncFileDownload extends AsyncTask<String, Void, Boolean> {
 	protected void onPostExecute(Boolean result) {
 		if (result != null) {
 			if (result) downloadEventListenerList.downloadCompleteNotify(reqCode);
-			else downloadEventListenerList.downloadErrorNotify();
-		} else downloadEventListenerList.connectionErrorNotify();
+			else downloadEventListenerList.downloadErrorNotify(reqCode);
+		} else downloadEventListenerList.connectionErrorNotify(reqCode);
 	}
 
 	@Override

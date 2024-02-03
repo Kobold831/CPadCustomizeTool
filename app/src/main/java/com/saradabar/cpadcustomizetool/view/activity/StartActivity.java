@@ -30,6 +30,8 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.snackbar.Snackbar;
+import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
@@ -81,6 +83,11 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
         setContentView(R.layout.activity_main);
         transitionFragment(new MainFragment(), false);
+
+        /* アップデートチェックするか確認 */
+        if (Preferences.load(this, Constants.KEY_FLAG_UPDATE, true)) {
+            new AsyncFileDownload(this, Constants.URL_CHECK, new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
+        }
     }
 
     /* メニュー表示 */
@@ -553,17 +560,26 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
     @Override
     public void onInstallSuccess() {
-        DeviceOwnerFragment.TryApkTask.mListener.onSuccess();
+        try {
+            DeviceOwnerFragment.TryApkTask.mListener.onSuccess();
+        } catch (Exception ignored) {
+        }
     }
 
     @Override
     public void onInstallFailure(String str) {
-        DeviceOwnerFragment.TryApkTask.mListener.onFailure(str);
+        try {
+            DeviceOwnerFragment.TryApkTask.mListener.onFailure(str);
+        } catch (Exception ignored) {
+        }
     }
 
     @Override
     public void onInstallError(String str) {
-        DeviceOwnerFragment.TryApkTask.mListener.onError(str);
+        try {
+            DeviceOwnerFragment.TryApkTask.mListener.onError(str);
+        } catch (Exception ignored) {
+        }
     }
 
     @Override
@@ -577,8 +593,23 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     @Override
     public void onDownloadComplete(int reqCode) {
         switch (reqCode) {
+            /* アップデートチェック要求の場合 */
+            case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
+                try {
+                    JSONObject jsonObj1 = parseJson(this);
+                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                    JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
+                    Variables.DOWNLOAD_FILE_URL = jsonObj3.getString("url");
+
+                    if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
+                        Snackbar.make(this, findViewById(R.id.layout_main), "新しいバージョンが利用可能です", Snackbar.LENGTH_LONG).setAction("更新", v ->
+                                startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION))).show();
+                    }
+                } catch (JSONException | IOException ignored) {
+                }
+                break;
             case Constants.REQUEST_DOWNLOAD_APP_CHECK:
-                MainFragment.getInstance().preGetApp.setSummary("インストールするには表示されるダイアログからアプリを選択してください\nインストーラーはアプリ設定→アップデートモードを選択の設定に準拠します");
+                MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
                 ArrayList<AppListView.AppData> list = new ArrayList<>();
 
                 try {
@@ -608,7 +639,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 new MaterialAlertDialogBuilder(this)
                         .setView(v)
                         .setTitle("アプリを選択してください")
-                        .setMessage("選択したあとOKを押すと詳細な情報が表示されます")
+                        .setMessage("選択してOKを押下すると詳細な情報が表示されます")
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             StringBuilder str = new StringBuilder();
 
@@ -666,21 +697,25 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     }
 
     @Override
-    public void onDownloadError() {
-        cancelLoadingDialog();
-        new MaterialAlertDialogBuilder(this)
-                .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                .show();
+    public void onDownloadError(int reqCode) {
+        if (reqCode != Constants.REQUEST_DOWNLOAD_UPDATE_CHECK) {
+            cancelLoadingDialog();
+            new MaterialAlertDialogBuilder(this)
+                    .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .show();
+        }
     }
 
     @Override
-    public void onConnectionError() {
-        cancelLoadingDialog();
-        new MaterialAlertDialogBuilder(this)
-                .setMessage("データ取得に失敗しました\nネットワークを確認してください")
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                .show();
+    public void onConnectionError(int reqCode) {
+        if (reqCode != Constants.REQUEST_DOWNLOAD_UPDATE_CHECK) {
+            cancelLoadingDialog();
+            new MaterialAlertDialogBuilder(this)
+                    .setMessage("データ取得に失敗しました\nネットワークを確認してください")
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .show();
+        }
     }
 
     public void showLoadingDialog() {

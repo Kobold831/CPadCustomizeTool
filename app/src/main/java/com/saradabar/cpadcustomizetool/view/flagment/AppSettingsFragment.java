@@ -1,6 +1,7 @@
 package com.saradabar.cpadcustomizetool.view.flagment;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
@@ -125,7 +126,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             list.add("ADB");
             list.add("DchaService");
             list.add("デバイスオーナー");
-            list.add("Dhizuku（使用不可）");
+            list.add("Dhizuku");
             list.add("Shizuku（使用不可）");
             List<SingleListView.AppData> dataList = new ArrayList<>();
             int i = 0;
@@ -188,16 +189,21 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         }
                         break;
                     case 4:
-//                        if (isDhizukuActive(requireActivity())) {
-//                            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
-//                            listView.invalidateViews();
-//                        } else {
-//                            new AlertDialog.Builder(requireActivity())
-//                                    .setMessage(getString(R.string.dialog_error_not_work_mode))
-//                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-//                                    .show();
-//                        }
+                        if (isDhizukuActive(requireActivity())) {
+                            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                            listView.invalidateViews();
+                        } else {
+                            new MaterialAlertDialogBuilder(requireActivity())
+                                    .setMessage(getString(R.string.dialog_error_not_work_mode))
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                    .show();
+                        }
                         break;
+                    case 5:
+                        new MaterialAlertDialogBuilder(requireActivity())
+                                .setMessage(getString(R.string.dialog_error_not_work_mode))
+                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                .show();
                 }
             });
 

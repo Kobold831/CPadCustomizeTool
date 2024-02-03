@@ -35,12 +35,12 @@ public class ProgressHandler extends Handler {
             linearProgressIndicator.setIndeterminate(false);
             linearProgressIndicator.setProgress(asyncfiledownload.getLoadedBytePercent());
             try {
-                MainFragment.getInstance().preGetApp.setSummary("インストールファイルをサーバーからダウンロード中...\n" + asyncfiledownload.getLoadedBytePercent() + " / 100");
+                MainFragment.getInstance().preGetApp.setSummary("インストールファイルをサーバーからダウンロード中...\n進行状況：" + asyncfiledownload.getLoadedBytePercent() + "%");
             } catch (Exception ignored) {
             }
 
             try {
-                textView.setText("インストールファイルをサーバーからダウンロード中...\n" + asyncfiledownload.getLoadedBytePercent() + " / 100");
+                textView.setText("インストールファイルをサーバーからダウンロード中...\n進行状況：" + asyncfiledownload.getLoadedBytePercent() + "%");
             } catch (Exception ignored) {
             }
             sendEmptyMessageDelayed(0, 100);
