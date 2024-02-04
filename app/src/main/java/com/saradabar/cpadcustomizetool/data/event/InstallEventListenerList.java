@@ -11,15 +11,15 @@ public class InstallEventListenerList {
         listeners.add(installEventListener);
     }
 
-    public void installSuccessNotify() {
-        for (InstallEventListener listener : listeners) listener.onInstallSuccess();
+    public void installSuccessNotify(int reqCode) {
+        for (InstallEventListener listener : listeners) listener.onInstallSuccess(reqCode);
     }
 
-    public void installFailureNotify(String str) {
-        for (InstallEventListener listener : listeners) listener.onInstallFailure(str);
+    public void installFailureNotify(int reqCode, String str) {
+        for (InstallEventListener listener : listeners) listener.onInstallFailure(reqCode, str);
     }
 
-    public void installErrorNotify(String str) {
-        for (InstallEventListener listener : listeners) listener.onInstallError(str);
+    public void installErrorNotify(int reqCode, String str) {
+        for (InstallEventListener listener : listeners) listener.onInstallError(reqCode, str);
     }
 }

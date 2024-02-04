@@ -146,8 +146,11 @@ public class Common {
     }
 
     public static boolean isDhizukuActive(Context context) {
-        if (Dhizuku.init(context)) {
-            return Dhizuku.isPermissionGranted();
+        DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        if (dpm.isDeviceOwnerApp("com.rosan.dhizuku")) {
+            if (Dhizuku.init(context)) {
+                return Dhizuku.isPermissionGranted();
+            }
         }
         return false;
     }

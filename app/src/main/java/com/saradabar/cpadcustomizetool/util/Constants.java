@@ -3,7 +3,8 @@ package com.saradabar.cpadcustomizetool.util;
 import android.content.Intent;
 
 import java.io.File;
-import java.io.StringReader;
+import java.util.Arrays;
+import java.util.List;
 
 public class Constants {
 
@@ -29,22 +30,25 @@ public class Constants {
     public static final int FLAG_COPY_UPDATE_IMAGE = 13;
     public static final int FLAG_RESOLUTION = 20;
 
-    public static final int REQUEST_UPDATE = 0;
-    public static final int REQUEST_ADMIN = 1;
-    public static final int REQUEST_INSTALL = 2;
-    public static final int REQUEST_PERMISSION = 3;
-    public static final int REQUEST_SYSTEM_UPDATE = 4;
+    public static final int REQUEST_ACTIVITY_UPDATE = 0;
+    public static final int REQUEST_ACTIVITY_ADMIN = 1;
+    public static final int REQUEST_ACTIVITY_INSTALL = 2;
+    public static final int REQUEST_ACTIVITY_PERMISSION = 3;
+    public static final int REQUEST_ACTIVITY_SYSTEM_UPDATE = 4;
 
     public static final int REQUEST_DOWNLOAD_UPDATE_CHECK = 0;
     public static final int REQUEST_DOWNLOAD_SUPPORT_CHECK = 1;
     public static final int REQUEST_DOWNLOAD_APK = 2;
     public static final int REQUEST_DOWNLOAD_APP_CHECK = 3;
 
+    public static final int REQUEST_INSTALL_SILENT = 0;
+    public static final int REQUEST_INSTALL_SELF_UPDATE = 1;
+    public static final int REQUEST_INSTALL_GET_APP = 2;
+
     public static final String URL_CHECK = "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json";
     public static final String URL_UPDATE_INFO = "https://docs.google.com/document/d/1uh-FrHM5o84uh7zXw3W_FRIDuzJo8NcVnUD8Rrw4CMQ/";
-    public static final String URL_UPDATE = "";
-    public static final String URL_WIKI_DISCORD = "";
-    public static final String URL_WIKI_MAIN = "";
+    public static final String URL_UPDATE = "https://github.com/Kobold831/CPadCustomizeTool/releases";
+    public static final String URL_DISCORD = "https://wiki3.jp/SmileTabLabo";
     public static final String URL_GITHUB = "https://github.com/Kobold831/CPadCustomizeTool";
 
     public static final String DCHA_STATE = "dcha_state";
@@ -81,4 +85,6 @@ public class Constants {
 
     public static final File IGNORE_DCHA_COMPLETED_FILE = new File("/factory/ignore_dcha_completed");
     public static final File COUNT_DCHA_COMPLETED_FILE = new File("/factory/count_dcha_completed");
+
+    public static final List<String> list = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー", "Dhizuku", "Shizuku（追加予定）");
 }

@@ -194,7 +194,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == Constants.REQUEST_UPDATE) {
+        if (requestCode == Constants.REQUEST_ACTIVITY_UPDATE) {
             finish();
         }
     }

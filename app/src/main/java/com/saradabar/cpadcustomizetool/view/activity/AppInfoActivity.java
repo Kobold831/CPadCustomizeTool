@@ -1,7 +1,6 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Color;
@@ -34,7 +33,7 @@ public class AppInfoActivity extends AppCompatActivity {
 
         findViewById(R.id.info_button).setOnClickListener(view -> {
             try {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_WIKI_DISCORD)));
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_DISCORD)));
             } catch (ActivityNotFoundException ignored) {
                 Toast.toast(this, R.string.toast_unknown_activity);
             }

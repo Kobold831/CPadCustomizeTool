@@ -99,19 +99,7 @@ public class SplitInstaller {
 
         try {
             session = packageInstaller.openSession(sessionId);
-            Intent intent;
-
-            switch (code) {
-                case 0:
-                    intent = new Intent(context, InstallService.class).putExtra("REQUEST_CODE", 0).putExtra("REQUEST_SESSION", sessionId);
-                    break;
-                case 1:
-                    intent = new Intent(context, InstallService.class).putExtra("REQUEST_CODE", 1).putExtra("REQUEST_SESSION", sessionId);
-                    break;
-                default:
-                    intent = new Intent(context, InstallService.class).putExtra("REQUEST_CODE", 0).putExtra("REQUEST_SESSION", sessionId);
-                    break;
-            }
+            Intent intent = new Intent(context, InstallService.class).putExtra("REQUEST_CODE", code).putExtra("REQUEST_SESSION", sessionId);
 
             PendingIntent pendingIntent = PendingIntent.getService(
                     context,

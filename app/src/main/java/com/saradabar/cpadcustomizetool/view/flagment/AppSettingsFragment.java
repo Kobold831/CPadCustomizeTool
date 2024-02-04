@@ -121,17 +121,10 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
         preUpdateMode.setOnPreferenceClickListener(preference -> {
             View v = requireActivity().getLayoutInflater().inflate(R.layout.layout_update_list, null);
-            List<String> list = new ArrayList<>();
-            list.add("パッケージインストーラ");
-            list.add("ADB");
-            list.add("DchaService");
-            list.add("デバイスオーナー");
-            list.add("Dhizuku");
-            list.add("Shizuku（使用不可）");
             List<SingleListView.AppData> dataList = new ArrayList<>();
             int i = 0;
 
-            for (String str : list) {
+            for (String str : Constants.list) {
                 SingleListView.AppData data = new SingleListView.AppData();
                 data.label = str;
                 data.updateMode = i;

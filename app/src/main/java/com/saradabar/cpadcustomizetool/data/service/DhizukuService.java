@@ -52,7 +52,7 @@ public class DhizukuService extends IDhizukuService.Stub {
     }
 
     @Override
-    public boolean tryInstallPackages(String packageName, String[] installData) throws RemoteException {
+    public boolean tryInstallPackages(String[] installData, int reqCode) throws RemoteException {
 
         int sessionId;
 
@@ -86,7 +86,7 @@ public class DhizukuService extends IDhizukuService.Stub {
         }
 
         try {
-            if (commitSession(context.getPackageManager().getPackageInstaller(), sessionId, context)) {
+            if (commitSession(context.getPackageManager().getPackageInstaller(), sessionId, context, reqCode)) {
                 return true;
             } else {
                 context.getPackageManager().getPackageInstaller().abandonSession(sessionId);
@@ -145,13 +145,13 @@ public class DhizukuService extends IDhizukuService.Stub {
         }
     }
 
-    private boolean commitSession(PackageInstaller packageInstaller, int sessionId, Context context) throws IOException {
+    private boolean commitSession(PackageInstaller packageInstaller, int sessionId, Context context, int reqCode) throws IOException {
 
         PackageInstaller.Session session = null;
 
         try {
             session = packageInstaller.openSession(sessionId);
-            Intent intent = new Intent("com.saradabar.cpadcustomizetool.data.service.InstallService").setPackage("com.saradabar.cpadcustomizetool").putExtra("REQUEST_CODE", 0).putExtra("REQUEST_SESSION", sessionId);
+            Intent intent = new Intent("com.saradabar.cpadcustomizetool.data.service.InstallService").setPackage("com.saradabar.cpadcustomizetool").putExtra("REQUEST_CODE", reqCode).putExtra("REQUEST_SESSION", sessionId);
             PendingIntent pendingIntent = PendingIntent.getService(
                     context,
                     sessionId,

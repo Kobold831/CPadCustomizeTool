@@ -559,37 +559,83 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     }
 
     @Override
-    public void onInstallSuccess() {
-        try {
-            LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
-            linearProgressIndicator.hide();
-        } catch (Exception ignored) {
-        }
+    public void onInstallSuccess(int reqCode) {
+        switch (reqCode) {
+            case Constants.REQUEST_INSTALL_SILENT:
+                DeviceOwnerFragment.TryApkTask.mListener.onSuccess();
+                break;
+            case Constants.REQUEST_INSTALL_GET_APP:
+                try {
+                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+                    linearProgressIndicator.hide();
+                } catch (Exception ignored) {
+                }
 
-        try {
-            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-        } catch (Exception ignored) {
-        }
-
-        try {
-            DeviceOwnerFragment.TryApkTask.mListener.onSuccess();
-        } catch (Exception ignored) {
-        }
-    }
-
-    @Override
-    public void onInstallFailure(String str) {
-        try {
-            DeviceOwnerFragment.TryApkTask.mListener.onFailure(str);
-        } catch (Exception ignored) {
+                try {
+                    MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                } catch (Exception ignored) {
+                }
+                break;
         }
     }
 
     @Override
-    public void onInstallError(String str) {
-        try {
-            DeviceOwnerFragment.TryApkTask.mListener.onError(str);
-        } catch (Exception ignored) {
+    public void onInstallFailure(int reqCode, String str) {
+        switch (reqCode) {
+            case Constants.REQUEST_INSTALL_SILENT:
+                try {
+                    DeviceOwnerFragment.TryApkTask.mListener.onFailure(str);
+                } catch (Exception ignored) {
+                }
+                break;
+            case Constants.REQUEST_INSTALL_GET_APP:
+                try {
+                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+                    linearProgressIndicator.hide();
+                } catch (Exception ignored) {
+                }
+
+                try {
+                    MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                } catch (Exception ignored) {
+                }
+
+                new MaterialAlertDialogBuilder(StartActivity.this)
+                        .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + str)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+                break;
+        }
+    }
+
+    @Override
+    public void onInstallError(int reqCode, String str) {
+        switch (reqCode) {
+            case Constants.REQUEST_INSTALL_SILENT:
+                try {
+                    DeviceOwnerFragment.TryApkTask.mListener.onError(str);
+                } catch (Exception ignored) {
+                }
+                break;
+            case Constants.REQUEST_INSTALL_GET_APP:
+                try {
+                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+                    linearProgressIndicator.hide();
+                } catch (Exception ignored) {
+                }
+
+                try {
+                    MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                } catch (Exception ignored) {
+                }
+
+                new MaterialAlertDialogBuilder(StartActivity.this)
+                        .setMessage(getString(R.string.dialog_error) + "\n" + str)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+                break;
         }
     }
 
@@ -661,7 +707,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                                         JSONObject jsonObj1 = parseJson(this);
                                         JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                                         JSONArray jsonArray = jsonObj2.getJSONArray("appList");
-                                        str.append(jsonArray.getJSONObject(i).getString("name")).append("\n").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
+                                        str.append("アプリ名：").append(jsonArray.getJSONObject(i).getString("name")).append("\n\n").append("説明：").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
                                         Variables.DOWNLOAD_FILE_URL = jsonArray.getJSONObject(i).getString("url");
                                     } catch (JSONException | IOException ignored) {
                                     }

@@ -50,13 +50,13 @@ public class Updater implements InstallEventListener {
     }
 
     @Override
-    public void onInstallSuccess() {
+    public void onInstallSuccess(int reqCode) {
 
     }
 
     /* 失敗 */
     @Override
-    public void onInstallFailure(String str) {
+    public void onInstallFailure(int reqCode, String str) {
         new MaterialAlertDialogBuilder(activity)
                 .setMessage(activity.getString(R.string.dialog_info_failure_silent_install) + "\n" + str)
                 .setCancelable(false)
@@ -65,7 +65,7 @@ public class Updater implements InstallEventListener {
     }
 
     @Override
-    public void onInstallError(String str) {
+    public void onInstallError(int reqCode, String str) {
         new MaterialAlertDialogBuilder(activity)
                 .setMessage(activity.getString(R.string.dialog_error) + "\n" + str)
                 .setCancelable(false)
@@ -77,10 +77,16 @@ public class Updater implements InstallEventListener {
         switch (Preferences.load(activity, Constants.KEY_FLAG_UPDATE_MODE, 1)) {
             case 0:
                 try {
+                    LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                    linearProgressIndicator.hide();
+                } catch (Exception ignored) {
+                }
+
+                try {
                     MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
                 } catch (Exception ignored) {
                 }
-                activity.startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(context.getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_UPDATE);
+                activity.startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(context.getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
                 break;
             case 1:
                 switch (flag) {
@@ -89,9 +95,9 @@ public class Updater implements InstallEventListener {
                                 .setCancelable(false)
                                 .setTitle(R.string.dialog_title_update)
                                 .setMessage(R.string.dialog_info_update_caution)
-                                .setPositiveButton(R.string.dialog_common_yes, (dialog2, which2) -> {
+                                .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                     try {
-                                        activity.startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_UPDATE)), Constants.REQUEST_UPDATE);
+                                        activity.startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_UPDATE)), Constants.REQUEST_ACTIVITY_UPDATE);
                                     } catch (ActivityNotFoundException ignored) {
                                         Toast.toast(activity, R.string.toast_unknown_activity);
                                         activity.finish();
@@ -101,6 +107,12 @@ public class Updater implements InstallEventListener {
                         break;
                     case 1:
                         try {
+                            LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                            linearProgressIndicator.hide();
+                        } catch (Exception ignored) {
+                        }
+
+                        try {
                             MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
                         } catch (Exception ignored) {
                         }
@@ -108,9 +120,9 @@ public class Updater implements InstallEventListener {
                                 .setCancelable(false)
                                 .setTitle("インストール")
                                 .setMessage("遷移先のページよりapkファイルをダウンロードしてadbでインストールしてください")
-                                .setPositiveButton(R.string.dialog_common_yes, (dialog2, which2) -> {
+                                .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                     try {
-                                        activity.startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(Variables.DOWNLOAD_FILE_URL)), Constants.REQUEST_UPDATE);
+                                        activity.startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(Variables.DOWNLOAD_FILE_URL)), Constants.REQUEST_ACTIVITY_UPDATE);
                                     } catch (ActivityNotFoundException ignored) {
                                         Toast.toast(activity, R.string.toast_unknown_activity);
                                         activity.finish();
@@ -133,9 +145,9 @@ public class Updater implements InstallEventListener {
                 } catch (Exception ignored) {
                 }
 
-                if (isBindDchaService()) {
+                if (tryBindDchaService()) {
                     Runnable runnable = () -> {
-                        if (!isInstallPackage()) {
+                        if (!tryInstallPackage()) {
                             try {
                                 LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
                                 linearProgressIndicator.hide();
@@ -149,7 +161,7 @@ public class Updater implements InstallEventListener {
 
                             new MaterialAlertDialogBuilder(activity)
                                     .setCancelable(false)
-                                    .setMessage(R.string.dialog_error)
+                                    .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
                                     .show();
                         } else {
@@ -180,7 +192,7 @@ public class Updater implements InstallEventListener {
 
                     new MaterialAlertDialogBuilder(activity)
                             .setCancelable(false)
-                            .setMessage(R.string.dialog_error)
+                            .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
                             .show();
                 }
@@ -199,7 +211,7 @@ public class Updater implements InstallEventListener {
                 }
 
                 if (((DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(activity.getPackageName())) {
-                    if (!trySessionInstall()) {
+                    if (!trySessionInstall(flag)) {
                         try {
                             LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
                             linearProgressIndicator.hide();
@@ -212,7 +224,7 @@ public class Updater implements InstallEventListener {
                         }
                         new MaterialAlertDialogBuilder(activity)
                                 .setCancelable(false)
-                                .setMessage(R.string.dialog_error)
+                                .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
                                 .show();
                     } else {
@@ -267,7 +279,15 @@ public class Updater implements InstallEventListener {
                             try {
                                 String[] installData = new String[1];
                                 installData[0] = new File(activity.getExternalCacheDir(), "update.apk").getPath();
-                                if (!mDhizukuService.tryInstallPackages("", installData)) {
+                                int reqCode;
+
+                                if (flag == 0) {
+                                    reqCode = Constants.REQUEST_INSTALL_SELF_UPDATE;
+                                } else {
+                                    reqCode = Constants.REQUEST_INSTALL_GET_APP;
+                                }
+
+                                if (!mDhizukuService.tryInstallPackages(installData, reqCode)) {
                                     try {
                                         LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
                                         linearProgressIndicator.hide();
@@ -280,7 +300,7 @@ public class Updater implements InstallEventListener {
                                     }
                                     new MaterialAlertDialogBuilder(activity)
                                             .setCancelable(false)
-                                            .setMessage(R.string.dialog_error)
+                                            .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
                                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
                                             .show();
                                 }
@@ -302,7 +322,7 @@ public class Updater implements InstallEventListener {
                         }
                         new MaterialAlertDialogBuilder(activity)
                                 .setCancelable(false)
-                                .setMessage(R.string.dialog_error)
+                                .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
                                 .show();
                     }
@@ -319,7 +339,7 @@ public class Updater implements InstallEventListener {
                     }
                     new MaterialAlertDialogBuilder(activity)
                             .setCancelable(false)
-                            .setMessage(R.string.dialog_error)
+                            .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
                             .show();
                 }
@@ -338,11 +358,11 @@ public class Updater implements InstallEventListener {
         }
     };
 
-    public boolean isBindDchaService() {
+    public boolean tryBindDchaService() {
         return activity.bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    private boolean isInstallPackage() {
+    private boolean tryInstallPackage() {
         if (mDchaService != null) {
             try {
                 return mDchaService.installApp(new File(activity.getExternalCacheDir(), "update.apk").getPath(), 1);
@@ -352,7 +372,7 @@ public class Updater implements InstallEventListener {
         return false;
     }
 
-    private boolean trySessionInstall() {
+    private boolean trySessionInstall(int reqCode) {
         SplitInstaller splitInstaller = new SplitInstaller();
         int sessionId;
 
@@ -374,7 +394,11 @@ public class Updater implements InstallEventListener {
         }
 
         try {
-            return splitInstaller.splitCommitSession(activity, sessionId, 1).bl;
+            if (reqCode == 0) {
+                return splitInstaller.splitCommitSession(activity, sessionId, Constants.REQUEST_INSTALL_SELF_UPDATE).bl;
+            } else {
+                return splitInstaller.splitCommitSession(activity, sessionId, Constants.REQUEST_INSTALL_GET_APP).bl;
+            }
         } catch (Exception ignored) {
             return false;
         }

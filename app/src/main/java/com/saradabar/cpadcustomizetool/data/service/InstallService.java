@@ -9,6 +9,7 @@ import android.os.IBinder;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.connection.Updater;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListenerList;
+import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 
 public class InstallService extends Service {
@@ -30,10 +31,11 @@ public class InstallService extends Service {
         InstallEventListenerList installEventListener = new InstallEventListenerList();
 
         switch (code) {
-            case 0:
+            case Constants.REQUEST_INSTALL_SILENT:
+            case Constants.REQUEST_INSTALL_GET_APP:
                 installEventListener.addEventListener(StartActivity.getInstance());
                 break;
-            case 1:
+            case Constants.REQUEST_INSTALL_SELF_UPDATE:
                 installEventListener.addEventListener(Updater.getInstance());
                 break;
         }
@@ -44,21 +46,21 @@ public class InstallService extends Service {
                     getPackageManager().getPackageInstaller().openSession(sessionId).close();
                 } catch (Exception ignored) {
                 }
-                installEventListener.installSuccessNotify();
+                installEventListener.installSuccessNotify(code);
                 break;
             case PackageInstaller.STATUS_FAILURE_ABORTED:
                 try {
                     getPackageManager().getPackageInstaller().openSession(sessionId).abandon();
                 } catch (Exception ignored) {
                 }
-                installEventListener.installFailureNotify(getErrorMessage(this, status) + "\n" + extra);
+                installEventListener.installFailureNotify(code, getErrorMessage(this, status) + "\n" + extra);
                 break;
             default:
                 try {
                     getPackageManager().getPackageInstaller().openSession(sessionId).abandon();
                 } catch (Exception ignored) {
                 }
-                installEventListener.installErrorNotify(getErrorMessage(this, status) + "\n" + extra);
+                installEventListener.installErrorNotify(code, getErrorMessage(this, status) + "\n" + extra);
                 break;
         }
     }

@@ -135,7 +135,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         preSessionInstall.setOnPreferenceClickListener(preference -> {
             preSessionInstall.setEnabled(false);
             try {
-                startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/*"}).addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), ""), Constants.REQUEST_INSTALL);
+                startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/*"}).addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), ""), Constants.REQUEST_ACTIVITY_INSTALL);
             } catch (ActivityNotFoundException ignored) {
                 preSessionInstall.setEnabled(true);
                 new MaterialAlertDialogBuilder(requireActivity())
@@ -168,7 +168,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                         if (isDhizukuActive(requireActivity())) {
                             if (tryBindDhizukuService(requireActivity())) {
                                 try {
-                                    mDhizukuService.clearDeviceOwnerApp(requireActivity().getPackageName());
+                                    mDhizukuService.clearDeviceOwnerApp("com.rosan.dhizuku");
                                 } catch (RemoteException ignored) {
                                 }
                             }
@@ -280,7 +280,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == Constants.REQUEST_INSTALL) {
+        if (requestCode == Constants.REQUEST_ACTIVITY_INSTALL) {
             preSessionInstall.setEnabled(true);
 
             if (trySetInstallData(data)) {
@@ -683,7 +683,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 AtomicBoolean result = new AtomicBoolean(false);
                 if (tryBindDhizukuService(getInstance().requireActivity())) {
                     try {
-                        result.set(mDhizukuService.tryInstallPackages("", getInstance().splitInstallData));
+                        result.set(mDhizukuService.tryInstallPackages(getInstance().splitInstallData, Constants.REQUEST_INSTALL_SILENT));
                     } catch (RemoteException ignored) {
                     }
                 }

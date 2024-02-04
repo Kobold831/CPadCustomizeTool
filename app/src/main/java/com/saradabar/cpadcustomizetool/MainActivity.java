@@ -1,10 +1,15 @@
 package com.saradabar.cpadcustomizetool;
 
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+
+import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,12 +17,16 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.rosan.dhizuku.api.Dhizuku;
+import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
 import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
 import com.saradabar.cpadcustomizetool.data.connection.Updater;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
@@ -30,6 +39,8 @@ import com.saradabar.cpadcustomizetool.util.Variables;
 import com.saradabar.cpadcustomizetool.view.activity.CrashLogActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WelAppActivity;
+import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
+import com.saradabar.cpadcustomizetool.view.views.SingleListView;
 import com.stephentuso.welcome.WelcomeHelper;
 
 import org.json.JSONException;
@@ -39,6 +50,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
@@ -195,9 +208,10 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         });
 
         new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_title_update)
+                .setMessage("アップデートモードを変更するには”設定”を押下してください")
                 .setView(view)
                 .setCancelable(false)
-                .setTitle(R.string.dialog_title_update)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                     LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
                     linearProgressIndicator.show();
@@ -211,6 +225,105 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 })
                 .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
                     new WelcomeHelper(this, WelAppActivity.class).forceShow();
+                })
+                .setNeutralButton(R.string.dialog_common_settings, (dialog2, which2) -> {
+                    View v = getLayoutInflater().inflate(R.layout.layout_update_list, null);
+                    List<SingleListView.AppData> dataList = new ArrayList<>();
+                    int i = 0;
+
+                    for (String str1 : Constants.list) {
+                        SingleListView.AppData data = new SingleListView.AppData();
+                        data.label = str1;
+                        data.updateMode = i;
+                        dataList.add(data);
+                        i++;
+                    }
+
+                    ListView listView = v.findViewById(R.id.update_list);
+                    listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+                    listView.setAdapter(new SingleListView.AppListAdapter(v.getContext(), dataList));
+                    listView.setOnItemClickListener((parent, mView, position, id) -> {
+                        switch (position) {
+                            case 0:
+                                if (Preferences.load(v.getContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(v.getContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
+                                    Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                    listView.invalidateViews();
+                                } else {
+                                    new MaterialAlertDialogBuilder(v.getContext())
+                                            .setMessage(getString(R.string.dialog_error_not_work_mode))
+                                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                            .show();
+                                }
+                                break;
+                            case 1:
+                                Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                listView.invalidateViews();
+                                break;
+                            case 2:
+                                if (tryBindDchaService() && Preferences.load(v.getContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                                    Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                    listView.invalidateViews();
+                                } else {
+                                    new MaterialAlertDialogBuilder(v.getContext())
+                                            .setMessage(getString(R.string.dialog_error_not_work_mode))
+                                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                            .show();
+                                }
+                                break;
+                            case 3:
+                                if (((DevicePolicyManager) v.getContext().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(v.getContext().getPackageName()) && Preferences.load(v.getContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                                    Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                    listView.invalidateViews();
+                                } else {
+                                    new MaterialAlertDialogBuilder(v.getContext())
+                                            .setMessage(getString(R.string.dialog_error_not_work_mode))
+                                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                            .show();
+                                }
+                                break;
+                            case 4:
+                                if (isDhizukuActive(v.getContext())) {
+                                    Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                    listView.invalidateViews();
+                                } else {
+                                    if (!Dhizuku.init(v.getContext())) {
+                                        new MaterialAlertDialogBuilder(v.getContext())
+                                                .setMessage(getString(R.string.dialog_error_not_work_mode))
+                                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                                .show();
+                                    }
+
+                                    Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
+                                        @Override
+                                        public void onRequestPermission(int grantResult) {
+                                            runOnUiThread(() -> {
+                                                if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                                                    Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                                    listView.invalidateViews();
+                                                } else {
+                                                    new MaterialAlertDialogBuilder(v.getContext())
+                                                            .setMessage(R.string.dialog_info_dhizuku_deny_permission)
+                                                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                                            .show();
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                                break;
+                            case 5:
+                                new MaterialAlertDialogBuilder(v.getContext())
+                                        .setMessage(getString(R.string.dialog_error_not_work_mode))
+                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                        .show();
+                        }
+                    });
+
+                    new MaterialAlertDialogBuilder(v.getContext())
+                            .setView(v)
+                            .setTitle(getString(R.string.dialog_title_select_mode))
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> firstCheck())
+                            .show();
                 })
                 .show();
     }
@@ -393,7 +506,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     .setIcon(R.drawable.alert)
                     .setPositiveButton(R.string.dialog_common_settings, (dialog, which) -> {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            startActivityForResult(new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.fromParts("package", getPackageName(), null)).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION), Constants.REQUEST_PERMISSION);
+                            startActivityForResult(new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.fromParts("package", getPackageName(), null)).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION), Constants.REQUEST_ACTIVITY_PERMISSION);
                         }
                     })
                     .setNeutralButton(R.string.dialog_common_exit, (dialogInterface, i) -> finishAndRemoveTask())
@@ -434,7 +547,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case Constants.REQUEST_UPDATE:
+            case Constants.REQUEST_ACTIVITY_UPDATE:
                 if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
                     if (supportModelCheck()) {
                         checkDchaService();
@@ -446,7 +559,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 }
                 break;
             case WelcomeHelper.DEFAULT_WELCOME_SCREEN_REQUEST:
-            case Constants.REQUEST_PERMISSION:
+            case Constants.REQUEST_ACTIVITY_PERMISSION:
                 if (supportModelCheck()) {
                     checkDchaService();
                 } else {

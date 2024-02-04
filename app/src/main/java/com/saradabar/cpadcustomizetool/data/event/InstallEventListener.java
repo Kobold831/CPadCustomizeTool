@@ -4,7 +4,7 @@ import java.util.EventListener;
 
 public interface InstallEventListener extends EventListener {
 
-    void onInstallSuccess();
-    void onInstallFailure(String str);
-    void onInstallError(String str);
+    void onInstallSuccess(int reqCode);
+    void onInstallFailure(int reqCode, String str);
+    void onInstallError(int reqCode, String str);
 }

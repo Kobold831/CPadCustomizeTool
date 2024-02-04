@@ -660,7 +660,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         swDeviceAdmin.setOnPreferenceChangeListener((preference, o) -> {
             if ((boolean) o) {
                 if (!((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
-                    startActivityForResult(new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, new ComponentName(requireActivity(), AdministratorReceiver.class)), Constants.REQUEST_ADMIN);
+                    startActivityForResult(new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, new ComponentName(requireActivity(), AdministratorReceiver.class)), Constants.REQUEST_ACTIVITY_ADMIN);
                 }
             } else {
                 swDeviceAdmin.setChecked(true);
@@ -815,7 +815,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         preSilentInstall.setOnPreferenceClickListener(preference -> {
             preSilentInstall.setEnabled(false);
             try {
-                startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/vnd.android.package-archive").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false), ""), Constants.REQUEST_INSTALL);
+                startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/vnd.android.package-archive").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false), ""), Constants.REQUEST_ACTIVITY_INSTALL);
             } catch (ActivityNotFoundException ignored) {
                 preSilentInstall.setEnabled(true);
                 new MaterialAlertDialogBuilder(requireActivity())
@@ -938,7 +938,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         preSystemUpdate.setOnPreferenceClickListener(preference -> {
             preSystemUpdate.setEnabled(false);
             try {
-                startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/zip").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false), ""), Constants.REQUEST_SYSTEM_UPDATE);
+                startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/zip").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false), ""), Constants.REQUEST_ACTIVITY_SYSTEM_UPDATE);
             } catch (ActivityNotFoundException ignored) {
                 preSystemUpdate.setEnabled(true);
                 new MaterialAlertDialogBuilder(requireActivity())
@@ -1174,7 +1174,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
-            case Constants.REQUEST_INSTALL:
+            case Constants.REQUEST_ACTIVITY_INSTALL:
                 preSilentInstall.setEnabled(true);
                 /* シングルApk */
                 try {
@@ -1194,7 +1194,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                             .show();
                 }
                 break;
-            case Constants.REQUEST_SYSTEM_UPDATE:
+            case Constants.REQUEST_ACTIVITY_SYSTEM_UPDATE:
                 preSystemUpdate.setEnabled(true);
 
                 try {
