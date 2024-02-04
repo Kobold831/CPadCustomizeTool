@@ -218,13 +218,15 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     /* ローディングダイアログを表示する */
     private void showLoadingDialog() {
         TextView textView = findViewById(R.id.layout_text_progress);
-        textView.setText("サーバーと通信中です");
+        textView.setText("サーバーと通信しています...");
         LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
         linearProgressIndicator.show();
     }
 
     /* ローディングダイアログを非表示にする */
     private void cancelLoadingDialog() {
+        TextView textView = findViewById(R.id.layout_text_progress);
+        textView.setText("");
         try {
             LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
             if (linearProgressIndicator.isShown()) {

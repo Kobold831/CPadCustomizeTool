@@ -163,7 +163,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
 
     private void showLoadingDialog() {
         TextView textView = findViewById(R.id.layout_text_progress);
-        textView.setText("サーバーと通信中です");
+        textView.setText("サーバーと通信しています...");
         LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
         linearProgressIndicator.show();
     }

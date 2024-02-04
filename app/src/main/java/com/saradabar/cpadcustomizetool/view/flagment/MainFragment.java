@@ -950,7 +950,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         });
 
         preGetApp.setOnPreferenceClickListener(preference -> {
-            preGetApp.setSummary("サーバーと通信中です...");
+            preGetApp.setSummary("サーバーと通信しています...");
             StartActivity.getInstance().showLoadingDialog();
             new AsyncFileDownload(requireActivity(), Constants.URL_CHECK, new File(new File(requireActivity().getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_APP_CHECK).execute();
             return false;

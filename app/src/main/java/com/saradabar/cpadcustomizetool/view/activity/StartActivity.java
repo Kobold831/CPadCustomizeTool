@@ -561,6 +561,17 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     @Override
     public void onInstallSuccess() {
         try {
+            LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+            linearProgressIndicator.hide();
+        } catch (Exception ignored) {
+        }
+
+        try {
+            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+        } catch (Exception ignored) {
+        }
+
+        try {
             DeviceOwnerFragment.TryApkTask.mListener.onSuccess();
         } catch (Exception ignored) {
         }
@@ -747,6 +758,5 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         progressHandler.linearProgressIndicator = linearProgressIndicator;
         progressHandler.asyncfiledownload = asyncFileDownload;
         progressHandler.sendEmptyMessage(0);
-        MainFragment.getInstance().preGetApp.setSummary("インストールファイルをサーバーからダウンロード中...");
     }
 }

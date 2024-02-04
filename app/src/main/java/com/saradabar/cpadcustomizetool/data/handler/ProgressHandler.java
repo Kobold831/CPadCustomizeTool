@@ -30,17 +30,16 @@ public class ProgressHandler extends Handler {
         } else if (asyncfiledownload.getStatus() == AsyncTask.Status.FINISHED) {
             linearProgressIndicator.setProgress(0);
             linearProgressIndicator.setIndeterminate(true);
-            linearProgressIndicator.hide();
         } else {
             linearProgressIndicator.setIndeterminate(false);
             linearProgressIndicator.setProgress(asyncfiledownload.getLoadedBytePercent());
             try {
-                MainFragment.getInstance().preGetApp.setSummary("インストールファイルをサーバーからダウンロード中...\n進行状況：" + asyncfiledownload.getLoadedBytePercent() + "%");
+                MainFragment.getInstance().preGetApp.setSummary("インストールファイルをサーバーからダウンロードしています...しばらくお待ち下さい...\n進行状況：" + asyncfiledownload.getLoadedBytePercent() + "%");
             } catch (Exception ignored) {
             }
 
             try {
-                textView.setText("インストールファイルをサーバーからダウンロード中...\n進行状況：" + asyncfiledownload.getLoadedBytePercent() + "%");
+                textView.setText("インストールファイルをサーバーからダウンロードしています...しばらくお待ち下さい...\n進行状況：" + asyncfiledownload.getLoadedBytePercent() + "%");
             } catch (Exception ignored) {
             }
             sendEmptyMessageDelayed(0, 100);

@@ -123,6 +123,7 @@ public class Updater implements InstallEventListener {
             case 2:
                 try {
                     LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                    linearProgressIndicator.setIndeterminate(true);
                     linearProgressIndicator.show();
                 } catch (Exception ignored) {
                 }
@@ -187,6 +188,7 @@ public class Updater implements InstallEventListener {
             case 3:
                 try {
                     LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                    linearProgressIndicator.setIndeterminate(true);
                     linearProgressIndicator.show();
                 } catch (Exception ignored) {
                 }
@@ -247,6 +249,18 @@ public class Updater implements InstallEventListener {
                 }
                 break;
             case 4:
+                try {
+                    LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                    linearProgressIndicator.setIndeterminate(true);
+                    linearProgressIndicator.show();
+                } catch (Exception ignored) {
+                }
+
+                try {
+                    MainFragment.getInstance().preGetApp.setSummary(R.string.progress_state_installing);
+                } catch (Exception ignored) {
+                }
+
                 if (isDhizukuActive(activity)) {
                     if (tryBindDhizukuService(activity)) {
                         Runnable runnable = () -> {
@@ -254,6 +268,16 @@ public class Updater implements InstallEventListener {
                                 String[] installData = new String[1];
                                 installData[0] = new File(activity.getExternalCacheDir(), "update.apk").getPath();
                                 if (!mDhizukuService.tryInstallPackages("", installData)) {
+                                    try {
+                                        LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                                        linearProgressIndicator.hide();
+                                    } catch (Exception ignored) {
+                                    }
+
+                                    try {
+                                        MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                                    } catch (Exception ignored) {
+                                    }
                                     new MaterialAlertDialogBuilder(activity)
                                             .setCancelable(false)
                                             .setMessage(R.string.dialog_error)
@@ -266,6 +290,16 @@ public class Updater implements InstallEventListener {
                         new Handler().postDelayed(runnable, 5000);
                         return;
                     } else {
+                        try {
+                            LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                            linearProgressIndicator.hide();
+                        } catch (Exception ignored) {
+                        }
+
+                        try {
+                            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                        } catch (Exception ignored) {
+                        }
                         new MaterialAlertDialogBuilder(activity)
                                 .setCancelable(false)
                                 .setMessage(R.string.dialog_error)
@@ -273,6 +307,16 @@ public class Updater implements InstallEventListener {
                                 .show();
                     }
                 } else {
+                    try {
+                        LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
+                        linearProgressIndicator.hide();
+                    } catch (Exception ignored) {
+                    }
+
+                    try {
+                        MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                    } catch (Exception ignored) {
+                    }
                     new MaterialAlertDialogBuilder(activity)
                             .setCancelable(false)
                             .setMessage(R.string.dialog_error)

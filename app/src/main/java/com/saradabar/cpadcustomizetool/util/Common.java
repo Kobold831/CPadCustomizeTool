@@ -167,9 +167,15 @@ public class Common {
     }
 
     public static boolean isCfmDialog(Context context) {
-        if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
-            return Preferences.load(context, Constants.KEY_FLAG_CONFIRMATION, false);
+        if (Preferences.load(context, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTZ) {
+            /* チャレパNEO・NEXTは対象 */
+            if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
+                return Preferences.load(context, Constants.KEY_FLAG_CONFIRMATION, false);
+            } else {
+                return true;
+            }
         } else {
+            /* チャレパ２・３は対象外 */
             return true;
         }
     }
