@@ -12,7 +12,7 @@
         <item name="preferenceTheme">@style/ThemeOverlay.App.Preference</item>
     </style>
 
-    <style name="DialogNoActionBarTheme" parent="android:Theme.Material.Light.Dialog.NoActionBar">
+    <style name="DialogNoActionBarTheme" parent="Theme.Material3.Light.Dialog">
         <item name="android:colorAccent">@color/red</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>

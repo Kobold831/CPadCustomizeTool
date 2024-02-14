@@ -1,6 +1,5 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -8,6 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.R;
@@ -18,7 +19,7 @@ import com.saradabar.cpadcustomizetool.util.Toast;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
-public class RebootActivity extends Activity {
+public class RebootActivity extends AppCompatActivity {
 
     IDchaService mDchaService;
 
@@ -68,7 +69,6 @@ public class RebootActivity extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-
         finishAndRemoveTask();
     }
 }

@@ -1,6 +1,7 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.app.Activity;
+import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
+
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -17,8 +18,10 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 
-import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
@@ -28,7 +31,7 @@ import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
-public class EmergencyActivity extends Activity {
+public class EmergencyActivity extends AppCompatActivity {
 
     IDchaService mDchaService;
 
@@ -100,7 +103,7 @@ public class EmergencyActivity extends Activity {
 
             try {
                 if (Preferences.isEmergencySettingsDchaState(this)) {
-                    if (isCfmDialog()) {
+                    if (isCfmDialog(this)) {
                         Settings.System.putInt(resolver, Constants.DCHA_STATE, 3);
                     }
                 }
@@ -114,7 +117,7 @@ public class EmergencyActivity extends Activity {
         } else {
             try {
                 if (Preferences.isEmergencySettingsDchaState(this)) {
-                    if (isCfmDialog()) {
+                    if (isCfmDialog(this)) {
                         Settings.System.putInt(resolver, Constants.DCHA_STATE, 0);
                     }
                 }
@@ -137,7 +140,8 @@ public class EmergencyActivity extends Activity {
             Toast.toast(this, R.string.toast_not_course);
         }
 
-        if (!Preferences.isEmergencySettingsLauncher(this) && !Preferences.isEmergencySettingsRemoveTask(this)) return true;
+        if (!Preferences.isEmergencySettingsLauncher(this) && !Preferences.isEmergencySettingsRemoveTask(this))
+            return true;
 
         if (!Preferences.load(getApplicationContext(), Constants.KEY_FLAG_DCHA_SERVICE, false)) {
             Toast.toast(getApplicationContext(), R.string.toast_use_not_dcha);
@@ -171,14 +175,6 @@ public class EmergencyActivity extends Activity {
         return true;
     }
 
-    private boolean isCfmDialog() {
-        if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
-            return Preferences.load(this, Constants.KEY_FLAG_CONFIRMATION, false);
-        } else {
-            return true;
-        }
-    }
-
     ServiceConnection mDchaServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -193,7 +189,6 @@ public class EmergencyActivity extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-
         finishAndRemoveTask();
     }
 }

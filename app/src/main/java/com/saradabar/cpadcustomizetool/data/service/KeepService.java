@@ -1,5 +1,7 @@
 package com.saradabar.cpadcustomizetool.data.service;
 
+import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
+
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -314,14 +316,6 @@ public class KeepService extends Service {
         if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
             stopService(Constants.KEEP_SERVICE);
             stopService(Constants.PROTECT_KEEP_SERVICE);
-        }
-    }
-
-    private boolean isCfmDialog(Context context) {
-        if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
-            return Preferences.load(context, Constants.KEY_FLAG_CONFIRMATION, false);
-        } else {
-            return true;
         }
     }
 }

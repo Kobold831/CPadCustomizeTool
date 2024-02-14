@@ -1,6 +1,7 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.app.Activity;
+import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
+
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -16,10 +17,11 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.Settings;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
-import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
@@ -28,7 +30,7 @@ import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
-public class NormalActivity extends Activity {
+public class NormalActivity extends AppCompatActivity {
 
     IDchaService mDchaService;
 
@@ -39,7 +41,7 @@ public class NormalActivity extends Activity {
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
         bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
 
-        ActivityManager activityManager = (ActivityManager)this.getSystemService(ACTIVITY_SERVICE);
+        ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
 
         Runnable runnable = () -> {
             if (!startCheck()) {
@@ -77,14 +79,16 @@ public class NormalActivity extends Activity {
         ContentResolver resolver = getContentResolver();
 
         if (Preferences.isNormalModeSettingsDchaState(this)) {
-            if (isCfmDialog()) {
+            if (isCfmDialog(this)) {
                 Settings.System.putInt(resolver, Constants.DCHA_STATE, 0);
             }
         }
 
-        if (Preferences.isNormalModeSettingsNavigationBar(this)) Settings.System.putInt(resolver, Constants.HIDE_NAVIGATION_BAR, 0);
+        if (Preferences.isNormalModeSettingsNavigationBar(this))
+            Settings.System.putInt(resolver, Constants.HIDE_NAVIGATION_BAR, 0);
 
-        if (Objects.equals(Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, ""), "")) return false;
+        if (Objects.equals(Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, ""), ""))
+            return false;
 
         if (Preferences.isNormalModeSettingsActivity(this)) {
             try {
@@ -123,14 +127,6 @@ public class NormalActivity extends Activity {
         return true;
     }
 
-    private boolean isCfmDialog() {
-        if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
-            return Preferences.load(this, Constants.KEY_FLAG_CONFIRMATION, false);
-        } else {
-            return true;
-        }
-    }
-
     ServiceConnection mDchaServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -145,7 +141,6 @@ public class NormalActivity extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-
         finishAndRemoveTask();
     }
 }
