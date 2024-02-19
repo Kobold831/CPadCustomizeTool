@@ -26,6 +26,7 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
+import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
 import com.saradabar.cpadcustomizetool.data.installer.SplitInstaller;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -374,9 +375,11 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     public static class TryApkMTask extends AsyncTask<Object, Void, Object> {
 
         public static TryApkMTask.Listener mListener;
+        public static TryApkMTask tryApkMTask;
 
         @Override
         protected void onPreExecute() {
+            tryApkMTask = this;
             mListener.onShow();
         }
 
@@ -482,7 +485,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
             if (getInstance().totalByte <= 0) return 0;
 
-            fileSize = getInstance().getDirectorySize(new File(Path.getTemporaryPath(getInstance().requireActivity())));
+            fileSize = Common.getFileSize(new File(Path.getTemporaryPath(getInstance().requireActivity())));
 
             return (int) Math.floor(100 * fileSize / getInstance().totalByte);
         }
@@ -497,7 +500,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
             if (getInstance().totalByte <= 0) return 0;
 
-            fileSize = getInstance().getDirectorySize(new File(Path.getTemporaryPath(getInstance().requireActivity())));
+            fileSize = Common.getFileSize(new File(Path.getTemporaryPath(getInstance().requireActivity())));
 
             return (int) fileSize / (1024 * 1024);
         }
@@ -507,12 +510,14 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     public static class TryXApkTask extends AsyncTask<Object, Void, Object> {
 
         public static TryXApkTask.Listener mListener;
+        public static TryXApkTask tryXApkTask;
 
         public static String obbPath1;
         public static String obbPath2;
 
         @Override
         protected void onPreExecute() {
+            tryXApkTask = this;
             mListener.onShow();
         }
 
@@ -670,9 +675,11 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     /* インストールタスク */
     public static class TryApkTask extends AsyncTask<Object, Void, Object> {
         public static TryApkTask.Listener mListener;
+        public static TryApkTask tryApkTask;
 
         @Override
         protected void onPreExecute() {
+            tryApkTask = this;
             mListener.onShow();
         }
 

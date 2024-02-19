@@ -1,6 +1,7 @@
 package com.saradabar.cpadcustomizetool;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
@@ -114,23 +115,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         new AsyncFileDownload(this, Constants.URL_CHECK, new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
     }
 
-    /* json読み取り */
-    public JSONObject parseJson() throws JSONException, IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(getExternalCacheDir(), "Check.json").getPath()));
-        JSONObject json;
-        StringBuilder data = new StringBuilder();
-        String str = bufferedReader.readLine();
-
-        while (str != null) {
-            data.append(str);
-            str = bufferedReader.readLine();
-        }
-
-        json = new JSONObject(data.toString());
-        bufferedReader.close();
-        return json;
-    }
-
     /* ダウンロード完了 */
     @Override
     public void onDownloadComplete(int reqCode) {
@@ -138,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             /* アップデートチェック要求の場合 */
             case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
                 try {
-                    JSONObject jsonObj1 = parseJson();
+                    JSONObject jsonObj1 = parseJson(this);
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
                     Variables.DOWNLOAD_FILE_URL = jsonObj3.getString("url");

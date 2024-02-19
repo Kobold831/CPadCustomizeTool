@@ -195,7 +195,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 progressHandler.progressBar = progressBar;
                 progressHandler.textPercent = textPercent;
                 progressHandler.textByte = textByte;
-                progressHandler.tryApkMTask = new DeviceOwnerFragment.TryApkMTask();
+                progressHandler.tryApkMTask = DeviceOwnerFragment.TryApkMTask.tryApkMTask;
                 progressHandler.sendEmptyMessage(0);
             }
 
@@ -203,7 +203,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             public void onSuccess() {
                 alertDialog.dismiss();
 
-                new DeviceOwnerFragment.TryApkMTask().cancel(true);
+                DeviceOwnerFragment.TryApkMTask.tryApkMTask.cancel(true);
                 DeviceOwnerFragment.TryApkTask tryApkTask = new DeviceOwnerFragment.TryApkTask();
                 tryApkTask.setListener(apkListener());
                 tryApkTask.execute();
@@ -219,7 +219,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 } catch (IOException ignored) {
                 }
 
-                new DeviceOwnerFragment.TryApkMTask().cancel(true);
+                DeviceOwnerFragment.TryApkMTask.tryApkMTask.cancel(true);
 
                 new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure))
@@ -238,7 +238,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 } catch (IOException ignored) {
                 }
 
-                new DeviceOwnerFragment.TryApkMTask().cancel(true);
+                DeviceOwnerFragment.TryApkMTask.tryApkMTask.cancel(true);
 
                 new AlertDialog.Builder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_error) + "\n" + str)
@@ -279,7 +279,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 progressHandler.progressBar = progressBar;
                 progressHandler.textPercent = textPercent;
                 progressHandler.textByte = textByte;
-                progressHandler.tryXApkTask = new DeviceOwnerFragment.TryXApkTask();
+                progressHandler.tryXApkTask = DeviceOwnerFragment.TryXApkTask.tryXApkTask;
                 progressHandler.sendEmptyMessage(0);
             }
 
@@ -287,7 +287,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             public void onSuccess() {
                 alertDialog.dismiss();
 
-                new DeviceOwnerFragment.TryXApkTask().cancel(true);
+                DeviceOwnerFragment.TryXApkTask.tryXApkTask.cancel(true);
                 DeviceOwnerFragment.TryApkTask tryApkTask = new DeviceOwnerFragment.TryApkTask();
                 tryApkTask.setListener(apkListener());
                 tryApkTask.execute();
@@ -303,7 +303,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 } catch (IOException ignored) {
                 }
 
-                new DeviceOwnerFragment.TryXApkTask().cancel(true);
+                DeviceOwnerFragment.TryXApkTask.tryXApkTask.cancel(true);
 
                 new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure))
@@ -322,7 +322,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 } catch (IOException ignored) {
                 }
 
-                new DeviceOwnerFragment.TryXApkTask().cancel(true);
+                DeviceOwnerFragment.TryXApkTask.tryXApkTask.cancel(true);
 
                 new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_error) + "\n" + str)
@@ -367,7 +367,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 } catch (IOException ignored) {
                 }
 
-                new DeviceOwnerFragment.TryApkTask().cancel(true);
+                DeviceOwnerFragment.TryApkTask.tryApkTask.cancel(true);
 
                 AlertDialog alertDialog = new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(R.string.dialog_info_success_silent_install)
@@ -398,7 +398,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 } catch (IOException ignored) {
                 }
 
-                new DeviceOwnerFragment.TryApkTask().cancel(true);
+                DeviceOwnerFragment.TryApkTask.tryApkTask.cancel(true);
 
                 new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + str)
@@ -424,7 +424,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 } catch (IOException ignored) {
                 }
 
-                new DeviceOwnerFragment.TryApkTask().cancel(true);
+                DeviceOwnerFragment.TryApkTask.tryApkTask.cancel(true);
 
                 new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_error) + "\n" + str)
@@ -644,6 +644,18 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         super.onDestroy();
         if (mDchaService != null) {
             unbindService(mDchaServiceConnection);
+        }
+
+        if (DeviceOwnerFragment.TryApkMTask.tryApkMTask != null) {
+            DeviceOwnerFragment.TryApkMTask.tryApkMTask.cancel(true);
+        }
+
+        if (DeviceOwnerFragment.TryXApkTask.tryXApkTask != null) {
+            DeviceOwnerFragment.TryXApkTask.tryXApkTask.cancel(true);
+        }
+
+        if (DeviceOwnerFragment.TryApkTask.tryApkTask != null) {
+            DeviceOwnerFragment.TryApkTask.tryApkTask.cancel(true);
         }
     }
 

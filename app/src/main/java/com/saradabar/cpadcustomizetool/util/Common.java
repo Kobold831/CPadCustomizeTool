@@ -35,6 +35,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -181,5 +183,32 @@ public class Common {
             /* チャレパ２・３は対象外 */
             return true;
         }
+    }
+
+    public static long getFileSize(final File file) {
+        if (file == null || !file.exists())
+            return 0;
+        if (!file.isDirectory())
+            return file.length();
+        final List<File> dirs = new LinkedList<>();
+        dirs.add(file);
+        long result = 0;
+        while (!dirs.isEmpty()) {
+            final File dir = dirs.remove(0);
+            if (!dir.exists())
+                continue;
+            final File[] listFiles = dir.listFiles();
+            if (listFiles == null || listFiles.length == 0)
+                continue;
+            for (final File child : listFiles) {
+                // Note: if you want to get physical size and not just logical size, include directories too to the result, and not just normal files
+                if (child.isDirectory()) {
+                    dirs.add(child);
+                } else {
+                    result += child.length();
+                }
+            }
+        }
+        return result;
     }
 }
