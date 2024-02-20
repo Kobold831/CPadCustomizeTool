@@ -310,6 +310,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 }
             }
 
+            Variables.isPreferenceLock = false;
             preSessionInstall.setEnabled(true);
             new MaterialAlertDialogBuilder(requireActivity())
                     .setMessage(getString(R.string.dialog_error_no_file_data))
