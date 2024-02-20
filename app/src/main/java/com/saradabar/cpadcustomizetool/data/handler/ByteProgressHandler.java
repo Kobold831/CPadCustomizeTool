@@ -1,6 +1,5 @@
 package com.saradabar.cpadcustomizetool.data.handler;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -18,6 +17,7 @@ public class ByteProgressHandler extends Handler {
     public TextView textPercent, textByte;
     public DeviceOwnerFragment.TryXApkTask tryXApkTask;
     public DeviceOwnerFragment.TryApkMTask tryApkMTask;
+    public boolean isCompleted = false;
 
     public ByteProgressHandler(int i) {
         reqCode = i;
@@ -29,6 +29,11 @@ public class ByteProgressHandler extends Handler {
 
         switch (reqCode) {
             case 0:
+                if (isCompleted) {
+                    progressBar.setProgress(0);
+                    return;
+                }
+
                 if (!tryXApkTask.isCancelled() || tryXApkTask.getStatus() != AsyncTask.Status.FINISHED) {
                     progressBar.setProgress(tryXApkTask.getLoadedBytePercent());
                     textPercent.setText(progressBar.getProgress() + "%");
@@ -38,6 +43,11 @@ public class ByteProgressHandler extends Handler {
                 }
                 break;
             case 1:
+                if (isCompleted) {
+                    progressBar.setProgress(0);
+                    return;
+                }
+
                 if (!tryApkMTask.isCancelled() || tryApkMTask.getStatus() != AsyncTask.Status.FINISHED) {
                     progressBar.setProgress(tryApkMTask.getLoadedBytePercent());
                     textPercent.setText(progressBar.getProgress() + "%");

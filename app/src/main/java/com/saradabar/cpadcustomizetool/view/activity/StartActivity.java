@@ -173,6 +173,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     public DeviceOwnerFragment.TryApkMTask.Listener apkMListener() {
         return new DeviceOwnerFragment.TryApkMTask.Listener() {
             AlertDialog alertDialog;
+            ByteProgressHandler progressHandler;
 
             @SuppressLint("SetTextI18n")
             @Override
@@ -191,7 +192,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 if (!alertDialog.isShowing()) alertDialog.show();
 
-                ByteProgressHandler progressHandler = new ByteProgressHandler(1);
+                progressHandler = new ByteProgressHandler(1);
                 progressHandler.progressBar = progressBar;
                 progressHandler.textPercent = textPercent;
                 progressHandler.textByte = textByte;
@@ -202,8 +203,8 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onSuccess() {
                 alertDialog.dismiss();
+                progressHandler.isCompleted = true;
 
-                DeviceOwnerFragment.TryApkMTask.tryApkMTask.cancel(true);
                 DeviceOwnerFragment.TryApkTask tryApkTask = new DeviceOwnerFragment.TryApkTask();
                 tryApkTask.setListener(apkListener());
                 tryApkTask.execute();
@@ -212,14 +213,17 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onFailure() {
                 alertDialog.dismiss();
+                progressHandler.isCompleted = true;
+
+                Variables.isPreferenceLock = false;
+                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
+                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
 
                 try {
                     /* 一時ファイルを消去 */
                     FileUtils.deleteDirectory(getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
-
-                DeviceOwnerFragment.TryApkMTask.tryApkMTask.cancel(true);
 
                 new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure))
@@ -231,14 +235,17 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onError(String str) {
                 alertDialog.dismiss();
+                progressHandler.isCompleted = true;
+
+                Variables.isPreferenceLock = false;
+                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
+                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
 
                 try {
                     /* 一時ファイルを消去 */
                     FileUtils.deleteDirectory(getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
-
-                DeviceOwnerFragment.TryApkMTask.tryApkMTask.cancel(true);
 
                 new AlertDialog.Builder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_error) + "\n" + str)
@@ -257,6 +264,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     public DeviceOwnerFragment.TryXApkTask.Listener xApkListener() {
         return new DeviceOwnerFragment.TryXApkTask.Listener() {
             AlertDialog alertDialog;
+            ByteProgressHandler progressHandler;
 
             @SuppressLint("SetTextI18n")
             @Override
@@ -275,7 +283,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 if (!alertDialog.isShowing()) alertDialog.show();
 
-                ByteProgressHandler progressHandler = new ByteProgressHandler(0);
+                progressHandler = new ByteProgressHandler(0);
                 progressHandler.progressBar = progressBar;
                 progressHandler.textPercent = textPercent;
                 progressHandler.textByte = textByte;
@@ -286,8 +294,8 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onSuccess() {
                 alertDialog.dismiss();
+                progressHandler.isCompleted = true;
 
-                DeviceOwnerFragment.TryXApkTask.tryXApkTask.cancel(true);
                 DeviceOwnerFragment.TryApkTask tryApkTask = new DeviceOwnerFragment.TryApkTask();
                 tryApkTask.setListener(apkListener());
                 tryApkTask.execute();
@@ -296,14 +304,17 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onFailure() {
                 alertDialog.dismiss();
+                progressHandler.isCompleted = true;
+
+                Variables.isPreferenceLock = false;
+                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
+                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
 
                 try {
                     /* 一時ファイルを消去 */
                     FileUtils.deleteDirectory(getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
-
-                DeviceOwnerFragment.TryXApkTask.tryXApkTask.cancel(true);
 
                 new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure))
@@ -315,14 +326,17 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             @Override
             public void onError(String str) {
                 alertDialog.dismiss();
+                progressHandler.isCompleted = true;
+
+                Variables.isPreferenceLock = false;
+                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
+                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
 
                 try {
                     /* 一時ファイルを消去 */
                     FileUtils.deleteDirectory(getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
-
-                DeviceOwnerFragment.TryXApkTask.tryXApkTask.cancel(true);
 
                 new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_error) + "\n" + str)
@@ -352,7 +366,10 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             /* 成功 */
             @Override
             public void onSuccess() {
+                Variables.isPreferenceLock = false;
+                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
                 DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
+
                 try {
                     LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
                     if (linearProgressIndicator.isShown()) {
@@ -366,8 +383,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                     FileUtils.deleteDirectory(getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
-
-                DeviceOwnerFragment.TryApkTask.tryApkTask.cancel(true);
 
                 AlertDialog alertDialog = new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(R.string.dialog_info_success_silent_install)
@@ -383,7 +398,10 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             /* 失敗 */
             @Override
             public void onFailure(String str) {
+                Variables.isPreferenceLock = false;
+                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
                 DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
+
                 try {
                     LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
                     if (linearProgressIndicator.isShown()) {
@@ -397,8 +415,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                     FileUtils.deleteDirectory(getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
-
-                DeviceOwnerFragment.TryApkTask.tryApkTask.cancel(true);
 
                 new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + str)
@@ -409,7 +425,10 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
             @Override
             public void onError(String str) {
+                Variables.isPreferenceLock = false;
+                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
                 DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
+
                 try {
                     LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
                     if (linearProgressIndicator.isShown()) {
@@ -423,8 +442,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                     FileUtils.deleteDirectory(getExternalCacheDir());
                 } catch (IOException ignored) {
                 }
-
-                DeviceOwnerFragment.TryApkTask.tryApkTask.cancel(true);
 
                 new MaterialAlertDialogBuilder(StartActivity.this)
                         .setMessage(getString(R.string.dialog_error) + "\n" + str)

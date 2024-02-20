@@ -26,12 +26,12 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
-import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
 import com.saradabar.cpadcustomizetool.data.installer.SplitInstaller;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Path;
 import com.saradabar.cpadcustomizetool.util.Preferences;
+import com.saradabar.cpadcustomizetool.util.Variables;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 
@@ -48,9 +48,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
-    String[] splitInstallData = new String[256];
+    String[] splitInstallData = new String[128];
 
-    double totalByte;
+    double totalByte = 0;
 
     public Preference preUninstallBlock,
             preSessionInstall,
@@ -135,6 +135,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
         preSessionInstall.setOnPreferenceClickListener(preference -> {
             preSessionInstall.setEnabled(false);
+            Variables.isPreferenceLock = true;
             try {
                 startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/*"}).addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), ""), Constants.REQUEST_ACTIVITY_INSTALL);
             } catch (ActivityNotFoundException ignored) {
@@ -255,6 +256,11 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
             case Constants.MODEL_CTZ:
                 break;
         }
+
+        if (Variables.isPreferenceLock) {
+            preSessionInstall.setEnabled(false);
+            preSessionInstall.setSummary(getString(R.string.progress_state_installing));
+        }
     }
 
     private String getDeviceOwnerPackage() {
@@ -282,8 +288,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == Constants.REQUEST_ACTIVITY_INSTALL) {
-            preSessionInstall.setEnabled(true);
-
             if (trySetInstallData(data)) {
                 String str = new File(splitInstallData[0]).getName();
 
@@ -306,6 +310,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 }
             }
 
+            preSessionInstall.setEnabled(true);
             new MaterialAlertDialogBuilder(requireActivity())
                     .setMessage(getString(R.string.dialog_error_no_file_data))
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -380,6 +385,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         @Override
         protected void onPreExecute() {
             tryApkMTask = this;
+            getInstance().totalByte = 0;
             mListener.onShow();
         }
 
@@ -518,6 +524,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         @Override
         protected void onPreExecute() {
             tryXApkTask = this;
+            getInstance().totalByte = 0;
             mListener.onShow();
         }
 
