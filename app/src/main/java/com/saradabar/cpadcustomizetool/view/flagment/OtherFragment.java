@@ -18,10 +18,10 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
+import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -34,7 +34,8 @@ public class OtherFragment extends PreferenceFragmentCompat {
     Preference preOtherStartSettings,
             preStartUiAdjustment,
             preStartDevSettings,
-            preScreenOffTimeOut;
+            preScreenOffTimeOut,
+            preWebView;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -44,6 +45,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
         preStartUiAdjustment = findPreference("pre_other_start_ui_adjustment");
         preStartDevSettings = findPreference("pre_other_start_dev_settings");
         preScreenOffTimeOut = findPreference("pre_other_screen_off_time");
+        preWebView = findPreference("pre_other_web_view");
 
         preOtherStartSettings.setOnPreferenceClickListener(preference -> {
             try {
@@ -132,6 +134,12 @@ public class OtherFragment extends PreferenceFragmentCompat {
             new Handler().postDelayed(runnable, 10);
             return false;
         });
+
+        preWebView.setOnPreferenceClickListener(preference -> {
+            startActivity(new Intent(requireActivity(), WebViewActivity.class).putExtra("URL", "https://www.google.com").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            return false;
+        });
+
         if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT2) {
             preStartUiAdjustment.setEnabled(false);
             preStartUiAdjustment.setSummary(Build.MODEL + "ではこの機能は使用できません");

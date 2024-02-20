@@ -33,7 +33,7 @@ public class AppInfoActivity extends AppCompatActivity {
 
         findViewById(R.id.info_button).setOnClickListener(view -> {
             try {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_DISCORD)));
+                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_DISCORD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (ActivityNotFoundException ignored) {
                 Toast.toast(this, R.string.toast_unknown_activity);
             }
@@ -41,7 +41,7 @@ public class AppInfoActivity extends AppCompatActivity {
 
         findViewById(R.id.download_button).setOnClickListener(view -> {
             try {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_GITHUB)));
+                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_GITHUB).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (ActivityNotFoundException ignored) {
                 Toast.toast(this, R.string.toast_unknown_activity);
             }

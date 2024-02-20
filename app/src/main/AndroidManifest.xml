@@ -29,39 +29,44 @@
 
         <activity
             android:name=".view.activity.WelAppActivity"
-            android:theme="@style/WelcomeScreenTheme.Light"/>
+            android:theme="@style/WelcomeScreenTheme.Light"
+            android:configChanges="keyboardHidden|screenSize|orientation" />
 
         <activity
             android:clearTaskOnLaunch="true"
             android:name=".MainActivity"
             android:label="@string/activity_main"
             android:theme="@style/NoActionBarTheme"
-            android:exported="true">
+            android:exported="true"
+            android:configChanges="keyboardHidden|screenSize|orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
                 <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.HOME"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
 
         <activity
             android:name=".view.activity.StartActivity"
             android:label="@string/activity_start"
-            android:theme="@style/ActionBarTheme" />
+            android:theme="@style/ActionBarTheme"
+            android:configChanges="keyboardHidden|screenSize|orientation" />
 
         <activity
             android:name=".view.activity.SelfUpdateActivity"
             android:label="@string/activity_self_update"
             android:theme="@style/ActionBarTheme"
-            tools:ignore="InnerclassSeparator" />
+            tools:ignore="InnerclassSeparator"
+            android:configChanges="keyboardHidden|screenSize|orientation" />
 
         <activity
             android:name=".view.activity.AppInfoActivity"
             android:label="@string/activity_app_info"
             android:theme="@style/ActionBarTheme"
-            tools:ignore="InnerclassSeparator" />
+            tools:ignore="InnerclassSeparator"
+            android:configChanges="keyboardHidden|screenSize|orientation" />
 
         <activity
             android:clearTaskOnLaunch="true"
@@ -69,7 +74,8 @@
             android:name=".view.activity.EmergencyActivity"
             android:label="@string/activity_emergency"
             android:theme="@style/DialogNoActionBarTheme"
-            android:exported="true">
+            android:exported="true"
+            android:configChanges="keyboardHidden|screenSize|orientation">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
@@ -81,7 +87,8 @@
             android:name=".view.activity.NormalActivity"
             android:label="@string/activity_normal"
             android:theme="@style/DialogNoActionBarTheme"
-            android:exported="true">
+            android:exported="true"
+            android:configChanges="keyboardHidden|screenSize|orientation">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
@@ -94,7 +101,8 @@
             android:label="@string/activity_reboot"
             android:icon="@drawable/reboot"
             android:theme="@style/DialogNoActionBarTheme"
-            android:exported="true">
+            android:exported="true"
+            android:configChanges="keyboardHidden|screenSize|orientation">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
@@ -103,12 +111,21 @@
         <activity
             android:name=".view.activity.UninstallBlockActivity"
             android:theme="@style/ActionBarTheme"
-            android:label="@string/activity_uninstall_block" />
+            android:label="@string/activity_uninstall_block"
+            android:configChanges="keyboardHidden|screenSize|orientation" />
 
         <activity
             android:name=".view.activity.CrashLogActivity"
             android:theme="@style/ActionBarTheme"
-            android:label="@string/activity_crash_log" />
+            android:label="@string/activity_crash_log"
+            android:configChanges="keyboardHidden|screenSize|orientation" />
+
+        <activity
+            android:clearTaskOnLaunch="true"
+            android:name=".view.activity.WebViewActivity"
+            android:theme="@style/NoActionBarTheme"
+            android:label=""
+            android:configChanges="keyboardHidden|screenSize|orientation" />
 
         <service
             android:name=".data.service.KeepService"

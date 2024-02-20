@@ -25,5 +25,11 @@
             app:iconSpaceReserved="false"
             android:key="pre_other_screen_off_time"
             android:title="@string/pre_other_title_screen_off_time" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_other_web_view"
+            android:title="WebViewを起動"
+            android:summary="セキュリティのため非SSL接続及びJavaScriptを使用したファイルのアクセス機能は使用できません" />
     </PreferenceCategory>
 </PreferenceScreen>
