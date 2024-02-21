@@ -108,6 +108,16 @@
             app:iconSpaceReserved="false"
             android:key="pre_emg_manual"
             android:title="@string/pre_main_title_manual" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_emg_execute"
+            android:title="緊急モードを起動" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_emg_shortcut"
+            android:title="緊急モードのショートカットをホームに追加" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -135,6 +145,16 @@
             app:iconSpaceReserved="false"
             android:key="pre_nor_manual"
             android:title="@string/pre_main_title_normal_mode_manual" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_nor_execute"
+            android:title="通常モードを起動" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_nor_shortcut"
+            android:title="通常モードのショートカットをホームに追加" />
     </PreferenceCategory>
 
     <PreferenceCategory

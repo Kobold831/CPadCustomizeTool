@@ -26,8 +26,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.provider.Settings;
+import android.view.Display;
+import android.view.IWindowManager;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
@@ -50,6 +52,8 @@ import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
+import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
+import com.saradabar.cpadcustomizetool.view.activity.NormalActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.views.LauncherView;
 import com.saradabar.cpadcustomizetool.view.views.NormalModeView;
@@ -96,8 +100,12 @@ public class MainFragment extends PreferenceFragmentCompat {
 
     public Preference preEnableDchaService,
             preEmgManual,
+            preEmgExecute,
+            preEmgShortcut,
             preSelNorLauncher,
             preNorManual,
+            preNorExecute,
+            preNorShortcut,
             preOtherSettings,
             preReboot,
             preRebootShortcut,
@@ -245,12 +253,17 @@ public class MainFragment extends PreferenceFragmentCompat {
                     case Constants.FLAG_CHECK:
                         return requireActivity().getApplicationContext().bindService(Constants.DCHA_UTIL_SERVICE, mDchaUtilServiceConnection, Context.BIND_AUTO_CREATE);
                     case Constants.FLAG_RESOLUTION:
-                        return mDchaUtilService.setForcedDisplaySize(width, height);
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                            Class.forName("android.view.IWindowManager").getMethod("setForcedDisplaySize", int.class, int.class, int.class).invoke(IWindowManager.Stub.asInterface(ServiceManager.getService("window")), Display.DEFAULT_DISPLAY, width, height);
+                            return true;
+                        } else {
+                            return mDchaUtilService.setForcedDisplaySize(width, height);
+                        }
                 }
             }
-        } catch (RemoteException ignored) {
+        } catch (Exception ignored) {
         }
-        return true;
+        return false;
     }
 
     /* 設定変更 */
@@ -317,8 +330,12 @@ public class MainFragment extends PreferenceFragmentCompat {
         preReboot = findPreference("pre_reboot");
         preRebootShortcut = findPreference("pre_reboot_shortcut");
         preEmgManual = findPreference("pre_emg_manual");
+        preEmgExecute = findPreference("pre_emg_execute");
+        preEmgShortcut = findPreference("pre_emg_shortcut");
         preSelNorLauncher = findPreference("pre_sel_nor_launcher");
         preNorManual = findPreference("pre_nor_manual");
+        preNorExecute = findPreference("pre_nor_execute");
+        preNorShortcut = findPreference("pre_nor_shortcut");
         preSilentInstall = findPreference("pre_silent_install");
         preResolution = findPreference("pre_resolution");
         preResetResolution = findPreference("pre_reset_resolution");
@@ -696,12 +713,64 @@ public class MainFragment extends PreferenceFragmentCompat {
             return false;
         });
 
+        preEmgExecute.setOnPreferenceClickListener(preference -> {
+            new MaterialAlertDialogBuilder(requireActivity())
+                    .setMessage("緊急モードを起動してもよろしいですか？\nよろしければ\"はい\"を押下してください")
+                    .setNeutralButton(R.string.dialog_common_yes, (dialogInterface, i) -> startActivity(new Intent(requireActivity(), EmergencyActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                    .setPositiveButton(R.string.dialog_common_no, null)
+                    .show();
+            return false;
+        });
+
+        preEmgShortcut.setOnPreferenceClickListener(preference -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(getActivity(), getString(R.string.activity_emergency))
+                        .setShortLabel(getString(R.string.activity_emergency))
+                        .setIcon(Icon.createWithResource(requireActivity(), R.drawable.alert))
+                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), "com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity"))
+                        .build(), null);
+            } else {
+                requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN)
+                                .setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity"))
+                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.alert))
+                        .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_emergency));
+                Toast.toast(requireActivity(), R.string.toast_common_success);
+            }
+            return false;
+        });
+
         preNorManual.setOnPreferenceClickListener(preference -> {
             new MaterialAlertDialogBuilder(requireActivity())
                     .setTitle(R.string.dialog_title_normal_manual)
                     .setMessage(R.string.dialog_normal_manual)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                     .show();
+            return false;
+        });
+
+        preNorExecute.setOnPreferenceClickListener(preference -> {
+            new MaterialAlertDialogBuilder(requireActivity())
+                    .setMessage("通常モードを起動してもよろしいですか？\nよろしければ\"はい\"を押下してください")
+                    .setNeutralButton(R.string.dialog_common_yes, (dialogInterface, i) -> startActivity(new Intent(requireActivity(), NormalActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                    .setPositiveButton(R.string.dialog_common_no, null)
+                    .show();
+            return false;
+        });
+
+        preNorShortcut.setOnPreferenceClickListener(preference -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.activity_normal))
+                        .setShortLabel(getString(R.string.activity_normal))
+                        .setIcon(Icon.createWithResource(requireActivity(), R.drawable.reboot))
+                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), "com.saradabar.cpadcustomizetool.view.activity.NormalActivity"))
+                        .build(), null);
+            } else {
+                requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN)
+                                .setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.NormalActivity"))
+                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.reboot))
+                        .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_normal));
+                Toast.toast(requireActivity(), R.string.toast_common_success);
+            }
             return false;
         });
 
