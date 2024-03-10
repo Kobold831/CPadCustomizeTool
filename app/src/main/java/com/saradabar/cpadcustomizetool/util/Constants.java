@@ -64,6 +64,7 @@ public class Constants {
 
     public static final String DCHA_STATE = "dcha_state";
     public static final String HIDE_NAVIGATION_BAR = "hide_navigation_bar";
+    public static final String BC_PASSWORD_HIT_FLAG = "bc_password_hit";
 
     public static final String KEY_FLAG_SETTINGS = "settings";
     public static final String KEY_FLAG_UPDATE = "update";

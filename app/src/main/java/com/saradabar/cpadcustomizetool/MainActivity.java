@@ -354,7 +354,9 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 return true;
             }
         }
-        return false;
+
+        /* debuggable の時は確認しない */
+        return BuildConfig.DEBUG;
     }
 
     /* 端末チェックエラー */

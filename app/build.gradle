@@ -51,6 +51,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles += "proguard-rules.pro"
+            signingConfig signingConfigs.android
             if (file('release.jks').exists()) {
                 signingConfig signingConfigs.release
             }

@@ -313,9 +313,11 @@ public class MainFragment extends PreferenceFragmentCompat {
                 break;
             case Constants.FLAG_USB_DEBUG_TRUE:
                 Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
+                Settings.System.putInt(requireActivity().getContentResolver(), Constants.BC_PASSWORD_HIT_FLAG, 1);
                 break;
             case Constants.FLAG_USB_DEBUG_FALSE:
                 Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 0);
+                Settings.System.putInt(requireActivity().getContentResolver(), Constants.BC_PASSWORD_HIT_FLAG, 0);
                 break;
             case Constants.FLAG_MARKET_APP_TRUE:
                 Settings.Secure.putInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS, 1);
@@ -1161,26 +1163,19 @@ public class MainFragment extends PreferenceFragmentCompat {
                 }
                 break;
             case Constants.MODEL_CT3:
-                if (((UserManager) requireActivity().getSystemService(Context.USER_SERVICE)).hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
-                    swKeepUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                    swKeepUnkSrc.setEnabled(false);
-                    swUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                    swUnkSrc.setEnabled(false);
-                }
                 swDeviceAdmin.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 swDeviceAdmin.setEnabled(false);
                 break;
             case Constants.MODEL_CTX:
             case Constants.MODEL_CTZ:
-                if (((UserManager) requireActivity().getSystemService(Context.USER_SERVICE)).hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
-                    swKeepUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                    swKeepUnkSrc.setEnabled(false);
-                    swUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                    swUnkSrc.setEnabled(false);
-                }
                 break;
         }
-
+        if (((UserManager) requireActivity().getSystemService(Context.USER_SERVICE)).hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
+            swKeepUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            swKeepUnkSrc.setEnabled(false);
+            swUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            swUnkSrc.setEnabled(false);
+        }
         if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName())) {
             swDeviceAdmin.setEnabled(false);
             swDeviceAdmin.setSummary(getString(R.string.pre_main_sum_already_device_owner));

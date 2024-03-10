@@ -22,7 +22,7 @@
     <string name="activity_uninstall_block">アンインストールブロック設定</string>
     <string name="activity_crash_log">クラッシュ履歴</string>
     <string name="service_keep">維持サービス</string>
-    <string name="service_protect_keep">停止防御サービス</string>z
+    <string name="service_protect_keep">停止防御サービス</string>
 
     <!-- welcome -->
     <string name="wel_title_page_1">CPad Customize Toolへようこそ！</string>
