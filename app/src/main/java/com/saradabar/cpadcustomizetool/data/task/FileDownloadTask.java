@@ -53,9 +53,17 @@ public class FileDownloadTask {
 
 	void onPostExecute(Boolean result, int reqCode) {
 		if (result != null) {
-			if (result) downloadEventListenerList.downloadCompleteNotify(reqCode);
-			else downloadEventListenerList.downloadErrorNotify(reqCode);
-		} else downloadEventListenerList.connectionErrorNotify(reqCode);
+			if (result) {
+				currentByte = totalByte;
+				downloadEventListenerList.downloadCompleteNotify(reqCode);
+			} else {
+				totalByte = -1;
+				downloadEventListenerList.downloadErrorNotify(reqCode);
+			}
+		} else {
+			totalByte = -1;
+			downloadEventListenerList.connectionErrorNotify(reqCode);
+		}
 	}
 
 	protected Boolean doInBackground(String downloadUrl, File outputFile) {
@@ -113,5 +121,9 @@ public class FileDownloadTask {
 
 	public void onProgressUpdate(int progress) {
 		downloadEventListenerList.progressUpdate(progress, getLoadedCurrentByte(), getLoadedTotalByte());
+	}
+
+	public boolean isFinish() {
+        return totalByte == -1;
 	}
 }

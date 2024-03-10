@@ -37,6 +37,10 @@ public class ProgressHandler extends Handler {
             return;
         }
 
+        if (fileDownloadTask.isFinish()) {
+            return;
+        }
+
         fileDownloadTask.onProgressUpdate(fileDownloadTask.getLoadedBytePercent());
 
         sendEmptyMessageDelayed(0, 100);
