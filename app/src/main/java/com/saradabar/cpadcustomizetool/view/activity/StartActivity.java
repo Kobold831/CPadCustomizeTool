@@ -1,14 +1,12 @@
-/* CPad Customize Tool
+/*
+ * CPad Customize Tool
  * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
- * CPad Customize Tool（以下本ソフトウェアという）はオープンソフトウェアです。
- * これは、Apacheソフトウェア財団 によって発行された Apache License 2.0 （以下本ライセンスという）の条件に基づいています。
- * 本ソフトウェアの著作権法に定義される利用は本ライセンスに定義された範囲でいかなる行為をすることができます。
+ * CPad Customize Tool is Open Source Software.
+ * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
  *
- * Kobold831（以下著作権者という）は著作権法に定義されるこのプロジェクト全体の著作物（以下著作物という）の、
- * 著作権法に定義される著作権（以下著作権という）かつ著作権法に定義される著作人格権を有しておりまた放棄していません。
- * 本ソフトウェアを本ライセンスの範囲を超えて使用、複製、配布された場合、
- * 侵害行為地の著作権法が適用され著作権者は著作権法で定義される差止請求権を行使して著作権法に定義される差止請求を行います。
+ * Kobold831 own any copyright or moral rights in the copyrighted work as defined in the Copyright Act, and has not waived them.
+ * Any use, reproduction, or distribution of this software beyond the scope of Apache License 2.0 is prohibited.
  *
  */
 
@@ -16,7 +14,6 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 
-import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +23,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,12 +46,12 @@ import com.google.android.material.snackbar.Snackbar;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
-import com.saradabar.cpadcustomizetool.data.connection.Updater;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
+import com.saradabar.cpadcustomizetool.data.installer.Updater;
+import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Variables;
@@ -85,7 +83,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     }
 
     /* 設定画面表示 */
-    @Deprecated
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +98,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
         /* アップデートチェックするか確認 */
         if (Preferences.load(this, Constants.KEY_FLAG_UPDATE, true)) {
-            new AsyncFileDownload(this, Constants.URL_CHECK, new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
+            new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
         }
     }
 
@@ -114,33 +111,35 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     }
 
     /* メニュー選択 */
-    @SuppressLint("NonConstantResourceId")
-    @Deprecated
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.app_info_1:
-                startActivity(new Intent(this, AppInfoActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                return true;
-            case R.id.app_info_2:
-                startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                return true;
-            case R.id.app_info_3:
-                menu.findItem(R.id.app_info_3).setVisible(false);
-                nullTransitionFragment(new AppSettingsFragment());
-                return true;
-            case android.R.id.home:
-                menu.findItem(R.id.app_info_3).setVisible(true);
-                getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                transitionFragment(new MainFragment(), false);
-                return true;
+        if (item.getItemId() == R.id.app_info_1) {
+            startActivity(new Intent(this, AppInfoActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            return true;
+        }
+
+        if (item.getItemId() == R.id.app_info_2) {
+            startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            return true;
+        }
+
+        if (item.getItemId() == R.id.app_info_3) {
+            menu.findItem(R.id.app_info_3).setVisible(false);
+            nullTransitionFragment(new AppSettingsFragment());
+            return true;
+        }
+
+        if (item.getItemId() == android.R.id.home) {
+            menu.findItem(R.id.app_info_3).setVisible(true);
+            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            transitionFragment(new MainFragment(), false);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     /* 戻るボタン */
-    @SuppressLint("MissingSuperCall")
-    @Deprecated
+    @SuppressWarnings({"deprecation", "MissingSuperCall"})
     @Override
     public void onBackPressed() {
         menu.findItem(R.id.app_info_3).setVisible(true);
@@ -187,14 +186,12 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         return bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    @Deprecated
+    @SuppressWarnings("deprecation")
     public DeviceOwnerFragment.TryApkMTask.Listener apkMListener() {
         return new DeviceOwnerFragment.TryApkMTask.Listener() {
             AlertDialog alertDialog;
             ByteProgressHandler progressHandler;
 
-            @SuppressLint("SetTextI18n")
-            @Deprecated
             @Override
             public void onShow() {
                 View view = getLayoutInflater().inflate(R.layout.view_progress, null);
@@ -202,7 +199,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 progressBar.setProgress(0);
                 TextView textPercent = view.findViewById(R.id.progress_percent);
                 TextView textByte = view.findViewById(R.id.progress_byte);
-                textPercent.setText(progressBar.getProgress() + getString(R.string.percent));
+                textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
                 alertDialog = new MaterialAlertDialogBuilder(StartActivity.this)
                         .setView(view)
                         .setMessage("")
@@ -211,7 +208,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 if (!alertDialog.isShowing()) alertDialog.show();
 
-                progressHandler = new ByteProgressHandler(1);
+                progressHandler = new ByteProgressHandler(Looper.getMainLooper(), 1);
                 progressHandler.progressBar = progressBar;
                 progressHandler.textPercent = textPercent;
                 progressHandler.textByte = textByte;
@@ -219,7 +216,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 progressHandler.sendEmptyMessage(0);
             }
 
-            @Deprecated
             @Override
             public void onSuccess() {
                 alertDialog.dismiss();
@@ -241,7 +237,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 try {
                     /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(getExternalCacheDir());
+                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
                 } catch (IOException ignored) {
                 }
 
@@ -263,7 +259,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 try {
                     /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(getExternalCacheDir());
+                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
                 } catch (IOException ignored) {
                 }
 
@@ -281,14 +277,12 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         };
     }
 
-    @Deprecated
+    @SuppressWarnings("deprecation")
     public DeviceOwnerFragment.TryXApkTask.Listener xApkListener() {
         return new DeviceOwnerFragment.TryXApkTask.Listener() {
             AlertDialog alertDialog;
             ByteProgressHandler progressHandler;
 
-            @SuppressLint("SetTextI18n")
-            @Deprecated
             @Override
             public void onShow() {
                 View view = getLayoutInflater().inflate(R.layout.view_progress, null);
@@ -296,7 +290,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 progressBar.setProgress(0);
                 TextView textPercent = view.findViewById(R.id.progress_percent);
                 TextView textByte = view.findViewById(R.id.progress_byte);
-                textPercent.setText(progressBar.getProgress() + getString(R.string.percent));
+                textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
                 alertDialog = new MaterialAlertDialogBuilder(StartActivity.this)
                         .setView(view)
                         .setMessage("")
@@ -305,7 +299,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 if (!alertDialog.isShowing()) alertDialog.show();
 
-                progressHandler = new ByteProgressHandler(0);
+                progressHandler = new ByteProgressHandler(Looper.getMainLooper(), 0);
                 progressHandler.progressBar = progressBar;
                 progressHandler.textPercent = textPercent;
                 progressHandler.textByte = textByte;
@@ -313,7 +307,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 progressHandler.sendEmptyMessage(0);
             }
 
-            @Deprecated
             @Override
             public void onSuccess() {
                 alertDialog.dismiss();
@@ -335,7 +328,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 try {
                     /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(getExternalCacheDir());
+                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
                 } catch (IOException ignored) {
                 }
 
@@ -357,7 +350,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 try {
                     /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(getExternalCacheDir());
+                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
                 } catch (IOException ignored) {
                 }
 
@@ -375,7 +368,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         };
     }
 
-    @Deprecated
     public DeviceOwnerFragment.TryApkTask.Listener apkListener() {
         return new DeviceOwnerFragment.TryApkTask.Listener() {
 
@@ -404,7 +396,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 try {
                     /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(getExternalCacheDir());
+                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
                 } catch (IOException ignored) {
                 }
 
@@ -436,7 +428,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 try {
                     /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(getExternalCacheDir());
+                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
                 } catch (IOException ignored) {
                 }
 
@@ -463,7 +455,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
                 try {
                     /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(getExternalCacheDir());
+                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
                 } catch (IOException ignored) {
                 }
 
@@ -476,7 +468,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         };
     }
 
-    @Deprecated
     public MainFragment.installTask.Listener installListener() {
         return new MainFragment.installTask.Listener() {
 
@@ -528,14 +519,12 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         };
     }
 
-    @Deprecated
     public MainFragment.resolutionTask.Listener resolutionListener() {
         return new MainFragment.resolutionTask.Listener() {
             Handler mHandler;
             Runnable mRunnable;
 
             /* 成功 */
-            @Deprecated
             @Override
             public void onSuccess() {
                 /* 設定変更カウントダウンダイアログ表示 */
@@ -590,7 +579,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     }
 
     /* 再表示 */
-    @Deprecated
     @Override
     public void onResume() {
         super.onResume();
@@ -603,7 +591,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         }
     }
 
-    @Deprecated
     @Override
     public void onInstallSuccess(int reqCode) {
         switch (reqCode) {
@@ -625,7 +612,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         }
     }
 
-    @Deprecated
     @Override
     public void onInstallFailure(int reqCode, String str) {
         switch (reqCode) {
@@ -656,7 +642,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         }
     }
 
-    @Deprecated
     @Override
     public void onInstallError(int reqCode, String str) {
         switch (reqCode) {
@@ -687,7 +672,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         }
     }
 
-    @Deprecated
+    @SuppressWarnings("deprecation")
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -708,7 +693,6 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         }
     }
 
-    @Deprecated
     @Override
     public void onDownloadComplete(int reqCode) {
         switch (reqCode) {
@@ -776,7 +760,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                                 }
                             }
 
-                            if (str.toString().equals("")) {
+                            if (str.toString().isEmpty()) {
                                 return;
                             }
 
@@ -837,6 +821,18 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         }
     }
 
+    @Override
+    public void onProgressUpdate(int progress, int currentByte, int totalByte) {
+        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
+        linearProgressIndicator.setIndeterminate(false);
+        linearProgressIndicator.setProgress(progress);
+
+        try {
+            MainFragment.getInstance().preGetApp.setSummary(new StringBuilder("インストールファイルをサーバーからダウンロードしています...しばらくお待ち下さい...\n進行状況：").append(progress).append("%"));
+        } catch (Exception ignored) {
+        }
+    }
+
     public void showLoadingDialog() {
         LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
         linearProgressIndicator.show();
@@ -857,15 +853,12 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         }
     }
 
-    @Deprecated
     private void startDownload() {
         LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
         linearProgressIndicator.show();
-        AsyncFileDownload asyncFileDownload = new AsyncFileDownload(this, Variables.DOWNLOAD_FILE_URL, new File(new File(getExternalCacheDir(), "update.apk").getPath()), Constants.REQUEST_DOWNLOAD_APK);
-        asyncFileDownload.execute();
-        ProgressHandler progressHandler = new ProgressHandler();
-        progressHandler.linearProgressIndicator = linearProgressIndicator;
-        progressHandler.asyncfiledownload = asyncFileDownload;
+        FileDownloadTask fileDownloadTask = new FileDownloadTask();
+        fileDownloadTask.execute(this, Variables.DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
+        ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
         progressHandler.sendEmptyMessage(0);
     }
 }

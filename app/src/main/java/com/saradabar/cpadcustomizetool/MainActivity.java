@@ -1,14 +1,12 @@
-/* CPad Customize Tool
+/*
+ * CPad Customize Tool
  * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
- * CPad Customize Tool（以下本ソフトウェアという）はオープンソフトウェアです。
- * これは、Apacheソフトウェア財団 によって発行された Apache License 2.0 （以下本ライセンスという）の条件に基づいています。
- * 本ソフトウェアの著作権法に定義される利用は本ライセンスに定義された範囲でいかなる行為をすることができます。
+ * CPad Customize Tool is Open Source Software.
+ * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
  *
- * Kobold831（以下著作権者という）は著作権法に定義されるこのプロジェクト全体の著作物（以下著作物という）の、
- * 著作権法に定義される著作権（以下著作権という）かつ著作権法に定義される著作人格権を有しておりまた放棄していません。
- * 本ソフトウェアを本ライセンスの範囲を超えて使用、複製、配布された場合、
- * 侵害行為地の著作権法が適用され著作権者は著作権法で定義される差止請求権を行使して著作権法に定義される差止請求を行います。
+ * Kobold831 own any copyright or moral rights in the copyrighted work as defined in the Copyright Act, and has not waived them.
+ * Any use, reproduction, or distribution of this software beyond the scope of Apache License 2.0 is prohibited.
  *
  */
 
@@ -29,6 +27,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.AbsListView;
@@ -41,8 +40,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
-import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
-import com.saradabar.cpadcustomizetool.data.connection.Updater;
+import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
+import com.saradabar.cpadcustomizetool.data.installer.Updater;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
@@ -72,7 +71,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     IDchaService mDchaService;
 
-    @Deprecated
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +87,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         }
     }
 
-    @Deprecated
     private void crashError() {
         new MaterialAlertDialogBuilder(this)
                 .setCancelable(false)
@@ -105,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 .show();
     }
 
-    @Deprecated
     private void firstCheck() {
         /* 初回起動か確認 */
         if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
@@ -124,14 +120,12 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     /* アップデートチェック */
-    @Deprecated
     private void updateCheck() {
         showLoadingDialog();
-        new AsyncFileDownload(this, Constants.URL_CHECK, new File(new File(getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK).execute();
+        new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
     }
 
     /* ダウンロード完了 */
-    @Deprecated
     @Override
     public void onDownloadComplete(int reqCode) {
         switch (reqCode) {
@@ -177,8 +171,14 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         new WelcomeHelper(this, WelAppActivity.class).forceShow();
     }
 
+    @Override
+    public void onProgressUpdate(int progress, int currentByte, int totalByte) {
+        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
+        linearProgressIndicator.setIndeterminate(false);
+        linearProgressIndicator.setProgress(progress);
+    }
+
     /* アップデートダイアログ */
-    @Deprecated
     private void showUpdateDialog(String str) {
         /* モデルIDをセット */
         switch (Build.MODEL) {
@@ -216,17 +216,12 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                     LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
                     linearProgressIndicator.show();
-                    AsyncFileDownload asyncFileDownload = new AsyncFileDownload(this, Variables.DOWNLOAD_FILE_URL, new File(new File(getExternalCacheDir(), "update.apk").getPath()), Constants.REQUEST_DOWNLOAD_APK);
-                    asyncFileDownload.execute();
-                    ProgressHandler progressHandler = new ProgressHandler();
-                    progressHandler.linearProgressIndicator = linearProgressIndicator;
-                    progressHandler.textView = findViewById(R.id.layout_text_progress);
-                    progressHandler.asyncfiledownload = asyncFileDownload;
+                    FileDownloadTask fileDownloadTask = new FileDownloadTask();
+                    fileDownloadTask.execute(this, Variables.DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
+                    ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
                     progressHandler.sendEmptyMessage(0);
                 })
-                .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
-                    new WelcomeHelper(this, WelAppActivity.class).forceShow();
-                })
+                .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> new WelcomeHelper(this, WelAppActivity.class).forceShow())
                 .setNeutralButton(R.string.dialog_common_settings, (dialog2, which2) -> {
                     View v = getLayoutInflater().inflate(R.layout.layout_update_list, null);
                     List<SingleListView.AppData> dataList = new ArrayList<>();
@@ -374,7 +369,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     /* DchaService動作チェック */
-    @Deprecated
     private void checkDchaService() {
         /* DchaServiceを使用するか確認 */
         if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
@@ -424,7 +418,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     /* Pad2起動設定チェック */
-    @Deprecated
     private void confCheckCT2() {
         Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2);
 
@@ -438,7 +431,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     /* Pad3起動設定チェック */
-    @Deprecated
     private void confCheckCT3() {
         Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT3);
 
@@ -454,7 +446,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     /* NEO起動設定チェック */
-    @Deprecated
     private void confCheckCTX() {
         Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTX);
 
@@ -470,7 +461,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     /* NEXT起動設定チェック */
-    @Deprecated
     private void confCheckCTZ() {
         Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTZ);
 
@@ -486,7 +476,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     /* 初回起動お知らせ */
-    @Deprecated
     public void WarningDialog() {
         new MaterialAlertDialogBuilder(this)
                 .setCancelable(false)
@@ -504,7 +493,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     /* システム設定変更権限か付与されているか確認 */
-    @Deprecated
+    @SuppressWarnings("deprecation")
     private boolean isPermissionCheck() {
         if (isWriteSystemPermissionCheck()) {
             new MaterialAlertDialogBuilder(this)
@@ -551,7 +540,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         return bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    @Deprecated
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

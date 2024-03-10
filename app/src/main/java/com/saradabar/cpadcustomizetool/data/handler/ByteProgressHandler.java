@@ -1,21 +1,22 @@
-/* CPad Customize Tool
+/*
+ * CPad Customize Tool
  * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
- * CPad Customize Tool（以下本ソフトウェアという）はオープンソフトウェアです。
- * これは、Apacheソフトウェア財団 によって発行された Apache License 2.0 （以下本ライセンスという）の条件に基づいています。
- * 本ソフトウェアの著作権法に定義される利用は本ライセンスに定義された範囲でいかなる行為をすることができます。
+ * CPad Customize Tool is Open Source Software.
+ * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
  *
- * Kobold831（以下著作権者という）は著作権法に定義されるこのプロジェクト全体の著作物（以下著作物という）の、
- * 著作権法に定義される著作権（以下著作権という）かつ著作権法に定義される著作人格権を有しておりまた放棄していません。
- * 本ソフトウェアを本ライセンスの範囲を超えて使用、複製、配布された場合、
- * 侵害行為地の著作権法が適用され著作権者は著作権法で定義される差止請求権を行使して著作権法に定義される差止請求を行います。
+ * Kobold831 own any copyright or moral rights in the copyrighted work as defined in the Copyright Act, and has not waived them.
+ * Any use, reproduction, or distribution of this software beyond the scope of Apache License 2.0 is prohibited.
  *
  */
 
 package com.saradabar.cpadcustomizetool.data.handler;
 
+import android.annotation.TargetApi;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -29,18 +30,17 @@ public class ByteProgressHandler extends Handler {
     int reqCode;
     public ProgressBar progressBar;
     public TextView textPercent, textByte;
-    @Deprecated
     public DeviceOwnerFragment.TryXApkTask tryXApkTask;
-    @Deprecated
     public DeviceOwnerFragment.TryApkMTask tryApkMTask;
     public boolean isCompleted = false;
 
-    @Deprecated
-    public ByteProgressHandler(int i) {
+    public ByteProgressHandler(Looper looper, int i) {
+        super(looper);
         reqCode = i;
     }
 
-    @Deprecated
+    @TargetApi(Build.VERSION_CODES.O)
+    @SuppressWarnings("deprecation")
     @Override
     public void handleMessage(@NonNull Message msg) {
         super.handleMessage(msg);
@@ -54,8 +54,8 @@ public class ByteProgressHandler extends Handler {
 
                 if (!tryXApkTask.isCancelled() || tryXApkTask.getStatus() != AsyncTask.Status.FINISHED) {
                     progressBar.setProgress(tryXApkTask.getLoadedBytePercent());
-                    textPercent.setText(progressBar.getProgress() + "%");
-                    textByte.setText(tryXApkTask.getLoadedCurrentByte() + " / " + tryXApkTask.getLoadedTotalByte() + " MB");
+                    textPercent.setText(new StringBuilder(progressBar.getProgress()).append("%"));
+                    textByte.setText(new StringBuilder(tryXApkTask.getLoadedCurrentByte()).append(" / ").append(tryXApkTask.getLoadedTotalByte()).append(" MB"));
 
                     sendEmptyMessageDelayed(0, 100);
                 }
@@ -68,8 +68,8 @@ public class ByteProgressHandler extends Handler {
 
                 if (!tryApkMTask.isCancelled() || tryApkMTask.getStatus() != AsyncTask.Status.FINISHED) {
                     progressBar.setProgress(tryApkMTask.getLoadedBytePercent());
-                    textPercent.setText(progressBar.getProgress() + "%");
-                    textByte.setText(tryApkMTask.getLoadedCurrentByte() + " / " + tryApkMTask.getLoadedTotalByte() + " MB");
+                    textPercent.setText(new StringBuilder(progressBar.getProgress()).append("%"));
+                    textByte.setText(new StringBuilder(tryApkMTask.getLoadedCurrentByte()).append(" / ").append(tryApkMTask.getLoadedTotalByte()).append(" MB"));
 
                     sendEmptyMessageDelayed(0, 100);
                 }

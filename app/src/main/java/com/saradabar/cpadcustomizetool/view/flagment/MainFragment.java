@@ -1,14 +1,12 @@
-/* CPad Customize Tool
+/*
+ * CPad Customize Tool
  * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
- * CPad Customize Tool（以下本ソフトウェアという）はオープンソフトウェアです。
- * これは、Apacheソフトウェア財団 によって発行された Apache License 2.0 （以下本ライセンスという）の条件に基づいています。
- * 本ソフトウェアの著作権法に定義される利用は本ライセンスに定義された範囲でいかなる行為をすることができます。
+ * CPad Customize Tool is Open Source Software.
+ * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
  *
- * Kobold831（以下著作権者という）は著作権法に定義されるこのプロジェクト全体の著作物（以下著作物という）の、
- * 著作権法に定義される著作権（以下著作権という）かつ著作権法に定義される著作人格権を有しておりまた放棄していません。
- * 本ソフトウェアを本ライセンスの範囲を超えて使用、複製、配布された場合、
- * 侵害行為地の著作権法が適用され著作権者は著作権法で定義される差止請求権を行使して著作権法に定義される差止請求を行います。
+ * Kobold831 own any copyright or moral rights in the copyrighted work as defined in the Copyright Act, and has not waived them.
+ * Any use, reproduction, or distribution of this software beyond the scope of Apache License 2.0 is prohibited.
  *
  */
 
@@ -41,7 +39,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.ServiceManager;
-import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.view.Display;
@@ -62,7 +59,8 @@ import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
-import com.saradabar.cpadcustomizetool.data.connection.AsyncFileDownload;
+import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
+import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -139,8 +137,8 @@ public class MainFragment extends PreferenceFragmentCompat {
     }
 
     /* システムUIオブザーバー */
-    @Deprecated
     ContentObserver obsDchaState = new ContentObserver(new Handler()) {
+
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
@@ -153,8 +151,8 @@ public class MainFragment extends PreferenceFragmentCompat {
     };
 
     /* ナビゲーションバーオブザーバー */
-    @Deprecated
     ContentObserver obsNavigation = new ContentObserver(new Handler()) {
+
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
@@ -167,15 +165,14 @@ public class MainFragment extends PreferenceFragmentCompat {
     };
 
     /* 提供元オブザーバー */
-    @Deprecated
+    @SuppressWarnings("deprecation")
     ContentObserver obsUnkSrc = new ContentObserver(new Handler()) {
-        @Deprecated
+
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
 
             try {
-                //noinspection deprecation
                 swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
             }
@@ -183,8 +180,8 @@ public class MainFragment extends PreferenceFragmentCompat {
     };
 
     /* USBデバッグオブザーバー */
-    @Deprecated
     ContentObserver obsAdb = new ContentObserver(new Handler()) {
+
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
@@ -198,6 +195,7 @@ public class MainFragment extends PreferenceFragmentCompat {
 
     /* Dchaサービスコネクション */
     ServiceConnection mDchaServiceConnection = new ServiceConnection() {
+
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             mDchaService = IDchaService.Stub.asInterface(iBinder);
@@ -210,6 +208,7 @@ public class MainFragment extends PreferenceFragmentCompat {
 
     /* DchaUtilサービスコネクション */
     ServiceConnection mDchaUtilServiceConnection = new ServiceConnection() {
+
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             mDchaUtilService = IDchaUtilService.Stub.asInterface(iBinder);
@@ -221,7 +220,6 @@ public class MainFragment extends PreferenceFragmentCompat {
     };
 
     /* Dcha・UtilServiceにバインド */
-    @Deprecated
     public boolean tryBindDchaService(int req, boolean isDchaReq) {
         try {
             if (isDchaReq) {
@@ -276,7 +274,8 @@ public class MainFragment extends PreferenceFragmentCompat {
                         return requireActivity().getApplicationContext().bindService(Constants.DCHA_UTIL_SERVICE, mDchaUtilServiceConnection, Context.BIND_AUTO_CREATE);
                     case Constants.FLAG_RESOLUTION:
                         if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                            Class.forName("android.view.IWindowManager").getMethod("setForcedDisplaySize", int.class, int.class, int.class).invoke(IWindowManager.Stub.asInterface(ServiceManager.getService("window")), Display.DEFAULT_DISPLAY, width, height);
+                            String method = "setForcedDisplaySize";
+                            Class.forName("android.view.IWindowManager").getMethod(method, int.class, int.class, int.class).invoke(IWindowManager.Stub.asInterface(ServiceManager.getService("window")), Display.DEFAULT_DISPLAY, width, height);
                             return true;
                         } else {
                             return mDchaUtilService.setForcedDisplaySize(width, height);
@@ -327,7 +326,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         }
     }
 
-    @Deprecated
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_main, rootKey);
@@ -979,9 +978,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         preDeviceOwnerFn.setOnPreferenceClickListener(preference -> {
             if (Common.isDhizukuActive(requireActivity())) {
                 if (tryBindDhizukuService(requireActivity())) {
-                    Runnable runnable = () -> {
-                        StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
-                    };
+                    Runnable runnable = () -> StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
                     new Handler().postDelayed(runnable, 1000);
                 } else return false;
             } else {
@@ -1044,7 +1041,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         preGetApp.setOnPreferenceClickListener(preference -> {
             preGetApp.setSummary("サーバーと通信しています...");
             StartActivity.getInstance().showLoadingDialog();
-            new AsyncFileDownload(requireActivity(), Constants.URL_CHECK, new File(new File(requireActivity().getExternalCacheDir(), "Check.json").getPath()), Constants.REQUEST_DOWNLOAD_APP_CHECK).execute();
+            new FileDownloadTask().execute((DownloadEventListener) requireActivity(), Constants.URL_CHECK, new File(requireActivity().getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_APP_CHECK);
             return false;
         });
 
@@ -1083,7 +1080,6 @@ public class MainFragment extends PreferenceFragmentCompat {
     }
 
     /* 再起動ショートカットを作成 */
-    @Deprecated
     private void makeRebootShortcut() {
         requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN)
                         .setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.RebootActivity"))
@@ -1093,7 +1089,6 @@ public class MainFragment extends PreferenceFragmentCompat {
     }
 
     /* 初期化 */
-    @Deprecated
     private void initialize() {
         SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
 
@@ -1200,7 +1195,6 @@ public class MainFragment extends PreferenceFragmentCompat {
         }
     }
 
-    @Deprecated
     private void cfmDialog() {
         new MaterialAlertDialogBuilder(requireActivity())
                 .setCancelable(false)
@@ -1271,7 +1265,7 @@ public class MainFragment extends PreferenceFragmentCompat {
         initialize();
     }
 
-    @Deprecated
+    @SuppressWarnings("deprecation")
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -1324,7 +1318,7 @@ public class MainFragment extends PreferenceFragmentCompat {
     }
 
     /* インストールタスク */
-    @Deprecated
+    @SuppressWarnings("deprecation")
     public static class installTask extends AsyncTask<Boolean, Void, Boolean> {
 
         private Listener mListener;
@@ -1360,18 +1354,16 @@ public class MainFragment extends PreferenceFragmentCompat {
     }
 
     /* 解像度タスク */
-    @Deprecated
+    @SuppressWarnings("deprecation")
     public static class resolutionTask extends AsyncTask<Boolean, Void, Boolean> {
 
         private Listener mListener;
 
-        @Deprecated
         @Override
         protected Boolean doInBackground(Boolean... value) {
             return MainFragment.getInstance().trySetResolution();
         }
 
-        @Deprecated
         @Override
         protected void onPostExecute(Boolean result) {
             Runnable runnable = () -> {
@@ -1405,7 +1397,6 @@ public class MainFragment extends PreferenceFragmentCompat {
     }
 
     /* 解像度のリセット */
-    @Deprecated
     public void resetResolution() {
         switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
             case Constants.MODEL_CT2:

@@ -1,19 +1,18 @@
-/* CPad Customize Tool
+/*
+ * CPad Customize Tool
  * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
- * CPad Customize Tool（以下本ソフトウェアという）はオープンソフトウェアです。
- * これは、Apacheソフトウェア財団 によって発行された Apache License 2.0 （以下本ライセンスという）の条件に基づいています。
- * 本ソフトウェアの著作権法に定義される利用は本ライセンスに定義された範囲でいかなる行為をすることができます。
+ * CPad Customize Tool is Open Source Software.
+ * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
  *
- * Kobold831（以下著作権者という）は著作権法に定義されるこのプロジェクト全体の著作物（以下著作物という）の、
- * 著作権法に定義される著作権（以下著作権という）かつ著作権法に定義される著作人格権を有しておりまた放棄していません。
- * 本ソフトウェアを本ライセンスの範囲を超えて使用、複製、配布された場合、
- * 侵害行為地の著作権法が適用され著作権者は著作権法で定義される差止請求権を行使して著作権法に定義される差止請求を行います。
+ * Kobold831 own any copyright or moral rights in the copyrighted work as defined in the Copyright Act, and has not waived them.
+ * Any use, reproduction, or distribution of this software beyond the scope of Apache License 2.0 is prohibited.
  *
  */
 
 package com.saradabar.cpadcustomizetool.util;
 
+import android.annotation.TargetApi;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -29,8 +28,6 @@ import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
@@ -60,7 +57,7 @@ public class Common {
 
     public static IDhizukuService mDhizukuService;
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @TargetApi(Build.VERSION_CODES.M)
     public static void setPermissionGrantState(Context context, String packageName, int grantState) {
         if (isDhizukuActive(context)) {
             if (tryBindDhizukuService(context)) {
@@ -79,7 +76,7 @@ public class Common {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @TargetApi(Build.VERSION_CODES.M)
     public static String[] getRuntimePermissions(Context context, String packageName) {
         return new ArrayList<>(Arrays.asList(getRequiredPermissions(context, packageName))).toArray(new String[0]);
     }
@@ -102,7 +99,6 @@ public class Common {
         return df.format(System.currentTimeMillis());
     }
 
-    @Deprecated
     public static void LogOverWrite(Context context, @NonNull Throwable throwable) {
         StringWriter stringWriter = new StringWriter();
         throwable.printStackTrace(new PrintWriter(stringWriter));
@@ -116,7 +112,7 @@ public class Common {
                 stringWriter +
                 "- ログ終了 -\n\n";
 
-        if (!Preferences.load(context, Constants.KEY_CRASH_LOG, "").equals("")) {
+        if (!Preferences.load(context, Constants.KEY_CRASH_LOG, "").isEmpty()) {
             Preferences.save(context, Constants.KEY_CRASH_LOG, String.join(",", Preferences.load(context, Constants.KEY_CRASH_LOG, "")).replace("    ", "") + message);
         } else {
             Preferences.save(context, Constants.KEY_CRASH_LOG, message);
@@ -124,7 +120,6 @@ public class Common {
     }
 
     /* 選択したファイルデータを取得 */
-    @Nullable
     public static String getFilePath(Context context, Uri uri) {
         if (DocumentsContract.isDocumentUri(context, uri)) {
             switch (Objects.requireNonNull(uri.getAuthority())) {
@@ -154,7 +149,7 @@ public class Common {
         StringBuilder data = new StringBuilder();
         String str = bufferedReader.readLine();
 
-        while(str != null){
+        while (str != null) {
             data.append(str);
             str = bufferedReader.readLine();
         }
@@ -189,7 +184,6 @@ public class Common {
         });
     }
 
-    @Deprecated
     public static boolean isCfmDialog(Context context) {
         if (Preferences.load(context, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTZ) {
             /* チャレパNEO・NEXTは対象 */
@@ -205,22 +199,32 @@ public class Common {
     }
 
     public static long getFileSize(final File file) {
-        if (file == null || !file.exists())
+        if (file == null || !file.exists()) {
             return 0;
-        if (!file.isDirectory())
+        }
+
+        if (!file.isDirectory()) {
             return file.length();
+        }
+
         final List<File> dirs = new LinkedList<>();
         dirs.add(file);
         long result = 0;
+
         while (!dirs.isEmpty()) {
             final File dir = dirs.remove(0);
-            if (!dir.exists())
+
+            if (!dir.exists()) {
                 continue;
+            }
+
             final File[] listFiles = dir.listFiles();
-            if (listFiles == null || listFiles.length == 0)
+
+            if (listFiles == null) {
                 continue;
+            }
+
             for (final File child : listFiles) {
-                // Note: if you want to get physical size and not just logical size, include directories too to the result, and not just normal files
                 if (child.isDirectory()) {
                     dirs.add(child);
                 } else {
@@ -228,6 +232,7 @@ public class Common {
                 }
             }
         }
+
         return result;
     }
 }
