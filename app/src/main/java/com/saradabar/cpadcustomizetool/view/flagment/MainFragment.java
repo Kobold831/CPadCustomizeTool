@@ -792,12 +792,14 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         preResolution.setOnPreferenceClickListener(preference -> {
             /* DchaUtilServiceが機能しているか */
-            if (!Common.tryBindDchaService(requireActivity(), null, mDchaUtilService, mDchaUtilServiceConnection, false, Constants.FLAG_CHECK, 0, 0, "", "")) {
-                new MaterialAlertDialogBuilder(requireActivity())
-                        .setMessage(R.string.dialog_error_not_work_dcha_util)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-                return false;
+            if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
+                if (!Common.tryBindDchaService(requireActivity(), null, mDchaUtilService, mDchaUtilServiceConnection, false, Constants.FLAG_CHECK, 0, 0, "", "")) {
+                    new MaterialAlertDialogBuilder(requireActivity())
+                            .setMessage(R.string.dialog_error_not_work_dcha_util)
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                            .show();
+                    return false;
+                }
             }
 
             View view = requireActivity().getLayoutInflater().inflate(R.layout.view_resolution, null);
@@ -839,12 +841,14 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         preResetResolution.setOnPreferenceClickListener(preference -> {
             /* DchaUtilServiceが機能しているか */
-            if (!Common.tryBindDchaService(requireActivity(), null, mDchaUtilService, mDchaUtilServiceConnection, false, Constants.FLAG_CHECK, 0, 0, "", "")) {
-                new MaterialAlertDialogBuilder(requireActivity())
-                        .setMessage(R.string.dialog_error_not_work_dcha_util)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-                return false;
+            if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
+                if (!Common.tryBindDchaService(requireActivity(), null, mDchaUtilService, mDchaUtilServiceConnection, false, Constants.FLAG_CHECK, 0, 0, "", "")) {
+                    new MaterialAlertDialogBuilder(requireActivity())
+                            .setMessage(R.string.dialog_error_not_work_dcha_util)
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                            .show();
+                    return false;
+                }
             }
 
             resetResolution();

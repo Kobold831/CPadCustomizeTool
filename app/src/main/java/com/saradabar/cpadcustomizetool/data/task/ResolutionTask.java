@@ -43,7 +43,7 @@ public class ResolutionTask {
     }
 
     protected Boolean doInBackground(Context context, int i, int i1) {
-        return Common.tryBindDchaService(context, null, mDchaUtilService, mDchaUtilServiceConnection, true, Constants.FLAG_RESOLUTION,i, i1, "", "");
+        return Common.tryBindDchaService(context, null, mDchaUtilService, mDchaUtilServiceConnection, false, Constants.FLAG_RESOLUTION,i, i1, "", "");
     }
 
     public interface Listener {
