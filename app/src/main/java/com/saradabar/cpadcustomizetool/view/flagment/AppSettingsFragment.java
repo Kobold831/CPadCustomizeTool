@@ -16,11 +16,14 @@ import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
 import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.AbsListView;
@@ -32,6 +35,7 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
@@ -41,7 +45,11 @@ import com.saradabar.cpadcustomizetool.view.views.SingleListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.co.benesse.dcha.dchaservice.IDchaService;
+
 public class AppSettingsFragment extends PreferenceFragmentCompat {
+
+    IDchaService mDchaService;
 
     SwitchPreferenceCompat swUpdateCheck,
             swUseDcha,
@@ -166,7 +174,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         break;
                     case 2:
                         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-                            if (MainFragment.getInstance().tryBindDchaService(Constants.FLAG_CHECK, true) && Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                            if (Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_CHECK, 0, 0, "", "") && Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
                                 Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                                 listView.invalidateViews();
                             } else {
@@ -235,4 +243,16 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                 break;
         }
     }
+
+    ServiceConnection mDchaServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            mDchaService = IDchaService.Stub.asInterface(iBinder);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+        }
+    };
 }
