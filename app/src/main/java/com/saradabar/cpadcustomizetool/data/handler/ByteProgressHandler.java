@@ -54,8 +54,8 @@ public class ByteProgressHandler extends Handler {
 
                 if (!tryXApkTask.isCancelled() || tryXApkTask.getStatus() != AsyncTask.Status.FINISHED) {
                     progressBar.setProgress(tryXApkTask.getLoadedBytePercent());
-                    textPercent.setText(new StringBuilder(progressBar.getProgress()).append("%"));
-                    textByte.setText(new StringBuilder(tryXApkTask.getLoadedCurrentByte()).append(" / ").append(tryXApkTask.getLoadedTotalByte()).append(" MB"));
+                    textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append("%"));
+                    textByte.setText(new StringBuilder(String.valueOf(tryXApkTask.getLoadedCurrentByte())).append(" / ").append(tryXApkTask.getLoadedTotalByte()).append(" MB"));
 
                     sendEmptyMessageDelayed(0, 100);
                 }
@@ -68,8 +68,8 @@ public class ByteProgressHandler extends Handler {
 
                 if (!tryApkMTask.isCancelled() || tryApkMTask.getStatus() != AsyncTask.Status.FINISHED) {
                     progressBar.setProgress(tryApkMTask.getLoadedBytePercent());
-                    textPercent.setText(new StringBuilder(progressBar.getProgress()).append("%"));
-                    textByte.setText(new StringBuilder(tryApkMTask.getLoadedCurrentByte()).append(" / ").append(tryApkMTask.getLoadedTotalByte()).append(" MB"));
+                    textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append("%"));
+                    textByte.setText(new StringBuilder(String.valueOf(tryApkMTask.getLoadedCurrentByte())).append(" / ").append(tryApkMTask.getLoadedTotalByte()).append(" MB"));
 
                     sendEmptyMessageDelayed(0, 100);
                 }
