@@ -749,6 +749,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         FileDownloadTask fileDownloadTask = new FileDownloadTask();
         fileDownloadTask.execute(this, Variables.DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
         ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
+        progressHandler.fileDownloadTask = fileDownloadTask;
         progressHandler.sendEmptyMessage(0);
     }
 }

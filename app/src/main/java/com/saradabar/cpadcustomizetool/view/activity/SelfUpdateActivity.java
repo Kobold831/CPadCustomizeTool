@@ -164,6 +164,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                     FileDownloadTask fileDownloadTask = new FileDownloadTask();
                     fileDownloadTask.execute(this, Variables.DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
                     ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
+                    progressHandler.fileDownloadTask = fileDownloadTask;
                     progressHandler.sendEmptyMessage(0);
                 })
                 .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> finish())
