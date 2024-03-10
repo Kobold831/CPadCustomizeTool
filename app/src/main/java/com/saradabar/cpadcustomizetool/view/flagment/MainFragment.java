@@ -1289,31 +1289,37 @@ public class MainFragment extends PreferenceFragmentCompat {
             case Constants.REQUEST_ACTIVITY_INSTALL:
                 preSilentInstall.setEnabled(true);
 
-                if (Common.getFilePath(requireActivity(), data.getData()) != null) {
-                    new DchaInstallTask().execute(requireActivity(), installListener(), Common.getFilePath(requireActivity(), data.getData()));
-                } else {
-                    new MaterialAlertDialogBuilder(requireActivity())
-                            .setMessage(getString(R.string.dialog_error_no_file_data))
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                            .show();
+                if (data != null) {
+                    if (Common.getFilePath(requireActivity(), data.getData()) != null) {
+                        new DchaInstallTask().execute(requireActivity(), installListener(), Common.getFilePath(requireActivity(), data.getData()));
+                        return;
+                    }
                 }
+
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setMessage(getString(R.string.dialog_error_no_file_data))
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
                 break;
             case Constants.REQUEST_ACTIVITY_SYSTEM_UPDATE:
                 preSystemUpdate.setEnabled(true);
 
-                if (Common.getFilePath(requireActivity(), data.getData()) != null) {
-                    if (!Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_SYSTEM_UPDATE, 0, 0, Common.getFilePath(requireActivity(), data.getData()), "")) {
-                        new MaterialAlertDialogBuilder(requireActivity())
-                                .setMessage(R.string.dialog_error)
-                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                                .show();
+                if (data != null) {
+                    if (Common.getFilePath(requireActivity(), data.getData()) != null) {
+                        if (!Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_SYSTEM_UPDATE, 0, 0, Common.getFilePath(requireActivity(), data.getData()), "")) {
+                            new MaterialAlertDialogBuilder(requireActivity())
+                                    .setMessage(R.string.dialog_error)
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                    .show();
+                        }
+                        return;
                     }
-                } else {
-                    new MaterialAlertDialogBuilder(requireActivity())
-                            .setMessage(getString(R.string.dialog_error_no_file_data))
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                            .show();
                 }
+
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setMessage(getString(R.string.dialog_error_no_file_data))
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
                 break;
         }
     }
@@ -1375,7 +1381,7 @@ public class MainFragment extends PreferenceFragmentCompat {
             @Override
             public void onSuccess() {
                 /* 設定変更カウントダウンダイアログ表示 */
-                AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireActivity())
+                AlertDialog alertDialog = new MaterialAlertDialogBuilder(StartActivity.getInstance())
                         .setTitle(R.string.dialog_title_resolution)
                         .setCancelable(false)
                         .setMessage("")
@@ -1414,6 +1420,7 @@ public class MainFragment extends PreferenceFragmentCompat {
                         i--;
                     }
                 };
+
                 mHandler.post(mRunnable);
             }
 

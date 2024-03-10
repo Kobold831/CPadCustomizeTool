@@ -35,11 +35,15 @@ public class ResolutionTask {
     }
 
     void onPostExecute(Listener listener, Boolean result) {
-        if (result) {
-            listener.onSuccess();
-        } else {
-            listener.onFailure();
-        }
+        Runnable runnable = () -> {
+            if (result) {
+                listener.onSuccess();
+            } else {
+                listener.onFailure();
+            }
+        };
+
+        new Handler().postDelayed(runnable, 1000);
     }
 
     protected Boolean doInBackground(Context context, int i, int i1) {

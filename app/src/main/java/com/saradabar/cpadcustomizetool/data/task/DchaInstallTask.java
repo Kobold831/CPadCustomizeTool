@@ -25,8 +25,14 @@ public class DchaInstallTask {
         executorService.submit(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
             new Thread(() -> {
-                Boolean result = doInBackground(context, installData);
-                handler.post(() -> onPostExecute(listener, result));
+                Common.tryBindDchaService(context, mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_CHECK, 0, 0, "", "");
+
+                Runnable runnable = () -> {
+                    Boolean result = doInBackground(context, installData);
+                    handler.post(() -> onPostExecute(listener, result));
+                };
+
+                new Handler(Looper.getMainLooper()).postDelayed(runnable, 1000);
             }).start();
         });
     }
