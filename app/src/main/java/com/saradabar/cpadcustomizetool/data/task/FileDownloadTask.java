@@ -32,43 +32,33 @@ import java.util.concurrent.Executors;
 public class FileDownloadTask {
 
 	DownloadEventListenerList downloadEventListenerList;
-	String downloadUrl;
-	int reqCode = 0, totalByte = 0, currentByte = 0;
-	File outputFile;
-
-	private class AsyncRunnable implements Runnable {
-
-		Handler handler = new Handler(Looper.getMainLooper());
-
-		@Override
-		public void run() {
-			Boolean result = doInBackground();
-			handler.post(() -> onPostExecute(result));
-		}
-	}
+	int totalByte = 0, currentByte = 0;
 
 	public void execute(DownloadEventListener downloadEventListener, String downloadUrl, File outputFile, int reqCode) {
-		onPreExecute(downloadEventListener, downloadUrl, outputFile, reqCode);
+		onPreExecute(downloadEventListener);
 		ExecutorService executorService = Executors.newSingleThreadExecutor();
-		executorService.submit(new AsyncRunnable());
+		executorService.submit(() -> {
+			Handler handler = new Handler(Looper.getMainLooper());
+			new Thread(() -> {
+				Boolean result = doInBackground(downloadUrl, outputFile);
+				handler.post(() -> onPostExecute(result, reqCode));
+			}).start();
+		});
 	}
 
-	void onPreExecute(DownloadEventListener downloadEventListener, String downloadUrl, File outputFile, int reqCode) {
+	void onPreExecute(DownloadEventListener downloadEventListener) {
 		downloadEventListenerList = new DownloadEventListenerList();
 		downloadEventListenerList.addEventListener(downloadEventListener);
-		this.downloadUrl = downloadUrl;
-		this.outputFile = outputFile;
-		this.reqCode = reqCode;
 	}
 
-	void onPostExecute(Boolean result) {
+	void onPostExecute(Boolean result, int reqCode) {
 		if (result != null) {
 			if (result) downloadEventListenerList.downloadCompleteNotify(reqCode);
 			else downloadEventListenerList.downloadErrorNotify(reqCode);
 		} else downloadEventListenerList.connectionErrorNotify(reqCode);
 	}
 
-	protected Boolean doInBackground() {
+	protected Boolean doInBackground(String downloadUrl, File outputFile) {
 		BufferedInputStream bufferedInputStream;
 		FileOutputStream fileOutputStream;
 		byte[] buffer = new byte[1024];
@@ -87,9 +77,11 @@ public class FileDownloadTask {
 		}
 
 		try {
-			while (bufferedInputStream.read(buffer) != -1) {
-				fileOutputStream.write(buffer, 0, bufferedInputStream.read(buffer));
-				currentByte += bufferedInputStream.read(buffer);
+			int len;
+
+			while ((len = bufferedInputStream.read(buffer)) != -1) {
+				fileOutputStream.write(buffer, 0, len);
+				currentByte += len;
 			}
 		} catch (IOException ignored) {
 			return false;

@@ -40,11 +40,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
-import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
-import com.saradabar.cpadcustomizetool.data.installer.Updater;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
+import com.saradabar.cpadcustomizetool.data.installer.Updater;
+import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         new WelcomeHelper(this, WelAppActivity.class).forceShow();
                     }
                 } catch (JSONException | IOException ignored) {
+                    onDownloadError(0);
                 }
                 break;
             /* APKダウンロード要求の場合 */
