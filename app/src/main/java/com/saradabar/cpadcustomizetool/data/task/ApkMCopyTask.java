@@ -143,7 +143,7 @@ public class ApkMCopyTask {
             return 0;
         }
 
-        return (int) Math.floor(((double) Common.getFileSize(new File(Path.getTemporaryPath(context))) / getLoadedTotalByte()) * 100);
+        return (int) Math.floor(((double) getLoadedCurrentByte(context) / getLoadedTotalByte()) * 100);
     }
 
     public int getLoadedTotalByte() {

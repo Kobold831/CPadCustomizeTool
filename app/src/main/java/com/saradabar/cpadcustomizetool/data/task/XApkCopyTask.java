@@ -163,16 +163,7 @@ public class XApkCopyTask {
     @TargetApi(Build.VERSION_CODES.O)
     public int getLoadedBytePercent(Context context) {
         if (totalByte <= 0) return 0;
-
-        if (obbPath1 == null) {
-            return (int) Math.floor(((double) Common.getDirectorySize(new File(Path.getTemporaryPath(context))) / getLoadedTotalByte()) * 100);
-        } else {
-            try {
-                return (int) Math.floor(((double) Files.size(Paths.get(Environment.getExternalStorageDirectory() + "/Android/obb/" + obbPath1 + "/" + obbPath2)) / getLoadedTotalByte()) * 100);
-            } catch (IOException ignored) {
-                return 0;
-            }
-        }
+        return (int) Math.floor(((double) getLoadedCurrentByte(context) / getLoadedTotalByte()) * 100);
     }
 
     public int getLoadedTotalByte() {
