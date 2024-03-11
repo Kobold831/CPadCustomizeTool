@@ -26,7 +26,10 @@ import android.database.ContentObserver;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.provider.Settings;
+
+import androidx.annotation.NonNull;
 
 import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -122,29 +125,39 @@ public class KeepService extends Service {
         SharedPreferences sp = getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
 
         /* オブザーバーを有効化 */
-        if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false)) {
-            isNavigationObserverEnable = true;
-            getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, NavigationObserver);
+        if (!isNavigationObserverEnable) {
+            if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false)) {
+                isNavigationObserverEnable = true;
+                getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, NavigationObserver);
+            }
         }
 
-        if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false)) {
-            isUiObserverEnable = true;
-            getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, DchaStateObserver);
+        if (!isUiObserverEnable) {
+            if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false)) {
+                isUiObserverEnable = true;
+                getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, DchaStateObserver);
+            }
         }
 
-        if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false)) {
-            isUnknownObserverEnable = true;
-            getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, MarketObserver);
+        if (!isUnknownObserverEnable) {
+            if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false)) {
+                isUnknownObserverEnable = true;
+                getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, MarketObserver);
+            }
         }
 
-        if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false)) {
-            isUsbObserverEnable = true;
-            getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED), false, UsbDebugObserver);
+        if (!isUsbObserverEnable) {
+            if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false)) {
+                isUsbObserverEnable = true;
+                getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED), false, UsbDebugObserver);
+            }
         }
 
-        if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
-            isHomeObserverEnable = true;
-            runKeepDefaultLauncher();
+        if (!isHomeObserverEnable) {
+            if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                isHomeObserverEnable = true;
+                runKeepDefaultLauncher();
+            }
         }
     }
 
@@ -216,29 +229,45 @@ public class KeepService extends Service {
     }
 
     private void runKeepDefaultLauncher() {
-        SharedPreferences sp = getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+        Handler handler = new Handler(getMainLooper()) {
 
-        if (getDefaultLauncherPackageName() != null) {
-            if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false) && !getDefaultLauncherPackageName().equals(sp.getString(Constants.KEY_SAVE_KEEP_HOME, null))) {
-                bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
-                    @Override
-                    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                        IDchaService mDchaService = IDchaService.Stub.asInterface(iBinder);
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                super.handleMessage(msg);
 
-                        try {
-                            mDchaService.clearDefaultPreferredApp(getDefaultLauncherPackageName());
-                            mDchaService.setDefaultPreferredHomeApp(sp.getString(Constants.KEY_SAVE_KEEP_HOME, null));
-                        } catch (Exception e) {
-                            Common.LogOverWrite(getBaseContext(), e);
-                        }
+                if (!isHomeObserverEnable) {
+                    return;
+                }
+
+                SharedPreferences sp = getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+
+                if (getDefaultLauncherPackageName() != null) {
+                    if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false) && !getDefaultLauncherPackageName().equals(sp.getString(Constants.KEY_SAVE_KEEP_HOME, null))) {
+                        bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
+                            @Override
+                            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                                IDchaService mDchaService = IDchaService.Stub.asInterface(iBinder);
+
+                                try {
+                                    mDchaService.clearDefaultPreferredApp(getDefaultLauncherPackageName());
+                                    mDchaService.setDefaultPreferredHomeApp(sp.getString(Constants.KEY_SAVE_KEEP_HOME, null));
+                                } catch (Exception e) {
+                                    Common.LogOverWrite(getBaseContext(), e);
+                                }
+                            }
+
+                            @Override
+                            public void onServiceDisconnected(ComponentName componentName) {
+                            }
+                        }, Context.BIND_AUTO_CREATE);
                     }
+                }
 
-                    @Override
-                    public void onServiceDisconnected(ComponentName componentName) {
-                    }
-                }, Context.BIND_AUTO_CREATE);
+                sendEmptyMessageDelayed(0, 10000);
             }
-        }
+        };
+
+        handler.sendEmptyMessageDelayed(0, 0);
     }
 
     private String getDefaultLauncherPackageName() {

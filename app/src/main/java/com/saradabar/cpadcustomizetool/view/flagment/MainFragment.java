@@ -423,39 +423,45 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, (boolean) o).apply();
 
             if ((boolean) o) {
-                if (Common.isCfmDialog(requireActivity())) {
-                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
-                    }
-                }
-
                 try {
-                    Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
-                } catch (SecurityException e) {
-                    Toast.toast(getActivity(), R.string.toast_not_change);
-                    requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false).apply();
-                    swKeepUnkSrc.setChecked(false);
-
                     if (Common.isCfmDialog(requireActivity())) {
                         if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                             chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
+                            Thread.sleep(100);
+                        }
+                    }
+                    Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
+
+                    if (isCfmDialog(requireActivity())) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                        }
+                    }
+
+                    if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                        requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+                    }
+
+                    if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
+                        requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
+                    }
+
+                    Runnable runnable = () -> KeepService.getInstance().startService();
+
+                    new Handler().postDelayed(runnable, 1000);
+                } catch (Exception e) {
+                    Toast.toast(getActivity(), R.string.toast_not_change);
+                    requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false).apply();
+                    swKeepUnkSrc.setChecked(false);
+
+                    if (isCfmDialog(requireActivity())) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                         }
                     }
 
                     return false;
                 }
-
-                if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                    requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-                }
-
-                if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
-                    requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
-                }
-
-                Runnable runnable = () -> KeepService.getInstance().startService();
-
-                new Handler().postDelayed(runnable, 1000);
             } else {
                 SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
 
