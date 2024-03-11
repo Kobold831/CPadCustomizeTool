@@ -17,7 +17,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -142,8 +141,6 @@ public class OtherFragment extends PreferenceFragmentCompat {
                             .show();
                 }
             });
-            Runnable runnable = () -> ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editText.getWindowToken(), 0);
-            new Handler().postDelayed(runnable, 10);
             return false;
         });
 

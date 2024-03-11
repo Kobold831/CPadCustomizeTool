@@ -748,6 +748,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             new MaterialAlertDialogBuilder(requireActivity())
                     .setView(view)
+                    .setCancelable(false)
                     .setTitle(R.string.dialog_title_resolution)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -1542,6 +1543,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onDownloadError(int reqCode) {
+        if (reqCode == Constants.REQUEST_DOWNLOAD_APP_CHECK || reqCode == Constants.REQUEST_DOWNLOAD_APK) {
+            preGetApp.setSummary(R.string.pre_main_sum_get_app);
+        }
+
         cancelLoadingDialog();
         new MaterialAlertDialogBuilder(requireActivity())
                 .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
@@ -1551,6 +1556,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onConnectionError(int reqCode) {
+        if (reqCode == Constants.REQUEST_DOWNLOAD_APP_CHECK || reqCode == Constants.REQUEST_DOWNLOAD_APK) {
+            preGetApp.setSummary(R.string.pre_main_sum_get_app);
+        }
+
         cancelLoadingDialog();
         new MaterialAlertDialogBuilder(requireActivity())
                 .setMessage("データ取得に失敗しました\nネットワークを確認してください")
@@ -1569,51 +1578,51 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @Override
     public void onInstallSuccess(int reqCode) {
         if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
-            LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
-
-            if (linearProgressIndicator.isShown()) {
-                linearProgressIndicator.hide();
-            }
-
             preGetApp.setSummary(R.string.pre_main_sum_get_app);
+        }
+
+        LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+
+        if (linearProgressIndicator.isShown()) {
+            linearProgressIndicator.hide();
         }
     }
 
     @Override
     public void onInstallFailure(int reqCode, String message) {
         if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
-            LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
-
-            if (linearProgressIndicator.isShown()) {
-                linearProgressIndicator.hide();
-            }
-
-            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-
-            new MaterialAlertDialogBuilder(StartActivity.getInstance())
-                    .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                    .show();
+            preGetApp.setSummary(R.string.pre_main_sum_get_app);
         }
+
+        LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+
+        if (linearProgressIndicator.isShown()) {
+            linearProgressIndicator.hide();
+        }
+
+        new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
     @Override
     public void onInstallError(int reqCode, String message) {
         if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
-            LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
-
-            if (linearProgressIndicator.isShown()) {
-                linearProgressIndicator.hide();
-            }
-
-            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-
-            new MaterialAlertDialogBuilder(StartActivity.getInstance())
-                    .setMessage(getString(R.string.dialog_error) + "\n" + message)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                    .show();
+            preGetApp.setSummary(R.string.pre_main_sum_get_app);
         }
+
+        LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+
+        if (linearProgressIndicator.isShown()) {
+            linearProgressIndicator.hide();
+        }
+
+        new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }

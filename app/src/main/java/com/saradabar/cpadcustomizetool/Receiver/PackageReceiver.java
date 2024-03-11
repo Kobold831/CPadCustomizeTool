@@ -12,16 +12,10 @@
 
 package com.saradabar.cpadcustomizetool.Receiver;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
-
-import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.os.Build;
 import android.os.Handler;
 import android.provider.Settings;
 
@@ -85,31 +79,31 @@ public class PackageReceiver extends BroadcastReceiver {
             }
         }
 
-        /* ランタイム権限を強制付与が有効な場合 */
-        if (sp.getBoolean("pre_owner_permission_frc", false)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (isDhizukuActive(context)) {
-                    if (tryBindDhizukuService(context)) {
-                        Runnable runnable = () -> {
-                            for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
-                                /* ユーザーアプリか確認 */
-                                if (app.sourceDir.startsWith("/data/app/")) {
-                                    Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
-                                }
-                            }
-                        };
-
-                        new Handler().postDelayed(runnable, 5000);
-                    }
-                } else {
-                    for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
-                        /* ユーザーアプリか確認 */
-                        if (app.sourceDir.startsWith("/data/app/")) {
-                            Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
-                        }
-                    }
-                }
-            }
-        }
+//        /* ランタイム権限を強制付与が有効な場合 */
+//        if (sp.getBoolean("pre_owner_permission_frc", false)) {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                if (isDhizukuActive(context)) {
+//                    if (tryBindDhizukuService(context)) {
+//                        Runnable runnable = () -> {
+//                            for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
+//                                /* ユーザーアプリか確認 */
+//                                if (app.sourceDir.startsWith("/data/app/")) {
+//                                    Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
+//                                }
+//                            }
+//                        };
+//
+//                        new Handler().postDelayed(runnable, 5000);
+//                    }
+//                } else {
+//                    for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
+//                        /* ユーザーアプリか確認 */
+//                        if (app.sourceDir.startsWith("/data/app/")) {
+//                            Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 }
