@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                 listView.invalidateViews();
                                 break;
                             case 2:
-                                if (tryBindDchaService() && Preferences.load(v.getContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                                if (bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE) && Preferences.load(v.getContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
                                     Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 } else {
@@ -338,20 +338,16 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     private void cancelLoadingDialog() {
         TextView textView = findViewById(R.id.layout_text_progress);
         textView.setText("");
-        try {
-            LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
-            if (linearProgressIndicator.isShown()) {
-                linearProgressIndicator.hide();
-            }
-        } catch (Exception ignored) {
+        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
+
+        if (linearProgressIndicator.isShown()) {
+            linearProgressIndicator.hide();
         }
     }
 
     /* 端末チェック */
     private boolean supportModelCheck() {
-        String[] modelName = {"TAB-A03-BS", "TAB-A03-BR", "TAB-A03-BR2", "TAB-A03-BR3", "TAB-A05-BD", "TAB-A05-BA1"};
-
-        for (String string : modelName) {
+        for (String string : Constants.modelName) {
             if (Objects.equals(string, Build.MODEL)) {
                 return true;
             }
@@ -376,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     private void checkDchaService() {
         /* DchaServiceを使用するか確認 */
         if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-            if (!tryBindDchaService()) {
+            if (!bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE)) {
                 new MaterialAlertDialogBuilder(this)
                         .setCancelable(false)
                         .setTitle(R.string.dialog_title_common_error)
@@ -385,26 +381,17 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
                         .setNeutralButton(R.string.dialog_common_continue, (dialogInterface, i) -> {
                             Preferences.save(this, Constants.KEY_FLAG_DCHA_SERVICE, false);
-                            switch (Build.MODEL) {
-                                case "TAB-A03-BR3":
-                                    confCheckCT3();
-                                    break;
-                                case "TAB-A05-BD":
-                                    confCheckCTX();
-                                    break;
-                                case "TAB-A05-BA1":
-                                    confCheckCTZ();
-                                    break;
-                                default:
-                                    confCheckCT2();
-                                    break;
-                            }
+                            confCheck();
                         })
                         .show();
                 return;
             }
         }
 
+        confCheck();
+    }
+
+    private void confCheck() {
         switch (Build.MODEL) {
             case "TAB-A03-BR3":
                 confCheckCT3();
@@ -538,11 +525,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         public void onServiceDisconnected(ComponentName componentName) {
         }
     };
-
-    /* DchaServiceへバインド */
-    public boolean tryBindDchaService() {
-        return bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -35,15 +35,37 @@ import com.saradabar.cpadcustomizetool.util.Constants;
 
 import java.util.Objects;
 
-public class PackageAddedReceiver extends BroadcastReceiver {
+public class PackageReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(context));
+
+        if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction()) && !Objects.requireNonNull(intent.getExtras()).getBoolean(Intent.EXTRA_REPLACING)) {
+            run(context, intent);
+        }
+
+        if (Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction())) {
+            if (Objects.requireNonNull(intent.getExtras()).getBoolean(Intent.EXTRA_DATA_REMOVED) && intent.getExtras().getBoolean(Intent.EXTRA_REPLACING)) {
+                run(context, intent);
+            }
+
+            if (!intent.getExtras().getBoolean(Intent.EXTRA_DATA_REMOVED) && intent.getExtras().getBoolean(Intent.EXTRA_REPLACING)) {
+                run(context, intent);
+            }
+        }
+
+        if (Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(intent.getAction())) {
+            run(context, intent);
+        }
+    }
+
+    private void run(Context context, Intent intent) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 
-        if (Objects.equals(intent.getAction(), Intent.ACTION_PACKAGE_ADDED)) {
-            if (Objects.requireNonNull(intent.getData()).toString().replace("package:", "").equals(context.getPackageName())) {
+        /* サービス開始 */
+        if (intent.getData() != null) {
+            if (intent.getData().toString().replace("package:", "").equals(context.getPackageName())) {
                 /* 維持スイッチが有効のときサービスを起動 */
                 if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
                     Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
@@ -59,53 +81,33 @@ public class PackageAddedReceiver extends BroadcastReceiver {
                     Runnable runnable = () -> KeepService.getInstance().startService();
 
                     new Handler().postDelayed(runnable, 1000);
-                }
-            }
-
-            if (sp.getBoolean("pre_owner_permission_frc", false)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (isDhizukuActive(context)) {
-                        if (tryBindDhizukuService(context)) {
-                            Runnable runnable = () -> {
-                                for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
-                                    /* ユーザーアプリか確認 */
-                                    if (app.sourceDir.startsWith("/data/app/")) {
-                                        Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
-                                    }
-                                }
-                            };
-
-                            new Handler().postDelayed(runnable, 5000);
-                        }
-                    } else {
-                        for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
-                            /* ユーザーアプリか確認 */
-                            if (app.sourceDir.startsWith("/data/app/")) {
-                                Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
-                            }
-                        }
-                    }
                 }
             }
         }
 
-        if (Objects.equals(intent.getAction(), Intent.ACTION_PACKAGE_REPLACED)) {
-            if (Objects.requireNonNull(intent.getData()).toString().replace("package:", "").equals(context.getPackageName())) {
-                /* 維持スイッチが有効のときサービスを起動 */
-                if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
-                    Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
+        /* ランタイム権限を強制付与が有効な場合 */
+        if (sp.getBoolean("pre_owner_permission_frc", false)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (isDhizukuActive(context)) {
+                    if (tryBindDhizukuService(context)) {
+                        Runnable runnable = () -> {
+                            for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
+                                /* ユーザーアプリか確認 */
+                                if (app.sourceDir.startsWith("/data/app/")) {
+                                    Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
+                                }
+                            }
+                        };
 
-                    if (!Common.isRunningService(context, KeepService.class.getName())) {
-                        context.startService(new Intent(context, KeepService.class));
+                        new Handler().postDelayed(runnable, 5000);
                     }
-
-                    if (!Common.isRunningService(context, ProtectKeepService.class.getName())) {
-                        context.startService(new Intent(context, ProtectKeepService.class));
+                } else {
+                    for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
+                        /* ユーザーアプリか確認 */
+                        if (app.sourceDir.startsWith("/data/app/")) {
+                            Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
+                        }
                     }
-
-                    Runnable runnable = () -> KeepService.getInstance().startService();
-
-                    new Handler().postDelayed(runnable, 1000);
                 }
             }
         }

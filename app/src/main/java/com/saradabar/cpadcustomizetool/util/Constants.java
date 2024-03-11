@@ -97,4 +97,6 @@ public class Constants {
     public static final File COUNT_DCHA_COMPLETED_FILE = new File("/factory/count_dcha_completed");
 
     public static final List<String> list = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー", "Dhizuku", "Shizuku（追加予定）");
+
+    public static final String[] modelName = {"TAB-A03-BS", "TAB-A03-BR", "TAB-A03-BR2", "TAB-A03-BR3", "TAB-A05-BD", "TAB-A05-BA1"};
 }

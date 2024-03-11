@@ -156,18 +156,19 @@
         </service>
 
         <receiver
-            android:name=".Receiver.PackageAddedReceiver"
-            android:exported="true">
+            android:name=".Receiver.PackageReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
-                <action android:name="android.intent.action.ACTION_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED" />
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
 
         <receiver
             android:name=".Receiver.BootCompletedReceiver"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
