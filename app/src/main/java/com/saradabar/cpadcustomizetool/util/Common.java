@@ -49,6 +49,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -312,6 +314,30 @@ public class Common {
         }
 
         return result;
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    public static double getDirectorySize(File file) {
+        double fileSize = 0;
+
+        if (file != null) {
+            try {
+                File[] list = file.listFiles();
+
+                for (File value : list != null ? list : new File[0]) {
+                    if (!value.isDirectory()) {
+                        fileSize += Files.size(Paths.get(value.getPath()));
+                    } else {
+                        File[] obbName = new File(value.getPath() + "/obb").listFiles();
+                        File[] obbFile = obbName != null ? obbName[0].listFiles() : new File[0];
+                        fileSize += Files.size(Paths.get(obbFile != null ? obbFile[0].getPath() : null));
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        return fileSize;
     }
 
     /* ランチャーのパッケージ名を取得 */

@@ -37,7 +37,7 @@
             android:label="@string/activity_main"
             android:theme="@style/NoActionBarTheme"
             android:exported="true"
-            android:configChanges="keyboardHidden|screenSize|orientation">
+            android:configChanges="keyboardHidden|orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />

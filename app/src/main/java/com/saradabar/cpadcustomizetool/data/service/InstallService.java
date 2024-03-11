@@ -19,10 +19,11 @@ import android.content.pm.PackageInstaller;
 import android.os.IBinder;
 
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.data.installer.Updater;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListenerList;
+import com.saradabar.cpadcustomizetool.data.installer.Updater;
 import com.saradabar.cpadcustomizetool.util.Constants;
-import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
+import com.saradabar.cpadcustomizetool.view.flagment.DeviceOwnerFragment;
+import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
 
 public class InstallService extends Service {
 
@@ -44,8 +45,10 @@ public class InstallService extends Service {
 
         switch (code) {
             case Constants.REQUEST_INSTALL_SILENT:
+                installEventListener.addEventListener(DeviceOwnerFragment.getInstance());
+                break;
             case Constants.REQUEST_INSTALL_GET_APP:
-                installEventListener.addEventListener(StartActivity.getInstance());
+                installEventListener.addEventListener(MainFragment.getInstance());
                 break;
             case Constants.REQUEST_INSTALL_SELF_UPDATE:
                 installEventListener.addEventListener(Updater.getInstance());

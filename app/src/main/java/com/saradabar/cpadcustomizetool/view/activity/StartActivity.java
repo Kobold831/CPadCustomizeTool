@@ -23,60 +23,39 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.snackbar.Snackbar;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
-import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
-import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
-import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
 import com.saradabar.cpadcustomizetool.data.installer.Updater;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Variables;
 import com.saradabar.cpadcustomizetool.view.flagment.AppSettingsFragment;
-import com.saradabar.cpadcustomizetool.view.flagment.DeviceOwnerFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
-import com.saradabar.cpadcustomizetool.view.views.AppListView;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
-public class StartActivity extends AppCompatActivity implements InstallEventListener, DownloadEventListener {
+public class StartActivity extends AppCompatActivity implements DownloadEventListener {
 
     static StartActivity instance = null;
-    IDchaService mDchaService;
     Menu menu;
+    IDchaService mDchaService;
 
     public static StartActivity getInstance() {
         return instance;
@@ -104,9 +83,9 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
     /* メニュー表示 */
     @Override
-    public boolean onCreateOptionsMenu(Menu m) {
-        menu = m;
-        getMenuInflater().inflate(R.menu.main, m);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -125,7 +104,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
 
         if (item.getItemId() == R.id.app_info_3) {
             menu.findItem(R.id.app_info_3).setVisible(false);
-            nullTransitionFragment(new AppSettingsFragment());
+            transitionFragment(new AppSettingsFragment(), true);
             return true;
         }
 
@@ -135,6 +114,7 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
             transitionFragment(new MainFragment(), false);
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -143,30 +123,18 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     @Override
     public void onBackPressed() {
         menu.findItem(R.id.app_info_3).setVisible(true);
-        getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         transitionFragment(new MainFragment(), false);
     }
 
-    public void transitionFragment(PreferenceFragmentCompat preferenceFragmentCompat, boolean enabled) {
+    public void transitionFragment(PreferenceFragmentCompat preferenceFragmentCompat, boolean showHomeAsUp) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.layout_main, preferenceFragmentCompat)
                 .commit();
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(enabled);
-        }
-    }
-
-    private void nullTransitionFragment(PreferenceFragmentCompat nextPreferenceFragment) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .addToBackStack(null)
-                .replace(R.id.layout_main, nextPreferenceFragment)
-                .commit();
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(showHomeAsUp);
         }
     }
 
@@ -181,300 +149,13 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
         }
     };
 
-    /* DchaServiceへのバインドを試行 */
-    public boolean tryBindDchaService() {
-        return bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @SuppressWarnings("deprecation")
-    public DeviceOwnerFragment.TryApkMTask.Listener apkMListener() {
-        return new DeviceOwnerFragment.TryApkMTask.Listener() {
-            AlertDialog alertDialog;
-            ByteProgressHandler progressHandler;
-
-            @Override
-            public void onShow() {
-                View view = getLayoutInflater().inflate(R.layout.view_progress, null);
-                ProgressBar progressBar = view.findViewById(R.id.progress);
-                progressBar.setProgress(0);
-                TextView textPercent = view.findViewById(R.id.progress_percent);
-                TextView textByte = view.findViewById(R.id.progress_byte);
-                textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
-                alertDialog = new MaterialAlertDialogBuilder(StartActivity.this)
-                        .setView(view)
-                        .setMessage("")
-                        .setCancelable(false)
-                        .create();
-
-                if (!alertDialog.isShowing()) alertDialog.show();
-
-                progressHandler = new ByteProgressHandler(Looper.getMainLooper(), 1);
-                progressHandler.progressBar = progressBar;
-                progressHandler.textPercent = textPercent;
-                progressHandler.textByte = textByte;
-                progressHandler.tryApkMTask = DeviceOwnerFragment.TryApkMTask.tryApkMTask;
-                progressHandler.sendEmptyMessage(0);
-            }
-
-            @Override
-            public void onSuccess() {
-                alertDialog.dismiss();
-                progressHandler.isCompleted = true;
-
-                DeviceOwnerFragment.TryApkTask tryApkTask = new DeviceOwnerFragment.TryApkTask();
-                tryApkTask.setListener(apkListener());
-                tryApkTask.execute();
-            }
-
-            @Override
-            public void onFailure() {
-                alertDialog.dismiss();
-                progressHandler.isCompleted = true;
-
-                Variables.isPreferenceLock = false;
-                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
-                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
-                try {
-                    /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
-                } catch (IOException ignored) {
-                }
-
-                new MaterialAlertDialogBuilder(StartActivity.this)
-                        .setMessage(getString(R.string.dialog_info_failure))
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-            }
-
-            @Override
-            public void onError(String str) {
-                alertDialog.dismiss();
-                progressHandler.isCompleted = true;
-
-                Variables.isPreferenceLock = false;
-                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
-                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
-                try {
-                    /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
-                } catch (IOException ignored) {
-                }
-
-                new AlertDialog.Builder(StartActivity.this)
-                        .setMessage(getString(R.string.dialog_error) + "\n" + str)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-            }
-
-            @Override
-            public void onProgressUpdate(String str) {
-                alertDialog.setMessage(str);
-            }
-        };
-    }
-
-    @SuppressWarnings("deprecation")
-    public DeviceOwnerFragment.TryXApkTask.Listener xApkListener() {
-        return new DeviceOwnerFragment.TryXApkTask.Listener() {
-            AlertDialog alertDialog;
-            ByteProgressHandler progressHandler;
-
-            @Override
-            public void onShow() {
-                View view = getLayoutInflater().inflate(R.layout.view_progress, null);
-                ProgressBar progressBar = view.findViewById(R.id.progress);
-                progressBar.setProgress(0);
-                TextView textPercent = view.findViewById(R.id.progress_percent);
-                TextView textByte = view.findViewById(R.id.progress_byte);
-                textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
-                alertDialog = new MaterialAlertDialogBuilder(StartActivity.this)
-                        .setView(view)
-                        .setMessage("")
-                        .setCancelable(false)
-                        .create();
-
-                if (!alertDialog.isShowing()) alertDialog.show();
-
-                progressHandler = new ByteProgressHandler(Looper.getMainLooper(), 0);
-                progressHandler.progressBar = progressBar;
-                progressHandler.textPercent = textPercent;
-                progressHandler.textByte = textByte;
-                progressHandler.tryXApkTask = DeviceOwnerFragment.TryXApkTask.tryXApkTask;
-                progressHandler.sendEmptyMessage(0);
-            }
-
-            @Override
-            public void onSuccess() {
-                alertDialog.dismiss();
-                progressHandler.isCompleted = true;
-
-                DeviceOwnerFragment.TryApkTask tryApkTask = new DeviceOwnerFragment.TryApkTask();
-                tryApkTask.setListener(apkListener());
-                tryApkTask.execute();
-            }
-
-            @Override
-            public void onFailure() {
-                alertDialog.dismiss();
-                progressHandler.isCompleted = true;
-
-                Variables.isPreferenceLock = false;
-                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
-                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
-                try {
-                    /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
-                } catch (IOException ignored) {
-                }
-
-                new MaterialAlertDialogBuilder(StartActivity.this)
-                        .setMessage(getString(R.string.dialog_info_failure))
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-            }
-
-            @Override
-            public void onError(String str) {
-                alertDialog.dismiss();
-                progressHandler.isCompleted = true;
-
-                Variables.isPreferenceLock = false;
-                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
-                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
-                try {
-                    /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
-                } catch (IOException ignored) {
-                }
-
-                new MaterialAlertDialogBuilder(StartActivity.this)
-                        .setMessage(getString(R.string.dialog_error) + "\n" + str)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-            }
-
-            @Override
-            public void onProgressUpdate(String str) {
-                alertDialog.setMessage(str);
-            }
-        };
-    }
-
-    public DeviceOwnerFragment.TryApkTask.Listener apkListener() {
-        return new DeviceOwnerFragment.TryApkTask.Listener() {
-
-            /* プログレスバーの表示 */
-            @Override
-            public void onShow() {
-                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(getString(R.string.progress_state_installing));
-                LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
-                linearProgressIndicator.show();
-            }
-
-            /* 成功 */
-            @Override
-            public void onSuccess() {
-                Variables.isPreferenceLock = false;
-                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
-                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
-                try {
-                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
-                    if (linearProgressIndicator.isShown()) {
-                        linearProgressIndicator.hide();
-                    }
-                } catch (Exception ignored) {
-                }
-
-                try {
-                    /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
-                } catch (IOException ignored) {
-                }
-
-                AlertDialog alertDialog = new MaterialAlertDialogBuilder(StartActivity.this)
-                        .setMessage(R.string.dialog_info_success_silent_install)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .create();
-
-                if (!alertDialog.isShowing()) {
-                    alertDialog.show();
-                }
-            }
-
-            /* 失敗 */
-            @Override
-            public void onFailure(String str) {
-                Variables.isPreferenceLock = false;
-                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
-                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
-                try {
-                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
-                    if (linearProgressIndicator.isShown()) {
-                        linearProgressIndicator.hide();
-                    }
-                } catch (Exception ignored) {
-                }
-
-                try {
-                    /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
-                } catch (IOException ignored) {
-                }
-
-                new MaterialAlertDialogBuilder(StartActivity.this)
-                        .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + str)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-            }
-
-            @Override
-            public void onError(String str) {
-                Variables.isPreferenceLock = false;
-                DeviceOwnerFragment.getInstance().preSessionInstall.setEnabled(true);
-                DeviceOwnerFragment.getInstance().preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
-                try {
-                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
-                    if (linearProgressIndicator.isShown()) {
-                        linearProgressIndicator.hide();
-                    }
-                } catch (Exception ignored) {
-                }
-
-                try {
-                    /* 一時ファイルを消去 */
-                    FileUtils.deleteDirectory(Objects.requireNonNull(getExternalCacheDir()));
-                } catch (IOException ignored) {
-                }
-
-                new MaterialAlertDialogBuilder(StartActivity.this)
-                        .setMessage(getString(R.string.dialog_error) + "\n" + str)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-            }
-        };
-    }
-
     /* 再表示 */
     @Override
     public void onResume() {
         super.onResume();
         /* DchaServiceが機能していな場合は再起動 */
         if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-            if (!tryBindDchaService()) {
+            if (!bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE)) {
                 startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 finish();
             }
@@ -482,104 +163,10 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
     }
 
     @Override
-    public void onInstallSuccess(int reqCode) {
-        switch (reqCode) {
-            case Constants.REQUEST_INSTALL_SILENT:
-                DeviceOwnerFragment.TryApkTask.mListener.onSuccess();
-                break;
-            case Constants.REQUEST_INSTALL_GET_APP:
-                try {
-                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
-                    linearProgressIndicator.hide();
-                } catch (Exception ignored) {
-                }
-
-                try {
-                    MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                } catch (Exception ignored) {
-                }
-                break;
-        }
-    }
-
-    @Override
-    public void onInstallFailure(int reqCode, String str) {
-        switch (reqCode) {
-            case Constants.REQUEST_INSTALL_SILENT:
-                try {
-                    DeviceOwnerFragment.TryApkTask.mListener.onFailure(str);
-                } catch (Exception ignored) {
-                }
-                break;
-            case Constants.REQUEST_INSTALL_GET_APP:
-                try {
-                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
-                    linearProgressIndicator.hide();
-                } catch (Exception ignored) {
-                }
-
-                try {
-                    MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                } catch (Exception ignored) {
-                }
-
-                new MaterialAlertDialogBuilder(StartActivity.this)
-                        .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + str)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-                break;
-        }
-    }
-
-    @Override
-    public void onInstallError(int reqCode, String str) {
-        switch (reqCode) {
-            case Constants.REQUEST_INSTALL_SILENT:
-                try {
-                    DeviceOwnerFragment.TryApkTask.mListener.onError(str);
-                } catch (Exception ignored) {
-                }
-                break;
-            case Constants.REQUEST_INSTALL_GET_APP:
-                try {
-                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
-                    linearProgressIndicator.hide();
-                } catch (Exception ignored) {
-                }
-
-                try {
-                    MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                } catch (Exception ignored) {
-                }
-
-                new MaterialAlertDialogBuilder(StartActivity.this)
-                        .setMessage(getString(R.string.dialog_error) + "\n" + str)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-                break;
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
     public void onDestroy() {
         super.onDestroy();
         if (mDchaService != null) {
             unbindService(mDchaServiceConnection);
-        }
-
-        if (DeviceOwnerFragment.TryApkMTask.tryApkMTask != null) {
-            DeviceOwnerFragment.TryApkMTask.tryApkMTask.cancel(true);
-        }
-
-        if (DeviceOwnerFragment.TryXApkTask.tryXApkTask != null) {
-            DeviceOwnerFragment.TryXApkTask.tryXApkTask.cancel(true);
-        }
-
-        if (DeviceOwnerFragment.TryApkTask.tryApkTask != null) {
-            DeviceOwnerFragment.TryApkTask.tryApkTask.cancel(true);
         }
     }
 
@@ -601,155 +188,22 @@ public class StartActivity extends AppCompatActivity implements InstallEventList
                 } catch (JSONException | IOException ignored) {
                 }
                 break;
-            case Constants.REQUEST_DOWNLOAD_APP_CHECK:
-                MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                ArrayList<AppListView.AppData> list = new ArrayList<>();
-
-                try {
-                    JSONObject jsonObj1 = parseJson(this);
-                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-                    JSONArray jsonArray = jsonObj2.getJSONArray("appList");
-
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        AppListView.AppData data = new AppListView.AppData();
-                        data.str = jsonArray.getJSONObject(i).getString("name");
-                        list.add(data);
-                    }
-                } catch (JSONException | IOException ignored) {
-                }
-
-                View v = getLayoutInflater().inflate(R.layout.layout_app_list, null);
-                ListView lv = v.findViewById(R.id.app_list);
-                lv.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-                lv.setAdapter(new AppListView.AppListAdapter(this, list));
-                lv.setOnItemClickListener((parent, view, position, id) -> {
-                    Preferences.save(this, Constants.KEY_RADIO_TMP, (int) id);
-                    lv.invalidateViews();
-                });
-
-                cancelLoadingDialog();
-
-                new MaterialAlertDialogBuilder(this)
-                        .setView(v)
-                        .setTitle("アプリを選択してください")
-                        .setMessage("選択してOKを押下すると詳細な情報が表示されます")
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                            StringBuilder str = new StringBuilder();
-
-                            for (int i = 0; i < lv.getCount(); i++) {
-                                RadioButton radioButton = lv.getChildAt(i).findViewById(R.id.v_app_list_radio);
-                                if (radioButton.isChecked()) {
-                                    try {
-                                        JSONObject jsonObj1 = parseJson(this);
-                                        JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-                                        JSONArray jsonArray = jsonObj2.getJSONArray("appList");
-                                        str.append("アプリ名：").append(jsonArray.getJSONObject(i).getString("name")).append("\n\n").append("説明：").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
-                                        Variables.DOWNLOAD_FILE_URL = jsonArray.getJSONObject(i).getString("url");
-                                    } catch (JSONException | IOException ignored) {
-                                    }
-                                }
-                            }
-
-                            if (str.toString().isEmpty()) {
-                                return;
-                            }
-
-                            new MaterialAlertDialogBuilder(this)
-                                    .setMessage(str + "\n" + "よろしければOKを押下してください")
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
-                                        if (!Objects.equals(Variables.DOWNLOAD_FILE_URL, "MYURL")) {
-                                            startDownload();
-                                            dialog.dismiss();
-                                        } else {
-                                            View view = getLayoutInflater().inflate(R.layout.view_app_url, null);
-                                            EditText editText = view.findViewById(R.id.edit_app_url);
-                                            new MaterialAlertDialogBuilder(this)
-                                                    .setMessage("http://またはhttps://を含むURLを指定してください")
-                                                    .setView(view)
-                                                    .setCancelable(false)
-                                                    .setPositiveButton(R.string.dialog_common_ok, (dialog3, which3) -> {
-                                                        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editText.getWindowToken(), 0);
-                                                        Variables.DOWNLOAD_FILE_URL = editText.getText().toString();
-                                                        startDownload();
-                                                    })
-                                                    .setNegativeButton(R.string.dialog_common_cancel, null)
-                                                    .show();
-                                        }
-                                    })
-                                    .show();
-                        })
-                        .show();
-                break;
             /* APKダウンロード要求の場合 */
             case Constants.REQUEST_DOWNLOAD_APK:
                 new Handler().post(() -> new Updater(this).installApk(this, 1));
-                break;
-            default:
                 break;
         }
     }
 
     @Override
     public void onDownloadError(int reqCode) {
-        if (reqCode != Constants.REQUEST_DOWNLOAD_UPDATE_CHECK) {
-            cancelLoadingDialog();
-            new MaterialAlertDialogBuilder(this)
-                    .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                    .show();
-        }
     }
 
     @Override
     public void onConnectionError(int reqCode) {
-        if (reqCode != Constants.REQUEST_DOWNLOAD_UPDATE_CHECK) {
-            cancelLoadingDialog();
-            new MaterialAlertDialogBuilder(this)
-                    .setMessage("データ取得に失敗しました\nネットワークを確認してください")
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                    .show();
-        }
     }
 
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
-        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
-        linearProgressIndicator.setIndeterminate(false);
-        linearProgressIndicator.setProgress(progress);
-
-        try {
-            MainFragment.getInstance().preGetApp.setSummary(new StringBuilder("インストールファイルをサーバーからダウンロードしています...しばらくお待ち下さい...\n進行状況：").append(progress).append("%"));
-        } catch (Exception ignored) {
-        }
-    }
-
-    public void showLoadingDialog() {
-        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
-        linearProgressIndicator.show();
-    }
-
-    public void cancelLoadingDialog() {
-        try {
-            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-        } catch (Exception ignored) {
-        }
-
-        try {
-            LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
-            if (linearProgressIndicator.isShown()) {
-                linearProgressIndicator.hide();
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
-    private void startDownload() {
-        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.act_progress_main);
-        linearProgressIndicator.show();
-        FileDownloadTask fileDownloadTask = new FileDownloadTask();
-        fileDownloadTask.execute(this, Variables.DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
-        ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
-        progressHandler.fileDownloadTask = fileDownloadTask;
-        progressHandler.sendEmptyMessage(0);
     }
 }

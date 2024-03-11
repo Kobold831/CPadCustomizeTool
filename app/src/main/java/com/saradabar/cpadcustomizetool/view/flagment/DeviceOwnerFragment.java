@@ -17,7 +17,6 @@ import static com.saradabar.cpadcustomizetool.util.Common.mDhizukuService;
 import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -26,44 +25,43 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInstaller;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.Looper;
 import android.os.RemoteException;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
-import com.saradabar.cpadcustomizetool.data.installer.SessionInstaller;
+import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
+import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
+import com.saradabar.cpadcustomizetool.data.task.ApkInstallTask;
+import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
+import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
-import com.saradabar.cpadcustomizetool.util.Path;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Variables;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 
-import org.zeroturnaround.zip.ZipException;
-import org.zeroturnaround.zip.ZipUtil;
 import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-public class DeviceOwnerFragment extends PreferenceFragmentCompat {
+public class DeviceOwnerFragment extends PreferenceFragmentCompat implements InstallEventListener {
 
     String[] splitInstallData = new String[128];
-
-    double totalByte = 0;
 
     public Preference preUninstallBlock,
             preSessionInstall,
@@ -80,12 +78,17 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
         return instance;
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        instance = this;
+    }
+
     @SuppressWarnings("deprecation")
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_owner, rootKey);
 
-        instance = this;
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
         preUninstallBlock = findPreference("pre_owner_uninstall_block");
         swPrePermissionFrc = findPreference("pre_owner_permission_frc");
@@ -99,6 +102,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 startActivity(new Intent(requireActivity(), UninstallBlockActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (ActivityNotFoundException ignored) {
             }
+
             return false;
         });
 
@@ -118,6 +122,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                     } else {
                         dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
                     }
+
                     for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
                         /* ユーザーアプリか確認 */
                         if (app.sourceDir.startsWith("/data/app/")) {
@@ -127,16 +132,20 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 } else {
                     swPrePermissionFrc.setChecked(false);
                     swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
+
                     if (isDhizukuActive(requireActivity())) {
                         if (tryBindDhizukuService(requireActivity())) {
                             try {
                                 mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_PROMPT);
                             } catch (RemoteException ignored) {
                             }
-                        } else return false;
+                        } else {
+                            return false;
+                        }
                     } else {
                         dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_PROMPT);
                     }
+
                     for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
                         /* ユーザーアプリか確認 */
                         if (app.sourceDir.startsWith("/data/app/")) {
@@ -145,12 +154,14 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                     }
                 }
             }
+
             return true;
         });
 
         preSessionInstall.setOnPreferenceClickListener(preference -> {
             preSessionInstall.setEnabled(false);
             Variables.isPreferenceLock = true;
+
             try {
                 startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/*"}).addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), ""), Constants.REQUEST_ACTIVITY_INSTALL);
             } catch (ActivityNotFoundException ignored) {
@@ -160,6 +171,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
             }
+
             return false;
         });
 
@@ -209,6 +221,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     /* 初期化 */
     private void initialize() {
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+
         if (dpm.isDeviceOwnerApp(requireActivity().getPackageName())) {
             if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -282,6 +295,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
     private String getDeviceOwnerPackage() {
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+
         for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
             /* ユーザーアプリか確認 */
             if (app.sourceDir.startsWith("/data/app/")) {
@@ -290,6 +304,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 }
             }
         }
+
         return null;
     }
 
@@ -307,29 +322,24 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
 
         if (requestCode == Constants.REQUEST_ACTIVITY_INSTALL) {
             if (trySetInstallData(data)) {
-                String str = new File(splitInstallData[0]).getName();
+                String installFileName = new File(splitInstallData[0]).getName();
 
                 /* ファイルの拡張子 */
-                if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
-                    TryApkTask at = new TryApkTask();
-                    at.setListener(StartActivity.getInstance().apkListener());
-                    at.execute();
+                if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
+                    new ApkInstallTask().execute(requireActivity(), apkListener(), splitInstallData);
                     return;
-                } else if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".xapk")) {
-                    TryXApkTask xat = new TryXApkTask();
-                    xat.setListener(StartActivity.getInstance().xApkListener());
-                    xat.execute();
+                } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".xapk")) {
+                    new XApkCopyTask().execute(requireActivity(), xApkListener(), splitInstallData);
                     return;
-                } else if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
-                    TryApkMTask amt = new TryApkMTask();
-                    amt.setListener(StartActivity.getInstance().apkMListener());
-                    amt.execute();
+                } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
+                    new ApkMCopyTask().execute(requireActivity(), apkMListener(), splitInstallData);
                     return;
                 }
             }
 
             Variables.isPreferenceLock = false;
             preSessionInstall.setEnabled(true);
+
             new MaterialAlertDialogBuilder(requireActivity())
                     .setMessage(getString(R.string.dialog_error_no_file_data))
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -341,20 +351,29 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
     private boolean trySetInstallData(Intent intent) {
         try {
             /* 一時ファイルを消去 */
-            FileUtils.deleteDirectory(Objects.requireNonNull(requireActivity().getExternalCacheDir()));
+            File tmpFile = requireActivity().getExternalCacheDir();
 
-            ClipData cd = intent.getClipData();
+            if (tmpFile != null) {
+                FileUtils.deleteDirectory(tmpFile);
+            }
+        } catch (IOException ignored) {
+        }
 
-            if (cd == null) {
+        try {
+            ClipData clipData = intent.getClipData();
+
+            if (clipData == null) {
                 /* シングルApk */
                 splitInstallData[0] = Common.getFilePath(requireActivity(), intent.getData());
 
-                if (splitInstallData[0] == null) return false;
+                if (splitInstallData[0] == null) {
+                    return false;
+                }
 
-                String str = new File(splitInstallData[0]).getName();
+                String installFileName = new File(splitInstallData[0]).getName();
 
                 /* ファイルの拡張子 */
-                if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk") || str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".xapk") || str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
+                if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk") || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".xapk") || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
                     return splitInstallData != null;
                 } else {
                     /* 未対応またはインストールファイルでないなら終了 */
@@ -362,450 +381,332 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat {
                 }
             } else {
                 /* マルチApk */
-                for (int i = 0; i < cd.getItemCount(); i++) {
+                for (int i = 0; i < clipData.getItemCount(); i++) {
                     /* 処理 */
-                    splitInstallData[i] = Common.getFilePath(requireActivity(), cd.getItemAt(i).getUri());
+                    splitInstallData[i] = Common.getFilePath(requireActivity(), clipData.getItemAt(i).getUri());
                 }
             }
+
             return splitInstallData != null;
         } catch (Exception ignored) {
             return false;
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.O)
-    private double getDirectorySize(File file) {
-        double fileSize = 0;
+    public ApkInstallTask.Listener apkListener() {
+        return new ApkInstallTask.Listener() {
 
-        if (file != null) {
-            try {
-                File[] list = file.listFiles();
-                for (File value : list != null ? list : new File[0]) {
-                    if (!value.isDirectory()) {
-                        fileSize += Files.size(Paths.get(value.getPath()));
-                    } else {
-                        File[] obbName = new File(value.getPath() + "/obb").listFiles();
-                        File[] obbFile = obbName != null ? obbName[0].listFiles() : new File[0];
-                        fileSize += Files.size(Paths.get(obbFile != null ? obbFile[0].getPath() : null));
-                    }
+            /* プログレスバーの表示 */
+            @Override
+            public void onShow() {
+                preSessionInstall.setSummary(getString(R.string.progress_state_installing));
+                LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+                linearProgressIndicator.show();
+            }
+
+            /* 成功 */
+            @Override
+            public void onSuccess() {
+                Variables.isPreferenceLock = false;
+                preSessionInstall.setEnabled(true);
+                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
+
+                LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+
+                if (linearProgressIndicator.isShown()) {
+                    linearProgressIndicator.hide();
                 }
-            } catch (Exception ignored) {
-            }
-        }
-        return fileSize;
-    }
 
-    /* 解凍コピータスク */
-    @SuppressWarnings("deprecation")
-    public static class TryApkMTask extends AsyncTask<Object, Void, Object> {
-
-        public static TryApkMTask.Listener mListener;
-        public static TryApkMTask tryApkMTask;
-
-        @Override
-        protected void onPreExecute() {
-            tryApkMTask = this;
-            getInstance().totalByte = 0;
-            mListener.onShow();
-        }
-
-        @Override
-        protected Object doInBackground(Object... value) {
-            String str = new File(getInstance().splitInstallData[0]).getParent() + File.separator + new File(getInstance().splitInstallData[0]).getName().replaceFirst("\\..*", ".zip");
-
-            /* 拡張子.apkmを.zipに変更 */
-            onProgressUpdate(getInstance().getString(R.string.progress_state_rename));
-
-            if (!new File(getInstance().splitInstallData[0]).renameTo(new File(str))) {
-                return "拡張子の変更に失敗しました";
-            }
-
-            File file = new File(Path.getTemporaryPath(getInstance().requireActivity()));
-
-            /* zipを展開して外部ディレクトリに一時保存 */
-            onProgressUpdate(getInstance().getString(R.string.progress_state_unpack));
-
-            getInstance().totalByte = new File(str).length();
-
-            try {
-                ZipUtil.unpack(new File(str), file);
-            } catch (ZipException e) {
-                return "圧縮ファイルが無効のため展開できません\n" + e.getMessage();
-            } catch (Exception e) {
-                return getInstance().getString(R.string.installer_status_no_allocatable_space) + e.getMessage();
-            }
-
-            /* 拡張子.zipを.apkmに変更 */
-            onProgressUpdate(getInstance().getString(R.string.progress_state_rename));
-
-            if (!new File(str).renameTo(new File(new File(str).getParent() + File.separator + new File(str).getName().replaceFirst("\\..*", ".apkm")))) {
-                return "拡張子の変更に失敗しました";
-            }
-
-            File[] list = file.listFiles();
-
-            if (list != null) {
-                int c = 0;
-                /* ディレクトリのなかのファイルを取得 */
-                for (int i = 0; i < list.length; i++) {
-                    if (list[i].isDirectory()) {
-                        c++;
-                    } else {
-                        onProgressUpdate(getInstance().getString(R.string.progress_state_check_file));
-                        str = list[i].getName();
-
-                        /* apkファイルならパスをインストールデータへ */
-                        if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
-                            getInstance().splitInstallData[i - c] = list[i].getPath();
-                        } else {
-                            /* apkファイルでなかったときのリストの順番を修正 */
-                            c++;
-                        }
-                    }
-                }
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        private void onProgressUpdate(String str) {
-            mListener.onProgressUpdate(str);
-        }
-
-        @Override
-        protected void onPostExecute(Object result) {
-            if (result == null) {
-                mListener.onError(getInstance().getString(R.string.installer_status_unknown_error));
-                return;
-            }
-
-            if (result.equals(true)) {
-                mListener.onSuccess();
-                return;
-            }
-
-            if (result.equals(false)) {
-                mListener.onFailure();
-                return;
-            }
-
-            mListener.onError(result.toString());
-        }
-
-        public void setListener(TryApkMTask.Listener listener) {
-            mListener = listener;
-        }
-
-        /* StartActivity */
-        public interface Listener {
-            void onShow();
-
-            void onSuccess();
-
-            void onFailure();
-
-            void onError(String str);
-
-            void onProgressUpdate(String str);
-        }
-
-        public int getLoadedBytePercent() {
-            double fileSize;
-
-            if (getInstance().totalByte <= 0) {
-                return 0;
-            }
-
-            fileSize = Common.getFileSize(new File(Path.getTemporaryPath(getInstance().requireActivity())));
-
-            return (int) Math.floor(100 * fileSize / getInstance().totalByte);
-        }
-
-        public int getLoadedTotalByte() {
-            return (int) getInstance().totalByte / (1024 * 1024);
-        }
-
-        public int getLoadedCurrentByte() {
-            double fileSize;
-
-            if (getInstance().totalByte <= 0) {
-                return 0;
-            }
-
-            fileSize = Common.getFileSize(new File(Path.getTemporaryPath(getInstance().requireActivity())));
-
-            return (int) fileSize / (1024 * 1024);
-        }
-    }
-
-    /* 解凍コピータスク */
-    @SuppressWarnings("deprecation")
-    public static class TryXApkTask extends AsyncTask<Object, Void, Object> {
-
-        public static TryXApkTask.Listener mListener;
-        public static TryXApkTask tryXApkTask;
-
-        public static String obbPath1;
-        public static String obbPath2;
-
-        @Override
-        protected void onPreExecute() {
-            tryXApkTask = this;
-            getInstance().totalByte = 0;
-            mListener.onShow();
-        }
-
-        @Override
-        protected Object doInBackground(Object... value) {
-            String str = new File(getInstance().splitInstallData[0]).getParent() + File.separator + new File(getInstance().splitInstallData[0]).getName().replaceFirst("\\..*", ".zip");
-
-            /* 拡張子.xapkを.zipに変更 */
-            onProgressUpdate(getInstance().getString(R.string.progress_state_rename));
-
-            if (!new File(getInstance().splitInstallData[0]).renameTo(new File(str))) {
-                return "拡張子の変更に失敗しました";
-            }
-
-            File file = new File(Path.getTemporaryPath(getInstance().requireActivity()));
-
-            /* zipを展開して外部ディレクトリに一時保存 */
-            onProgressUpdate(getInstance().getString(R.string.progress_state_unpack));
-
-            getInstance().totalByte = new File(str).length();
-
-            try {
-                ZipUtil.unpack(new File(str), file);
-            } catch (ZipException e) {
-                return "圧縮ファイルが無効のため展開できません\n" + e.getMessage();
-            } catch (Exception e) {
-                return getInstance().getString(R.string.installer_status_no_allocatable_space) + e.getMessage();
-            }
-
-            /* 拡張子.zipを.xapkに変更 */
-            onProgressUpdate(getInstance().getString(R.string.progress_state_rename));
-
-            if (!new File(str).renameTo(new File(new File(str).getParent() + File.separator + new File(str).getName().replaceFirst("\\..*", ".xapk")))) {
-                return "拡張子の変更に失敗しました";
-            }
-
-            File[] list = file.listFiles();
-
-            if (list != null) {
-                int c = 0;
-                /* ディレクトリのなかのファイルを取得 */
-                for (int i = 0; i < list.length; i++) {
-                    /* obbデータを取得 */
-                    if (list[i].isDirectory()) {
-                        c++;
-
-                        try {
-                            /* obbデータをコピー */
-                            onProgressUpdate(getInstance().getString(R.string.progress_state_copy_file));
-                            File[] obbName = new File(list[i].getPath() + "/obb").listFiles();
-                            File[] obbFile = obbName != null ? obbName[0].listFiles() : new File[0];
-                            getInstance().totalByte = obbFile != null ? obbFile[0].length() : 0;
-                            obbPath1 = obbName[0].getName();
-                            obbPath2 = obbFile != null ? obbFile[0].getName() : null;
-                            FileUtils.copyDirectory(new File(list[i].getPath() + "/obb/"), new File(Environment.getExternalStorageDirectory() + "/Android/obb"));
-                        } catch (Exception e) {
-                            return getInstance().getString(R.string.installer_status_no_allocatable_space) + e.getMessage();
-                        }
-                    } else {
-                        onProgressUpdate(getInstance().getString(R.string.progress_state_check_file));
-                        str = list[i].getName();
-
-                        /* apkファイルならパスをインストールデータへ */
-                        if (str.substring(str.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
-                            getInstance().splitInstallData[i - c] = list[i].getPath();
-                        } else {
-                            /* apkファイルでなかったときのリストの順番を修正 */
-                            c++;
-                        }
-                    }
-                }
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        private void onProgressUpdate(String str) {
-            mListener.onProgressUpdate(str);
-        }
-
-        @Override
-        protected void onPostExecute(Object result) {
-            if (result == null) {
-                mListener.onError(getInstance().getString(R.string.installer_status_unknown_error));
-                return;
-            }
-
-            if (result.equals(true)) {
-                mListener.onSuccess();
-                return;
-            }
-
-            if (result.equals(false)) {
-                mListener.onFailure();
-                return;
-            }
-
-            mListener.onError(result.toString());
-        }
-
-        public void setListener(TryXApkTask.Listener listener) {
-            mListener = listener;
-        }
-
-        /* StartActivity */
-        public interface Listener {
-            void onShow();
-
-            void onSuccess();
-
-            void onFailure();
-
-            void onError(String str);
-
-            void onProgressUpdate(String str);
-        }
-
-        @TargetApi(Build.VERSION_CODES.O)
-        public int getLoadedBytePercent() {
-            double fileSize = 0;
-
-            if (getInstance().totalByte <= 0) return 0;
-
-            if (obbPath1 == null) {
-                fileSize = getInstance().getDirectorySize(new File(Path.getTemporaryPath(getInstance().requireActivity())));
-            } else {
                 try {
-                    fileSize = Files.size(Paths.get(Environment.getExternalStorageDirectory() + "/Android/obb/" + obbPath1 + "/" + obbPath2));
+                    /* 一時ファイルを消去 */
+                    File tmpFile = requireActivity().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
                 } catch (IOException ignored) {
                 }
-            }
 
-            return (int) Math.floor(100 * fileSize / getInstance().totalByte);
-        }
+                AlertDialog alertDialog = new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                        .setMessage(R.string.dialog_info_success_silent_install)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .create();
 
-        public int getLoadedTotalByte() {
-            return (int) getInstance().totalByte / (1024 * 1024);
-        }
-
-        @TargetApi(Build.VERSION_CODES.O)
-        public int getLoadedCurrentByte() {
-            double fileSize = 0;
-
-            if (getInstance().totalByte <= 0) return 0;
-
-            if (obbPath1 == null) {
-                fileSize = getInstance().getDirectorySize(new File(Path.getTemporaryPath(getInstance().requireActivity())));
-            } else {
-                try {
-                    fileSize = Files.size(Paths.get(Environment.getExternalStorageDirectory() + "/Android/obb/" + obbPath1 + "/" + obbPath2));
-                } catch (IOException ignored) {
+                if (!alertDialog.isShowing()) {
+                    alertDialog.show();
                 }
             }
 
-            return (int) fileSize / (1024 * 1024);
+            /* 失敗 */
+            @Override
+            public void onFailure(String message) {
+                Variables.isPreferenceLock = false;
+                preSessionInstall.setEnabled(true);
+                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
+
+                LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+
+                if (linearProgressIndicator.isShown()) {
+                    linearProgressIndicator.hide();
+                }
+
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = requireActivity().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (IOException ignored) {
+                }
+
+                new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                        .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            @Override
+            public void onError(String message) {
+                Variables.isPreferenceLock = false;
+                preSessionInstall.setEnabled(true);
+                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
+
+                LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+
+                if (linearProgressIndicator.isShown()) {
+                    linearProgressIndicator.hide();
+                }
+
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = requireActivity().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (IOException ignored) {
+                }
+
+                new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+        };
+    }
+
+    public XApkCopyTask.Listener xApkListener() {
+        return new XApkCopyTask.Listener() {
+
+            AlertDialog alertDialog;
+            ByteProgressHandler progressHandler;
+
+            @Override
+            public void onShow() {
+                View view = getLayoutInflater().inflate(R.layout.view_progress, null);
+                ProgressBar progressBar = view.findViewById(R.id.progress);
+                TextView textPercent = view.findViewById(R.id.progress_percent);
+                TextView textByte = view.findViewById(R.id.progress_byte);
+
+                progressBar.setProgress(0);
+                textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
+
+                alertDialog = new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                        .setView(view)
+                        .setMessage("")
+                        .setCancelable(false)
+                        .create();
+
+                if (!alertDialog.isShowing()) {
+                    alertDialog.show();
+                }
+
+                progressHandler = new ByteProgressHandler(Looper.getMainLooper());
+                progressHandler.progressBar = progressBar;
+                progressHandler.textPercent = textPercent;
+                progressHandler.textByte = textByte;
+                progressHandler.xApkCopyTask = XApkCopyTask.xApkCopyTask;
+                progressHandler.sendEmptyMessage(0);
+            }
+
+            @Override
+            public void onSuccess() {
+                alertDialog.dismiss();
+                new ApkInstallTask().execute(requireActivity(), apkListener(), splitInstallData);
+            }
+
+            @Override
+            public void onFailure() {
+                alertDialog.dismiss();
+                Variables.isPreferenceLock = false;
+                preSessionInstall.setEnabled(true);
+                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
+
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = requireActivity().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (IOException ignored) {
+                }
+
+                new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                        .setMessage(getString(R.string.dialog_info_failure))
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            @Override
+            public void onError(String message) {
+                alertDialog.dismiss();
+                Variables.isPreferenceLock = false;
+                preSessionInstall.setEnabled(true);
+                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
+
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = requireActivity().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (IOException ignored) {
+                }
+
+                new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            @Override
+            public void onProgressUpdate(String message) {
+                alertDialog.setMessage(message);
+            }
+        };
+    }
+
+    public ApkMCopyTask.Listener apkMListener() {
+        return new ApkMCopyTask.Listener() {
+
+            AlertDialog alertDialog;
+            ByteProgressHandler progressHandler;
+
+            @Override
+            public void onShow() {
+                View view = getLayoutInflater().inflate(R.layout.view_progress, null);
+                ProgressBar progressBar = view.findViewById(R.id.progress);
+                TextView textPercent = view.findViewById(R.id.progress_percent);
+                TextView textByte = view.findViewById(R.id.progress_byte);
+
+                progressBar.setProgress(0);
+                textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
+
+                alertDialog = new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                        .setView(view)
+                        .setMessage("")
+                        .setCancelable(false)
+                        .create();
+
+                if (!alertDialog.isShowing()) {
+                    alertDialog.show();
+                }
+
+                progressHandler = new ByteProgressHandler(Looper.getMainLooper());
+                progressHandler.progressBar = progressBar;
+                progressHandler.textPercent = textPercent;
+                progressHandler.textByte = textByte;
+                progressHandler.apkMCopyTask = ApkMCopyTask.apkMCopyTask;
+                progressHandler.sendEmptyMessage(0);
+            }
+
+            @Override
+            public void onSuccess() {
+                alertDialog.dismiss();
+                new ApkInstallTask().execute(requireActivity(), apkListener(), splitInstallData);
+            }
+
+            @Override
+            public void onFailure() {
+                alertDialog.dismiss();
+                Variables.isPreferenceLock = false;
+                preSessionInstall.setEnabled(true);
+                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
+
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = requireActivity().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (IOException ignored) {
+                }
+
+                new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                        .setMessage(getString(R.string.dialog_info_failure))
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            @Override
+            public void onError(String message) {
+                alertDialog.dismiss();
+                Variables.isPreferenceLock = false;
+                preSessionInstall.setEnabled(true);
+                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
+
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = requireActivity().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (IOException ignored) {
+                }
+
+                new AlertDialog.Builder(StartActivity.getInstance())
+                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            @Override
+            public void onProgressUpdate(String message) {
+                alertDialog.setMessage(message);
+            }
+        };
+    }
+
+    @Override
+    public void onInstallSuccess(int reqCode) {
+        if (reqCode == Constants.REQUEST_INSTALL_SILENT) {
+            apkListener().onSuccess();
         }
     }
 
-    /* インストールタスク */
-    @SuppressWarnings("deprecation")
-    public static class TryApkTask extends AsyncTask<Object, Void, Object> {
-        public static TryApkTask.Listener mListener;
-        public static TryApkTask tryApkTask;
-
-        @Override
-        protected void onPreExecute() {
-            tryApkTask = this;
-            mListener.onShow();
+    @Override
+    public void onInstallFailure(int reqCode, String message) {
+        if (reqCode == Constants.REQUEST_INSTALL_SILENT) {
+            apkListener().onFailure(message);
         }
+    }
 
-        @Override
-        protected Object doInBackground(Object... value) {
-            if (isDhizukuActive(getInstance().requireActivity())) {
-                AtomicBoolean result = new AtomicBoolean(false);
-                if (tryBindDhizukuService(getInstance().requireActivity())) {
-                    try {
-                        result.set(mDhizukuService.tryInstallPackages(getInstance().splitInstallData, Constants.REQUEST_INSTALL_SILENT));
-                    } catch (RemoteException ignored) {
-                    }
-                }
-                return result.get();
-            } else {
-                SessionInstaller sessionInstaller = new SessionInstaller();
-                int sessionId;
-
-                try {
-                    sessionId = sessionInstaller.splitCreateSession(getInstance().requireActivity()).i;
-
-                    if (sessionId < 0) {
-                        return false;
-                    }
-                } catch (Exception e) {
-                    return e.getMessage();
-                }
-
-                /* インストールデータの長さ回数繰り返す */
-                for (String str : getInstance().splitInstallData) {
-                    /* 配列の中身を確認 */
-                    if (str != null) {
-                        try {
-                            if (!sessionInstaller.splitWriteSession(getInstance().requireActivity(), new File(str), sessionId).bl) {
-                                return false;
-                            }
-                        } catch (Exception e) {
-                            return e.getMessage();
-                        }
-                    } else {
-                        /* つぎの配列がnullなら終了 */
-                        break;
-                    }
-                }
-
-                try {
-                    return sessionInstaller.splitCommitSession(getInstance().requireActivity(), sessionId, 0).bl;
-                } catch (Exception e) {
-                    return e.getMessage();
-                }
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Object result) {
-            if (result == null) {
-                mListener.onError(getInstance().getString(R.string.installer_status_unknown_error));
-                return;
-            }
-
-            if (result.equals(true)) {
-                return;
-            }
-
-            if (result.equals(false)) {
-                mListener.onFailure("");
-                return;
-            }
-
-            mListener.onError(result.toString());
-        }
-
-        public void setListener(TryApkTask.Listener listener) {
-            mListener = listener;
-        }
-
-        /* StartActivity */
-        public interface Listener {
-            void onShow();
-
-            void onSuccess();
-
-            void onFailure(String str);
-
-            void onError(String str);
+    @Override
+    public void onInstallError(int reqCode, String message) {
+        if (reqCode == Constants.REQUEST_INSTALL_SILENT) {
+            apkListener().onError(message);
         }
     }
 }

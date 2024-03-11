@@ -13,7 +13,6 @@
 package com.saradabar.cpadcustomizetool.data.handler;
 
 import android.annotation.TargetApi;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -23,57 +22,49 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.saradabar.cpadcustomizetool.view.flagment.DeviceOwnerFragment;
+import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
+import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
 
 public class ByteProgressHandler extends Handler {
 
-    int reqCode;
+    public XApkCopyTask xApkCopyTask;
+    public ApkMCopyTask apkMCopyTask;
     public ProgressBar progressBar;
     public TextView textPercent, textByte;
-    public DeviceOwnerFragment.TryXApkTask tryXApkTask;
-    public DeviceOwnerFragment.TryApkMTask tryApkMTask;
-    public boolean isCompleted = false;
 
-    public ByteProgressHandler(Looper looper, int i) {
+    public ByteProgressHandler(Looper looper) {
         super(looper);
-        reqCode = i;
     }
 
     @TargetApi(Build.VERSION_CODES.O)
-    @SuppressWarnings("deprecation")
     @Override
     public void handleMessage(@NonNull Message msg) {
         super.handleMessage(msg);
 
-        switch (reqCode) {
-            case 0:
-                if (isCompleted) {
-                    progressBar.setProgress(0);
-                    return;
-                }
+        if (xApkCopyTask != null) {
+            if (xApkCopyTask.isFinish()) {
+                progressBar.setProgress(0);
+                return;
+            }
 
-                if (!tryXApkTask.isCancelled() || tryXApkTask.getStatus() != AsyncTask.Status.FINISHED) {
-                    progressBar.setProgress(tryXApkTask.getLoadedBytePercent());
-                    textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append("%"));
-                    textByte.setText(new StringBuilder(String.valueOf(tryXApkTask.getLoadedCurrentByte())).append(" / ").append(tryXApkTask.getLoadedTotalByte()).append(" MB"));
+            progressBar.setProgress(xApkCopyTask.getLoadedBytePercent(progressBar.getContext()));
+            textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append("%"));
+            textByte.setText(new StringBuilder(String.valueOf(xApkCopyTask.getLoadedCurrentByte(textByte.getContext()))).append(" / ").append(xApkCopyTask.getLoadedTotalByte()).append(" MB"));
 
-                    sendEmptyMessageDelayed(0, 100);
-                }
-                break;
-            case 1:
-                if (isCompleted) {
-                    progressBar.setProgress(0);
-                    return;
-                }
+            sendEmptyMessageDelayed(0, 100);
+        }
 
-                if (!tryApkMTask.isCancelled() || tryApkMTask.getStatus() != AsyncTask.Status.FINISHED) {
-                    progressBar.setProgress(tryApkMTask.getLoadedBytePercent());
-                    textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append("%"));
-                    textByte.setText(new StringBuilder(String.valueOf(tryApkMTask.getLoadedCurrentByte())).append(" / ").append(tryApkMTask.getLoadedTotalByte()).append(" MB"));
+        if (apkMCopyTask != null) {
+            if (apkMCopyTask.isFinish()) {
+                progressBar.setProgress(0);
+                return;
+            }
 
-                    sendEmptyMessageDelayed(0, 100);
-                }
-                break;
+            progressBar.setProgress(apkMCopyTask.getLoadedBytePercent(progressBar.getContext()));
+            textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append("%"));
+            textByte.setText(new StringBuilder(String.valueOf(apkMCopyTask.getLoadedCurrentByte(textByte.getContext()))).append(" / ").append(apkMCopyTask.getLoadedTotalByte()).append(" MB"));
+
+            sendEmptyMessageDelayed(0, 100);
         }
     }
 }

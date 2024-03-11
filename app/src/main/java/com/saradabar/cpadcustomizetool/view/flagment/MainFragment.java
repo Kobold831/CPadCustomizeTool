@@ -14,6 +14,7 @@ package com.saradabar.cpadcustomizetool.view.flagment;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
 
 import android.annotation.SuppressLint;
@@ -37,6 +38,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.view.View;
@@ -44,6 +46,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
@@ -60,6 +63,9 @@ import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
+import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
+import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
+import com.saradabar.cpadcustomizetool.data.installer.Updater;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.task.DchaInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
@@ -68,21 +74,29 @@ import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
+import com.saradabar.cpadcustomizetool.util.Variables;
 import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NormalActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
+import com.saradabar.cpadcustomizetool.view.views.AppListView;
 import com.saradabar.cpadcustomizetool.view.views.LauncherView;
 import com.saradabar.cpadcustomizetool.view.views.NormalModeView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
 
-public class MainFragment extends PreferenceFragmentCompat {
+public class MainFragment extends PreferenceFragmentCompat implements DownloadEventListener, InstallEventListener {
 
     @SuppressLint("StaticFieldLeak")
     static MainFragment instance = null;
@@ -926,8 +940,8 @@ public class MainFragment extends PreferenceFragmentCompat {
 
         preGetApp.setOnPreferenceClickListener(preference -> {
             preGetApp.setSummary("サーバーと通信しています...");
-            StartActivity.getInstance().showLoadingDialog();
-            new FileDownloadTask().execute((DownloadEventListener) requireActivity(), Constants.URL_CHECK, new File(requireActivity().getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_APP_CHECK);
+            showLoadingDialog();
+            new FileDownloadTask().execute((DownloadEventListener) this, Constants.URL_CHECK, new File(requireActivity().getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_APP_CHECK);
             return false;
         });
 
@@ -1190,6 +1204,19 @@ public class MainFragment extends PreferenceFragmentCompat {
         }
     }
 
+    public void showLoadingDialog() {
+        LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+        linearProgressIndicator.show();
+    }
+
+    public void cancelLoadingDialog() {
+        LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+
+        if (linearProgressIndicator.isShown()) {
+            linearProgressIndicator.hide();
+        }
+    }
+
     private void cfmDialog() {
         new MaterialAlertDialogBuilder(requireActivity())
                 .setCancelable(false)
@@ -1230,6 +1257,14 @@ public class MainFragment extends PreferenceFragmentCompat {
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                     .show();
         }
+    }
+
+    private void startDownload() {
+        FileDownloadTask fileDownloadTask = new FileDownloadTask();
+        fileDownloadTask.execute(this, Variables.DOWNLOAD_FILE_URL, new File(requireActivity().getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
+        ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
+        progressHandler.fileDownloadTask = fileDownloadTask;
+        progressHandler.sendEmptyMessage(0);
     }
 
     /* アクティビティ破棄 */
@@ -1433,5 +1468,175 @@ public class MainFragment extends PreferenceFragmentCompat {
                         .show();
             }
         };
+    }
+
+    @Override
+    public void onDownloadComplete(int reqCode) {
+        switch (reqCode) {
+            case Constants.REQUEST_DOWNLOAD_APP_CHECK:
+                preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                cancelLoadingDialog();
+
+                ArrayList<AppListView.AppData> appDataArrayList = new ArrayList<>();
+
+                try {
+                    JSONObject jsonObj1 = parseJson(requireActivity());
+                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                    JSONArray jsonArray = jsonObj2.getJSONArray("appList");
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        AppListView.AppData data = new AppListView.AppData();
+                        data.str = jsonArray.getJSONObject(i).getString("name");
+                        appDataArrayList.add(data);
+                    }
+                } catch (JSONException | IOException ignored) {
+                }
+
+                View view = getLayoutInflater().inflate(R.layout.layout_app_list, null);
+                ListView listView = view.findViewById(R.id.app_list);
+                listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+                listView.setAdapter(new AppListView.AppListAdapter(requireActivity(), appDataArrayList));
+                listView.setOnItemClickListener((parent, view1, position, id) -> {
+                    Preferences.save(requireActivity(), Constants.KEY_RADIO_TMP, (int) id);
+                    listView.invalidateViews();
+                });
+
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setView(view)
+                        .setTitle("アプリを選択してください")
+                        .setMessage("選択してOKを押下すると詳細な情報が表示されます")
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            StringBuilder str = new StringBuilder();
+
+                            for (int i = 0; i < listView.getCount(); i++) {
+                                RadioButton radioButton = listView.getChildAt(i).findViewById(R.id.v_app_list_radio);
+                                if (radioButton.isChecked()) {
+                                    try {
+                                        JSONObject jsonObj1 = parseJson(requireActivity());
+                                        JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                                        JSONArray jsonArray = jsonObj2.getJSONArray("appList");
+                                        str.append("アプリ名：").append(jsonArray.getJSONObject(i).getString("name")).append("\n\n").append("説明：").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
+                                        Variables.DOWNLOAD_FILE_URL = jsonArray.getJSONObject(i).getString("url");
+                                    } catch (JSONException | IOException ignored) {
+                                    }
+                                }
+                            }
+
+                            if (str.toString().isEmpty()) {
+                                return;
+                            }
+
+                            new MaterialAlertDialogBuilder(requireActivity())
+                                    .setMessage(str + "\n" + "よろしければOKを押下してください")
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
+                                        if (!Objects.equals(Variables.DOWNLOAD_FILE_URL, "MYURL")) {
+                                            showLoadingDialog();
+                                            startDownload();
+                                            dialog.dismiss();
+                                        } else {
+                                            View view1 = getLayoutInflater().inflate(R.layout.view_app_url, null);
+                                            EditText editText = view1.findViewById(R.id.edit_app_url);
+                                            new MaterialAlertDialogBuilder(requireActivity())
+                                                    .setMessage("http://またはhttps://を含むURLを指定してください")
+                                                    .setView(view1)
+                                                    .setCancelable(false)
+                                                    .setPositiveButton(R.string.dialog_common_ok, (dialog3, which3) -> {
+                                                        ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editText.getWindowToken(), 0);
+                                                        Variables.DOWNLOAD_FILE_URL = editText.getText().toString();
+                                                        showLoadingDialog();
+                                                        startDownload();
+                                                    })
+                                                    .setNegativeButton(R.string.dialog_common_cancel, null)
+                                                    .show();
+                                        }
+                                    })
+                                    .show();
+                        })
+                        .show();
+                break;
+            /* APKダウンロード要求の場合 */
+            case Constants.REQUEST_DOWNLOAD_APK:
+                new Handler().post(() -> new Updater(requireActivity()).installApk(requireActivity(), 1));
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onDownloadError(int reqCode) {
+        cancelLoadingDialog();
+        new MaterialAlertDialogBuilder(requireActivity())
+                .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    @Override
+    public void onConnectionError(int reqCode) {
+        cancelLoadingDialog();
+        new MaterialAlertDialogBuilder(requireActivity())
+                .setMessage("データ取得に失敗しました\nネットワークを確認してください")
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    @Override
+    public void onProgressUpdate(int progress, int currentByte, int totalByte) {
+        LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+        linearProgressIndicator.setIndeterminate(false);
+        linearProgressIndicator.setProgress(progress);
+        preGetApp.setSummary(new StringBuilder("インストールファイルをサーバーからダウンロードしています...しばらくお待ち下さい...\n進行状況：").append(progress).append("%"));
+    }
+
+    @Override
+    public void onInstallSuccess(int reqCode) {
+        if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
+            LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+
+            if (linearProgressIndicator.isShown()) {
+                linearProgressIndicator.hide();
+            }
+
+            preGetApp.setSummary(R.string.pre_main_sum_get_app);
+        }
+    }
+
+    @Override
+    public void onInstallFailure(int reqCode, String message) {
+        if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
+            LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+
+            if (linearProgressIndicator.isShown()) {
+                linearProgressIndicator.hide();
+            }
+
+            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+
+            new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                    .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .show();
+        }
+    }
+
+    @Override
+    public void onInstallError(int reqCode, String message) {
+        if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
+            LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+
+            if (linearProgressIndicator.isShown()) {
+                linearProgressIndicator.hide();
+            }
+
+            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
+
+            new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                    .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .show();
+        }
     }
 }
