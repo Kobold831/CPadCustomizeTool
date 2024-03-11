@@ -1060,11 +1060,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preSilentInstall.setSummary("進行中のインストールが完了するまでお待ち下さい...");
             preGetApp.setEnabled(false);
             preGetApp.setSummary("進行中のインストールが完了するまでお待ち下さい...");
-        } else {
-            preSilentInstall.setEnabled(true);
-            preSilentInstall.setSummary(R.string.pre_main_sum_silent_install);
-            preGetApp.setEnabled(true);
-            preGetApp.setSummary(R.string.pre_main_sum_get_app);
         }
     }
 
