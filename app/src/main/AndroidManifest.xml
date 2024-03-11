@@ -155,6 +155,10 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".data.service.PermissionIntentService"
+            android:exported="false" />
+
         <receiver
             android:name=".Receiver.PackageReceiver"
             android:exported="false">

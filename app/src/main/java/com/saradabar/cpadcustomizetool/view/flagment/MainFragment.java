@@ -817,8 +817,18 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preDeviceOwnerFn.setOnPreferenceClickListener(preference -> {
             if (Common.isDhizukuActive(requireActivity())) {
                 if (tryBindDhizukuService(requireActivity())) {
-                    Runnable runnable = () -> StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
-                    new Handler().postDelayed(runnable, 1000);
+                    AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireActivity()).setMessage("お待ち下さい...").create();
+                    alertDialog.show();
+
+                    Runnable runnable = () -> {
+                        if (alertDialog.isShowing()) {
+                            alertDialog.dismiss();
+                        }
+
+                        StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
+                    };
+
+                    new Handler().postDelayed(runnable, 3000);
                 } else {
                     return false;
                 }

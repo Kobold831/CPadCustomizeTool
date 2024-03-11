@@ -16,6 +16,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Handler;
 import android.provider.Settings;
 
@@ -23,6 +24,7 @@ import androidx.preference.PreferenceManager;
 
 import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
+import com.saradabar.cpadcustomizetool.data.service.PermissionIntentService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -79,31 +81,13 @@ public class PackageReceiver extends BroadcastReceiver {
             }
         }
 
-//        /* ランタイム権限を強制付与が有効な場合 */
-//        if (sp.getBoolean("pre_owner_permission_frc", false)) {
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                if (isDhizukuActive(context)) {
-//                    if (tryBindDhizukuService(context)) {
-//                        Runnable runnable = () -> {
-//                            for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
-//                                /* ユーザーアプリか確認 */
-//                                if (app.sourceDir.startsWith("/data/app/")) {
-//                                    Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
-//                                }
-//                            }
-//                        };
-//
-//                        new Handler().postDelayed(runnable, 5000);
-//                    }
-//                } else {
-//                    for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
-//                        /* ユーザーアプリか確認 */
-//                        if (app.sourceDir.startsWith("/data/app/")) {
-//                            Common.setPermissionGrantState(context, app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        /* ランタイム権限を強制付与が有効な場合 */
+        if (sp.getBoolean("pre_owner_permission_frc", false)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!Common.isRunningService(context, PermissionIntentService.class.getName())) {
+                    context.startService(new Intent(context, PermissionIntentService.class));
+                }
+            }
+        }
     }
 }
