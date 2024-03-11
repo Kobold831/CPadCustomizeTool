@@ -290,6 +290,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         if (Variables.isPreferenceLock) {
             preSessionInstall.setEnabled(false);
             preSessionInstall.setSummary(getString(R.string.progress_state_installing));
+        } else {
+            preSessionInstall.setEnabled(true);
+            preSessionInstall.setSummary(getString(R.string.pre_owner_sum_silent_install));
         }
     }
 
@@ -411,15 +414,21 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 preSessionInstall.setEnabled(true);
                 preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
 
-                LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+                LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
 
                 if (linearProgressIndicator.isShown()) {
                     linearProgressIndicator.hide();
                 }
 
+                if (MainFragment.getInstance() != null) {
+                    if (MainFragment.getInstance().isAdded()) {
+                        MainFragment.getInstance().initialize();
+                    }
+                }
+
                 try {
                     /* 一時ファイルを消去 */
-                    File tmpFile = requireActivity().getExternalCacheDir();
+                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
 
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
@@ -445,15 +454,21 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 preSessionInstall.setEnabled(true);
                 preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
 
-                LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+                LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
 
                 if (linearProgressIndicator.isShown()) {
                     linearProgressIndicator.hide();
                 }
 
+                if (MainFragment.getInstance() != null) {
+                    if (MainFragment.getInstance().isAdded()) {
+                        MainFragment.getInstance().initialize();
+                    }
+                }
+
                 try {
                     /* 一時ファイルを消去 */
-                    File tmpFile = requireActivity().getExternalCacheDir();
+                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
 
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
@@ -474,15 +489,21 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 preSessionInstall.setEnabled(true);
                 preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
 
-                LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+                LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
 
                 if (linearProgressIndicator.isShown()) {
                     linearProgressIndicator.hide();
                 }
 
+                if (MainFragment.getInstance() != null) {
+                    if (MainFragment.getInstance().isAdded()) {
+                        MainFragment.getInstance().initialize();
+                    }
+                }
+
                 try {
                     /* 一時ファイルを消去 */
-                    File tmpFile = requireActivity().getExternalCacheDir();
+                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
 
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);

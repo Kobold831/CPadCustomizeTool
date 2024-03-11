@@ -979,7 +979,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     }
 
     /* 初期化 */
-    private void initialize() {
+    public void initialize() {
         SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
 
         /* オブサーバーを有効化 */
@@ -1077,6 +1077,18 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preDeviceOwnerFn.setSummary("Dhizukuがデバイスオーナーになっています\nDhizukuと通信するためタップしたあと遷移に時間がかかります");
         } else {
             preDeviceOwnerFn.setSummary("");
+        }
+
+        if (Variables.isPreferenceLock) {
+            preSilentInstall.setEnabled(false);
+            preSilentInstall.setSummary("進行中のインストールが完了するまでお待ち下さい...");
+            preGetApp.setEnabled(false);
+            preGetApp.setSummary("進行中のインストールが完了するまでお待ち下さい...");
+        } else {
+            preSilentInstall.setEnabled(true);
+            preSilentInstall.setSummary(R.string.pre_main_sum_silent_install);
+            preGetApp.setEnabled(true);
+            preGetApp.setSummary(R.string.pre_main_sum_get_app);
         }
     }
 
