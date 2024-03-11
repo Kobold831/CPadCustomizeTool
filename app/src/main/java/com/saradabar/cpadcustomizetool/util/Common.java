@@ -13,6 +13,7 @@
 package com.saradabar.cpadcustomizetool.util;
 
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -360,5 +361,17 @@ public class Common {
         }
 
         return null;
+    }
+
+    public static boolean isRunningService(Context context, String className) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+
+        for (ActivityManager.RunningServiceInfo serviceInfo : activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if (className.equals(serviceInfo.service.getClassName())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

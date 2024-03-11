@@ -23,12 +23,15 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.os.Handler;
+import android.provider.Settings;
 
 import androidx.preference.PreferenceManager;
 
 import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
+import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 import com.saradabar.cpadcustomizetool.util.Common;
+import com.saradabar.cpadcustomizetool.util.Constants;
 
 import java.util.Objects;
 
@@ -41,10 +44,25 @@ public class PackageAddedReceiver extends BroadcastReceiver {
 
         if (Objects.equals(intent.getAction(), Intent.ACTION_PACKAGE_ADDED)) {
             if (Objects.requireNonNull(intent.getData()).toString().replace("package:", "").equals(context.getPackageName())) {
-                context.startService(new Intent(context, KeepService.class));
+                /* 維持スイッチが有効のときサービスを起動 */
+                if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                    Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
+
+                    if (!Common.isRunningService(context, KeepService.class.getName())) {
+                        context.startService(new Intent(context, KeepService.class));
+                    }
+
+                    if (!Common.isRunningService(context, ProtectKeepService.class.getName())) {
+                        context.startService(new Intent(context, ProtectKeepService.class));
+                    }
+
+                    Runnable runnable = () -> KeepService.getInstance().startService();
+
+                    new Handler().postDelayed(runnable, 1000);
+                }
             }
 
-            if (sp.getBoolean("permission_forced", false)) {
+            if (sp.getBoolean("pre_owner_permission_frc", false)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (isDhizukuActive(context)) {
                         if (tryBindDhizukuService(context)) {
@@ -56,6 +74,7 @@ public class PackageAddedReceiver extends BroadcastReceiver {
                                     }
                                 }
                             };
+
                             new Handler().postDelayed(runnable, 5000);
                         }
                     } else {
@@ -72,7 +91,22 @@ public class PackageAddedReceiver extends BroadcastReceiver {
 
         if (Objects.equals(intent.getAction(), Intent.ACTION_PACKAGE_REPLACED)) {
             if (Objects.requireNonNull(intent.getData()).toString().replace("package:", "").equals(context.getPackageName())) {
-                context.startService(new Intent(context, KeepService.class));
+                /* 維持スイッチが有効のときサービスを起動 */
+                if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                    Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
+
+                    if (!Common.isRunningService(context, KeepService.class.getName())) {
+                        context.startService(new Intent(context, KeepService.class));
+                    }
+
+                    if (!Common.isRunningService(context, ProtectKeepService.class.getName())) {
+                        context.startService(new Intent(context, ProtectKeepService.class));
+                    }
+
+                    Runnable runnable = () -> KeepService.getInstance().startService();
+
+                    new Handler().postDelayed(runnable, 1000);
+                }
             }
         }
     }
