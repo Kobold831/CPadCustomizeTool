@@ -34,6 +34,7 @@ import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -45,6 +46,7 @@ import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
 import com.saradabar.cpadcustomizetool.data.installer.Updater;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
@@ -486,7 +488,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     /* システム設定変更権限か付与されているか確認 */
     @SuppressWarnings("deprecation")
     private boolean isPermissionCheck() {
-        if (isWriteSystemPermissionCheck()) {
+        if (!isWriteSystemPermissionCheck()) {
             new MaterialAlertDialogBuilder(this)
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_grant_permission)
@@ -500,9 +502,13 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     .setNeutralButton(R.string.dialog_common_exit, (dialogInterface, i) -> finishAndRemoveTask())
                     .show();
             return false;
-        } else {
-            return true;
         }
+
+        if (!isAccessExternalStoragePermissionCheck()) {
+            return false;
+        }
+
+        return isAccessDchaServicePermissionCheck();
     }
 
     /* システム設定変更権限チェック */
@@ -512,7 +518,38 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             canWrite = Settings.System.canWrite(this);
         }
-        return !canWrite;
+
+        return canWrite;
+    }
+
+    /* ストレージアクセス権限チェック */
+    private boolean isAccessExternalStoragePermissionCheck() {
+        boolean canWrite = true;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            canWrite = checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") == PackageManager.PERMISSION_GRANTED;
+            if (!canWrite) {
+                requestPermissions(new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"}, 0);
+            }
+        }
+
+        return canWrite;
+    }
+
+    /* DchaServiceアクセス権限チェック */
+    private boolean isAccessDchaServicePermissionCheck() {
+        boolean canWrite = true;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Common.isAppInstalled(this, "jp.co.benesse.dcha.dchaservice")) {
+                canWrite = checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") == PackageManager.PERMISSION_GRANTED;
+                if (!canWrite) {
+                    requestPermissions(new String[]{"jp.co.benesse.dcha.permission.ACCESS_SYSTEM"}, 1);
+                }
+            }
+        }
+
+        return canWrite;
     }
 
     ServiceConnection mDchaServiceConnection = new ServiceConnection() {
@@ -525,6 +562,54 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         public void onServiceDisconnected(ComponentName componentName) {
         }
     };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 0 && grantResults.length > 0) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED) {
+                    new MaterialAlertDialogBuilder(this)
+                            .setCancelable(false)
+                            .setMessage("ストレージ権限を付与してください\n付与されない場合はアプリをご利用できません\n権限を付与される場合は\"OK\"を押下してください\n同意いただけない場合は\"キャンセル\"を押下してください")
+                            .setPositiveButton("OK", (dialog, which) -> {
+                                if (checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED) {
+                                    requestPermissions(new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"}, 0);
+                                }
+                            })
+                            .setNegativeButton("キャンセル", (dialog, which) -> finishAffinity())
+                            .show();
+                    return;
+                }
+            }
+        }
+
+        if (requestCode == 1 && grantResults.length > 0) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") != PackageManager.PERMISSION_GRANTED) {
+                    new MaterialAlertDialogBuilder(this)
+                            .setCancelable(false)
+                            .setMessage("jp.co.benesse.dcha.permission.ACCESS_SYSTEM権限を付与してください\n付与されない場合はアプリをご利用できません\n権限を付与される場合は\"OK\"を押下してください\n同意いただけない場合は\"キャンセル\"を押下してください")
+                            .setPositiveButton("OK", (dialog, which) -> {
+                                if (checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") != PackageManager.PERMISSION_GRANTED) {
+                                    requestPermissions(new String[]{"jp.co.benesse.dcha.permission.ACCESS_SYSTEM"}, 1);
+                                }
+                            })
+                            .setNegativeButton("キャンセル", (dialog, which) -> finishAffinity())
+                            .show();
+                    return;
+                }
+            }
+        }
+
+        if (isPermissionCheck()) {
+            Preferences.save(this, Constants.KEY_FLAG_SETTINGS, true);
+            startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            overridePendingTransition(0, 0);
+            finish();
+        }
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -220,6 +220,35 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
     /* 初期化 */
     private void initialize() {
+        switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+            /* チャレンジパッド２ */
+            case Constants.MODEL_CT2:
+                swPrePermissionFrc.setEnabled(false);
+                swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preSessionInstall.setEnabled(false);
+                preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preAbandonSession.setEnabled(false);
+                preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                break;
+            /* チャレンジパッド３ */
+            case Constants.MODEL_CT3:
+                swPrePermissionFrc.setEnabled(false);
+                swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preUninstallBlock.setEnabled(false);
+                preUninstallBlock.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preClrDevOwn.setEnabled(false);
+                preClrDevOwn.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preSessionInstall.setEnabled(false);
+                preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preAbandonSession.setEnabled(false);
+                preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                break;
+            /* チャレンジパッドNEO・NEXT */
+            case Constants.MODEL_CTX:
+            case Constants.MODEL_CTZ:
+                break;
+        }
+
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
 
         if (dpm.isDeviceOwnerApp(requireActivity().getPackageName())) {
@@ -258,41 +287,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_no_device_owner));
         }
 
-        switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
-            /* チャレンジパッド２ */
-            case Constants.MODEL_CT2:
-                swPrePermissionFrc.setEnabled(false);
-                swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preSessionInstall.setEnabled(false);
-                preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preAbandonSession.setEnabled(false);
-                preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                break;
-            /* チャレンジパッド３ */
-            case Constants.MODEL_CT3:
-                swPrePermissionFrc.setEnabled(false);
-                swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preUninstallBlock.setEnabled(false);
-                preUninstallBlock.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preClrDevOwn.setEnabled(false);
-                preClrDevOwn.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preSessionInstall.setEnabled(false);
-                preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preAbandonSession.setEnabled(false);
-                preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                break;
-            /* チャレンジパッドNEO・NEXT */
-            case Constants.MODEL_CTX:
-            case Constants.MODEL_CTZ:
-                break;
-        }
-
         if (Variables.isPreferenceLock) {
             preSessionInstall.setEnabled(false);
             preSessionInstall.setSummary(getString(R.string.progress_state_installing));
-        } else {
-            preSessionInstall.setEnabled(true);
-            preSessionInstall.setSummary(getString(R.string.pre_owner_sum_silent_install));
         }
     }
 
