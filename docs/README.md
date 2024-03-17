@@ -49,7 +49,7 @@
 
 ## イメージ
 
-<img src="images/image-02.png" height="800"> <img src="images/image-01.png" height="800">
+<img src="images/image-02.png" height="400"> <img src="images/image-01.png" height="400">
 
 ## 権限付与
 
