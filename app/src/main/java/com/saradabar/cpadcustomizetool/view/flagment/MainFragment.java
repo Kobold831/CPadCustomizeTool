@@ -1574,7 +1574,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
-        LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+        LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
         linearProgressIndicator.setIndeterminate(false);
         linearProgressIndicator.setProgress(progress);
         preGetApp.setSummary(new StringBuilder("インストールファイルをサーバーからダウンロードしています...しばらくお待ち下さい...\n進行状況：").append(progress).append("%"));
@@ -1586,7 +1586,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preGetApp.setSummary(R.string.pre_main_sum_get_app);
         }
 
-        LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+        LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
 
         if (linearProgressIndicator.isShown()) {
             linearProgressIndicator.hide();
@@ -1599,7 +1599,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preGetApp.setSummary(R.string.pre_main_sum_get_app);
         }
 
-        LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+        LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
 
         if (linearProgressIndicator.isShown()) {
             linearProgressIndicator.hide();
@@ -1618,7 +1618,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preGetApp.setSummary(R.string.pre_main_sum_get_app);
         }
 
-        LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+        LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
 
         if (linearProgressIndicator.isShown()) {
             linearProgressIndicator.hide();
