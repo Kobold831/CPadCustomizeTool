@@ -1,0 +1,29 @@
+name: 不具合の報告
+description: バグや開発側が想定していない動作などの報告
+title: "[Bug]: "
+labels: [bug]
+assignees:
+  - Kobold831
+body:
+  - type: markdown
+    attributes:
+      value: |
+        バグの報告ありがとうございます｡
+
+        このIssueを送信する前に、  
+        **具体的** かつ **正しい日本語** を使い、  
+        レポートに関係無い**無駄な内容は省いて**、  
+        **結論が解り易い** 文章になっているかを確認してください。
+
+        また、最新バージョンを使用していることを前提としているので、[Releases](https://github.com/Kobold831/CPadCustomizetool/releases/latest) から最新版を使用しているかどうかを確認してください。
+
+  - type: textarea
+    attributes:
+      label: 内容の詳細
+      placeholder: 具体的に記述してください
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 解決する方法
+      placeholder: 解決策がある場合は入力してください
