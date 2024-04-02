@@ -1,0 +1,25 @@
+name: 新機能の提案
+description: 新しい機能や改善点などの提案
+title: "[Feature Request]: "
+labels: [enhancement]
+assignees:
+  - Kobold831
+body:
+  - type: markdown
+    attributes:
+      value: |
+        機能提案ありがとうございます｡
+
+        このIssueを送信する前に、  
+        **具体的** かつ **正しい日本語** を使い、  
+        レポートに関係無い**無駄な内容は省いて**、  
+        **結論が解り易い** 文章になっているかを確認してください。
+
+        また、最新バージョンを使用していることを前提としているので、[Releases](https://github.com/Kobold831/CPadCustomizetool/releases/latest) から最新版を使用しているかどうかを確認してください。
+
+  - type: textarea
+    attributes:
+      label: 提案内容
+      placeholder: 
+    validations:
+      required: true

@@ -1,0 +1,28 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="NoActionBarTheme" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:colorAccent">@color/red</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="ActionBarTheme" parent="Theme.Material3.Light">
+        <item name="android:colorAccent">@color/red</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="preferenceTheme">@style/ThemeOverlay.App.Preference</item>
+    </style>
+
+    <style name="DialogNoActionBarTheme" parent="Theme.Material3.Light.Dialog">
+        <item name="android:colorAccent">@color/red</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Preference" parent="PreferenceThemeOverlay">
+        <item name="switchPreferenceCompatStyle">@style/PreferenceMaterialSwitch</item>
+    </style>
+
+    <style name="PreferenceMaterialSwitch" parent="@style/Preference.SwitchPreferenceCompat.Material">
+        <item name="widgetLayout">@layout/widget_material_switch</item>
+    </style>
+</resources>

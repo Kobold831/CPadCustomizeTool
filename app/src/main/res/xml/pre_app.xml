@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:allowDividerAbove="false"
+        android:title="@string/pre_app_category_start_settings">
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:key="pre_app_update_check"
+            android:title="@string/pre_app_title_update_check" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:allowDividerAbove="false"
+        android:title="@string/pre_app_category_settings">
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:key="pre_app_use_dcha"
+            android:title="@string/pre_app_title_dcha"
+            android:summary="@string/pre_app_sum_dcha" />
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:key="pre_app_adb"
+            android:title="@string/pre_app_title_usb"
+            android:summary="@string/pre_app_sum_usb" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:allowDividerAbove="false"
+        android:title="@string/pre_app_category_update">
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_app_update_mode"
+            android:title="@string/pre_app_title_update" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:allowDividerAbove="false"
+        android:title="@string/pre_app_category_log">
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_app_crash_log"
+            android:title="@string/pre_app_title_crash_history" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_app_del_crash_log"
+            android:title="@string/pre_app_title_delete_crash_history" />
+    </PreferenceCategory>
+</PreferenceScreen>

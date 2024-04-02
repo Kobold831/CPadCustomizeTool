@@ -1,0 +1,1633 @@
+/*
+ * CPad Customize Tool
+ * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ *
+ * CPad Customize Tool is Open Source Software.
+ * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
+ *
+ * Kobold831 own any copyright or moral rights in the copyrighted work as defined in the Copyright Act, and has not waived them.
+ * Any use, reproduction, or distribution of this software beyond the scope of Apache License 2.0 is prohibited.
+ *
+ */
+
+package com.saradabar.cpadcustomizetool.view.flagment;
+
+import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
+import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
+
+import android.annotation.SuppressLint;
+import android.app.admin.DevicePolicyManager;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
+import android.database.ContentObserver;
+import android.graphics.Color;
+import android.graphics.drawable.Icon;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.UserManager;
+import android.provider.Settings;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.TextView;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreferenceCompat;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.rosan.dhizuku.api.Dhizuku;
+import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
+import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
+import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
+import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
+import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
+import com.saradabar.cpadcustomizetool.data.installer.Updater;
+import com.saradabar.cpadcustomizetool.data.service.KeepService;
+import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
+import com.saradabar.cpadcustomizetool.data.task.DchaInstallTask;
+import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
+import com.saradabar.cpadcustomizetool.data.task.ResolutionTask;
+import com.saradabar.cpadcustomizetool.util.Common;
+import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.Preferences;
+import com.saradabar.cpadcustomizetool.util.Toast;
+import com.saradabar.cpadcustomizetool.util.Variables;
+import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
+import com.saradabar.cpadcustomizetool.view.activity.NormalActivity;
+import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
+import com.saradabar.cpadcustomizetool.view.views.AppListView;
+import com.saradabar.cpadcustomizetool.view.views.LauncherView;
+import com.saradabar.cpadcustomizetool.view.views.NormalModeView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
+import jp.co.benesse.dcha.dchaservice.IDchaService;
+import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
+
+public class MainFragment extends PreferenceFragmentCompat implements DownloadEventListener, InstallEventListener {
+
+    @SuppressLint("StaticFieldLeak")
+    static MainFragment instance = null;
+
+    IDchaService mDchaService;
+    IDchaUtilService mDchaUtilService;
+
+    boolean isObsDchaState = false,
+            isObsNavigation = false,
+            isObsUnkSrc = false,
+            isObsAdb = false;
+
+    SwitchPreferenceCompat swDchaState,
+            swKeepDchaState,
+            swNavigation,
+            swKeepNavigation,
+            swUnkSrc,
+            swKeepUnkSrc,
+            swAdb,
+            swKeepAdb,
+            swKeepLauncher,
+            swDeviceAdmin;
+
+    public Preference preEnableDchaService,
+            preEmgManual,
+            preEmgExecute,
+            preEmgShortcut,
+            preSelNorLauncher,
+            preNorManual,
+            preNorExecute,
+            preNorShortcut,
+            preOtherSettings,
+            preReboot,
+            preRebootShortcut,
+            preSilentInstall,
+            preLauncher,
+            preResolution,
+            preResetResolution,
+            preDeviceOwnerFn,
+            preDhizukuPermissionReq,
+            preSystemUpdate,
+            preGetApp;
+
+    public static MainFragment getInstance() {//インスタンスを取得
+        return instance;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        instance = this;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        setPreferencesFromResource(R.xml.pre_main, rootKey);
+
+        /* サービスのインターフェースを取得 */
+        Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_CHECK, 0, 0, "", "");
+        Common.tryBindDchaService(requireActivity(), null, mDchaUtilService, mDchaUtilServiceConnection, false, Constants.FLAG_CHECK, 0, 0, "", "");
+
+        swDchaState = findPreference("pre_dcha_state");
+        swKeepDchaState = findPreference("pre_keep_dcha_state");
+        swNavigation = findPreference("pre_navigation");
+        swKeepNavigation = findPreference("pre_keep_navigation");
+        swUnkSrc = findPreference("pre_unk_src");
+        swKeepUnkSrc = findPreference("pre_keep_unk_src");
+        swAdb = findPreference("pre_adb");
+        swKeepAdb = findPreference("pre_keep_adb");
+        preLauncher = findPreference("pre_launcher");
+        swKeepLauncher = findPreference("pre_keep_launcher");
+        preOtherSettings = findPreference("pre_other_settings");
+        preEnableDchaService = findPreference("pre_enable_dcha_service");
+        preEmgManual = findPreference("pre_emg_manual");
+        preEmgExecute = findPreference("pre_emg_execute");
+        preEmgShortcut = findPreference("pre_emg_shortcut");
+        preSelNorLauncher = findPreference("pre_sel_nor_launcher");
+        preNorManual = findPreference("pre_nor_manual");
+        preNorExecute = findPreference("pre_nor_execute");
+        preNorShortcut = findPreference("pre_nor_shortcut");
+        preReboot = findPreference("pre_reboot");
+        preRebootShortcut = findPreference("pre_reboot_shortcut");
+        preSilentInstall = findPreference("pre_silent_install");
+        preResolution = findPreference("pre_resolution");
+        preResetResolution = findPreference("pre_reset_resolution");
+        preSystemUpdate = findPreference("pre_system_update");
+        preDeviceOwnerFn = findPreference("pre_device_owner_fn");
+        preDhizukuPermissionReq = findPreference("pre_dhizuku_permission_req");
+        swDeviceAdmin = findPreference("pre_device_admin");
+        preGetApp = findPreference("pre_get_app");
+
+        /* リスナーを有効化 */
+        swDchaState.setOnPreferenceChangeListener((preference, o) -> {
+            if (Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false)) {
+                if ((boolean) o) {
+                    Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_SET_DCHA_STATE_3, 0, 0, "", "");
+                } else {
+                    Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_SET_DCHA_STATE_0, 0, 0, "", "");
+                }
+            } else {
+                if ((boolean) o) {
+                    chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
+                } else {
+                    chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                }
+            }
+
+            return false;
+        });
+
+        swKeepDchaState.setOnPreferenceChangeListener((preference, o) -> {
+            if (isCfmDialog(requireActivity())) {
+                requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, (boolean) o).apply();
+                if ((boolean) o) {
+                    chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+
+                    if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                        requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+                    }
+
+                    if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
+                        requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
+                    }
+
+                    Runnable runnable = () -> KeepService.getInstance().startService();
+
+                    new Handler().postDelayed(runnable, 1000);
+                } else {
+                    SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+
+                    if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                        KeepService.getInstance().stopService(1);
+                    }
+
+                    /* 全機能が無効ならサービス停止 */
+                    if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                        if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                            KeepService.getInstance().stopService(0);
+                        }
+
+                        requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
+                    }
+                }
+
+                return true;
+            } else {
+                cfmDialog();
+            }
+
+            return false;
+        });
+
+        swNavigation.setOnPreferenceChangeListener((preference, o) -> {
+            if (Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false)) {
+                if ((boolean) o) {
+                    Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_HIDE_NAVIGATION_BAR, 0, 0, "", "");
+                } else {
+                    Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_VIEW_NAVIGATION_BAR, 0, 0, "", "");
+                }
+            } else {
+                if ((boolean) o) {
+                    chgSetting(Constants.FLAG_HIDE_NAVIGATION_BAR);
+                } else {
+                    chgSetting(Constants.FLAG_VIEW_NAVIGATION_BAR);
+                }
+            }
+
+            return false;
+        });
+
+        swKeepNavigation.setOnPreferenceChangeListener((preference, o) -> {
+            requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, (boolean) o).apply();
+
+            if ((boolean) o) {
+                chgSetting(Constants.FLAG_VIEW_NAVIGATION_BAR);
+
+                if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                    requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+                }
+
+                if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
+                    requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
+                }
+
+                Runnable runnable = () -> KeepService.getInstance().startService();
+
+                new Handler().postDelayed(runnable, 1000);
+            } else {
+                SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+
+                if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                    KeepService.getInstance().stopService(2);
+                }
+
+                /* 全機能が無効ならサービス停止 */
+                if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                    if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                        KeepService.getInstance().stopService(0);
+                    }
+
+                    requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
+                }
+            }
+
+            return true;
+        });
+
+        swUnkSrc.setOnPreferenceChangeListener((preference, o) -> {
+            if ((boolean) o) {
+                try {
+                    chgSetting(Constants.FLAG_MARKET_APP_TRUE);
+                } catch (SecurityException ignored) {
+                    Toast.toast(getActivity(), R.string.toast_not_change);
+
+                    try {
+                        //noinspection deprecation
+                        swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
+                    } catch (Settings.SettingNotFoundException ignored1) {
+                    }
+                }
+            } else {
+                try {
+                    chgSetting(Constants.FLAG_MARKET_APP_FALSE);
+                } catch (SecurityException ignored) {
+                    Toast.toast(getActivity(), R.string.toast_not_change);
+
+                    try {
+                        //noinspection deprecation
+                        swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
+                    } catch (Settings.SettingNotFoundException ignored1) {
+                    }
+                }
+            }
+
+            return false;
+        });
+
+        swKeepUnkSrc.setOnPreferenceChangeListener((preference, o) -> {
+            requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, (boolean) o).apply();
+
+            if ((boolean) o) {
+                try {
+                    //noinspection deprecation
+                    Settings.Secure.putInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS, 1);
+
+                    if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                        requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+                    }
+
+                    if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
+                        requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
+                    }
+
+                    Runnable runnable = () -> KeepService.getInstance().startService();
+
+                    new Handler().postDelayed(runnable, 1000);
+                } catch (SecurityException e) {
+                    Toast.toast(getActivity(), R.string.toast_not_change);
+                    requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false).apply();
+                    swKeepUnkSrc.setChecked(false);
+                    return false;
+                }
+            } else {
+                SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+
+                if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                    KeepService.getInstance().stopService(3);
+                }
+
+                /* 全機能が無効ならサービス停止 */
+                if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                    if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                        KeepService.getInstance().stopService(0);
+                    }
+
+                    requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
+                }
+            }
+
+            return true;
+        });
+
+        swAdb.setOnPreferenceChangeListener((preference, o) -> {
+            if ((boolean) o) {
+                try {
+                    if (isCfmDialog(requireActivity())) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
+                            Thread.sleep(100);
+                        }
+                    }
+
+                    chgSetting(Constants.FLAG_USB_DEBUG_TRUE);
+
+                    if (isCfmDialog(requireActivity())) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                        }
+                    }
+                } catch (Exception ignored) {
+                    Toast.toast(requireActivity(), R.string.toast_not_change);
+                    swAdb.setChecked(false);
+
+                    if (isCfmDialog(requireActivity())) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                        }
+                    }
+                }
+            } else {
+                try {
+                    chgSetting(Constants.FLAG_USB_DEBUG_FALSE);
+                } catch (Exception ignored) {
+                    Toast.toast(requireActivity(), R.string.toast_not_change);
+                    swAdb.setChecked(true);
+                }
+            }
+
+            return false;
+        });
+
+        swKeepAdb.setOnPreferenceChangeListener((preference, o) -> {
+            requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, (boolean) o).apply();
+
+            if ((boolean) o) {
+                try {
+                    if (Common.isCfmDialog(requireActivity())) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
+                            Thread.sleep(100);
+                        }
+                    }
+                    Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
+
+                    if (isCfmDialog(requireActivity())) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                        }
+                    }
+
+                    if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                        requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+                    }
+
+                    if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
+                        requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
+                    }
+
+                    Runnable runnable = () -> KeepService.getInstance().startService();
+
+                    new Handler().postDelayed(runnable, 1000);
+                } catch (Exception e) {
+                    Toast.toast(getActivity(), R.string.toast_not_change);
+                    requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false).apply();
+                    swKeepUnkSrc.setChecked(false);
+
+                    if (isCfmDialog(requireActivity())) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                            chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                        }
+                    }
+
+                    return false;
+                }
+            } else {
+                SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+
+                if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                    KeepService.getInstance().stopService(4);
+                }
+
+                /* 全機能が無効ならサービス停止 */
+                if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                    if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                        KeepService.getInstance().stopService(0);
+                    }
+
+                    requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
+                }
+            }
+
+            return true;
+        });
+
+        preLauncher.setOnPreferenceClickListener(preference -> {
+            View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_launcher_list, null);
+            List<ResolveInfo> installedAppList = requireActivity().getPackageManager().queryIntentActivities(new Intent().setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
+            List<LauncherView.AppData> dataList = new ArrayList<>();
+
+            for (ResolveInfo resolveInfo : installedAppList) {
+                LauncherView.AppData data = new LauncherView.AppData();
+                data.label = resolveInfo.loadLabel(requireActivity().getPackageManager()).toString();
+                data.icon = resolveInfo.loadIcon(requireActivity().getPackageManager());
+                data.packName = resolveInfo.activityInfo.packageName;
+                dataList.add(data);
+            }
+
+            ListView listView = view.findViewById(R.id.launcher_list);
+            listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+            listView.setAdapter(new LauncherView.AppListAdapter(requireActivity(), dataList));
+            listView.setOnItemClickListener((parent, mView, position, id) -> {
+                if (Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_SET_LAUNCHER, 0, 0, Common.getLauncherPackage(requireActivity()), Uri.fromParts("package", installedAppList.get(position).activityInfo.packageName, null).toString().replace("package:", ""))) {
+                    listView.invalidateViews();
+                    initialize();
+                }
+            });
+
+            new MaterialAlertDialogBuilder(requireActivity())
+                    .setView(view)
+                    .setTitle(R.string.dialog_title_launcher)
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .show();
+
+            return false;
+        });
+
+        swKeepLauncher.setOnPreferenceChangeListener((preference, o) -> {
+            requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(Constants.KEY_ENABLED_KEEP_HOME, (boolean) o).apply();
+
+            if ((boolean) o) {
+                requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putString(Constants.KEY_SAVE_KEEP_HOME, Common.getLauncherPackage(requireActivity())).apply();
+
+                if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                    requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+                }
+
+                if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
+                    requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
+                }
+
+                Runnable runnable = () -> KeepService.getInstance().startService();
+
+                new Handler().postDelayed(runnable, 1000);
+            } else {
+                SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+
+                if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                    KeepService.getInstance().stopService(5);
+                }
+
+                /* 全機能が無効ならサービス停止 */
+                if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                    if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                        KeepService.getInstance().stopService(0);
+                    }
+
+                    requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
+                }
+            }
+
+            return true;
+        });
+
+        preOtherSettings.setOnPreferenceClickListener(preference -> {
+            StartActivity.getInstance().transitionFragment(new OtherFragment(), true);
+            return false;
+        });
+
+        preEnableDchaService.setOnPreferenceClickListener(preference -> {
+            if (isCfmDialog(requireActivity())) {
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setTitle(R.string.dialog_title_dcha_service)
+                        .setMessage(R.string.dialog_question_dcha_service)
+                        .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                            if (!Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_CHECK, 0, 0, "", "")) {
+                                new MaterialAlertDialogBuilder(requireActivity())
+                                        .setMessage(R.string.dialog_error_not_work_dcha)
+                                        .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                                        .show();
+                            } else {
+                                Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, true);
+                                requireActivity().finish();
+                                requireActivity().overridePendingTransition(0, 0);
+                                startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", true));
+                            }
+                        })
+                        .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> dialog.dismiss())
+                        .show();
+            } else {
+                cfmDialog();
+            }
+
+            return false;
+        });
+
+        preEmgManual.setOnPreferenceClickListener(preference -> {
+            TextView textView = new TextView(requireActivity());
+            textView.setText(R.string.dialog_emergency_manual_red);
+            textView.setTextSize(16);
+            textView.setTextColor(Color.RED);
+            textView.setPadding(35, 0, 35, 0);
+            new MaterialAlertDialogBuilder(requireActivity())
+                    .setTitle(R.string.dialog_title_emergency_manual)
+                    .setMessage(R.string.dialog_emergency_manual)
+                    .setView(textView)
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .show();
+            return false;
+        });
+
+        preEmgExecute.setOnPreferenceClickListener(preference -> {
+            new MaterialAlertDialogBuilder(requireActivity())
+                    .setMessage("緊急モードを起動してもよろしいですか？\nよろしければ\"はい\"を押下してください")
+                    .setNeutralButton(R.string.dialog_common_yes, (dialogInterface, i) -> startActivity(new Intent(requireActivity(), EmergencyActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                    .setPositiveButton(R.string.dialog_common_no, null)
+                    .show();
+            return false;
+        });
+
+        preEmgShortcut.setOnPreferenceClickListener(preference -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(getActivity(), getString(R.string.activity_emergency))
+                        .setShortLabel(getString(R.string.activity_emergency))
+                        .setIcon(Icon.createWithResource(requireActivity(), R.drawable.alert))
+                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), "com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity"))
+                        .build(), null);
+            } else {
+                requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN)
+                                .setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity"))
+                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.alert))
+                        .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_emergency));
+                Toast.toast(requireActivity(), R.string.toast_common_success);
+            }
+
+            return false;
+        });
+
+        preSelNorLauncher.setOnPreferenceClickListener(preference -> {
+            View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_normal_launcher_list, null);
+            List<ResolveInfo> installedAppList = requireActivity().getPackageManager().queryIntentActivities(new Intent().setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
+            List<NormalModeView.AppData> dataList = new ArrayList<>();
+
+            for (ResolveInfo resolveInfo : installedAppList) {
+                NormalModeView.AppData data = new NormalModeView.AppData();
+                data.label = resolveInfo.loadLabel(requireActivity().getPackageManager()).toString();
+                data.icon = resolveInfo.loadIcon(requireActivity().getPackageManager());
+                data.packName = resolveInfo.activityInfo.packageName;
+                dataList.add(data);
+            }
+
+            ListView listView = view.findViewById(R.id.normal_launcher_list);
+            listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+            listView.setAdapter(new NormalModeView.AppListAdapter(requireActivity(), dataList));
+            listView.setOnItemClickListener((parent, mView, position, id) -> {
+                Preferences.save(requireActivity(), Constants.KEY_NORMAL_LAUNCHER, Uri.fromParts("package", installedAppList.get(position).activityInfo.packageName, null).toString().replace("package:", ""));
+                /* listviewの更新 */
+                listView.invalidateViews();
+                initialize();
+            });
+
+            new MaterialAlertDialogBuilder(requireActivity())
+                    .setView(view)
+                    .setTitle(R.string.dialog_title_launcher)
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .show();
+
+            return false;
+        });
+
+        preNorManual.setOnPreferenceClickListener(preference -> {
+            new MaterialAlertDialogBuilder(requireActivity())
+                    .setTitle(R.string.dialog_title_normal_manual)
+                    .setMessage(R.string.dialog_normal_manual)
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .show();
+            return false;
+        });
+
+        preNorExecute.setOnPreferenceClickListener(preference -> {
+            new MaterialAlertDialogBuilder(requireActivity())
+                    .setMessage("通常モードを起動してもよろしいですか？\nよろしければ\"はい\"を押下してください")
+                    .setNeutralButton(R.string.dialog_common_yes, (dialogInterface, i) -> startActivity(new Intent(requireActivity(), NormalActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                    .setPositiveButton(R.string.dialog_common_no, null)
+                    .show();
+            return false;
+        });
+
+        preNorShortcut.setOnPreferenceClickListener(preference -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.activity_normal))
+                        .setShortLabel(getString(R.string.activity_normal))
+                        .setIcon(Icon.createWithResource(requireActivity(), R.drawable.reboot))
+                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), "com.saradabar.cpadcustomizetool.view.activity.NormalActivity"))
+                        .build(), null);
+            } else {
+                requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN)
+                                .setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.NormalActivity"))
+                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.reboot))
+                        .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_normal));
+                Toast.toast(requireActivity(), R.string.toast_common_success);
+            }
+
+            return false;
+        });
+
+        preReboot.setOnPreferenceClickListener(preference -> {
+            new MaterialAlertDialogBuilder(requireActivity())
+                    .setMessage(R.string.dialog_question_reboot)
+                    .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_REBOOT, 0, 0, "", ""))
+                    .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> dialog.dismiss())
+                    .show();
+            return false;
+        });
+
+        preRebootShortcut.setOnPreferenceClickListener(preference -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(getActivity(), getString(R.string.shortcut_reboot))
+                        .setShortLabel(getString(R.string.shortcut_reboot))
+                        .setIcon(Icon.createWithResource(requireActivity(), R.drawable.reboot))
+                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), "com.saradabar.cpadcustomizetool.view.activity.RebootActivity"))
+                        .build(), null);
+            } else {
+                makeRebootShortcut();
+            }
+
+            return false;
+        });
+
+        preSilentInstall.setOnPreferenceClickListener(preference -> {
+            preSilentInstall.setEnabled(false);
+
+            try {
+                startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/vnd.android.package-archive").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false), ""), Constants.REQUEST_ACTIVITY_INSTALL);
+            } catch (ActivityNotFoundException ignored) {
+                preSilentInstall.setEnabled(true);
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setMessage(getString(R.string.dialog_error_no_file_browse))
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            return false;
+        });
+
+        preResolution.setOnPreferenceClickListener(preference -> {
+            /* DchaUtilServiceが機能しているか */
+            if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
+                if (!Common.tryBindDchaService(requireActivity(), null, mDchaUtilService, mDchaUtilServiceConnection, false, Constants.FLAG_CHECK, 0, 0, "", "")) {
+                    new MaterialAlertDialogBuilder(requireActivity())
+                            .setMessage(R.string.dialog_error_not_work_dcha_util)
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                            .show();
+                    return false;
+                }
+            }
+
+            View view = requireActivity().getLayoutInflater().inflate(R.layout.view_resolution, null);
+
+            new MaterialAlertDialogBuilder(requireActivity())
+                    .setView(view)
+                    .setCancelable(false)
+                    .setTitle(R.string.dialog_title_resolution)
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                        ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(view.getWindowToken(), 0);
+                        EditText editTextWidth = view.findViewById(R.id.edit_text_1);
+                        EditText editTextHeight = view.findViewById(R.id.edit_text_2);
+
+                        try {
+                            int width = Integer.parseInt(editTextWidth.getText().toString());
+                            int height = Integer.parseInt(editTextHeight.getText().toString());
+
+                            if (width < 300 || height < 300) {
+                                new MaterialAlertDialogBuilder(requireActivity())
+                                        .setTitle(R.string.dialog_title_error)
+                                        .setMessage(R.string.dialog_error_illegal_value)
+                                        .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                                        .show();
+                            } else {
+                                new ResolutionTask().execute(requireActivity(), resolutionListener(), width, height);
+                            }
+                        } catch (NumberFormatException ignored) {
+                            new MaterialAlertDialogBuilder(requireActivity())
+                                    .setTitle(R.string.dialog_title_error)
+                                    .setMessage(R.string.dialog_error_illegal_value)
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                                    .show();
+                        }
+                    })
+                    .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> dialog.dismiss())
+                    .show();
+
+            return false;
+        });
+
+        preResetResolution.setOnPreferenceClickListener(preference -> {
+            /* DchaUtilServiceが機能しているか */
+            if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
+                if (!Common.tryBindDchaService(requireActivity(), null, mDchaUtilService, mDchaUtilServiceConnection, false, Constants.FLAG_CHECK, 0, 0, "", "")) {
+                    new MaterialAlertDialogBuilder(requireActivity())
+                            .setMessage(R.string.dialog_error_not_work_dcha_util)
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                            .show();
+                    return false;
+                }
+            }
+
+            resetResolution();
+            return false;
+        });
+
+        preSystemUpdate.setOnPreferenceClickListener(preference -> {
+            preSystemUpdate.setEnabled(false);
+
+            try {
+                startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/zip").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false), ""), Constants.REQUEST_ACTIVITY_SYSTEM_UPDATE);
+            } catch (ActivityNotFoundException ignored) {
+                preSystemUpdate.setEnabled(true);
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setMessage(getString(R.string.dialog_error_no_file_browse))
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            return false;
+        });
+
+        preDeviceOwnerFn.setOnPreferenceClickListener(preference -> {
+            if (Common.isDhizukuActive(requireActivity())) {
+                if (tryBindDhizukuService(requireActivity())) {
+                    AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireActivity()).setMessage("お待ち下さい...").create();
+                    alertDialog.show();
+
+                    Runnable runnable = () -> {
+                        if (alertDialog.isShowing()) {
+                            alertDialog.dismiss();
+                        }
+
+                        StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
+                    };
+
+                    new Handler().postDelayed(runnable, 3000);
+                } else {
+                    return false;
+                }
+            } else {
+                StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
+            }
+
+            return false;
+        });
+
+        preDhizukuPermissionReq.setOnPreferenceClickListener(preference -> {
+            if (!Dhizuku.init(requireActivity())) {
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setMessage(R.string.dialog_error_dhizuku_conn_failure)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+                return false;
+            }
+
+            if (!Dhizuku.isPermissionGranted()) {
+                Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
+                    @Override
+                    public void onRequestPermission(int grantResult) {
+                        requireActivity().runOnUiThread(() -> {
+                            if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                                new MaterialAlertDialogBuilder(requireActivity())
+                                        .setMessage(R.string.dialog_info_dhizuku_grant_permission)
+                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                        .show();
+                            } else {
+                                new MaterialAlertDialogBuilder(requireActivity())
+                                        .setMessage(R.string.dialog_info_dhizuku_deny_permission)
+                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                        .show();
+                            }
+                        });
+                    }
+                });
+            } else {
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setMessage(R.string.dialog_info_dhizuku_already_grant_permission)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            return false;
+        });
+
+        swDeviceAdmin.setOnPreferenceChangeListener((preference, o) -> {
+            if ((boolean) o) {
+                if (!((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
+                    startActivityForResult(new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, new ComponentName(requireActivity(), AdministratorReceiver.class)), Constants.REQUEST_ACTIVITY_ADMIN);
+                }
+            } else {
+                swDeviceAdmin.setChecked(true);
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setTitle(R.string.dialog_title_dcha_service)
+                        .setMessage(R.string.dialog_question_device_admin)
+                        .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                            ((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).removeActiveAdmin(new ComponentName(requireActivity(), AdministratorReceiver.class));
+                            swDeviceAdmin.setChecked(false);
+                        })
+
+                        .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
+                            swDeviceAdmin.setChecked(true);
+                            dialog.dismiss();
+                        })
+                        .show();
+            }
+
+            return false;
+        });
+
+        preGetApp.setOnPreferenceClickListener(preference -> {
+            preGetApp.setSummary("サーバーと通信しています...");
+            showLoadingDialog();
+            new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(requireActivity().getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_APP_CHECK);
+            return false;
+        });
+
+        /* 初期化 */
+        initialize();
+    }
+
+    /* 再起動ショートカットを作成 */
+    private void makeRebootShortcut() {
+        requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN)
+                        .setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.RebootActivity"))
+                .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.reboot))
+                .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_reboot));
+        Toast.toast(requireActivity(), R.string.toast_common_success);
+    }
+
+    /* 初期化 */
+    public void initialize() {
+        if (getPreferenceScreen() != null) {
+            /* DchaServiceを使用するか */
+            if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+                for (Object preference : Arrays.asList(
+                        findPreference("pre_silent_install"),
+                        findPreference("pre_launcher"),
+                        findPreference("pre_keep_launcher"),
+                        findPreference("category_emergency"),
+                        findPreference("category_normal"),
+                        findPreference("pre_reboot"),
+                        findPreference("pre_reboot_shortcut"),
+                        findPreference("pre_resolution"),
+                        findPreference("pre_reset_resolution"),
+                        findPreference("pre_system_update")
+                )) {
+                    if (preference != null) {
+                        getPreferenceScreen().removePreference((Preference) preference);
+                    }
+                }
+            } else {
+                getPreferenceScreen().removePreference(preEnableDchaService);
+            }
+        }
+
+        /* オブサーバーを有効化 */
+        isObsDchaState = true;
+        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, obsDchaState);
+        isObsNavigation = true;
+        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, obsNavigation);
+        isObsUnkSrc = true;
+        //noinspection deprecation
+        requireActivity().getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, obsUnkSrc);
+        isObsAdb = true;
+        requireActivity().getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED), false, obsAdb);
+
+        try {
+            swDchaState.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE) != 0);
+            swNavigation.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != 0);
+            //noinspection deprecation
+            swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
+            swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
+        } catch (Settings.SettingNotFoundException ignored) {
+        }
+
+        SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+
+        swDeviceAdmin.setChecked(((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), AdministratorReceiver.class)));
+        swKeepNavigation.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false));
+        swKeepUnkSrc.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false));
+        swKeepDchaState.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false));
+        swKeepAdb.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false));
+        swKeepLauncher.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false));
+        preLauncher.setSummary(Common.getLauncherName(requireActivity()));
+
+        String normalLauncherName = null;
+
+        try {
+            normalLauncherName = (String) requireActivity().getPackageManager().getApplicationLabel(requireActivity().getPackageManager().getApplicationInfo(Preferences.load(requireActivity(), Constants.KEY_NORMAL_LAUNCHER, ""), 0));
+        } catch (PackageManager.NameNotFoundException ignored) {
+        }
+
+        if (normalLauncherName == null) {
+            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_no_setting_launcher));
+        } else {
+            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_message_2, normalLauncherName));
+        }
+
+        /* 維持スイッチが有効のときサービスが停止していたら起動 */
+        if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+            if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+            }
+
+            if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
+                requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
+            }
+
+            Runnable runnable = () -> KeepService.getInstance().startService();
+
+            new Handler().postDelayed(runnable, 1000);
+        } else {
+            /* 全機能が無効ならサービス停止 */
+            if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
+                KeepService.getInstance().stopService(0);
+            }
+
+            if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
+            }
+        }
+
+        /* 端末ごとにPreferenceの状態を設定 */
+        switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+            case Constants.MODEL_CT2:
+                try {
+                    if (requireActivity().getPackageManager().getPackageInfo(Constants.DCHA_SERVICE_PACKAGE, 0).versionCode < 5) {
+                        preSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                        preSilentInstall.setEnabled(false);
+                    }
+                } catch (PackageManager.NameNotFoundException ignored) {
+                }
+                break;
+            case Constants.MODEL_CT3:
+                swDeviceAdmin.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swDeviceAdmin.setEnabled(false);
+                break;
+            case Constants.MODEL_CTX:
+            case Constants.MODEL_CTZ:
+                break;
+        }
+
+        if (((UserManager) requireActivity().getSystemService(Context.USER_SERVICE)).hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
+            swKeepUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            swKeepUnkSrc.setEnabled(false);
+            swUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            swUnkSrc.setEnabled(false);
+        }
+
+        if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName())) {
+            swDeviceAdmin.setEnabled(false);
+            swDeviceAdmin.setSummary(getString(R.string.pre_main_sum_already_device_owner));
+            preDhizukuPermissionReq.setEnabled(false);
+            preDhizukuPermissionReq.setSummary(getString(R.string.pre_main_sum_already_device_owner));
+        }
+
+        if (isDhizukuActive(requireActivity())) {
+            preDeviceOwnerFn.setSummary("Dhizukuがデバイスオーナーになっています\nDhizukuと通信するためタップしたあと遷移に時間がかかります");
+        } else {
+            preDeviceOwnerFn.setSummary("");
+        }
+
+        if (Variables.isPreferenceLock) {
+            preSilentInstall.setEnabled(false);
+            preSilentInstall.setSummary("進行中のインストールが完了するまでお待ち下さい...");
+            preGetApp.setEnabled(false);
+            preGetApp.setSummary("進行中のインストールが完了するまでお待ち下さい...");
+        }
+    }
+
+    /* システムUIオブザーバー */
+    ContentObserver obsDchaState = new ContentObserver(new Handler()) {
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            try {
+                swDchaState.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE) != 0);
+            } catch (Settings.SettingNotFoundException ignored) {
+            }
+        }
+    };
+
+    /* ナビゲーションバーオブザーバー */
+    ContentObserver obsNavigation = new ContentObserver(new Handler()) {
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            try {
+                swNavigation.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != 0);
+            } catch (Settings.SettingNotFoundException ignored) {
+            }
+        }
+    };
+
+    /* 提供元オブザーバー */
+    @SuppressWarnings("deprecation")
+    ContentObserver obsUnkSrc = new ContentObserver(new Handler()) {
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            try {
+                swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
+            } catch (Settings.SettingNotFoundException ignored) {
+            }
+        }
+    };
+
+    /* USBデバッグオブザーバー */
+    ContentObserver obsAdb = new ContentObserver(new Handler()) {
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            try {
+                swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
+            } catch (Settings.SettingNotFoundException ignored) {
+            }
+        }
+    };
+
+    /* Dchaサービスコネクション */
+    ServiceConnection mDchaServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            mDchaService = IDchaService.Stub.asInterface(iBinder);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+        }
+    };
+
+    /* DchaUtilサービスコネクション */
+    ServiceConnection mDchaUtilServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            mDchaUtilService = IDchaUtilService.Stub.asInterface(iBinder);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+        }
+    };
+
+    /* 設定変更 */
+    @SuppressWarnings("deprecation")
+    private void chgSetting(int req) {
+        switch (req) {
+            case Constants.FLAG_SET_DCHA_STATE_0:
+                if (isCfmDialog(requireActivity())) {
+                    Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
+                } else {
+                    cfmDialog();
+                }
+                break;
+            case Constants.FLAG_SET_DCHA_STATE_3:
+                if (isCfmDialog(requireActivity())) {
+                    Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
+                } else {
+                    cfmDialog();
+                }
+                break;
+            case Constants.FLAG_HIDE_NAVIGATION_BAR:
+                Settings.System.putInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 1);
+                break;
+            case Constants.FLAG_VIEW_NAVIGATION_BAR:
+                Settings.System.putInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
+                break;
+            case Constants.FLAG_USB_DEBUG_TRUE:
+                Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
+                Settings.System.putInt(requireActivity().getContentResolver(), Constants.BC_PASSWORD_HIT_FLAG, 1);
+                break;
+            case Constants.FLAG_USB_DEBUG_FALSE:
+                Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 0);
+                Settings.System.putInt(requireActivity().getContentResolver(), Constants.BC_PASSWORD_HIT_FLAG, 0);
+                break;
+            case Constants.FLAG_MARKET_APP_TRUE:
+                Settings.Secure.putInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS, 1);
+                break;
+            case Constants.FLAG_MARKET_APP_FALSE:
+                Settings.Secure.putInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS, 0);
+                break;
+        }
+    }
+
+    public void showLoadingDialog() {
+        LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+        linearProgressIndicator.show();
+    }
+
+    public void cancelLoadingDialog() {
+        LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+
+        if (linearProgressIndicator.isShown()) {
+            linearProgressIndicator.hide();
+        }
+    }
+
+    private void cfmDialog() {
+        new MaterialAlertDialogBuilder(requireActivity())
+                .setCancelable(false)
+                .setTitle(getString(R.string.dialog_question_are_you_sure))
+                .setMessage(getString(R.string.dialog_confirmation))
+                .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> new MaterialAlertDialogBuilder(requireActivity())
+                        .setCancelable(false)
+                        .setTitle(getString(R.string.dialog_title_final_confirmation))
+                        .setMessage(getString(R.string.dialog_final_confirmation))
+                        .setPositiveButton(R.string.dialog_common_cancel, (dialog1, which1) -> dialog.dismiss())
+                        .setNeutralButton(R.string.dialog_common_continue, (dialog1, which1) -> {
+                            Preferences.save(requireActivity(), Constants.KEY_FLAG_CONFIRMATION, true);
+                            dialog1.dismiss();
+                        })
+                        .show())
+                .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    /* 解像度のリセット */
+    public void resetResolution() {
+        int width = 0, height = 0;
+
+        switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+            case Constants.MODEL_CT2, Constants.MODEL_CT3 -> {
+                width = 1280;
+                height = 800;
+            }
+            case Constants.MODEL_CTX, Constants.MODEL_CTZ -> {
+                width = 1920;
+                height = 1200;
+            }
+        }
+
+        if (!Common.tryBindDchaService(requireActivity(), null, mDchaUtilService, mDchaUtilServiceConnection, false, Constants.FLAG_RESOLUTION, width, height, "", "")) {
+            new MaterialAlertDialogBuilder(requireActivity())
+                    .setMessage(R.string.dialog_error)
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .show();
+        }
+    }
+
+    private void startDownload() {
+        FileDownloadTask fileDownloadTask = new FileDownloadTask();
+        fileDownloadTask.execute(this, Variables.DOWNLOAD_FILE_URL, new File(requireActivity().getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
+        ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
+        progressHandler.fileDownloadTask = fileDownloadTask;
+        progressHandler.sendEmptyMessage(0);
+    }
+
+    /* アクティビティ破棄 */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (mDchaService != null) {
+            requireActivity().getApplicationContext().unbindService(mDchaServiceConnection);
+        }
+
+        if (mDchaUtilService != null) {
+            requireActivity().getApplicationContext().unbindService(mDchaUtilServiceConnection);
+        }
+
+        if (isObsDchaState) {
+            requireActivity().getContentResolver().unregisterContentObserver(obsDchaState);
+            isObsDchaState = false;
+        }
+
+        if (isObsNavigation) {
+            requireActivity().getContentResolver().unregisterContentObserver(obsNavigation);
+            isObsNavigation = false;
+        }
+
+        if (isObsUnkSrc) {
+            requireActivity().getContentResolver().unregisterContentObserver(obsUnkSrc);
+            isObsUnkSrc = false;
+        }
+
+        if (isObsAdb) {
+            requireActivity().getContentResolver().unregisterContentObserver(obsAdb);
+            isObsAdb = false;
+        }
+    }
+
+    /* 再表示 */
+    @Override
+    public void onResume() {
+        super.onResume();
+        ActionBar actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
+
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
+        }
+
+        /* 一括変更 */
+        initialize();
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case Constants.REQUEST_ACTIVITY_INSTALL:
+                preSilentInstall.setEnabled(true);
+
+                if (data != null) {
+                    if (Common.getFilePath(requireActivity(), data.getData()) != null) {
+                        new DchaInstallTask().execute(requireActivity(), installListener(), Common.getFilePath(requireActivity(), data.getData()));
+                        return;
+                    }
+                }
+
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setMessage(getString(R.string.dialog_error_no_file_data))
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+                break;
+            case Constants.REQUEST_ACTIVITY_SYSTEM_UPDATE:
+                preSystemUpdate.setEnabled(true);
+
+                if (data != null) {
+                    if (Common.getFilePath(requireActivity(), data.getData()) != null) {
+                        if (!Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_SYSTEM_UPDATE, 0, 0, Common.getFilePath(requireActivity(), data.getData()), "")) {
+                            new MaterialAlertDialogBuilder(requireActivity())
+                                    .setMessage(R.string.dialog_error)
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                    .show();
+                        }
+                        return;
+                    }
+                }
+
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setMessage(getString(R.string.dialog_error_no_file_data))
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+                break;
+        }
+    }
+
+    public DchaInstallTask.Listener installListener() {
+        return new DchaInstallTask.Listener() {
+
+            /* プログレスバーの表示 */
+            @Override
+            public void onShow() {
+                preSilentInstall.setSummary(getString(R.string.progress_state_installing));
+                LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+                linearProgressIndicator.show();
+            }
+
+            /* 成功 */
+            @Override
+            public void onSuccess() {
+                preSilentInstall.setSummary(R.string.pre_main_sum_silent_install);
+                LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+
+                if (linearProgressIndicator.isShown()) {
+                    linearProgressIndicator.hide();
+                }
+
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setMessage(R.string.dialog_info_success_silent_install)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            /* 失敗 */
+            @Override
+            public void onFailure() {
+                preSilentInstall.setSummary(R.string.pre_main_sum_silent_install);
+                LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
+
+                if (linearProgressIndicator.isShown()) {
+                    linearProgressIndicator.hide();
+                }
+
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setMessage(R.string.dialog_info_failure_silent_install)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+        };
+    }
+
+    public ResolutionTask.Listener resolutionListener() {
+        return new ResolutionTask.Listener() {
+
+            Handler mHandler;
+            Runnable mRunnable;
+
+            /* 成功 */
+            @Override
+            public void onSuccess() {
+                /* 設定変更カウントダウンダイアログ表示 */
+                AlertDialog alertDialog = new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                        .setTitle(R.string.dialog_title_resolution)
+                        .setCancelable(false)
+                        .setMessage("")
+                        .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                            dialog.dismiss();
+                            mHandler.removeCallbacks(mRunnable);
+                        })
+                        .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
+                            dialog.dismiss();
+                            mHandler.removeCallbacks(mRunnable);
+                            MainFragment.getInstance().resetResolution();
+                        })
+                        .create();
+
+                if (!alertDialog.isShowing()) {
+                    alertDialog.show();
+                }
+
+                /* カウント開始 */
+                mHandler = new Handler();
+                mRunnable = new Runnable() {
+
+                    int i = 10;
+
+                    @Override
+                    public void run() {
+                        alertDialog.setMessage("変更を適用しますか？\n" + i + "秒後に元の設定に戻ります");
+                        mHandler.postDelayed(this, 1000);
+
+                        if (i <= 0) {
+                            alertDialog.dismiss();
+                            mHandler.removeCallbacks(this);
+                            MainFragment.getInstance().resetResolution();
+                        }
+
+                        i--;
+                    }
+                };
+
+                mHandler.post(mRunnable);
+            }
+
+            /* 失敗 */
+            @Override
+            public void onFailure() {
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setMessage(getString(R.string.dialog_info_failure))
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+        };
+    }
+
+    @Override
+    public void onDownloadComplete(int reqCode) {
+        switch (reqCode) {
+            case Constants.REQUEST_DOWNLOAD_APP_CHECK:
+                preGetApp.setSummary(R.string.pre_main_sum_get_app);
+                cancelLoadingDialog();
+
+                ArrayList<AppListView.AppData> appDataArrayList = new ArrayList<>();
+
+                try {
+                    JSONObject jsonObj1 = parseJson(requireActivity());
+                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                    JSONArray jsonArray = jsonObj2.getJSONArray("appList");
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        AppListView.AppData data = new AppListView.AppData();
+                        data.str = jsonArray.getJSONObject(i).getString("name");
+                        appDataArrayList.add(data);
+                    }
+                } catch (JSONException | IOException ignored) {
+                }
+
+                View view = getLayoutInflater().inflate(R.layout.layout_app_list, null);
+                ListView listView = view.findViewById(R.id.app_list);
+                listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+                listView.setAdapter(new AppListView.AppListAdapter(requireActivity(), appDataArrayList));
+                listView.setOnItemClickListener((parent, view1, position, id) -> {
+                    Preferences.save(requireActivity(), Constants.KEY_RADIO_TMP, (int) id);
+                    listView.invalidateViews();
+                });
+
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setView(view)
+                        .setTitle("アプリを選択してください")
+                        .setMessage("選択してOKを押下すると詳細な情報が表示されます")
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            StringBuilder str = new StringBuilder();
+
+                            for (int i = 0; i < listView.getCount(); i++) {
+                                RadioButton radioButton = listView.getChildAt(i).findViewById(R.id.v_app_list_radio);
+                                if (radioButton.isChecked()) {
+                                    try {
+                                        JSONObject jsonObj1 = parseJson(requireActivity());
+                                        JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                                        JSONArray jsonArray = jsonObj2.getJSONArray("appList");
+                                        str.append("アプリ名：").append(jsonArray.getJSONObject(i).getString("name")).append("\n\n").append("説明：").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
+                                        Variables.DOWNLOAD_FILE_URL = jsonArray.getJSONObject(i).getString("url");
+                                    } catch (JSONException | IOException ignored) {
+                                    }
+                                }
+                            }
+
+                            if (str.toString().isEmpty()) {
+                                return;
+                            }
+
+                            new MaterialAlertDialogBuilder(requireActivity())
+                                    .setMessage(str + "\n" + "よろしければOKを押下してください")
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
+                                        if (!Objects.equals(Variables.DOWNLOAD_FILE_URL, "MYURL")) {
+                                            showLoadingDialog();
+                                            startDownload();
+                                            dialog.dismiss();
+                                        } else {
+                                            View view1 = getLayoutInflater().inflate(R.layout.view_app_url, null);
+                                            EditText editText = view1.findViewById(R.id.edit_app_url);
+                                            new MaterialAlertDialogBuilder(requireActivity())
+                                                    .setMessage("http://またはhttps://を含むURLを指定してください")
+                                                    .setView(view1)
+                                                    .setCancelable(false)
+                                                    .setPositiveButton(R.string.dialog_common_ok, (dialog3, which3) -> {
+                                                        ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editText.getWindowToken(), 0);
+                                                        Variables.DOWNLOAD_FILE_URL = editText.getText().toString();
+                                                        showLoadingDialog();
+                                                        startDownload();
+                                                    })
+                                                    .setNegativeButton(R.string.dialog_common_cancel, null)
+                                                    .show();
+                                        }
+                                    })
+                                    .show();
+                        })
+                        .show();
+                break;
+            /* APKダウンロード要求の場合 */
+            case Constants.REQUEST_DOWNLOAD_APK:
+                new Handler().post(() -> new Updater(requireActivity()).installApk(requireActivity(), 1));
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onDownloadError(int reqCode) {
+        if (reqCode == Constants.REQUEST_DOWNLOAD_APP_CHECK || reqCode == Constants.REQUEST_DOWNLOAD_APK) {
+            preGetApp.setSummary(R.string.pre_main_sum_get_app);
+        }
+
+        cancelLoadingDialog();
+        new MaterialAlertDialogBuilder(requireActivity())
+                .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    @Override
+    public void onConnectionError(int reqCode) {
+        if (reqCode == Constants.REQUEST_DOWNLOAD_APP_CHECK || reqCode == Constants.REQUEST_DOWNLOAD_APK) {
+            preGetApp.setSummary(R.string.pre_main_sum_get_app);
+        }
+
+        cancelLoadingDialog();
+        new MaterialAlertDialogBuilder(requireActivity())
+                .setMessage("データ取得に失敗しました\nネットワークを確認してください")
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    @Override
+    public void onProgressUpdate(int progress, int currentByte, int totalByte) {
+        LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
+        linearProgressIndicator.setIndeterminate(false);
+        linearProgressIndicator.setProgress(progress);
+        preGetApp.setSummary(new StringBuilder("インストールファイルをサーバーからダウンロードしています...しばらくお待ち下さい...\n進行状況：").append(progress).append("%"));
+    }
+
+    @Override
+    public void onInstallSuccess(int reqCode) {
+        if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
+            preGetApp.setSummary(R.string.pre_main_sum_get_app);
+        }
+
+        LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
+
+        if (linearProgressIndicator.isShown()) {
+            linearProgressIndicator.hide();
+        }
+    }
+
+    @Override
+    public void onInstallFailure(int reqCode, String message) {
+        if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
+            preGetApp.setSummary(R.string.pre_main_sum_get_app);
+        }
+
+        LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
+
+        if (linearProgressIndicator.isShown()) {
+            linearProgressIndicator.hide();
+        }
+
+        new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    @Override
+    public void onInstallError(int reqCode, String message) {
+        if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
+            preGetApp.setSummary(R.string.pre_main_sum_get_app);
+        }
+
+        LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
+
+        if (linearProgressIndicator.isShown()) {
+            linearProgressIndicator.hide();
+        }
+
+        new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+}

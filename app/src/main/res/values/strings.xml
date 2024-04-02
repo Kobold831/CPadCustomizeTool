@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?><!-- *
+     * CPad Customize Tool
+     * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+     *
+     * CPad Customize Tool is Open Source Software.
+     * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
+     *
+     * Kobold831 own any copyright or moral rights in the copyrighted work as defined in the Copyright Act, and has not waived them.
+     * Any use, reproduction, or distribution of this software beyond the scope of Apache License 2.0 is prohibited.
+     *
+     * -->
+<resources>
+    <!-- アプリ・アクティビティ -->
+    <string name="app_name">CPad Customize Tool</string>
+    <string name="activity_main">カスタマイズツール</string>
+    <string name="activity_start">設定</string>
+    <string name="activity_emergency">緊急モード</string>
+    <string name="activity_normal">通常モード</string>
+    <string name="activity_app_info">アプリの情報</string>
+    <string name="activity_self_update">アップデート</string>
+    <string name="activity_reboot">再起動</string>
+    <string name="activity_uninstall_block">アンインストールブロック設定</string>
+    <string name="activity_crash_log">クラッシュ履歴</string>
+    <string name="service_keep">維持サービス</string>
+    <string name="service_protect_keep">停止防御サービス</string>
+
+    <!-- welcome -->
+    <string name="wel_title_page_1">CPad Customize Toolへようこそ！</string>
+    <string name="wel_title_page_2">ナビゲーションバー常時表示</string>
+    <string name="wel_title_page_3">緊急モード</string>
+    <string name="wel_description_page_2">学習中、それ以外の時でもナビゲーションバーを表示します</string>
+    <string name="wel_description_page_3">瞬時に学習環境に変更します</string>
+    <string name="wel_title">利用規約</string>
+    <string name="wel_disagree">同意しない</string>
+    <string name="wel_agree">同意する</string>
+    <string name="wel_terms_of_service">このアプリの利用を開始するには、必ずこの利用規約をお読みいただき、同意してください\n「同意する」を押した時点で、この規約に同意したことになります\n開発者は一切の問題において責任を負わないものとします</string>
+
+    <!-- メイン設定 -->
+    <string name="pre_main_category_system_ui">システムUI設定</string>
+    <string name="pre_main_category_system">システム設定</string>
+    <string name="pre_main_category_emergency_mode">緊急モード</string>
+    <string name="pre_main_category_change_to_normal_mode">通常モード</string>
+    <string name="pre_main_category_other_settings">その他の機能</string>
+    <string name="pre_main_title_system_ui">システムUIを学習用に変更</string>
+    <string name="pre_main_title_keep_system_ui">システムUIを通常用に維持</string>
+    <string name="pre_main_title_navigation_bar">ナビゲーションバーを非表示</string>
+    <string name="pre_main_title_keep_navigation_bar">ナビゲーションバーの表示を維持</string>
+    <string name="pre_main_title_usb_debug">USBデバッグ</string>
+    <string name="pre_main_title_keep_usb_debug">USBデバッグの有効を維持</string>
+    <string name="pre_main_title_non_market">提供元不明のアプリを許可</string>
+    <string name="pre_main_title_keep_non_market">提供元不明のアプリの許可を維持</string>
+    <string name="pre_main_title_change_home">ホームを変更</string>
+    <string name="pre_main_title_keep_home">ホームを維持</string>
+    <string name="pre_main_title_other_settings">その他の設定</string>
+    <string name="pre_main_title_select_course">受講中の講座を選択</string>
+    <string name="pre_main_title_change_settings">緊急モード実行時に変更する設定を変更</string>
+    <string name="pre_main_title_manual">緊急モードの説明</string>
+    <string name="pre_main_title_change_to_normal_mode_settings">通常モード実行時に変更する設定を変更</string>
+    <string name="pre_main_title_normal_mode_manual">通常モードの説明</string>
+    <string name="pre_main_title_reboot">再起動</string>
+    <string name="pre_main_title_reboot_shortcut">再起動のショートカットをホームに追加</string>
+    <string name="pre_main_title_silent_install">サイレントインストール</string>
+    <string name="pre_main_title_resolution">解像度を変更</string>
+    <string name="pre_main_title_resolution_reset">解像度をリセット</string>
+    <string name="pre_main_title_use_dcha">DchaServiceを使用</string>
+    <string name="pre_main_title_device_admin">デバイス管理者を有効にする</string>
+    <string name="pre_main_title_launcher">変更するランチャーを設定</string>
+    <string name="pre_main_title_device_owner">デバイスオーナーの機能</string>
+    <string name="pre_main_title_system_update">システムアップデート</string>
+    <string name="pre_main_title_dhizuku_permission_req">Dhizukuアクセス権限リクエスト</string>
+    <string name="pre_main_sum_message_1">ではこの機能は使用できません</string>
+    <string name="pre_main_sum_message_2">変更するランチャーは%1$sに設定されています</string>
+    <string name="pre_main_sum_keep_home">設定中のホームランチャーを維持します</string>
+    <string name="pre_main_sum_change_settings">デフォルトではすべての設定が変更されます</string>
+    <string name="pre_main_sum_change_to_normal_mode_settings">デフォルトではすべての設定が変更されます</string>
+    <string name="pre_main_sum_use_dcha">この機能を使用するにはタップして確認する必要があります</string>
+    <string name="pre_main_sum_device_admin">このアプリがアンインストールされないようにします</string>
+    <string name="pre_main_sum_silent_install">分割APKは非対応です\n分割APKは「デバイスオーナーの機能」→サイレントインストールでインストールできます</string>
+    <string name="pre_main_sum_already_device_owner">デバイスオーナーのため変更できません</string>
+    <string name="pre_main_sum_no_setting_launcher">変更するランチャーは設定されていません</string>
+    <string name="pre_main_sum_get_app">インストールするには表示されるダイアログからアプリを選択してください\nインストーラーはアプリ設定→アップデートモードを選択の設定に準拠します</string>
+
+    <!-- アプリ設定 -->
+    <string name="pre_app_category_start_settings">起動設定</string>
+    <string name="pre_app_category_settings">アプリ設定</string>
+    <string name="pre_app_category_update">アップデート設定</string>
+    <string name="pre_app_category_log">アプリログ</string>
+    <string name="pre_app_title_update_check">起動時のアップデートチェックを無効</string>
+    <string name="pre_app_title_dcha">DchaServiceによる設定変更</string>
+    <string name="pre_app_title_usb">デバイス起動時のUSBデバッグを有効</string>
+    <string name="pre_app_title_update">アップデートモードを選択</string>
+    <string name="pre_app_title_crash_history">クラッシュ履歴</string>
+    <string name="pre_app_title_delete_crash_history">クラッシュ履歴の消去</string>
+    <string name="pre_app_sum_dcha">DchaServiceでシステム設定を変更します</string>
+    <string name="pre_app_sum_usb">有効にすると、デバイス起動時にUSBデバッグが無効にされるのを防ぎます</string>
+    <string name="pre_app_sum_confirmation_dcha">この機能を使用するには、\"DchaServiceを使用\"を押して内容を確認してください</string>
+    
+    <!-- デバイスオーナー設定 -->
+    <string name="pre_owner_title_uninstall_block">アンインストールブロッカー</string>
+    <string name="pre_owner_title_permission">ランタイム権限を強制付与</string>
+    <string name="pre_owner_title_silent_install">サイレントインストール</string>
+    <string name="pre_owner_title_device_owner">デバイスオーナーを解除</string>
+    <string name="pre_owner_sum_message_1">デバイスオーナーは</string>
+    <string name="pre_owner_sum_message_2">に設定されています</string>
+    <string name="pre_owner_sum_no_device_owner">デバイスオーナーはデバイスに設定されていません</string>
+    <string name="pre_owner_sum_not_use_function">デバイスオーナーではないためこの機能は使用できません\nこの機能を使用するにはADBで許可してください</string>
+    <string name="pre_owner_sum_uninstall_block">ユーザーアプリのアンインストールをブロックします</string>
+    <string name="pre_owner_sum_silent_install">「xapk・apkm・分割APK」のインストールに対応しています\n「分割APK」をインストールするにはファイルを長押しして選択してください</string>
+    <string name="pre_owner_sum_permission_forced">デバイスポリシーでユーザーアプリのランタイム権限は強制付与されます</string>
+    <string name="pre_owner_sum_permission_default">デバイスポリシーはデフォルトです</string>
+
+    <!-- その他の設定 -->
+    <string name="pre_other_title_settings">設定を起動</string>
+    <string name="pre_other_title_development">開発者向けオプションを開く</string>
+    <string name="pre_other_title_adjustment">システムUI調整ツールを起動</string>
+    <string name="pre_other_title_screen_off_time">スクリーンのタイムアウト</string>
+
+    <!-- その他の設定 -->
+    <string name="un_text_1">すべて無効</string>
+    <string name="un_text_2">すべて有効</string>
+
+    <!-- メニュー -->
+    <string name="menu_app_info">アプリ情報</string>
+    <string name="menu_app_settings">アプリ設定</string>
+    <string name="menu_app_update">アップデートの確認</string>
+
+    <!-- ダイアログ -->
+    <!-- ダイアログ共通 -->
+    <string name="dialog_common_ok">OK</string>
+    <string name="dialog_common_yes">はい</string>
+    <string name="dialog_common_no">いいえ</string>
+    <string name="dialog_common_settings">設定</string>
+    <string name="dialog_common_exit">終了</string>
+    <string name="dialog_common_cancel">キャンセル</string>
+    <string name="dialog_common_continue">続行</string>
+    <string name="dialog_common_check">確認</string>
+    <!-- ダイアログタイトル -->
+    <string name="dialog_title_update">アプリの更新</string>
+    <string name="dialog_title_common_error">起動エラー</string>
+    <string name="dialog_title_error">エラー</string>
+    <string name="dialog_title_notice_start">はじめに</string>
+    <string name="dialog_title_grant_permission">権限設定</string>
+    <string name="dialog_title_dcha_service">以下の内容を確認してください</string>
+    <string name="dialog_title_emergency_manual">緊急モードの説明</string>
+    <string name="dialog_title_normal_manual">通常モードの説明</string>
+    <string name="dialog_title_resolution">解像度の設定</string>
+    <string name="dialog_title_launcher">ランチャーを選択</string>
+    <string name="dialog_title_final_confirmation">最終確認</string>
+    <string name="dialog_title_select_mode">モードを選択してください</string>
+    <!-- ダイアログメッセージ -->
+    <string name="dialog_notice_start">ウイルス対策アプリなどに脅威として誤検知される場合があります\n詳細情報は開発者にお問い合わせください\nこのダイアログは以降表示されません</string>
+    <string name="dialog_emergency_select_course">受講中の講座を選択してください</string>
+    <string name="dialog_mode_select_settings">実行時に変更する設定を選択してください\n設定変更後は”OK”を押してください</string>
+    <string name="dialog_emergency_manual">\nこの機能はアクティビティを呼び出すアプリで使用できます\n\n”.mode.emergency.EmergencyActivity”を追加して起動してください\n\n呼び出されると以下の動作をします\n\n＊ナビゲーションバーを隠す＊\n\n＊アプリ履歴を全消去＊\n\n＊ホームを勉強ホームに変更＊\n\n＊システムUIを学習用に変更＊</string>
+    <string name="dialog_emergency_manual_red">\nシステムUIを変更するためアクティビティや他のアプリを起動させるアプリをインストールしておかないと初期化以外に勉強ホームから抜け出すことができなくなります\n\nアプリ履歴を全消去はナビゲーションバーの□ボタンを押すと表示されるアプリ履歴のアプリを終了します</string>
+    <string name="dialog_normal_manual">\nこの機能はアクティビティを呼び出すアプリで使用できます\n\n”.mode.normal.NormalActivity”を追加して起動してください\n\n呼び出されると以下の動作をします\n\n＊ナビゲーションバーを表示＊\n\n＊ホームを変更＊\n\n＊システムUIを通常用に変更＊\n\n＊ホームを起動＊</string>
+    <string name="dialog_confirmation">このデバイスのシステム領域にDchaServiceが恒久的な変更を加えていないことを検出しました\n続行すると一部の動作がAndroidシステムによって制限される可能性があります</string>
+    <string name="dialog_final_confirmation">続行するとこの操作は取り消せません\n初期化をおこなってもシステム領域の変更、Androidシステムによる制限はもとには戻りません\n続行すると警告は無効になり、設定変更が可能になります</string>
+    <!-- 情報 -->
+    <string name="dialog_info_failure">失敗しました</string>
+    <string name="dialog_info_no_update">アップデートはありません</string>
+    <string name="dialog_info_failure_silent_install">サイレントインストールに失敗しました</string>
+    <string name="dialog_info_success_silent_install">サイレントインストールに成功しました</string>
+    <string name="dialog_info_update_caution">遷移先のページより新しいバージョンのapkファイルをダウンロードしてadbでインストールしてください</string>
+    <string name="dialog_info_dhizuku_grant_permission">Dhizukuへのアクセス権限は付与されました</string>
+    <string name="dialog_info_dhizuku_deny_permission">Dhizukuへのアクセス権限は拒否されました</string>
+    <string name="dialog_info_dhizuku_already_grant_permission">Dhizukuへのアクセス権限は付与されています</string>
+    <!-- ダイアログエラー -->
+    <string name="dialog_error_crash">前回%1$sが予期せずに終了しました\n繰り返し発生する場合は"確認"を押してクラッシュログを開発者に送信してください</string>
+    <string name="dialog_error">エラーが発生しました</string>
+    <string name="dialog_error_start_connection">サーバーと接続できませんでした\n通信状態を確認してください</string>
+    <string name="dialog_error_start_wifi">通信エラーが発生しました\nネットワークに接続してください</string>
+    <string name="dialog_error_start_dcha_service">”DchaService”が動作していません\nこのアプリは使用できません\n\n”DchaService”を使用しない場合、”続行”を押してください</string>
+    <string name="dialog_error_start_cpad">この端末はサポートされていません\nこのアプリは使用できません</string>
+    <string name="dialog_error_start_permission">システム設定の変更が許可されていません\n”設定”を押した後に表示されるスイッチを有効にし許可してください</string>
+    <string name="dialog_error_not_work_dcha">DchaServiceが動作していないためこの機能は使用できません</string>
+    <string name="dialog_error_not_work_dcha_util">DchaUtilServiceが動作していないためこの機能は使用できません</string>
+    <string name="dialog_error_illegal_value">不正な値です</string>
+    <string name="dialog_error_no_file_browse">ファイルブラウザがインストールされていません</string>
+    <string name="dialog_error_no_file_data">ファイルデータを取得できませんでした</string>
+    <string name="dialog_error_not_work_mode">選択されたモードは機能していないため設定できません</string>
+    <string name="dialog_error_reset_update_mode">デバイスオーナーではありません\nアップデートモードをリセットしました</string>
+    <string name="dialog_error_dhizuku_conn_failure">Dhizukuとの通信に失敗しました</string>
+    <!-- ダイアログ操作許可 -->
+    <string name="dialog_question_reboot">再起動しますか？</string>
+    <string name="dialog_question_dcha_service">この機能を使用したことによるすべての問題を開発者は一切責任を負いません\nDchaServiceの機能を使用しますか?</string>
+    <string name="dialog_question_device_owner">デバイスオーナーを解除しますか？</string>
+    <string name="dialog_question_device_admin">デバイス管理者を無効にしますか？\nこの操作を行うとDchaServiceによってアプリがアンインストールされる可能性があります</string>
+    <string name="dialog_question_are_you_sure">本当によろしいですか？</string>
+    
+    <!-- トースト -->
+    <string name="toast_common_success">成功しました</string>
+    <string name="toast_execution">実行しました</string>
+    <string name="toast_not_course">講座が存在しません</string>
+    <string name="toast_not_install_launcher">"ホームランチャーが存在しません"</string>
+    <string name="toast_use_not_dcha">DchaServiceを使用するための確認が完了していません</string>
+    <string name="toast_not_completed_settings">初期設定が完了していません</string>
+    <string name="toast_not_change">権限を付与してから再試行してください</string>
+    <string name="toast_unknown_activity">ブラウザを開けませんでした</string>
+    <string name="toast_no_development_option">開発者向けオプションは有効になっていません</string>
+
+    <!-- アプリ情報 -->
+    <string name="info_app_info">アプリの情報</string>
+    <string name="info_app_state">アプリの状態：%1$s</string>
+    <string name="info_development">開発者</string>
+    <string name="info_development_label">こぼるど</string>
+    <string name="info_organization">SmileTabLabo</string>
+    <string name="info_organization_label">%1$sに参加して提案・不具合報告をしてください\n下のボタンより参加可能です</string>
+    <string name="info_organization_button">参加</string>
+    <string name="info_library">外部ライブラリー / 謝辞</string>
+    <string name="info_library_wel_label">・welcome-android\nCopyright 2015\-2017 Stephen Tuso</string>
+    <string name="info_library_zip_label">・ZeroTurnaround ZIP Library\nCopyright 2012 ZeroTurnaround LLC.</string>
+    <string name="info_library_yib_label">・よびばいと\n画像の提供（cpadmaterial.png / ex.png / navigationbar.png）\nウォークスルーの追加のご協力</string>
+    <string name="info_library_dhizuku_label">・Dhizuku-API\nCopyright © 2023 R0S</string>
+    <string name="info_library_awayume_label">・Awayume\n不具合修正のご協力</string>
+    <string name="info_library_syuugo_label">・Syuugo\n不具合修正\nアプリの最適化\n機能修正のご協力</string>
+    <string name="info_library_naniwara_label">・なにわらまさと\ncpad_grid_icon_v2.webp</string>
+    <string name="info_library_other_label">敬称略・順不同で記載しています\n外部ライブラリー / 謝辞に明記されている著作物はその著作権者に帰属されます</string>
+    <string name="info_github">GitHub</string>
+    <string name="info_github_label">このアプリのソースコードを取得できます</string>
+    <string name="info_github_button">取得</string>
+    
+    <!-- レイアウト -->
+    <string name="layout_img_content_description">icon</string>
+    <string name="layout_update_info">アップデートがあります\nアップデートしますか？\n\n更新情報：\n</string>
+    <string name="layout_update_detail_info">詳細な更新情報</string>
+    <string name="layout_resolution_width">横の解像度</string>
+    <string name="layout_resolution_x">x</string>
+    <string name="layout_resolution_height">縦の解像度</string>
+    <string name="layout_time_out_hint">最大値：%1$s</string>
+    <string name="layout_time_out_label">単位：ミリ秒（1秒1000ミリ秒）\n設定値：%1$s\n推定時間：%2$s\n推定時刻：%3$s</string>
+    <string name="layout_time_out_button">最大値</string>
+
+    <!-- クラス -->
+    <string name="percent">%</string>
+    <string name="shortcut_reboot">再起動</string>
+    <string name="logger_empty">ログはありません</string>
+    <string name="progress_state_connecting">通信中です…</string>
+    <string name="progress_state_downloading_update_file">アップデートファイルをサーバーからダウンロード中…</string>
+    <string name="progress_state_update_check">アプリの更新を確認しています…</string>
+    <string name="progress_state_rename">拡張子を変更しています…</string>
+    <string name="progress_state_unpack">圧縮ファイルを展開しています…</string>
+    <string name="progress_state_copy_file">データをコピーしています…</string>
+    <string name="progress_state_check_file">データを確認しています…</string>
+    <string name="progress_state_installing">インストールしています…</string>
+
+    <!-- インストーラー -->
+    <string name="installer_status_user_action">ユーザの確認待ち</string>
+    <string name="installer_status_failure_storage">メモリが不足しています</string>
+    <string name="installer_status_failure_invalid">APKが無効か破損しています</string>
+    <string name="installer_status_failure_incompatible">非対応アプリ</string>
+    <string name="installer_status_failure_conflict">衝突するパッケージが存在します</string>
+    <string name="installer_status_failure_blocked">インストールがブロックされました</string>
+    <string name="installer_status_failure">インストーラ失敗</string>
+    <string name="installer_status_no_allocatable_space">ストレージの空き容量が不足している可能性があります\n</string>
+    <string name="installer_status_unknown_error">不明なエラーです</string>
+</resources>
