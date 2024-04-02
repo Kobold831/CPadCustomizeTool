@@ -11,8 +11,8 @@ android {
         minSdk 22
         //noinspection ExpiredTargetSdkVersion
         targetSdk 22
-        versionCode 44
-        versionName "2.1.0"
+        versionCode 45
+        versionName "2.2.0"
         proguardFiles += "proguard-rules.pro"
         resourceConfigurations += "ja"
         multiDexEnabled true
@@ -34,7 +34,7 @@ android {
     }
 
     buildTypes {
-        all {
+        configureEach {
             signingConfig signingConfigs.android
         }
         release {
