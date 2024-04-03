@@ -77,6 +77,20 @@ adb shell dpm set-device-owner com.rosan.dhizuku/.server.DhizukuDAReceiver
 adb shell dpm set-device-owner com.saradabar.cpadcustomizetool/.Receiver.AdministratorReceiver
 ```
 
+## 既知の問題
+
+### Dhizukuで任意のapkをサイレントインストールしようとするとSecurityExceptionがスローされる
+
+- 修正状況
+  - このアプリに起因する問題でないため修正はありません。
+
+- 症状
+  - 以下のクラッシュ（Caller has no access to session ***）が発生する。
+    <a href="#"><img src="images/screenshot-01.png" height="400"></a>
+- 原因と対処法
+  - Dhizukuに権限が付与されていない可能性があります。
+  - Dhizukuに権限（ストレージなど）が付与されているかを確認してください。
+
 ## 問題の報告
 
 新たなバグや修正方法を見つけた場合は、お手数ですが [報告](https://github.com/Kobold831/CPadCustomizeTool/issues/new/choose) をお願いします。
