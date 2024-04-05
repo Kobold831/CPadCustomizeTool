@@ -59,34 +59,36 @@ public class PackageReceiver extends BroadcastReceiver {
     private void run(Context context, Intent intent) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 
+        if (intent.getData() == null) {
+            return;
+        }
+
         /* サービス開始 */
-        if (intent.getData() != null) {
-            if (intent.getData().toString().replace("package:", "").equals(context.getPackageName())) {
-                /* 維持スイッチが有効のときサービスを起動 */
-                if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
-                    Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
+        if (intent.getData().toString().replace("package:", "").equals(context.getPackageName())) {
+            /* 維持スイッチが有効のときサービスを起動 */
+            if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
 
-                    if (!Common.isRunningService(context, KeepService.class.getName())) {
-                        context.startService(new Intent(context, KeepService.class));
-                    }
-
-                    if (!Common.isRunningService(context, ProtectKeepService.class.getName())) {
-                        context.startService(new Intent(context, ProtectKeepService.class));
-                    }
-
-                    Runnable runnable = () -> KeepService.getInstance().startService();
-
-                    new Handler().postDelayed(runnable, 1000);
+                if (!Common.isRunningService(context, KeepService.class.getName())) {
+                    context.startService(new Intent(context, KeepService.class));
                 }
+
+                if (!Common.isRunningService(context, ProtectKeepService.class.getName())) {
+                    context.startService(new Intent(context, ProtectKeepService.class));
+                }
+
+                new Handler().postDelayed(() -> KeepService.getInstance().startService(), 1000);
             }
         }
 
         /* ランタイム権限を強制付与が有効な場合 */
         if (sp.getBoolean("pre_owner_permission_frc", false)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!Common.isRunningService(context, PermissionIntentService.class.getName())) {
-                    context.startService(new Intent(context, PermissionIntentService.class));
-                }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                return;
+            }
+
+            if (!Common.isRunningService(context, PermissionIntentService.class.getName())) {
+                context.startService(new Intent(context, PermissionIntentService.class).putExtra("packageName", intent.getData().toString().replace("package:", "")));
             }
         }
     }
