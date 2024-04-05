@@ -320,6 +320,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     });
 
                     new MaterialAlertDialogBuilder(v.getContext())
+                            .setCancelable(false)
                             .setView(v)
                             .setTitle(getString(R.string.dialog_title_select_mode))
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> firstCheck())
