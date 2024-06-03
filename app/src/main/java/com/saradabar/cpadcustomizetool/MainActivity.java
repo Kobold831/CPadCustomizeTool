@@ -15,6 +15,9 @@ package com.saradabar.cpadcustomizetool;
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -29,16 +32,12 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
@@ -69,15 +68,19 @@ import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
-public class MainActivity extends AppCompatActivity implements DownloadEventListener {
+public class MainActivity extends Activity implements DownloadEventListener {
 
+    ProgressDialog progressDialog;
     IDchaService mDchaService;
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
-        setContentView(R.layout.layout_progress);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("");
 
         /* 前回クラッシュしているかどうか */
         if (Preferences.load(this, Constants.KEY_FLAG_CRASH_LOG, false)) {
@@ -90,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     private void crashError() {
-        new MaterialAlertDialogBuilder(this)
+        new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setMessage(getString(R.string.dialog_error_crash, getApplicationInfo().loadLabel(getPackageManager())))
                 .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> {
@@ -152,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 break;
             /* APKダウンロード要求の場合 */
             case Constants.REQUEST_DOWNLOAD_APK:
-                new Handler().post(() -> new Updater(this).installApk(this, 0));
+                new Handler().post(() -> new Updater(this, progressDialog).installApk(this, 0));
                 break;
             default:
                 break;
@@ -174,14 +177,16 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         new WelcomeHelper(this, WelAppActivity.class).forceShow();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
-        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
-        linearProgressIndicator.setIndeterminate(false);
-        linearProgressIndicator.setProgress(progress);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setProgress(progress);
+        progressDialog.show();
     }
 
     /* アップデートダイアログ */
+    @SuppressWarnings("deprecation")
     private void showUpdateDialog(String str) {
         /* モデルIDをセット */
         switch (Build.MODEL) {
@@ -201,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
         View view = getLayoutInflater().inflate(R.layout.view_update, null);
         TextView tv = view.findViewById(R.id.update_information);
-
         tv.setText(str);
         view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
             try {
@@ -211,14 +215,15 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             }
         });
 
-        new MaterialAlertDialogBuilder(this)
+        new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_title_update)
                 .setMessage("アップデートモードを変更するには”設定”を押下してください")
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                    LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
-                    linearProgressIndicator.show();
+                    progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    progressDialog.setMessage("お待ち下さい・・・");
+                    progressDialog.show();
                     FileDownloadTask fileDownloadTask = new FileDownloadTask();
                     fileDownloadTask.execute(this, Variables.DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
                     ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
@@ -249,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                     Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 } else {
-                                    new MaterialAlertDialogBuilder(v.getContext())
+                                    new AlertDialog.Builder(v.getContext())
                                             .setMessage(getString(R.string.dialog_error_not_work_mode))
                                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                             .show();
@@ -264,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                     Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 } else {
-                                    new MaterialAlertDialogBuilder(v.getContext())
+                                    new AlertDialog.Builder(v.getContext())
                                             .setMessage(getString(R.string.dialog_error_not_work_mode))
                                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                             .show();
@@ -275,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                     Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 } else {
-                                    new MaterialAlertDialogBuilder(v.getContext())
+                                    new AlertDialog.Builder(v.getContext())
                                             .setMessage(getString(R.string.dialog_error_not_work_mode))
                                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                             .show();
@@ -287,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                     listView.invalidateViews();
                                 } else {
                                     if (!Dhizuku.init(v.getContext())) {
-                                        new MaterialAlertDialogBuilder(v.getContext())
+                                        new AlertDialog.Builder(v.getContext())
                                                 .setMessage(getString(R.string.dialog_error_not_work_mode))
                                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                                 .show();
@@ -301,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                                     Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                                                     listView.invalidateViews();
                                                 } else {
-                                                    new MaterialAlertDialogBuilder(v.getContext())
+                                                    new AlertDialog.Builder(v.getContext())
                                                             .setMessage(R.string.dialog_info_dhizuku_deny_permission)
                                                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                                             .show();
@@ -312,14 +317,14 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                 }
                                 break;
                             case 5:
-                                new MaterialAlertDialogBuilder(v.getContext())
+                                new AlertDialog.Builder(v.getContext())
                                         .setMessage(getString(R.string.dialog_error_not_work_mode))
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                         .show();
                         }
                     });
 
-                    new MaterialAlertDialogBuilder(v.getContext())
+                    new AlertDialog.Builder(v.getContext())
                             .setCancelable(false)
                             .setView(v)
                             .setTitle(getString(R.string.dialog_title_select_mode))
@@ -330,21 +335,17 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     /* ローディングダイアログを表示する */
+    @SuppressWarnings("deprecation")
     private void showLoadingDialog() {
-        TextView textView = findViewById(R.id.layout_text_progress);
-        textView.setText("サーバーと通信しています...");
-        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
-        linearProgressIndicator.show();
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setMessage("サーバーと通信しています...");
+        progressDialog.show();
     }
 
     /* ローディングダイアログを非表示にする */
     private void cancelLoadingDialog() {
-        TextView textView = findViewById(R.id.layout_text_progress);
-        textView.setText("");
-        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
-
-        if (linearProgressIndicator.isShown()) {
-            linearProgressIndicator.hide();
+        if (progressDialog.isShowing()) {
+            progressDialog.cancel();
         }
     }
 
@@ -362,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     /* 端末チェックエラー */
     private void supportModelError() {
-        new MaterialAlertDialogBuilder(this)
+        new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_common_error)
                 .setMessage(R.string.dialog_error_start_cpad)
@@ -376,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         /* DchaServiceを使用するか確認 */
         if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
             if (!bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE)) {
-                new MaterialAlertDialogBuilder(this)
+                new AlertDialog.Builder(this)
                         .setCancelable(false)
                         .setTitle(R.string.dialog_title_common_error)
                         .setMessage(R.string.dialog_error_start_dcha_service)
@@ -471,7 +472,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     /* 初回起動お知らせ */
     public void WarningDialog() {
-        new MaterialAlertDialogBuilder(this)
+        new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_notice_start)
                 .setMessage(R.string.dialog_notice_start)
@@ -487,10 +488,9 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     /* システム設定変更権限か付与されているか確認 */
-    @SuppressWarnings("deprecation")
     private boolean isPermissionCheck() {
         if (!isWriteSystemPermissionCheck()) {
-            new MaterialAlertDialogBuilder(this)
+            new AlertDialog.Builder(this)
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_grant_permission)
                     .setMessage(R.string.dialog_error_start_permission)
@@ -571,7 +571,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         if (requestCode == 0 && grantResults.length > 0) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED) {
-                    new MaterialAlertDialogBuilder(this)
+                    new AlertDialog.Builder(this)
                             .setCancelable(false)
                             .setMessage("ストレージ権限を付与してください\n付与されない場合はアプリをご利用できません\n権限を付与される場合は\"OK\"を押下してください\n同意いただけない場合は\"キャンセル\"を押下してください")
                             .setPositiveButton("OK", (dialog, which) -> {
@@ -589,7 +589,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         if (requestCode == 1 && grantResults.length > 0) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") != PackageManager.PERMISSION_GRANTED) {
-                    new MaterialAlertDialogBuilder(this)
+                    new AlertDialog.Builder(this)
                             .setCancelable(false)
                             .setMessage("jp.co.benesse.dcha.permission.ACCESS_SYSTEM権限を付与してください\n付与されない場合はアプリをご利用できません\n権限を付与される場合は\"OK\"を押下してください\n同意いただけない場合は\"キャンセル\"を押下してください")
                             .setPositiveButton("OK", (dialog, which) -> {

@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
 
-    <com.google.android.material.materialswitch.MaterialSwitch
+    <Switch
         android:focusable="false"
         android:clickable="false"
         android:layout_gravity="center"

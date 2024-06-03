@@ -33,7 +33,7 @@
     <string name="wel_title">利用規約</string>
     <string name="wel_disagree">同意しない</string>
     <string name="wel_agree">同意する</string>
-    <string name="wel_terms_of_service">このアプリの利用を開始するには、必ずこの利用規約をお読みいただき、同意してください\n「同意する」を押した時点で、この規約に同意したことになります\n開発者は一切の問題において責任を負わないものとします</string>
+    <string name="wel_terms_of_service">このアプリの利用を開始するには、必ずこの利用規約をお読みいただき、同意してください。\n「同意する」を押した時点で、この規約に同意したことになります。\n開発者は一切の問題において責任を負わないものとします。</string>
 
     <!-- メイン設定 -->
     <string name="pre_main_category_system_ui">システムUI設定</string>

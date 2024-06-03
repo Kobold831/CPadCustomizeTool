@@ -16,18 +16,18 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
-import androidx.activity.OnBackPressedCallback;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.saradabar.cpadcustomizetool.R;
 
 import java.util.Objects;
 
 public class WebViewActivity extends AppCompatActivity {
+
+    WebView webView;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Deprecated
@@ -38,7 +38,7 @@ public class WebViewActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(view -> finish());
-        WebView webView = findViewById(R.id.activity_web_view);
+        webView = findViewById(R.id.activity_web_view);
         webView.setWebViewClient(new WebViewClient() {
 
             @Override
@@ -81,13 +81,12 @@ public class WebViewActivity extends AppCompatActivity {
         } else {
             webView.loadUrl("https://www.google.com");
         }
+    }
 
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                webView.goBack();
-            }
-        });
+    @SuppressWarnings("MissingSuperCall")
+    @Override
+    public void onBackPressed() {
+        webView.goBack();
     }
 
     private boolean isUrlDistrusted(String url) {

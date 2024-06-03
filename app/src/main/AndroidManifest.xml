@@ -3,8 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="ProtectedPermissions">
 
-    <uses-sdk tools:overrideLibrary="rikka.shizuku.api, rikka.shizuku.provider, rikka.shizuku.shared, rikka.shizuku.aidl" />
-
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -29,8 +27,7 @@
 
         <activity
             android:name=".view.activity.WelAppActivity"
-            android:theme="@style/WelcomeScreenTheme.Light"
-            android:configChanges="keyboardHidden|screenSize|orientation" />
+            android:theme="@style/WelcomeScreenTheme.Light" />
 
         <activity
             android:clearTaskOnLaunch="true"
@@ -38,7 +35,7 @@
             android:label="@string/activity_main"
             android:theme="@style/NoActionBarTheme"
             android:exported="true"
-            android:configChanges="keyboardHidden|orientation">
+            android:configChanges="keyboardHidden|screenSize|orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
@@ -190,14 +187,5 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
-
-        <provider
-            android:name="rikka.shizuku.ShizukuProvider"
-            android:authorities="${applicationId}.shizuku"
-            android:multiprocess="false"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL"
-            tools:ignore="MissingClass" />
     </application>
 </manifest>

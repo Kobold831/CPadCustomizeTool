@@ -12,22 +12,21 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
@@ -49,8 +48,13 @@ public class OtherFragment extends PreferenceFragmentCompat {
             preWebView;
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.pre_other, rootKey);
+        addPreferencesFromResource(R.xml.pre_other);
 
         preOtherStartSettings = findPreference("pre_other_start_settings");
         preStartUiAdjustment = findPreference("pre_other_start_ui_adjustment");
@@ -83,7 +87,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                 } catch (ActivityNotFoundException ignored) {
                 }
             } else {
-                Toast.toast(getActivity(), R.string.toast_no_development_option);
+                Toast.toast(requireActivity(), R.string.toast_no_development_option);
             }
             return false;
         });
@@ -102,7 +106,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
             EditText editText = view.findViewById(R.id.time_out_edit);
             editText.setHint(getString(R.string.layout_time_out_hint, String.valueOf(Integer.MAX_VALUE)));
             setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
-            new MaterialAlertDialogBuilder(requireActivity())
+            new AlertDialog.Builder(requireActivity())
                     .setView(view)
                     .setCancelable(false)
                     .setTitle("スクリーンのタイムアウト")
@@ -113,13 +117,13 @@ public class OtherFragment extends PreferenceFragmentCompat {
                                 Settings.System.putInt(requireActivity().getContentResolver(), "screen_off_timeout", Integer.parseInt(editText.getText().toString()));
                                 setSummaryScreenOffTimeConvert();
                             } else {
-                                new MaterialAlertDialogBuilder(requireActivity())
+                                new AlertDialog.Builder(requireActivity())
                                         .setMessage("最低値5000以下の値を設定することはできません")
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                                         .show();
                             }
                         } catch (Exception ignored) {
-                            new MaterialAlertDialogBuilder(requireActivity())
+                            new AlertDialog.Builder(requireActivity())
                                     .setMessage(R.string.dialog_error)
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                                     .show();
@@ -135,7 +139,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                     setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
                     setSummaryScreenOffTimeConvert();
                 } catch (Exception ignored) {
-                    new MaterialAlertDialogBuilder(requireActivity())
+                    new AlertDialog.Builder(requireActivity())
                             .setMessage(R.string.dialog_error)
                             .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                             .show();

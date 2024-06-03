@@ -19,9 +19,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
 import android.os.Build;
-
-import androidx.annotation.Keep;
-import androidx.annotation.RequiresApi;
+import android.support.annotation.RequiresApi;
 
 import com.rosan.dhizuku.shared.DhizukuVariables;
 
@@ -36,7 +34,6 @@ public class DhizukuService extends IDhizukuService.Stub {
     private final Context context;
     private final DevicePolicyManager dpm;
 
-    @Keep
     public DhizukuService(Context context) {
         this.context = context;
         dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);

@@ -13,8 +13,7 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.annotation.SuppressLint;
-
-import androidx.fragment.app.Fragment;
+import android.support.v4.app.Fragment;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.view.flagment.WelcomeFragment;

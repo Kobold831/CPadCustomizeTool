@@ -18,9 +18,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
-
-import androidx.preference.PreferenceManager;
 
 import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
@@ -56,6 +55,7 @@ public class PackageReceiver extends BroadcastReceiver {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void run(Context context, Intent intent) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 

@@ -33,8 +33,6 @@ import android.provider.OpenableColumns;
 import android.view.Display;
 import android.view.IWindowManager;
 
-import androidx.annotation.NonNull;
-
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
@@ -180,7 +178,7 @@ public class Common {
         return df.format(System.currentTimeMillis());
     }
 
-    public static void LogOverWrite(Context context, @NonNull Throwable throwable) {
+    public static void LogOverWrite(Context context, Throwable throwable) {
         StringWriter stringWriter = new StringWriter();
         throwable.printStackTrace(new PrintWriter(stringWriter));
         String message = "- ログ開始 -\n" +

@@ -17,10 +17,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import androidx.annotation.NonNull;
 
 import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
 import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;

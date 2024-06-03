@@ -12,27 +12,24 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
-import com.saradabar.cpadcustomizetool.data.installer.Updater;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
+import com.saradabar.cpadcustomizetool.data.installer.Updater;
+import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Toast;
 import com.saradabar.cpadcustomizetool.util.Variables;
@@ -47,15 +44,20 @@ import java.io.IOException;
 
 public class SelfUpdateActivity extends AppCompatActivity implements DownloadEventListener {
 
+    ProgressDialog progressDialog;
+
+    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_progress);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setMessage("");
 
         showLoadingDialog();
         new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
@@ -101,7 +103,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 }
                 break;
             case Constants.REQUEST_DOWNLOAD_APK:
-                new Handler().post(() -> new Updater(this).installApk(this, 0));
+                new Handler().post(() -> new Updater(this, progressDialog).installApk(this, 0));
                 break;
             default:
                 break;
@@ -111,7 +113,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     @Override
     public void onDownloadError(int reqCode) {
         cancelLoadingDialog();
-        new MaterialAlertDialogBuilder(this)
+        new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
                 .setIcon(R.drawable.alert)
@@ -123,7 +125,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     @Override
     public void onConnectionError(int reqCode) {
         cancelLoadingDialog();
-        new MaterialAlertDialogBuilder(this)
+        new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
                 .setIcon(R.drawable.alert)
@@ -132,22 +134,19 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 .show();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
-        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
-        linearProgressIndicator.setIndeterminate(false);
-        linearProgressIndicator.setProgress(progress);
-
-        TextView textView = findViewById(R.id.layout_text_progress);
-        textView.setText(new StringBuilder("インストールファイルをサーバーからダウンロードしています...しばらくお待ち下さい...\n進行状況：").append(progress).append("%"));
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setProgress(progress);
+        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています...しばらくお待ち下さい...\n進行状況：").append(progress).append("%"));
+        progressDialog.show();
     }
 
     private void showUpdateDialog(String str) {
         View view = getLayoutInflater().inflate(R.layout.view_update, null);
         TextView tv = view.findViewById(R.id.update_information);
-
         tv.setText(str);
-
         view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
             try {
                 startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_UPDATE_INFO).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
@@ -156,7 +155,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
             }
         });
 
-        new MaterialAlertDialogBuilder(this)
+        new AlertDialog.Builder(this)
                 .setView(view)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
@@ -172,7 +171,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     }
 
     private void showNoUpdateDialog() {
-        new MaterialAlertDialogBuilder(this)
+        new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
                 .setMessage(R.string.dialog_info_no_update)
@@ -181,22 +180,15 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 .show();
     }
 
+    @SuppressWarnings("deprecation")
     private void showLoadingDialog() {
-        TextView textView = findViewById(R.id.layout_text_progress);
-        textView.setText("サーバーと通信しています...");
-        LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
-        linearProgressIndicator.show();
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setMessage("サーバーと通信しています...");
     }
 
     private void cancelLoadingDialog() {
-        TextView textView = findViewById(R.id.layout_text_progress);
-        textView.setText("");
-        try {
-            LinearProgressIndicator linearProgressIndicator = findViewById(R.id.layout_progress_main);
-            if (linearProgressIndicator.isShown()) {
-                linearProgressIndicator.hide();
-            }
-        } catch (Exception ignored) {
+        if (progressDialog.isShowing()) {
+            progressDialog.cancel();
         }
     }
 

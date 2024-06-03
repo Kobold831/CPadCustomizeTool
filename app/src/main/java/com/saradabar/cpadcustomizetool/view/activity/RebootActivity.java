@@ -12,6 +12,8 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -20,9 +22,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -31,7 +30,7 @@ import com.saradabar.cpadcustomizetool.util.Toast;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
-public class RebootActivity extends AppCompatActivity {
+public class RebootActivity extends Activity {
 
     IDchaService mDchaService;
 
@@ -50,7 +49,7 @@ public class RebootActivity extends AppCompatActivity {
     }
 
     private void startReboot() {
-        new MaterialAlertDialogBuilder(this)
+        new AlertDialog.Builder(this)
                 .setMessage(R.string.dialog_question_reboot)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                     bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);

@@ -14,28 +14,26 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 
+import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.preference.PreferenceFragmentCompat;
-
-import com.google.android.material.snackbar.Snackbar;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
-import com.saradabar.cpadcustomizetool.data.installer.Updater;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
@@ -69,10 +67,24 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
         setContentView(R.layout.activity_main);
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            FrameLayout frameLayout = findViewById(R.id.layout_main);
+            ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
+            ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+            marginLayoutParams.setMargins(72, 0, 72, 0);
+            frameLayout.setLayoutParams(marginLayoutParams);
+        } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            FrameLayout frameLayout = findViewById(R.id.layout_main);
+            ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
+            ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+            marginLayoutParams.setMargins(144, 0, 144, 0);
+            frameLayout.setLayoutParams(marginLayoutParams);
+        }
+
         transitionFragment(new MainFragment(), false);
 
         /* アップデートチェックするか確認 */
@@ -90,6 +102,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     }
 
     /* メニュー選択 */
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.app_info_1) {
@@ -172,26 +185,23 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
 
     @Override
     public void onDownloadComplete(int reqCode) {
-        switch (reqCode) {
-            /* アップデートチェック要求の場合 */
-            case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
-                try {
-                    JSONObject jsonObj1 = parseJson(this);
-                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-                    JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
-                    Variables.DOWNLOAD_FILE_URL = jsonObj3.getString("url");
+        /* アップデートチェック要求の場合 */
+        if (reqCode == Constants.REQUEST_DOWNLOAD_UPDATE_CHECK) {
+            try {
+                JSONObject jsonObj1 = parseJson(this);
+                JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
+                Variables.DOWNLOAD_FILE_URL = jsonObj3.getString("url");
 
-                    if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
-                        Snackbar.make(this, findViewById(R.id.layout_main), "新しいバージョンが利用可能です", Snackbar.LENGTH_LONG).setAction("更新", v ->
-                                startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION))).show();
-                    }
-                } catch (JSONException | IOException ignored) {
+                if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
+                    new AlertDialog.Builder(this)
+                            .setMessage("新しいバージョンが利用可能です")
+                            .setPositiveButton("更新", (dialog, which) -> startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                            .setNegativeButton("キャンセル", null)
+                            .show();
                 }
-                break;
-            /* APKダウンロード要求の場合 */
-            case Constants.REQUEST_DOWNLOAD_APK:
-                new Handler().post(() -> new Updater(this).installApk(this, 1));
-                break;
+            } catch (JSONException | IOException ignored) {
+            }
         }
     }
 
@@ -205,5 +215,23 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
 
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            FrameLayout frameLayout = findViewById(R.id.layout_main);
+            ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
+            ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+            marginLayoutParams.setMargins(72, 0, 72, 0);
+            frameLayout.setLayoutParams(marginLayoutParams);
+        } else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            FrameLayout frameLayout = findViewById(R.id.layout_main);
+            ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
+            ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+            marginLayoutParams.setMargins(144, 0, 144, 0);
+            frameLayout.setLayoutParams(marginLayoutParams);
+        }
     }
 }

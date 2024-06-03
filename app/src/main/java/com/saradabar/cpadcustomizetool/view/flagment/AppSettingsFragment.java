@@ -15,6 +15,7 @@ package com.saradabar.cpadcustomizetool.view.flagment;
 import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
+import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -25,15 +26,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
 
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreferenceCompat;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -60,14 +59,19 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             preUpdateMode;
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.pre_app, rootKey);
+        addPreferencesFromResource(R.xml.pre_app);
 
         SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
 
-        swUpdateCheck = findPreference("pre_app_update_check");
-        swUseDcha = findPreference("pre_app_use_dcha");
-        swAdb = findPreference("pre_app_adb");
+        swUpdateCheck = (SwitchPreferenceCompat) findPreference("pre_app_update_check");
+        swUseDcha = (SwitchPreferenceCompat) findPreference("pre_app_use_dcha");
+        swAdb = (SwitchPreferenceCompat) findPreference("pre_app_adb");
         preCrashLog = findPreference("pre_app_crash_log");
         preDelCrashLog = findPreference("pre_app_del_crash_log");
         preUpdateMode = findPreference("pre_app_update_mode");
@@ -110,7 +114,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                 }
                 return true;
             } else {
-                new MaterialAlertDialogBuilder(requireActivity())
+                new AlertDialog.Builder(requireActivity())
                         .setMessage("未改造デバイスでは不要なため設定できません")
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
@@ -124,11 +128,11 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         });
 
         preDelCrashLog.setOnPreferenceClickListener(preference -> {
-            new MaterialAlertDialogBuilder(requireActivity())
+            new AlertDialog.Builder(requireActivity())
                     .setMessage("消去しますか？")
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                         if (Preferences.delete(requireActivity(), Constants.KEY_CRASH_LOG)) {
-                            new MaterialAlertDialogBuilder(requireActivity())
+                            new AlertDialog.Builder(requireActivity())
                                     .setMessage("消去しました")
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                                     .show();
@@ -162,7 +166,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                             Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
-                            new MaterialAlertDialogBuilder(requireActivity())
+                            new AlertDialog.Builder(requireActivity())
                                     .setMessage(getString(R.string.dialog_error_not_work_mode))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                     .show();
@@ -178,13 +182,13 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                                 Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                                 listView.invalidateViews();
                             } else {
-                                new MaterialAlertDialogBuilder(requireActivity())
+                                new AlertDialog.Builder(requireActivity())
                                         .setMessage(getString(R.string.dialog_error_not_work_mode))
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                         .show();
                             }
                         } else {
-                            new MaterialAlertDialogBuilder(requireActivity())
+                            new AlertDialog.Builder(requireActivity())
                                     .setMessage(getString(R.string.pre_app_sum_confirmation_dcha))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                     .show();
@@ -195,7 +199,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                             Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
-                            new MaterialAlertDialogBuilder(requireActivity())
+                            new AlertDialog.Builder(requireActivity())
                                     .setMessage(getString(R.string.dialog_error_not_work_mode))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                     .show();
@@ -206,21 +210,21 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                             Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
-                            new MaterialAlertDialogBuilder(requireActivity())
+                            new AlertDialog.Builder(requireActivity())
                                     .setMessage(getString(R.string.dialog_error_not_work_mode))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                     .show();
                         }
                         break;
                     case 5:
-                        new MaterialAlertDialogBuilder(requireActivity())
+                        new AlertDialog.Builder(requireActivity())
                                 .setMessage(getString(R.string.dialog_error_not_work_mode))
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                 .show();
                 }
             });
 
-            new MaterialAlertDialogBuilder(requireActivity())
+            new AlertDialog.Builder(requireActivity())
                     .setView(v)
                     .setTitle(getString(R.string.dialog_title_select_mode))
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())

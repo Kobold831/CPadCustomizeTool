@@ -12,10 +12,10 @@
 
 package com.saradabar.cpadcustomizetool.util;
 
+import static android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences;
+
 import android.content.Context;
 import android.content.SharedPreferences;
-
-import androidx.preference.PreferenceManager;
 
 import java.util.Set;
 
@@ -23,37 +23,37 @@ public class Preferences {
 
     /* データ管理 */
     public static void save(Context context, String key, int value) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(key, value).apply();
+        getDefaultSharedPreferences(context).edit().putInt(key, value).apply();
     }
 
     public static void save(Context context, String key, boolean value) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(key, value).apply();
+        getDefaultSharedPreferences(context).edit().putBoolean(key, value).apply();
     }
 
     public static void save(Context context, String key, String value) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putString(key, value).apply();
+        getDefaultSharedPreferences(context).edit().putString(key, value).apply();
     }
 
     public static int load(Context context, String key, int value) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getInt(key, value);
+        return getDefaultSharedPreferences(context).getInt(key, value);
     }
 
     public static boolean load(Context context, String key, boolean value) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(key, value);
+        return getDefaultSharedPreferences(context).getBoolean(key, value);
     }
 
     public static String load(Context context, String key, String value) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getString(key, value);
+        return getDefaultSharedPreferences(context).getString(key, value);
     }
 
     public static boolean delete(Context context, String key) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit().remove(key).apply();
+        getDefaultSharedPreferences(context).edit().remove(key).apply();
         return true;
     }
 
     /* マルチリストのデータ取得 */
     public static Set<String> getEmergencySettings(Context context) {
-        SharedPreferences preferences = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences preferences = getDefaultSharedPreferences(context);
         return preferences.getStringSet(Constants.KEY_EMERGENCY_SETTINGS, null);
     }
 
@@ -94,7 +94,7 @@ public class Preferences {
     }
 
     private static Set<String> getNormalModeSettings(Context context) {
-        SharedPreferences preferences = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences preferences = getDefaultSharedPreferences(context);
         return preferences.getStringSet(Constants.KEY_NORMAL_SETTINGS, null);
     }
 

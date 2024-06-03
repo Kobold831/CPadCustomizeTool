@@ -1,92 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-        app:iconSpaceReserved="false"
-        app:allowDividerAbove="false"
         android:title="@string/pre_main_category_system_ui"
         android:key="1">
 
         <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
             android:key="pre_dcha_state"
             android:title="@string/pre_main_title_system_ui" />
 
         <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
             android:key="pre_keep_dcha_state"
             android:title="@string/pre_main_title_keep_system_ui" />
 
         <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
             android:key="pre_navigation"
             android:title="@string/pre_main_title_navigation_bar" />
 
         <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
             android:key="pre_keep_navigation"
             android:title="@string/pre_main_title_keep_navigation_bar" />
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:iconSpaceReserved="false"
-        app:allowDividerAbove="false"
         android:title="@string/pre_main_category_system"
         android:key="2">
 
         <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
             android:key="pre_unk_src"
             android:title="@string/pre_main_title_non_market" />
 
         <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
             android:key="pre_keep_unk_src"
             android:title="@string/pre_main_title_keep_non_market" />
 
         <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
             android:key="pre_adb"
             android:title="@string/pre_main_title_usb_debug" />
 
         <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
             android:key="pre_keep_adb"
             android:title="@string/pre_main_title_keep_usb_debug" />
     </PreferenceCategory>
 
     <Preference
-        app:iconSpaceReserved="false"
-        app:allowDividerAbove="false"
         android:key="pre_launcher"
         android:title="@string/pre_main_title_change_home" />
 
     <SwitchPreferenceCompat
-        app:iconSpaceReserved="false"
         android:key="pre_keep_launcher"
         android:title="@string/pre_main_title_keep_home"
         android:summary="@string/pre_main_sum_keep_home" />
 
     <Preference
-        app:iconSpaceReserved="false"
         android:key="pre_other_settings"
         android:title="@string/pre_main_title_other_settings" />
 
     <Preference
-        app:iconSpaceReserved="false"
         android:key="pre_enable_dcha_service"
         android:title="@string/pre_main_title_use_dcha"
         android:summary="@string/pre_main_sum_use_dcha" />
 
     <PreferenceCategory
-        app:iconSpaceReserved="false"
-        app:allowDividerAbove="false"
         android:title="@string/pre_main_category_emergency_mode"
         android:key="category_emergency">
 
         <ListPreference
-            app:iconSpaceReserved="false"
             android:key="emergency_mode"
             android:title="@string/pre_main_title_select_course"
             android:dialogTitle="@string/dialog_emergency_select_course"
@@ -95,7 +74,6 @@
             android:entryValues="@array/mode_value" />
 
         <MultiSelectListPreference
-            app:iconSpaceReserved="false"
             android:key="emergency_settings"
             android:dialogTitle="@string/dialog_mode_select_settings"
             android:entries="@array/emergency_settings_text"
@@ -105,29 +83,23 @@
             android:summary="@string/pre_main_sum_change_settings" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_emg_manual"
             android:title="@string/pre_main_title_manual" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_emg_execute"
             android:title="緊急モードを起動" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_emg_shortcut"
             android:title="緊急モードのショートカットをホームに追加" />
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:iconSpaceReserved="false"
-        app:allowDividerAbove="false"
         android:title="@string/pre_main_category_change_to_normal_mode"
         android:key="category_normal">
 
         <MultiSelectListPreference
-            app:iconSpaceReserved="false"
             android:key="normal_settings"
             android:dialogTitle="@string/dialog_mode_select_settings"
             android:entries="@array/normal_mode_text"
@@ -137,88 +109,70 @@
             android:summary="@string/pre_main_sum_change_to_normal_mode_settings" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_sel_nor_launcher"
             android:title="@string/pre_main_title_launcher" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_nor_manual"
             android:title="@string/pre_main_title_normal_mode_manual" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_nor_execute"
             android:title="通常モードを起動" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_nor_shortcut"
             android:title="通常モードのショートカットをホームに追加" />
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:iconSpaceReserved="false"
-        app:allowDividerAbove="false"
         android:title="@string/pre_main_category_other_settings"
         android:key="category_other" />
 
     <Preference
-        app:iconSpaceReserved="false"
         android:key="pre_reboot"
         android:title="@string/pre_main_title_reboot" />
 
     <Preference
-        app:iconSpaceReserved="false"
         android:key="pre_reboot_shortcut"
         android:title="@string/pre_main_title_reboot_shortcut" />
 
     <Preference
-        app:iconSpaceReserved="false"
         android:key="pre_silent_install"
         android:title="@string/pre_main_title_silent_install"
         android:summary="@string/pre_main_sum_silent_install" />
 
     <Preference
-        app:iconSpaceReserved="false"
         android:key="pre_resolution"
         android:title="@string/pre_main_title_resolution" />
 
     <Preference
-        app:iconSpaceReserved="false"
         android:key="pre_reset_resolution"
         android:title="@string/pre_main_title_resolution_reset" />
 
     <Preference
-        app:iconSpaceReserved="false"
         android:key="pre_system_update"
         android:title="@string/pre_main_title_system_update" />
 
     <Preference
-        app:iconSpaceReserved="false"
         android:key="pre_device_owner_fn"
         android:title="@string/pre_main_title_device_owner" />
 
     <Preference
-        app:iconSpaceReserved="false"
         android:key="pre_dhizuku_permission_req"
         android:title="@string/pre_main_title_dhizuku_permission_req"
         android:summary="デバイスオーナーがDhizukuに設定されている場合はタップして権限をリクエストできます\n承認後「デバイスオーナーの機能」を使用できます"/>
 
     <SwitchPreferenceCompat
-        app:iconSpaceReserved="false"
         android:key="pre_device_admin"
         android:title="@string/pre_main_title_device_admin"
         android:summary="@string/pre_main_sum_device_admin" />
 
     <PreferenceCategory
-        app:iconSpaceReserved="false"
-        app:allowDividerAbove="false"
         android:key="pre_cat_assist"
         android:title="アシスト機能" />
 
     <Preference
-        app:iconSpaceReserved="false"
         android:key="pre_get_app"
         android:title="アプリを取得"
         android:summary="@string/pre_main_sum_get_app" />

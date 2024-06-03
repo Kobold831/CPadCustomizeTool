@@ -22,12 +22,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,12 +36,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.material.materialswitch.MaterialSwitch;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 
@@ -58,7 +55,6 @@ public class UninstallBlockActivity extends AppCompatActivity {
         setContentView(R.layout.layout_uninstall_list);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
         DevicePolicyManager dpm = (DevicePolicyManager) this.getSystemService("device_policy");
@@ -108,7 +104,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                         for (AppData appData : dataList) {
                             mDhizukuService.setUninstallBlocked(appData.packName, false);
                         }
-                        ((MaterialSwitch) AppListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
+                        ((Switch) AppListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
                     } catch (RemoteException ignored) {
                     }
                 }
@@ -116,7 +112,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 for (AppData appData : dataList) {
                     dpm.setUninstallBlocked(new ComponentName(this, AdministratorReceiver.class), appData.packName, false);
                 }
-                ((MaterialSwitch) AppListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
+                ((Switch) AppListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
             }
             /* listviewの更新 */
             listView.invalidateViews();
@@ -130,7 +126,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                         for (AppData appData : dataList) {
                             mDhizukuService.setUninstallBlocked(appData.packName, true);
                         }
-                        ((MaterialSwitch) AppListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
+                        ((Switch) AppListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
                     } catch (RemoteException ignored) {
                     }
                 }
@@ -138,7 +134,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 for (AppData appData : dataList) {
                     dpm.setUninstallBlocked(new ComponentName(this, AdministratorReceiver.class), appData.packName, true);
                 }
-                ((MaterialSwitch) AppListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
+                ((Switch) AppListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
             }
             /* listviewの更新 */
             listView.invalidateViews();
@@ -194,12 +190,12 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 if (isDhizukuActive(getContext())) {
                     if (tryBindDhizukuService(getContext())) {
                         try {
-                            ((MaterialSwitch) convertView.findViewById(R.id.un_switch)).setChecked(mDhizukuService.isUninstallBlocked(data.packName));
+                            ((Switch) convertView.findViewById(R.id.un_switch)).setChecked(mDhizukuService.isUninstallBlocked(data.packName));
                         } catch (Exception ignored) {
                         }
                     }
                 } else {
-                    ((MaterialSwitch) convertView.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), AdministratorReceiver.class), data.packName));
+                    ((Switch) convertView.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), AdministratorReceiver.class), data.packName));
                 }
             }
 

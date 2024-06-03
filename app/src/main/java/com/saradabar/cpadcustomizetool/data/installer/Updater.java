@@ -18,6 +18,8 @@ import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -29,8 +31,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -45,6 +45,7 @@ import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class Updater implements InstallEventListener {
 
+    ProgressDialog progressDialog;
     IDchaService mDchaService;
     Activity activity;
 
@@ -55,9 +56,10 @@ public class Updater implements InstallEventListener {
         return instance;
     }
 
-    public Updater(Activity act) {
+    public Updater(Activity act, ProgressDialog progressDialog) {
         instance = this;
         activity = act;
+        this.progressDialog = progressDialog;
     }
 
     @Override
@@ -68,7 +70,7 @@ public class Updater implements InstallEventListener {
     /* 失敗 */
     @Override
     public void onInstallFailure(int reqCode, String str) {
-        new MaterialAlertDialogBuilder(activity)
+        new AlertDialog.Builder(activity)
                 .setMessage(activity.getString(R.string.dialog_info_failure_silent_install) + "\n" + str)
                 .setCancelable(false)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
@@ -77,32 +79,32 @@ public class Updater implements InstallEventListener {
 
     @Override
     public void onInstallError(int reqCode, String str) {
-        new MaterialAlertDialogBuilder(activity)
+        new AlertDialog.Builder(activity)
                 .setMessage(activity.getString(R.string.dialog_error) + "\n" + str)
                 .setCancelable(false)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
                 .show();
     }
 
+    @SuppressWarnings("deprecation")
     public void installApk(Context context, int flag) {
         switch (Preferences.load(activity, Constants.KEY_FLAG_UPDATE_MODE, 1)) {
             case 0:
-                try {
-                    LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                    linearProgressIndicator.hide();
-                } catch (Exception ignored) {
+                if (progressDialog.isShowing()) {
+                    progressDialog.cancel();
                 }
 
                 try {
                     MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
                 } catch (Exception ignored) {
                 }
+
                 activity.startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(context.getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
                 break;
             case 1:
                 switch (flag) {
                     case 0:
-                        new MaterialAlertDialogBuilder(activity)
+                        new AlertDialog.Builder(activity)
                                 .setCancelable(false)
                                 .setTitle(R.string.dialog_title_update)
                                 .setMessage(R.string.dialog_info_update_caution)
@@ -117,17 +119,16 @@ public class Updater implements InstallEventListener {
                                 .show();
                         break;
                     case 1:
-                        try {
-                            LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                            linearProgressIndicator.hide();
-                        } catch (Exception ignored) {
+                        if (progressDialog.isShowing()) {
+                            progressDialog.cancel();
                         }
 
                         try {
                             MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
                         } catch (Exception ignored) {
                         }
-                        new MaterialAlertDialogBuilder(activity)
+
+                        new AlertDialog.Builder(activity)
                                 .setCancelable(false)
                                 .setTitle("インストール")
                                 .setMessage("遷移先のページよりapkファイルをダウンロードしてadbでインストールしてください")
@@ -144,12 +145,9 @@ public class Updater implements InstallEventListener {
                 }
                 break;
             case 2:
-                try {
-                    LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                    linearProgressIndicator.setIndeterminate(true);
-                    linearProgressIndicator.show();
-                } catch (Exception ignored) {
-                }
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setMessage(activity.getString(R.string.progress_state_installing));
+                progressDialog.show();
 
                 try {
                     MainFragment.getInstance().preGetApp.setSummary(R.string.progress_state_installing);
@@ -159,10 +157,8 @@ public class Updater implements InstallEventListener {
                 if (tryBindDchaService()) {
                     Runnable runnable = () -> {
                         if (!tryInstallPackage()) {
-                            try {
-                                LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                                linearProgressIndicator.hide();
-                            } catch (Exception ignored) {
+                            if (progressDialog.isShowing()) {
+                                progressDialog.cancel();
                             }
 
                             try {
@@ -170,16 +166,14 @@ public class Updater implements InstallEventListener {
                             } catch (Exception ignored) {
                             }
 
-                            new MaterialAlertDialogBuilder(activity)
+                            new AlertDialog.Builder(activity)
                                     .setCancelable(false)
                                     .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
                                     .show();
                         } else {
-                            try {
-                                LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                                linearProgressIndicator.hide();
-                            } catch (Exception ignored) {
+                            if (progressDialog.isShowing()) {
+                                progressDialog.cancel();
                             }
 
                             try {
@@ -190,10 +184,8 @@ public class Updater implements InstallEventListener {
                     };
                     new Handler().postDelayed(runnable, 10);
                 } else {
-                    try {
-                        LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                        linearProgressIndicator.hide();
-                    } catch (Exception ignored) {
+                    if (progressDialog.isShowing()) {
+                        progressDialog.cancel();
                     }
 
                     try {
@@ -201,7 +193,7 @@ public class Updater implements InstallEventListener {
                     } catch (Exception ignored) {
                     }
 
-                    new MaterialAlertDialogBuilder(activity)
+                    new AlertDialog.Builder(activity)
                             .setCancelable(false)
                             .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
@@ -209,12 +201,9 @@ public class Updater implements InstallEventListener {
                 }
                 break;
             case 3:
-                try {
-                    LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                    linearProgressIndicator.setIndeterminate(true);
-                    linearProgressIndicator.show();
-                } catch (Exception ignored) {
-                }
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setMessage(activity.getString(R.string.progress_state_installing));
+                progressDialog.show();
 
                 try {
                     MainFragment.getInstance().preGetApp.setSummary(R.string.progress_state_installing);
@@ -223,26 +212,23 @@ public class Updater implements InstallEventListener {
 
                 if (((DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(activity.getPackageName())) {
                     if (!trySessionInstall(flag)) {
-                        try {
-                            LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                            linearProgressIndicator.hide();
-                        } catch (Exception ignored) {
+                        if (progressDialog.isShowing()) {
+                            progressDialog.cancel();
                         }
 
                         try {
                             MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
                         } catch (Exception ignored) {
                         }
-                        new MaterialAlertDialogBuilder(activity)
+
+                        new AlertDialog.Builder(activity)
                                 .setCancelable(false)
                                 .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
                                 .show();
                     } else {
-                        try {
-                            LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                            linearProgressIndicator.hide();
-                        } catch (Exception ignored) {
+                        if (progressDialog.isShowing()) {
+                            progressDialog.cancel();
                         }
 
                         try {
@@ -254,17 +240,16 @@ public class Updater implements InstallEventListener {
                     if (Preferences.load(activity, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTX || Preferences.load(activity, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTZ) {
                         Preferences.save(activity, Constants.KEY_FLAG_UPDATE_MODE, 1);
                     } else Preferences.save(activity, Constants.KEY_FLAG_UPDATE_MODE, 0);
-                    try {
-                        LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                        linearProgressIndicator.hide();
-                    } catch (Exception ignored) {
+                    if (progressDialog.isShowing()) {
+                        progressDialog.cancel();
                     }
 
                     try {
                         MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
                     } catch (Exception ignored) {
                     }
-                    new MaterialAlertDialogBuilder(activity)
+
+                    new AlertDialog.Builder(activity)
                             .setCancelable(false)
                             .setMessage(activity.getString(R.string.dialog_error_reset_update_mode))
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
@@ -272,12 +257,9 @@ public class Updater implements InstallEventListener {
                 }
                 break;
             case 4:
-                try {
-                    LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                    linearProgressIndicator.setIndeterminate(true);
-                    linearProgressIndicator.show();
-                } catch (Exception ignored) {
-                }
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setMessage(activity.getString(R.string.progress_state_installing));
+                progressDialog.show();
 
                 try {
                     MainFragment.getInstance().preGetApp.setSummary(R.string.progress_state_installing);
@@ -299,17 +281,16 @@ public class Updater implements InstallEventListener {
                                 }
 
                                 if (!mDhizukuService.tryInstallPackages(installData, reqCode)) {
-                                    try {
-                                        LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                                        linearProgressIndicator.hide();
-                                    } catch (Exception ignored) {
+                                    if (progressDialog.isShowing()) {
+                                        progressDialog.cancel();
                                     }
 
                                     try {
                                         MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
                                     } catch (Exception ignored) {
                                     }
-                                    new MaterialAlertDialogBuilder(activity)
+
+                                    new AlertDialog.Builder(activity)
                                             .setCancelable(false)
                                             .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
                                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
@@ -321,34 +302,32 @@ public class Updater implements InstallEventListener {
                         new Handler().postDelayed(runnable, 5000);
                         return;
                     } else {
-                        try {
-                            LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                            linearProgressIndicator.hide();
-                        } catch (Exception ignored) {
+                        if (progressDialog.isShowing()) {
+                            progressDialog.cancel();
                         }
 
                         try {
                             MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
                         } catch (Exception ignored) {
                         }
-                        new MaterialAlertDialogBuilder(activity)
+
+                        new AlertDialog.Builder(activity)
                                 .setCancelable(false)
                                 .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())
                                 .show();
                     }
                 } else {
-                    try {
-                        LinearProgressIndicator linearProgressIndicator = activity.findViewById(R.id.act_progress_main);
-                        linearProgressIndicator.hide();
-                    } catch (Exception ignored) {
+                    if (progressDialog.isShowing()) {
+                        progressDialog.cancel();
                     }
 
                     try {
                         MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
                     } catch (Exception ignored) {
                     }
-                    new MaterialAlertDialogBuilder(activity)
+
+                    new AlertDialog.Builder(activity)
                             .setCancelable(false)
                             .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> activity.finish())

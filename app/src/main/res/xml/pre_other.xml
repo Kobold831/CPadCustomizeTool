@@ -3,31 +3,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        app:iconSpaceReserved="false"
         app:allowDividerAbove="false">
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_other_start_settings"
             android:title="@string/pre_other_title_settings" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_other_start_dev_settings"
             android:title="@string/pre_other_title_development" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_other_start_ui_adjustment"
             android:title="@string/pre_other_title_adjustment" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_other_screen_off_time"
             android:title="@string/pre_other_title_screen_off_time" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_other_web_view"
             android:title="WebViewを起動"
             android:summary="セキュリティのため非SSL接続及びJavaScriptを使用したファイルのアクセス機能は使用できません" />

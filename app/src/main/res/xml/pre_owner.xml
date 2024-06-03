@@ -3,40 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        app:iconSpaceReserved="false"
         app:allowDividerAbove="false">
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_owner_uninstall_block"
             android:title="@string/pre_owner_title_uninstall_block"
             android:summary="@string/pre_owner_sum_uninstall_block" />
 
         <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
             android:key="pre_owner_permission_frc"
             android:title="@string/pre_owner_title_permission"
             android:summary="@string/pre_owner_sum_permission_forced" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_owner_session_install"
             android:title="@string/pre_owner_title_silent_install"
             android:summary="@string/pre_owner_sum_silent_install" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_owner_abandon_session"
             android:title="インストールセッション破棄"
             android:summary="インストールで問題が発生した場合に使用してください" />
 
         <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_owner_clr_dev_own"
             android:title="@string/pre_owner_title_device_owner" />
 
         <Preference
-            app:iconSpaceReserved="false"
             app:selectable="false"
             android:key="pre_owner_now_set_own_pkg" />
     </PreferenceCategory>

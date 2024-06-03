@@ -1,3 +1,6 @@
+-keep class jp.co.benesse.dcha.dchaservice.IDchaService
 -keep class org.slf4j.**
 -keep class org.zeroturnaround.zip.**
--dontwarn org.slf4j.impl.*
+-dontwarn org.slf4j.impl.**
+-dontwarn android.support.**
+-dontwarn androidx.annotation.**

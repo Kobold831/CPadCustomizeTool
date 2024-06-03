@@ -17,6 +17,8 @@ import static com.saradabar.cpadcustomizetool.util.Common.mDhizukuService;
 import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -29,17 +31,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreferenceCompat;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
@@ -84,14 +82,13 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         instance = this;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.pre_owner, rootKey);
+        addPreferencesFromResource(R.xml.pre_owner);
 
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
         preUninstallBlock = findPreference("pre_owner_uninstall_block");
-        swPrePermissionFrc = findPreference("pre_owner_permission_frc");
+        swPrePermissionFrc = (SwitchPreferenceCompat) findPreference("pre_owner_permission_frc");
         preSessionInstall = findPreference("pre_owner_session_install");
         preAbandonSession = findPreference("pre_owner_abandon_session");
         preClrDevOwn = findPreference("pre_owner_clr_dev_own");
@@ -166,7 +163,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/*"}).addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), ""), Constants.REQUEST_ACTIVITY_INSTALL);
             } catch (ActivityNotFoundException ignored) {
                 preSessionInstall.setEnabled(true);
-                new MaterialAlertDialogBuilder(requireActivity())
+                new AlertDialog.Builder(requireActivity())
                         .setMessage(getString(R.string.dialog_error_no_file_browse))
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
@@ -183,7 +180,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 }
             }
 
-            new MaterialAlertDialogBuilder(requireActivity())
+            new AlertDialog.Builder(requireActivity())
                     .setMessage("セッションを破棄しました")
                     .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
@@ -191,7 +188,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         });
 
         preClrDevOwn.setOnPreferenceClickListener(preference -> {
-            new MaterialAlertDialogBuilder(requireActivity())
+            new AlertDialog.Builder(requireActivity())
                     .setMessage(R.string.dialog_question_device_owner)
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                         if (isDhizukuActive(requireActivity())) {
@@ -315,7 +312,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         initialize();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -340,7 +336,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             Variables.isPreferenceLock = false;
             preSessionInstall.setEnabled(true);
 
-            new MaterialAlertDialogBuilder(requireActivity())
+            new AlertDialog.Builder(requireActivity())
                     .setMessage(getString(R.string.dialog_error_no_file_data))
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                     .show();
@@ -393,15 +389,20 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         }
     }
 
+    @SuppressWarnings("deprecation")
     public ApkInstallTask.Listener apkListener() {
         return new ApkInstallTask.Listener() {
+
+            ProgressDialog progressDialog;
 
             /* プログレスバーの表示 */
             @Override
             public void onShow() {
                 preSessionInstall.setSummary(getString(R.string.progress_state_installing));
-                LinearProgressIndicator linearProgressIndicator = requireActivity().findViewById(R.id.act_progress_main);
-                linearProgressIndicator.show();
+                progressDialog = new ProgressDialog(requireActivity());
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setMessage(getString(R.string.progress_state_installing));
+                progressDialog.show();
             }
 
             /* 成功 */
@@ -411,10 +412,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 preSessionInstall.setEnabled(true);
                 preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
 
-                LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
-
-                if (linearProgressIndicator.isShown()) {
-                    linearProgressIndicator.hide();
+                if (progressDialog.isShowing()) {
+                    progressDialog.cancel();
                 }
 
                 if (MainFragment.getInstance() != null) {
@@ -433,7 +432,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 } catch (IOException ignored) {
                 }
 
-                AlertDialog alertDialog = new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.getInstance())
                         .setMessage(R.string.dialog_info_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -451,10 +450,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 preSessionInstall.setEnabled(true);
                 preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
 
-                LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
-
-                if (linearProgressIndicator.isShown()) {
-                    linearProgressIndicator.hide();
+                if (progressDialog.isShowing()) {
+                    progressDialog.cancel();
                 }
 
                 if (MainFragment.getInstance() != null) {
@@ -473,7 +470,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 } catch (IOException ignored) {
                 }
 
-                new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                new AlertDialog.Builder(StartActivity.getInstance())
                         .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -486,10 +483,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 preSessionInstall.setEnabled(true);
                 preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
 
-                LinearProgressIndicator linearProgressIndicator = StartActivity.getInstance().findViewById(R.id.act_progress_main);
-
-                if (linearProgressIndicator.isShown()) {
-                    linearProgressIndicator.hide();
+                if (progressDialog.isShowing()) {
+                    progressDialog.cancel();
                 }
 
                 if (MainFragment.getInstance() != null) {
@@ -508,7 +503,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 } catch (IOException ignored) {
                 }
 
-                new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                new AlertDialog.Builder(StartActivity.getInstance())
                         .setMessage(getString(R.string.dialog_error) + "\n" + message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -533,7 +528,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 progressBar.setProgress(0);
                 textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
 
-                alertDialog = new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                alertDialog = new AlertDialog.Builder(StartActivity.getInstance())
                         .setView(view)
                         .setMessage("")
                         .setCancelable(false)
@@ -574,7 +569,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 } catch (IOException ignored) {
                 }
 
-                new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                new AlertDialog.Builder(StartActivity.getInstance())
                         .setMessage(getString(R.string.dialog_info_failure))
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -598,7 +593,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 } catch (IOException ignored) {
                 }
 
-                new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                new AlertDialog.Builder(StartActivity.getInstance())
                         .setMessage(getString(R.string.dialog_error) + "\n" + message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -628,7 +623,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 progressBar.setProgress(0);
                 textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
 
-                alertDialog = new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                alertDialog = new AlertDialog.Builder(StartActivity.getInstance())
                         .setView(view)
                         .setMessage("")
                         .setCancelable(false)
@@ -669,7 +664,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 } catch (IOException ignored) {
                 }
 
-                new MaterialAlertDialogBuilder(StartActivity.getInstance())
+                new AlertDialog.Builder(StartActivity.getInstance())
                         .setMessage(getString(R.string.dialog_info_failure))
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
