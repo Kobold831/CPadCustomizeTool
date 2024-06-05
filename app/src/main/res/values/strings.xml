@@ -210,11 +210,11 @@
     <string name="info_library">外部ライブラリー / 謝辞</string>
     <string name="info_library_wel_label">・welcome-android\nCopyright 2015\-2017 Stephen Tuso</string>
     <string name="info_library_zip_label">・ZeroTurnaround ZIP Library\nCopyright 2012 ZeroTurnaround LLC.</string>
-    <string name="info_library_yib_label">・よびばいと\n画像の提供（cpadmaterial.png / ex.png / navigationbar.png）\nウォークスルーの追加のご協力</string>
+    <string name="info_library_yib_label">・よびばいと (YiB)\n画像の提供（cpadmaterial.png / ex.png / navigationbar.png）\nウォークスルーの追加のご協力</string>
     <string name="info_library_dhizuku_label">・Dhizuku-API\nCopyright © 2023 R0S</string>
-    <string name="info_library_awayume_label">・Awayume\n不具合修正のご協力</string>
-    <string name="info_library_syuugo_label">・Syuugo\n不具合修正\nアプリの最適化\n機能修正のご協力</string>
-    <string name="info_library_naniwara_label">・なにわらまさと\ncpad_grid_icon_v2.webp</string>
+    <string name="info_library_awayume_label">・粟夢 (Awayume)\n不具合修正のご協力</string>
+    <string name="info_library_syuugo_label">・しゅーご (Syuugo)\n不具合修正\nアプリの最適化\n機能修正のご協力</string>
+    <string name="info_library_naniwara_label">・なにわらマサト\ncpad_grid_icon_v2.webp</string>
     <string name="info_library_other_label">敬称略・順不同で記載しています\n外部ライブラリー / 謝辞に明記されている著作物はその著作権者に帰属されます</string>
     <string name="info_github">GitHub</string>
     <string name="info_github_label">このアプリのソースコードを取得できます</string>
