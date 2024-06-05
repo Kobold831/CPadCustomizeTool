@@ -91,38 +91,6 @@
                 android:text="@string/info_development_label" />
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_marginBottom="20dp"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:background="@drawable/shape_rounded_corners"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:textStyle="bold"
-                android:textSize="15sp"
-                android:layout_marginTop="20dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/info_organization" />
-
-            <TextView
-                android:id="@+id/menu_text_organization"
-                android:gravity="center"
-                android:layout_marginTop="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/info_organization_label" />
-
-            <Button
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="20dp"
-                android:id="@+id/info_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/info_organization_button" />
-        </LinearLayout>
 
         <LinearLayout
             android:layout_marginBottom="20dp"

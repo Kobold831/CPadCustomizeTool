@@ -204,9 +204,6 @@
     <string name="info_app_state">アプリの状態：%1$s</string>
     <string name="info_development">開発者</string>
     <string name="info_development_label">こぼるど</string>
-    <string name="info_organization">SmileTabLabo</string>
-    <string name="info_organization_label">%1$sに参加して提案・不具合報告をしてください\n下のボタンより参加可能です</string>
-    <string name="info_organization_button">参加</string>
     <string name="info_library">外部ライブラリー / 謝辞</string>
     <string name="info_library_wel_label">・welcome-android\nCopyright 2015\-2017 Stephen Tuso</string>
     <string name="info_library_zip_label">・ZeroTurnaround ZIP Library\nCopyright 2012 ZeroTurnaround LLC.</string>
@@ -217,8 +214,8 @@
     <string name="info_library_naniwara_label">・なにわらマサト\ncpad_grid_icon_v2.webp</string>
     <string name="info_library_other_label">敬称略・順不同で記載しています\n外部ライブラリー / 謝辞に明記されている著作物はその著作権者に帰属されます</string>
     <string name="info_github">GitHub</string>
-    <string name="info_github_label">このアプリのソースコードを取得できます</string>
-    <string name="info_github_button">取得</string>
+    <string name="info_github_label">このアプリのソースコードを取得できます\nバグ報告もここから行えます</string>
+    <string name="info_github_button">続行</string>
     
     <!-- レイアウト -->
     <string name="layout_img_content_description">icon</string>

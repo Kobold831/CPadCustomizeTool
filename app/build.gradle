@@ -34,11 +34,11 @@ android {
 
     buildTypes {
         configureEach {
+            minifyEnabled true
+            shrinkResources true
             signingConfig signingConfigs.android
         }
         release {
-            minifyEnabled true
-            shrinkResources true
             if (file('release.jks').exists()) {
                 signingConfig signingConfigs.release
             }
@@ -46,10 +46,6 @@ android {
                 //noinspection ChromeOsAbiSupport
                 abiFilters += "arm64-v8a"
             }
-        }
-        debug {
-            minifyEnabled true
-            shrinkResources true
         }
     }
 

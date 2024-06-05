@@ -38,14 +38,6 @@ public class AppInfoActivity extends AppCompatActivity {
 
         initialize();
 
-        findViewById(R.id.info_button).setOnClickListener(view -> {
-            try {
-                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_DISCORD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            } catch (ActivityNotFoundException ignored) {
-                Toast.toast(this, R.string.toast_unknown_activity);
-            }
-        });
-
         findViewById(R.id.download_button).setOnClickListener(view -> {
             try {
                 startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_GITHUB).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
@@ -60,15 +52,13 @@ public class AppInfoActivity extends AppCompatActivity {
                 text2 = findViewById(R.id.menu_text_2),
                 text3 = findViewById(R.id.menu_text_3),
                 text4 = findViewById(R.id.menu_text_4),
-                text5 = findViewById(R.id.menu_text_5),
-                text6 = findViewById(R.id.menu_text_organization);
+                text5 = findViewById(R.id.menu_text_5);
 
         text1.setText(new StringBuilder("アプリ名：").append(getApplicationInfo().loadLabel(getPackageManager())));
         text2.setText(new StringBuilder("パッケージ名：").append(BuildConfig.APPLICATION_ID));
         text3.setText(new StringBuilder("バージョン：").append(BuildConfig.VERSION_NAME));
         text4.setText(new StringBuilder("バージョンコード：").append(BuildConfig.VERSION_CODE));
         text5.setText(getString(R.string.info_app_state, BuildConfig.BUILD_TYPE));
-        text6.setText(getString(R.string.info_organization_label, getString(R.string.info_organization)));
     }
 
     @Override
