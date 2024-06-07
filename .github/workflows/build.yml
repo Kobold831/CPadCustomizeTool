@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
+      attestations: write
     steps:
 
       - name: Checkout
@@ -41,6 +43,11 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew assembleDebug --no-daemon
+
+      - name: Attest
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
