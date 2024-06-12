@@ -48,7 +48,6 @@ import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.util.Variables;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 
@@ -156,9 +155,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         });
 
         preSessionInstall.setOnPreferenceClickListener(preference -> {
-            preSessionInstall.setEnabled(false);
-            Variables.isPreferenceLock = true;
-
             try {
                 startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/*"}).addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), ""), Constants.REQUEST_ACTIVITY_INSTALL);
             } catch (ActivityNotFoundException ignored) {
@@ -283,11 +279,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         } else {
             preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_no_device_owner));
         }
-
-        if (Variables.isPreferenceLock) {
-            preSessionInstall.setEnabled(false);
-            preSessionInstall.setSummary(getString(R.string.progress_state_installing));
-        }
     }
 
     private String getDeviceOwnerPackage() {
@@ -332,9 +323,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     return;
                 }
             }
-
-            Variables.isPreferenceLock = false;
-            preSessionInstall.setEnabled(true);
 
             new AlertDialog.Builder(requireActivity())
                     .setMessage(getString(R.string.dialog_error_no_file_data))
@@ -408,10 +396,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             /* 成功 */
             @Override
             public void onSuccess() {
-                Variables.isPreferenceLock = false;
-                preSessionInstall.setEnabled(true);
-                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
                 if (progressDialog.isShowing()) {
                     progressDialog.cancel();
                 }
@@ -446,10 +430,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             /* 失敗 */
             @Override
             public void onFailure(String message) {
-                Variables.isPreferenceLock = false;
-                preSessionInstall.setEnabled(true);
-                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
                 if (progressDialog.isShowing()) {
                     progressDialog.cancel();
                 }
@@ -479,10 +459,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
             @Override
             public void onError(String message) {
-                Variables.isPreferenceLock = false;
-                preSessionInstall.setEnabled(true);
-                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
                 if (progressDialog.isShowing()) {
                     progressDialog.cancel();
                 }
@@ -555,10 +531,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onFailure() {
                 alertDialog.dismiss();
-                Variables.isPreferenceLock = false;
-                preSessionInstall.setEnabled(true);
-                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
                 try {
                     /* 一時ファイルを消去 */
                     File tmpFile = requireActivity().getExternalCacheDir();
@@ -579,10 +551,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onError(String message) {
                 alertDialog.dismiss();
-                Variables.isPreferenceLock = false;
-                preSessionInstall.setEnabled(true);
-                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
                 try {
                     /* 一時ファイルを消去 */
                     File tmpFile = requireActivity().getExternalCacheDir();
@@ -650,10 +618,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onFailure() {
                 alertDialog.dismiss();
-                Variables.isPreferenceLock = false;
-                preSessionInstall.setEnabled(true);
-                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
                 try {
                     /* 一時ファイルを消去 */
                     File tmpFile = requireActivity().getExternalCacheDir();
@@ -674,10 +638,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onError(String message) {
                 alertDialog.dismiss();
-                Variables.isPreferenceLock = false;
-                preSessionInstall.setEnabled(true);
-                preSessionInstall.setSummary(R.string.pre_owner_sum_silent_install);
-
                 try {
                     /* 一時ファイルを消去 */
                     File tmpFile = requireActivity().getExternalCacheDir();

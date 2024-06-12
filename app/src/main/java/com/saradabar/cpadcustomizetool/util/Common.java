@@ -187,7 +187,7 @@ public class Common {
                 Build.FINGERPRINT + "\n" +
                 "- 例外原因:\n" +
                 throwable.getCause() + "\n" +
-                "- スタックトレース\n" +
+                "- スタックトレース:\n" +
                 stringWriter +
                 "- ログ終了 -\n\n";
 

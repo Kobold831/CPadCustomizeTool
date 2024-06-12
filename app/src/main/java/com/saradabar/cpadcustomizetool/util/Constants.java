@@ -59,7 +59,6 @@ public class Constants {
     public static final String URL_CHECK = "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json";
     public static final String URL_UPDATE_INFO = "https://docs.google.com/document/d/1uh-FrHM5o84uh7zXw3W_FRIDuzJo8NcVnUD8Rrw4CMQ/";
     public static final String URL_UPDATE = "https://github.com/Kobold831/CPadCustomizeTool/releases";
-    public static final String URL_DISCORD = "https://wiki3.jp/SmileTabLabo";
     public static final String URL_GITHUB = "https://github.com/Kobold831/CPadCustomizeTool";
 
     public static final String DCHA_STATE = "dcha_state";
@@ -96,7 +95,7 @@ public class Constants {
     public static final File IGNORE_DCHA_COMPLETED_FILE = new File("/factory/ignore_dcha_completed");
     public static final File COUNT_DCHA_COMPLETED_FILE = new File("/factory/count_dcha_completed");
 
-    public static final List<String> list = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー", "Dhizuku", "Shizuku（追加予定）");
+    public static final List<String> list = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー", "Dhizuku");
 
     public static final String[] modelName = {"TAB-A03-BS", "TAB-A03-BR", "TAB-A03-BR2", "TAB-A03-BR3", "TAB-A05-BD", "TAB-A05-BA1"};
 }

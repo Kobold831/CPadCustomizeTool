@@ -216,11 +216,6 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                                     .show();
                         }
                         break;
-                    case 5:
-                        new AlertDialog.Builder(requireActivity())
-                                .setMessage(getString(R.string.dialog_error_not_work_mode))
-                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                                .show();
                 }
             });
 

@@ -14,17 +14,17 @@ package com.saradabar.cpadcustomizetool.view.flagment;
 
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
+import android.widget.AbsListView;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.saradabar.cpadcustomizetool.R;
@@ -32,11 +32,14 @@ import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
+import com.saradabar.cpadcustomizetool.view.views.LaunchAppView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class OtherFragment extends PreferenceFragmentCompat {
@@ -45,7 +48,8 @@ public class OtherFragment extends PreferenceFragmentCompat {
             preStartUiAdjustment,
             preStartDevSettings,
             preScreenOffTimeOut,
-            preWebView;
+            preWebView,
+            preLaunchApp;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,6 +65,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
         preStartDevSettings = findPreference("pre_other_start_dev_settings");
         preScreenOffTimeOut = findPreference("pre_other_screen_off_time");
         preWebView = findPreference("pre_other_web_view");
+        preLaunchApp = findPreference("pre_other_launch_app");
 
         preOtherStartSettings.setOnPreferenceClickListener(preference -> {
             try {
@@ -102,7 +107,6 @@ public class OtherFragment extends PreferenceFragmentCompat {
 
         preScreenOffTimeOut.setOnPreferenceClickListener(preference -> {
             View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
-            Button button = view.findViewById(R.id.time_out_button);
             EditText editText = view.findViewById(R.id.time_out_edit);
             editText.setHint(getString(R.string.layout_time_out_hint, String.valueOf(Integer.MAX_VALUE)));
             setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
@@ -111,36 +115,29 @@ public class OtherFragment extends PreferenceFragmentCompat {
                     .setCancelable(false)
                     .setTitle("スクリーンのタイムアウト")
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                        ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editText.getWindowToken(), 0);
                         try {
-                            if (Integer.parseInt(editText.getText().toString()) >= 5000) {
-                                Settings.System.putInt(requireActivity().getContentResolver(), "screen_off_timeout", Integer.parseInt(editText.getText().toString()));
-                                setSummaryScreenOffTimeConvert();
-                            } else {
-                                new AlertDialog.Builder(requireActivity())
-                                        .setMessage("最低値5000以下の値を設定することはできません")
-                                        .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
-                                        .show();
-                            }
-                        } catch (Exception ignored) {
+                            Settings.System.putInt(requireActivity().getContentResolver(), "screen_off_timeout", Integer.parseInt(editText.getText().toString()));
+                            setSummaryScreenOffTimeConvert();
+                        } catch (Exception e) {
                             new AlertDialog.Builder(requireActivity())
-                                    .setMessage(R.string.dialog_error)
+                                    .setTitle(R.string.dialog_error)
+                                    .setMessage(e.getMessage())
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                                     .show();
                         }
                     })
                     .setNegativeButton(R.string.dialog_common_cancel, null)
                     .show();
-            button.setOnClickListener(view1 -> {
-                ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editText.getWindowToken(), 0);
+            view.findViewById(R.id.time_out_button).setOnClickListener(view1 -> {
                 try {
                     editText.setText(String.valueOf(Integer.MAX_VALUE));
                     Settings.System.putInt(requireActivity().getContentResolver(), "screen_off_timeout", Integer.MAX_VALUE);
                     setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
                     setSummaryScreenOffTimeConvert();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
                     new AlertDialog.Builder(requireActivity())
-                            .setMessage(R.string.dialog_error)
+                            .setTitle(R.string.dialog_error)
+                            .setMessage(e.getMessage())
                             .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                             .show();
                 }
@@ -150,6 +147,44 @@ public class OtherFragment extends PreferenceFragmentCompat {
 
         preWebView.setOnPreferenceClickListener(preference -> {
             startActivity(new Intent(requireActivity(), WebViewActivity.class).putExtra("URL", "https://www.google.com").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            return false;
+        });
+
+        preLaunchApp.setOnPreferenceClickListener(preference -> {
+            View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_app_list, null);
+            List<ApplicationInfo> installedAppList = requireActivity().getPackageManager().getInstalledApplications(0);
+            List<LaunchAppView.AppData> dataList = new ArrayList<>();
+
+            for (ApplicationInfo app : installedAppList) {
+                if(requireActivity().getPackageManager().getLaunchIntentForPackage(app.packageName) != null) {
+                    LaunchAppView.AppData data = new LaunchAppView.AppData();
+                    data.icon = app.loadIcon(requireActivity().getPackageManager());
+                    data.label = app.loadLabel(requireActivity().getPackageManager()).toString();
+                    data.packName = app.packageName;
+                    dataList.add(data);
+                }
+            }
+
+            ListView listView = view.findViewById(R.id.app_list);
+            listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+            listView.setAdapter(new LaunchAppView.LaunchAppAdapter(requireActivity(), dataList));
+            listView.setOnItemClickListener((parent, mView, position, id) -> {
+                try {
+                    startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(dataList.get(position).packName));
+                } catch (Exception e) {
+                    new AlertDialog.Builder(requireActivity())
+                            .setTitle("エラーが発生しました")
+                            .setMessage(e.getMessage())
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                            .show();
+                }
+            });
+
+            new AlertDialog.Builder(requireActivity())
+                    .setView(view)
+                    .setTitle("アプリを選択してください")
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .show();
             return false;
         });
 

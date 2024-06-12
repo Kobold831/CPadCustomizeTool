@@ -19,7 +19,6 @@ import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -30,6 +29,8 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.view.View;
+import android.widget.TextView;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
@@ -37,7 +38,6 @@ import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.util.Toast;
 import com.saradabar.cpadcustomizetool.util.Variables;
-import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
 
 import java.io.File;
 
@@ -45,7 +45,7 @@ import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class Updater implements InstallEventListener {
 
-    ProgressDialog progressDialog;
+    AlertDialog progressDialog;
     IDchaService mDchaService;
     Activity activity;
 
@@ -56,7 +56,7 @@ public class Updater implements InstallEventListener {
         return instance;
     }
 
-    public Updater(Activity act, ProgressDialog progressDialog) {
+    public Updater(Activity act, AlertDialog progressDialog) {
         instance = this;
         activity = act;
         this.progressDialog = progressDialog;
@@ -86,17 +86,15 @@ public class Updater implements InstallEventListener {
                 .show();
     }
 
-    @SuppressWarnings("deprecation")
     public void installApk(Context context, int flag) {
+        View view = activity.getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
+        TextView textView = view.findViewById(R.id.view_progress_spinner_text);
+        textView.setText("");
+
         switch (Preferences.load(activity, Constants.KEY_FLAG_UPDATE_MODE, 1)) {
             case 0:
                 if (progressDialog.isShowing()) {
                     progressDialog.cancel();
-                }
-
-                try {
-                    MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                } catch (Exception ignored) {
                 }
 
                 activity.startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(context.getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
@@ -116,16 +114,12 @@ public class Updater implements InstallEventListener {
                                         activity.finish();
                                     }
                                 })
+                                .setNegativeButton("キャンセル", null)
                                 .show();
                         break;
                     case 1:
                         if (progressDialog.isShowing()) {
                             progressDialog.cancel();
-                        }
-
-                        try {
-                            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                        } catch (Exception ignored) {
                         }
 
                         new AlertDialog.Builder(activity)
@@ -140,30 +134,25 @@ public class Updater implements InstallEventListener {
                                         activity.finish();
                                     }
                                 })
+                                .setNegativeButton("キャンセル", null)
                                 .show();
                         break;
                 }
                 break;
             case 2:
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.setMessage(activity.getString(R.string.progress_state_installing));
-                progressDialog.show();
-
-                try {
-                    MainFragment.getInstance().preGetApp.setSummary(R.string.progress_state_installing);
-                } catch (Exception ignored) {
+                if (progressDialog.isShowing()) {
+                    progressDialog.cancel();
                 }
+
+                textView.setText(activity.getString(R.string.progress_state_installing));
+                progressDialog = new AlertDialog.Builder(activity).setCancelable(false).setView(view).create();
+                progressDialog.show();
 
                 if (tryBindDchaService()) {
                     Runnable runnable = () -> {
                         if (!tryInstallPackage()) {
                             if (progressDialog.isShowing()) {
                                 progressDialog.cancel();
-                            }
-
-                            try {
-                                MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                            } catch (Exception ignored) {
                             }
 
                             new AlertDialog.Builder(activity)
@@ -175,22 +164,12 @@ public class Updater implements InstallEventListener {
                             if (progressDialog.isShowing()) {
                                 progressDialog.cancel();
                             }
-
-                            try {
-                                MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                            } catch (Exception ignored) {
-                            }
                         }
                     };
                     new Handler().postDelayed(runnable, 10);
                 } else {
                     if (progressDialog.isShowing()) {
                         progressDialog.cancel();
-                    }
-
-                    try {
-                        MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                    } catch (Exception ignored) {
                     }
 
                     new AlertDialog.Builder(activity)
@@ -201,24 +180,18 @@ public class Updater implements InstallEventListener {
                 }
                 break;
             case 3:
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.setMessage(activity.getString(R.string.progress_state_installing));
-                progressDialog.show();
-
-                try {
-                    MainFragment.getInstance().preGetApp.setSummary(R.string.progress_state_installing);
-                } catch (Exception ignored) {
+                if (progressDialog.isShowing()) {
+                    progressDialog.cancel();
                 }
+
+                textView.setText(activity.getString(R.string.progress_state_installing));
+                progressDialog = new AlertDialog.Builder(activity).setCancelable(false).setView(view).create();
+                progressDialog.show();
 
                 if (((DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(activity.getPackageName())) {
                     if (!trySessionInstall(flag)) {
                         if (progressDialog.isShowing()) {
                             progressDialog.cancel();
-                        }
-
-                        try {
-                            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                        } catch (Exception ignored) {
                         }
 
                         new AlertDialog.Builder(activity)
@@ -230,11 +203,6 @@ public class Updater implements InstallEventListener {
                         if (progressDialog.isShowing()) {
                             progressDialog.cancel();
                         }
-
-                        try {
-                            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                        } catch (Exception ignored) {
-                        }
                     }
                 } else {
                     if (Preferences.load(activity, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTX || Preferences.load(activity, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTZ) {
@@ -242,11 +210,6 @@ public class Updater implements InstallEventListener {
                     } else Preferences.save(activity, Constants.KEY_FLAG_UPDATE_MODE, 0);
                     if (progressDialog.isShowing()) {
                         progressDialog.cancel();
-                    }
-
-                    try {
-                        MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                    } catch (Exception ignored) {
                     }
 
                     new AlertDialog.Builder(activity)
@@ -257,14 +220,13 @@ public class Updater implements InstallEventListener {
                 }
                 break;
             case 4:
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.setMessage(activity.getString(R.string.progress_state_installing));
-                progressDialog.show();
-
-                try {
-                    MainFragment.getInstance().preGetApp.setSummary(R.string.progress_state_installing);
-                } catch (Exception ignored) {
+                if (progressDialog.isShowing()) {
+                    progressDialog.cancel();
                 }
+
+                textView.setText(activity.getString(R.string.progress_state_installing));
+                progressDialog = new AlertDialog.Builder(activity).setCancelable(false).setView(view).create();
+                progressDialog.show();
 
                 if (isDhizukuActive(activity)) {
                     if (tryBindDhizukuService(activity)) {
@@ -285,11 +247,6 @@ public class Updater implements InstallEventListener {
                                         progressDialog.cancel();
                                     }
 
-                                    try {
-                                        MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                                    } catch (Exception ignored) {
-                                    }
-
                                     new AlertDialog.Builder(activity)
                                             .setCancelable(false)
                                             .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
@@ -306,11 +263,6 @@ public class Updater implements InstallEventListener {
                             progressDialog.cancel();
                         }
 
-                        try {
-                            MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                        } catch (Exception ignored) {
-                        }
-
                         new AlertDialog.Builder(activity)
                                 .setCancelable(false)
                                 .setMessage(context.getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
@@ -320,11 +272,6 @@ public class Updater implements InstallEventListener {
                 } else {
                     if (progressDialog.isShowing()) {
                         progressDialog.cancel();
-                    }
-
-                    try {
-                        MainFragment.getInstance().preGetApp.setSummary(R.string.pre_main_sum_get_app);
-                    } catch (Exception ignored) {
                     }
 
                     new AlertDialog.Builder(activity)

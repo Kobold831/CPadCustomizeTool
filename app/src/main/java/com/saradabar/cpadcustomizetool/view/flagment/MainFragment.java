@@ -51,6 +51,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -98,7 +99,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @SuppressLint("StaticFieldLeak")
     static MainFragment instance = null;
 
-    ProgressDialog progressDialog;
+    AlertDialog progressDialog;
+    TextView progressPercentText;
+    TextView progressByteText;
+    ProgressBar dialogProgressBar;
 
     IDchaService mDchaService;
     IDchaUtilService mDchaUtilService;
@@ -143,14 +147,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         return instance;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
-        progressDialog = new ProgressDialog(requireActivity());
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setMessage("");
     }
 
     @Override
@@ -901,7 +901,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         preGetApp.setOnPreferenceClickListener(preference -> {
-            preGetApp.setSummary("サーバーと通信しています...");
             showLoadingDialog();
             new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(requireActivity().getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_APP_CHECK);
             return false;
@@ -1052,13 +1051,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         } else {
             preDeviceOwnerFn.setSummary("");
         }
-
-        if (Variables.isPreferenceLock) {
-            preSilentInstall.setEnabled(false);
-            preSilentInstall.setSummary("進行中のインストールが完了するまでお待ち下さい...");
-            preGetApp.setEnabled(false);
-            preGetApp.setSummary("進行中のインストールが完了するまでお待ち下さい...");
-        }
     }
 
     /* システムUIオブザーバー */
@@ -1185,9 +1177,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         }
     }
 
-    @SuppressWarnings("deprecation")
     public void showLoadingDialog() {
-        progressDialog.setMessage("サーバーと通信しています...");
+        View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
+        TextView textView = view.findViewById(R.id.view_progress_spinner_text);
+        textView.setText("サーバーと通信しています...");
+        progressDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
         progressDialog.show();
     }
 
@@ -1245,6 +1239,16 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
         progressHandler.fileDownloadTask = fileDownloadTask;
         progressHandler.sendEmptyMessage(0);
+        View view = getLayoutInflater().inflate(R.layout.view_progress, null);
+        progressPercentText = view.findViewById(R.id.progress_percent);
+        progressPercentText.setText("");
+        progressByteText = view.findViewById(R.id.progress_byte);
+        progressByteText.setText("");
+        dialogProgressBar = view.findViewById(R.id.progress);
+        dialogProgressBar.setProgress(0);
+        progressDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
+        progressDialog.setMessage("");
+        progressDialog.show();
     }
 
     /* アクティビティ破棄 */
@@ -1456,7 +1460,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     public void onDownloadComplete(int reqCode) {
         switch (reqCode) {
             case Constants.REQUEST_DOWNLOAD_APP_CHECK:
-                preGetApp.setSummary(R.string.pre_main_sum_get_app);
                 cancelLoadingDialog();
 
                 ArrayList<AppListView.AppData> appDataArrayList = new ArrayList<>();
@@ -1512,7 +1515,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                     .setMessage(str + "\n" + "よろしければOKを押下してください")
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                         if (!Objects.equals(Variables.DOWNLOAD_FILE_URL, "MYURL")) {
-                                            showLoadingDialog();
                                             startDownload();
                                             dialog.dismiss();
                                         } else {
@@ -1525,7 +1527,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                                     .setPositiveButton(R.string.dialog_common_ok, (dialog3, which3) -> {
                                                         ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editText.getWindowToken(), 0);
                                                         Variables.DOWNLOAD_FILE_URL = editText.getText().toString();
-                                                        showLoadingDialog();
                                                         startDownload();
                                                     })
                                                     .setNegativeButton(R.string.dialog_common_cancel, null)
@@ -1547,10 +1548,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onDownloadError(int reqCode) {
-        if (reqCode == Constants.REQUEST_DOWNLOAD_APP_CHECK || reqCode == Constants.REQUEST_DOWNLOAD_APK) {
-            preGetApp.setSummary(R.string.pre_main_sum_get_app);
-        }
-
         cancelLoadingDialog();
         new AlertDialog.Builder(requireActivity())
                 .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
@@ -1560,10 +1557,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onConnectionError(int reqCode) {
-        if (reqCode == Constants.REQUEST_DOWNLOAD_APP_CHECK || reqCode == Constants.REQUEST_DOWNLOAD_APK) {
-            preGetApp.setSummary(R.string.pre_main_sum_get_app);
-        }
-
         cancelLoadingDialog();
         new AlertDialog.Builder(requireActivity())
                 .setMessage("データ取得に失敗しました\nネットワークを確認してください")
@@ -1571,22 +1564,16 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 .show();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setProgress(progress);
-        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています...しばらくお待ち下さい...\n進行状況：").append(progress).append("%"));
-        progressDialog.show();
-        preGetApp.setSummary(new StringBuilder("インストールファイルをサーバーからダウンロードしています...しばらくお待ち下さい...\n進行状況：").append(progress).append("%"));
+        progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append("%"));
+        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append("/").append(totalByte));
+        dialogProgressBar.setProgress(progress);
+        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています...\nしばらくお待ち下さい..."));
     }
 
     @Override
     public void onInstallSuccess(int reqCode) {
-        if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
-            preGetApp.setSummary(R.string.pre_main_sum_get_app);
-        }
-
         if (progressDialog.isShowing()) {
             progressDialog.cancel();
         }
@@ -1594,10 +1581,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onInstallFailure(int reqCode, String message) {
-        if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
-            preGetApp.setSummary(R.string.pre_main_sum_get_app);
-        }
-
         if (progressDialog.isShowing()) {
             progressDialog.cancel();
         }
@@ -1611,10 +1594,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onInstallError(int reqCode, String message) {
-        if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
-            preGetApp.setSummary(R.string.pre_main_sum_get_app);
-        }
-
         if (progressDialog.isShowing()) {
             progressDialog.cancel();
         }

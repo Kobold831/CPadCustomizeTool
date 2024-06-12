@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
@@ -46,6 +47,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
@@ -71,18 +73,20 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
 
         setContentView(R.layout.activity_main);
 
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            FrameLayout frameLayout = findViewById(R.id.layout_main);
-            ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
-            ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
-            marginLayoutParams.setMargins(72, 0, 72, 0);
-            frameLayout.setLayoutParams(marginLayoutParams);
-        } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            FrameLayout frameLayout = findViewById(R.id.layout_main);
-            ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
-            ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
-            marginLayoutParams.setMargins(144, 0, 144, 0);
-            frameLayout.setLayoutParams(marginLayoutParams);
+        if (supportModelCheck()) {
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                FrameLayout frameLayout = findViewById(R.id.layout_main);
+                ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
+                ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+                marginLayoutParams.setMargins(72, 0, 72, 0);
+                frameLayout.setLayoutParams(marginLayoutParams);
+            } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                FrameLayout frameLayout = findViewById(R.id.layout_main);
+                ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
+                ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+                marginLayoutParams.setMargins(144, 0, 144, 0);
+                frameLayout.setLayoutParams(marginLayoutParams);
+            }
         }
 
         transitionFragment(new MainFragment(), false);
@@ -220,18 +224,29 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            FrameLayout frameLayout = findViewById(R.id.layout_main);
-            ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
-            ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
-            marginLayoutParams.setMargins(72, 0, 72, 0);
-            frameLayout.setLayoutParams(marginLayoutParams);
-        } else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            FrameLayout frameLayout = findViewById(R.id.layout_main);
-            ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
-            ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
-            marginLayoutParams.setMargins(144, 0, 144, 0);
-            frameLayout.setLayoutParams(marginLayoutParams);
+        if (supportModelCheck()) {
+            if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                FrameLayout frameLayout = findViewById(R.id.layout_main);
+                ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
+                ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+                marginLayoutParams.setMargins(72, 0, 72, 0);
+                frameLayout.setLayoutParams(marginLayoutParams);
+            } else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                FrameLayout frameLayout = findViewById(R.id.layout_main);
+                ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
+                ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+                marginLayoutParams.setMargins(144, 0, 144, 0);
+                frameLayout.setLayoutParams(marginLayoutParams);
+            }
         }
+    }
+
+    private boolean supportModelCheck() {
+        for (String string : Constants.modelName) {
+            if (Objects.equals(string, Build.MODEL)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

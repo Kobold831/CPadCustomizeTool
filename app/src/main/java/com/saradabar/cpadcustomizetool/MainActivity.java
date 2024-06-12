@@ -316,11 +316,6 @@ public class MainActivity extends Activity implements DownloadEventListener {
                                     });
                                 }
                                 break;
-                            case 5:
-                                new AlertDialog.Builder(v.getContext())
-                                        .setMessage(getString(R.string.dialog_error_not_work_mode))
-                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                                        .show();
                         }
                     });
 
