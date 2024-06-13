@@ -40,7 +40,7 @@
     <string name="pre_main_category_system">システム設定</string>
     <string name="pre_main_category_emergency_mode">緊急モード</string>
     <string name="pre_main_category_change_to_normal_mode">通常モード</string>
-    <string name="pre_main_category_other_settings">その他の機能</string>
+    <string name="pre_main_category_other_settings">DchaService機能</string>
     <string name="pre_main_title_system_ui">システムUIを学習用に変更</string>
     <string name="pre_main_title_keep_system_ui">システムUIを通常用に維持</string>
     <string name="pre_main_title_navigation_bar">ナビゲーションバーを非表示</string>
@@ -49,10 +49,10 @@
     <string name="pre_main_title_keep_usb_debug">USBデバッグの有効を維持</string>
     <string name="pre_main_title_non_market">提供元不明のアプリを許可</string>
     <string name="pre_main_title_keep_non_market">提供元不明のアプリの許可を維持</string>
-    <string name="pre_main_title_change_home">ホームを変更</string>
-    <string name="pre_main_title_keep_home">ホームを維持</string>
+    <string name="pre_main_title_change_home">ホームアプリ</string>
+    <string name="pre_main_title_keep_home">ホームアプリを維持</string>
     <string name="pre_main_title_other_settings">その他の設定</string>
-    <string name="pre_main_title_select_course">受講中の講座を選択</string>
+    <string name="pre_main_title_select_course">受講中の講座を設定</string>
     <string name="pre_main_title_change_settings">緊急モード実行時に変更する設定を変更</string>
     <string name="pre_main_title_manual">緊急モードの説明</string>
     <string name="pre_main_title_change_to_normal_mode_settings">通常モード実行時に変更する設定を変更</string>
@@ -70,28 +70,28 @@
     <string name="pre_main_title_dhizuku_permission_req">Dhizukuアクセス権限リクエスト</string>
     <string name="pre_main_sum_message_1">ではこの機能は使用できません</string>
     <string name="pre_main_sum_message_2">変更するランチャーは%1$sに設定されています</string>
-    <string name="pre_main_sum_keep_home">設定中のホームランチャーを維持します</string>
+    <string name="pre_main_sum_keep_home">現在のホームランチャーを維持します</string>
     <string name="pre_main_sum_change_settings">デフォルトではすべての設定が変更されます</string>
     <string name="pre_main_sum_change_to_normal_mode_settings">デフォルトではすべての設定が変更されます</string>
-    <string name="pre_main_sum_use_dcha">この機能を使用するにはタップして確認する必要があります</string>
+    <string name="pre_main_sum_use_dcha">この機能を使用するには、タップして内容を確認してください</string>
     <string name="pre_main_sum_device_admin">このアプリがアンインストールされないようにします</string>
     <string name="pre_main_sum_silent_install">分割APKは非対応です\n分割APKは「デバイスオーナーの機能」→サイレントインストールでインストールできます</string>
     <string name="pre_main_sum_already_device_owner">デバイスオーナーのため変更できません</string>
     <string name="pre_main_sum_no_setting_launcher">変更するランチャーは設定されていません</string>
-    <string name="pre_main_sum_get_app">インストールするには表示されるダイアログからアプリを選択してください\nインストーラーはアプリ設定→アップデートモードを選択の設定に準拠します</string>
+    <string name="pre_main_sum_get_app">インストールするには表示されるダイアログからアプリを選択してください\nインストーラーはアプリ設定→インストールモードを選択に準拠します</string>
 
     <!-- アプリ設定 -->
     <string name="pre_app_category_start_settings">起動設定</string>
     <string name="pre_app_category_settings">アプリ設定</string>
-    <string name="pre_app_category_update">アップデート設定</string>
+    <string name="pre_app_category_update">インストール設定</string>
     <string name="pre_app_category_log">アプリログ</string>
-    <string name="pre_app_title_update_check">起動時のアップデートチェックを無効</string>
-    <string name="pre_app_title_dcha">DchaServiceによる設定変更</string>
+    <string name="pre_app_title_update_check">アップデートチェックをしない</string>
+    <string name="pre_app_title_dcha">DchaServiceで設定を変更する</string>
     <string name="pre_app_title_usb">デバイス起動時のUSBデバッグを有効</string>
-    <string name="pre_app_title_update">アップデートモードを選択</string>
+    <string name="pre_app_title_update">インストールモードを選択</string>
     <string name="pre_app_title_crash_history">クラッシュ履歴</string>
     <string name="pre_app_title_delete_crash_history">クラッシュ履歴の消去</string>
-    <string name="pre_app_sum_dcha">DchaServiceでシステム設定を変更します</string>
+    <string name="pre_app_sum_dcha">デフォルトではDchaServiceを使用せず設定を変更します</string>
     <string name="pre_app_sum_usb">有効にすると、デバイス起動時にUSBデバッグが無効にされるのを防ぎます</string>
     <string name="pre_app_sum_confirmation_dcha">この機能を使用するには、\"DchaServiceを使用\"を押して内容を確認してください</string>
     
@@ -110,10 +110,10 @@
     <string name="pre_owner_sum_permission_default">デバイスポリシーはデフォルトです</string>
 
     <!-- その他の設定 -->
-    <string name="pre_other_title_settings">設定を起動</string>
+    <string name="pre_other_title_settings">Android設定を起動</string>
     <string name="pre_other_title_development">開発者向けオプションを開く</string>
     <string name="pre_other_title_adjustment">システムUI調整ツールを起動</string>
-    <string name="pre_other_title_screen_off_time">スクリーンのタイムアウト</string>
+    <string name="pre_other_title_screen_off_time">スリープ</string>
 
     <!-- その他の設定 -->
     <string name="un_text_1">すべて無効</string>
@@ -136,15 +136,15 @@
     <string name="dialog_common_check">確認</string>
     <!-- ダイアログタイトル -->
     <string name="dialog_title_update">アプリの更新</string>
-    <string name="dialog_title_common_error">起動エラー</string>
-    <string name="dialog_title_error">エラー</string>
+    <string name="dialog_title_common_error">起動確認に失敗しました</string>
+    <string name="dialog_title_error">エラーが発生しました</string>
     <string name="dialog_title_notice_start">はじめに</string>
-    <string name="dialog_title_grant_permission">権限設定</string>
+    <string name="dialog_title_grant_permission">権限設定が必要です</string>
     <string name="dialog_title_dcha_service">以下の内容を確認してください</string>
     <string name="dialog_title_emergency_manual">緊急モードの説明</string>
     <string name="dialog_title_normal_manual">通常モードの説明</string>
-    <string name="dialog_title_resolution">解像度の設定</string>
-    <string name="dialog_title_launcher">ランチャーを選択</string>
+    <string name="dialog_title_resolution">値を入力してください</string>
+    <string name="dialog_title_launcher">ランチャーを選択してください</string>
     <string name="dialog_title_final_confirmation">最終確認</string>
     <string name="dialog_title_select_mode">モードを選択してください</string>
     <!-- ダイアログメッセージ -->
@@ -166,26 +166,26 @@
     <string name="dialog_info_dhizuku_deny_permission">Dhizukuへのアクセス権限は拒否されました</string>
     <string name="dialog_info_dhizuku_already_grant_permission">Dhizukuへのアクセス権限は付与されています</string>
     <!-- ダイアログエラー -->
-    <string name="dialog_error_crash">前回%1$sが予期せずに終了しました\n繰り返し発生する場合は"確認"を押してクラッシュログを開発者に送信してください</string>
+    <string name="dialog_error_crash">致命的なエラーが発生しました\n繰り返し発生する場合は"確認"を押してクラッシュログを開発者に送信してください\n\n続行を押すと、メイン画面に戻ります</string>
     <string name="dialog_error">エラーが発生しました</string>
     <string name="dialog_error_start_connection">サーバーと接続できませんでした\n通信状態を確認してください</string>
     <string name="dialog_error_start_wifi">通信エラーが発生しました\nネットワークに接続してください</string>
-    <string name="dialog_error_start_dcha_service">”DchaService”が動作していません\nこのアプリは使用できません\n\n”DchaService”を使用しない場合、”続行”を押してください</string>
+    <string name="dialog_error_start_dcha_service">”DchaService”が動作していません\n”DchaService”を使用しない場合、”続行”を押してください</string>
     <string name="dialog_error_start_cpad">この端末はサポートされていません\nこのアプリは使用できません</string>
-    <string name="dialog_error_start_permission">システム設定の変更が許可されていません\n”設定”を押した後に表示されるスイッチを有効にし許可してください</string>
-    <string name="dialog_error_not_work_dcha">DchaServiceが動作していないためこの機能は使用できません</string>
-    <string name="dialog_error_not_work_dcha_util">DchaUtilServiceが動作していないためこの機能は使用できません</string>
-    <string name="dialog_error_illegal_value">不正な値です</string>
+    <string name="dialog_error_start_permission">システム設定の変更が許可されていません\n”設定”を押した後に表示されるスイッチを有効にして許可してください</string>
+    <string name="dialog_error_not_work_dcha">DchaServiceが動作していないため、この機能は使用できません</string>
+    <string name="dialog_error_not_work_dcha_util">DchaUtilServiceが動作していないため、この機能は使用できません</string>
+    <string name="dialog_error_illegal_value">値が不正なため変更できません\n入力した値が、極端ではないことを確認してください</string>
     <string name="dialog_error_no_file_browse">ファイルブラウザがインストールされていません</string>
     <string name="dialog_error_no_file_data">ファイルデータを取得できませんでした</string>
     <string name="dialog_error_not_work_mode">選択されたモードは機能していないため設定できません</string>
     <string name="dialog_error_reset_update_mode">デバイスオーナーではありません\nアップデートモードをリセットしました</string>
     <string name="dialog_error_dhizuku_conn_failure">Dhizukuとの通信に失敗しました</string>
     <!-- ダイアログ操作許可 -->
-    <string name="dialog_question_reboot">再起動しますか？</string>
-    <string name="dialog_question_dcha_service">この機能を使用したことによるすべての問題を開発者は一切責任を負いません\nDchaServiceの機能を使用しますか?</string>
+    <string name="dialog_question_reboot">デバイスを通常再起動しますか？</string>
+    <string name="dialog_question_dcha_service">DchaServiceの機能を使用しますか?</string>
     <string name="dialog_question_device_owner">デバイスオーナーを解除しますか？</string>
-    <string name="dialog_question_device_admin">デバイス管理者を無効にしますか？\nこの操作を行うとDchaServiceによってアプリがアンインストールされる可能性があります</string>
+    <string name="dialog_question_device_admin">デバイス管理者を無効にしますか？\nこの操作を行うと学習環境のときに、アプリがアンインストールされる可能性があります</string>
     <string name="dialog_question_are_you_sure">本当によろしいですか？</string>
     
     <!-- トースト -->

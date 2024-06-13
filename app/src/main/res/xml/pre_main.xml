@@ -41,6 +41,11 @@
         <SwitchPreferenceCompat
             android:key="pre_keep_adb"
             android:title="@string/pre_main_title_keep_usb_debug" />
+
+        <SwitchPreferenceCompat
+            android:key="pre_app_adb"
+            android:title="@string/pre_app_title_usb"
+            android:summary="@string/pre_app_sum_usb" />
     </PreferenceCategory>
 
     <Preference
@@ -54,12 +59,8 @@
 
     <Preference
         android:key="pre_other_settings"
-        android:title="@string/pre_main_title_other_settings" />
-
-    <Preference
-        android:key="pre_enable_dcha_service"
-        android:title="@string/pre_main_title_use_dcha"
-        android:summary="@string/pre_main_sum_use_dcha" />
+        android:title="@string/pre_main_title_other_settings"
+        android:summary="システム設定、ブラウザ、アプリ起動" />
 
     <PreferenceCategory
         android:title="@string/pre_main_category_emergency_mode"
@@ -68,6 +69,7 @@
         <ListPreference
             android:key="emergency_mode"
             android:title="@string/pre_main_title_select_course"
+            android:summary="緊急モードを使用するときは、受講中の講座に設定されていることを確認してください"
             android:dialogTitle="@string/dialog_emergency_select_course"
             android:defaultValue="1"
             android:entries="@array/mode_text"
@@ -88,7 +90,8 @@
 
         <Preference
             android:key="pre_emg_execute"
-            android:title="緊急モードを起動" />
+            android:title="緊急モードを起動"
+            android:summary="起動すると、チャレンジパッドを学習環境に変更します" />
 
         <Preference
             android:key="pre_emg_shortcut"
@@ -118,7 +121,8 @@
 
         <Preference
             android:key="pre_nor_execute"
-            android:title="通常モードを起動" />
+            android:title="通常モードを起動"
+            android:summary="起動すると、チャレンジパッドを通常環境に変更します" />
 
         <Preference
             android:key="pre_nor_shortcut"
@@ -130,8 +134,14 @@
         android:key="category_other" />
 
     <Preference
+        android:key="pre_enable_dcha_service"
+        android:title="@string/pre_main_title_use_dcha"
+        android:summary="@string/pre_main_sum_use_dcha" />
+
+    <Preference
         android:key="pre_reboot"
-        android:title="@string/pre_main_title_reboot" />
+        android:title="@string/pre_main_title_reboot"
+        android:summary="チャレンジパッドを通常再起動します" />
 
     <Preference
         android:key="pre_reboot_shortcut"
@@ -144,19 +154,26 @@
 
     <Preference
         android:key="pre_resolution"
-        android:title="@string/pre_main_title_resolution" />
+        android:title="@string/pre_main_title_resolution"
+        android:summary="チャレンジパッドの画面解像度を任意の値に変更できます\n極端な値を入力することはできません" />
 
     <Preference
         android:key="pre_reset_resolution"
-        android:title="@string/pre_main_title_resolution_reset" />
+        android:title="@string/pre_main_title_resolution_reset"
+        android:summary="チャレンジパッドの画面解像度をデフォルト値に変更します" />
 
     <Preference
         android:key="pre_system_update"
-        android:title="@string/pre_main_title_system_update" />
+        android:title="@string/pre_main_title_system_update"
+        android:summary="チャレンジパッドのシステムをアップデートします" />
+
+    <PreferenceCategory
+        android:title="デバイス管理者設定" />
 
     <Preference
         android:key="pre_device_owner_fn"
-        android:title="@string/pre_main_title_device_owner" />
+        android:title="@string/pre_main_title_device_owner"
+        android:summary="アンインストールブロック、サイレントインストール" />
 
     <Preference
         android:key="pre_dhizuku_permission_req"

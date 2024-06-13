@@ -120,6 +120,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swKeepUnkSrc,
             swAdb,
             swKeepAdb,
+            swBypassAdbDisable,
             swKeepLauncher,
             swDeviceAdmin;
 
@@ -169,6 +170,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         swKeepUnkSrc = (SwitchPreferenceCompat) findPreference("pre_keep_unk_src");
         swAdb = (SwitchPreferenceCompat) findPreference("pre_adb");
         swKeepAdb = (SwitchPreferenceCompat) findPreference("pre_keep_adb");
+        swBypassAdbDisable = (SwitchPreferenceCompat) findPreference("pre_app_adb");
         preLauncher = findPreference("pre_launcher");
         swKeepLauncher = (SwitchPreferenceCompat) findPreference("pre_keep_launcher");
         preOtherSettings = findPreference("pre_other_settings");
@@ -482,6 +484,34 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             }
 
             return true;
+        });
+
+        swBypassAdbDisable.setOnPreferenceChangeListener((preference, newValue) -> {
+            SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+            if (isCfmDialog(requireActivity())) {
+                try {
+                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ)
+                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
+                    Thread.sleep(100);
+                    Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
+                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ)
+                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
+                    sp.edit().putBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, (boolean) newValue).apply();
+                } catch (SecurityException | InterruptedException ignored) {
+                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ)
+                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
+                    Toast.toast(requireActivity(), R.string.toast_not_change);
+                    swBypassAdbDisable.setChecked(false);
+                    return false;
+                }
+                return true;
+            } else {
+                new AlertDialog.Builder(requireActivity())
+                        .setMessage("未改造デバイスでは不要なため設定できません")
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            }
+            return false;
         });
 
         preLauncher.setOnPreferenceClickListener(preference -> {
@@ -1050,6 +1080,16 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preDeviceOwnerFn.setSummary("Dhizukuがデバイスオーナーになっています\nDhizukuと通信するためタップしたあと遷移に時間がかかります");
         } else {
             preDeviceOwnerFn.setSummary("");
+        }
+
+        swBypassAdbDisable.setChecked(sp.getBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false));
+
+        switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+            case Constants.MODEL_CT2:
+            case Constants.MODEL_CT3:
+                swBypassAdbDisable.setEnabled(false);
+                swBypassAdbDisable.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                break;
         }
     }
 

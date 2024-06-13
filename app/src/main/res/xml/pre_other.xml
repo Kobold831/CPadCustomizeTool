@@ -19,15 +19,17 @@
 
         <Preference
             android:key="pre_other_screen_off_time"
-            android:title="@string/pre_other_title_screen_off_time" />
+            android:title="@string/pre_other_title_screen_off_time"
+            android:summary="スクリーンがタイムアウトするまでの時間を変更します" />
 
         <Preference
             android:key="pre_other_web_view"
-            android:title="WebViewを起動"
-            android:summary="セキュリティのため非SSL接続及びJavaScriptを使用したファイルのアクセス機能は使用できません" />
+            android:title="アプリ内ブラウザを起動"
+            android:summary="セキュリティのためHTTP接続、ファイルアクセス機能は使用できません" />
 
         <Preference
             android:key="pre_other_launch_app"
-            android:title="アプリランチャー" />
+            android:title="アプリランチャー"
+            android:summary="インストールされている任意のアプリを起動します" />
     </PreferenceCategory>
 </PreferenceScreen>

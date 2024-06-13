@@ -12,7 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
 import android.app.AlertDialog;
@@ -21,11 +20,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.SwitchPreferenceCompat;
@@ -37,7 +33,6 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.util.Toast;
 import com.saradabar.cpadcustomizetool.view.activity.CrashLogActivity;
 import com.saradabar.cpadcustomizetool.view.views.SingleListView;
 
@@ -51,8 +46,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
     IDchaService mDchaService;
 
     SwitchPreferenceCompat swUpdateCheck,
-            swUseDcha,
-            swAdb;
+            swUseDcha;
 
     Preference preCrashLog,
             preDelCrashLog,
@@ -67,23 +61,14 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.pre_app);
 
-        SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
-
         swUpdateCheck = (SwitchPreferenceCompat) findPreference("pre_app_update_check");
         swUseDcha = (SwitchPreferenceCompat) findPreference("pre_app_use_dcha");
-        swAdb = (SwitchPreferenceCompat) findPreference("pre_app_adb");
         preCrashLog = findPreference("pre_app_crash_log");
         preDelCrashLog = findPreference("pre_app_del_crash_log");
         preUpdateMode = findPreference("pre_app_update_mode");
 
         swUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_UPDATE, true));
         swUseDcha.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false));
-
-        try {
-            swAdb.setChecked(sp.getBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false));
-        } catch (NullPointerException e) {
-            sp.edit().putBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false).apply();
-        }
 
         swUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
             Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE, !((boolean) newValue));
@@ -93,33 +78,6 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         swUseDcha.setOnPreferenceChangeListener((preference, newValue) -> {
             Preferences.save(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, (boolean) newValue);
             return true;
-        });
-
-        swAdb.setOnPreferenceChangeListener((preference, newValue) -> {
-            if (isCfmDialog(requireActivity())) {
-                try {
-                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ)
-                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
-                    Thread.sleep(100);
-                    Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
-                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ)
-                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
-                    sp.edit().putBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, (boolean) newValue).apply();
-                } catch (SecurityException | InterruptedException ignored) {
-                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ)
-                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
-                    Toast.toast(requireActivity(), R.string.toast_not_change);
-                    swAdb.setChecked(false);
-                    return false;
-                }
-                return true;
-            } else {
-                new AlertDialog.Builder(requireActivity())
-                        .setMessage("未改造デバイスでは不要なため設定できません")
-                        .setPositiveButton(R.string.dialog_common_ok, null)
-                        .show();
-            }
-            return false;
         });
 
         preCrashLog.setOnPreferenceClickListener(preference -> {
@@ -232,14 +190,6 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             swUseDcha.setChecked(false);
             swUseDcha.setSummary(getString(R.string.pre_app_sum_confirmation_dcha));
             swUseDcha.setEnabled(false);
-        }
-
-        switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
-            case Constants.MODEL_CT2:
-            case Constants.MODEL_CT3:
-                swAdb.setEnabled(false);
-                swAdb.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                break;
         }
     }
 

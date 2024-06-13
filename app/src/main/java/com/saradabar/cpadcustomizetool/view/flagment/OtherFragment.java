@@ -183,7 +183,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
             new AlertDialog.Builder(requireActivity())
                     .setView(view)
                     .setTitle("アプリを選択してください")
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .setPositiveButton(R.string.dialog_common_cancel, (dialog, which) -> dialog.dismiss())
                     .show();
             return false;
         });

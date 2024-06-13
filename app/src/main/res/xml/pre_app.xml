@@ -8,7 +8,8 @@
 
         <SwitchPreferenceCompat
             android:key="pre_app_update_check"
-            android:title="@string/pre_app_title_update_check" />
+            android:title="@string/pre_app_title_update_check"
+            android:summary="アプリ起動時にアップデートがないかを確認する機能です" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -19,11 +20,6 @@
             android:key="pre_app_use_dcha"
             android:title="@string/pre_app_title_dcha"
             android:summary="@string/pre_app_sum_dcha" />
-
-        <SwitchPreferenceCompat
-            android:key="pre_app_adb"
-            android:title="@string/pre_app_title_usb"
-            android:summary="@string/pre_app_sum_usb" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -32,7 +28,8 @@
 
         <Preference
             android:key="pre_app_update_mode"
-            android:title="@string/pre_app_title_update" />
+            android:title="@string/pre_app_title_update"
+            android:summary="アップデート、アプリを取得するときのインストーラーを変更できます" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -41,7 +38,8 @@
 
         <Preference
             android:key="pre_app_crash_log"
-            android:title="@string/pre_app_title_crash_history" />
+            android:title="@string/pre_app_title_crash_history"
+            android:summary="アプリが予期せず終了したときのログを確認できます" />
 
         <Preference
             android:key="pre_app_del_crash_log"

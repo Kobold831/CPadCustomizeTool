@@ -95,7 +95,8 @@ public class MainActivity extends Activity implements DownloadEventListener {
     private void crashError() {
         new AlertDialog.Builder(this)
                 .setCancelable(false)
-                .setMessage(getString(R.string.dialog_error_crash, getApplicationInfo().loadLabel(getPackageManager())))
+                .setTitle(R.string.dialog_title_error)
+                .setMessage(R.string.dialog_error_crash)
                 .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> {
                     Preferences.save(this, Constants.KEY_FLAG_CRASH_LOG, false);
                     firstCheck();
