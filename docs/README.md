@@ -93,7 +93,7 @@ adb shell dpm set-device-owner com.saradabar.cpadcustomizetool/.Receiver.Adminis
 
 - 症状
   - 以下のクラッシュ（ **Caller has no access to session** ）が発生する。
-    <a href="#"><img src="images/screenshot-01.png" width="640" height="400"></a>
+    [![](images/screenshot-01.png)](#)
 - 原因と対処法
   - Dhizukuに権限が付与されていない可能性があります。
   - Dhizukuに権限（ストレージなど）が付与されているかを確認してください。
