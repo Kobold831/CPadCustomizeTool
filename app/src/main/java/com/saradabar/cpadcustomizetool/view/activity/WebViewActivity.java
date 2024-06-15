@@ -45,7 +45,7 @@ public class WebViewActivity extends AppCompatActivity {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 if (getSupportActionBar() != null) {
-                    getSupportActionBar().setTitle("読込中");
+                    getSupportActionBar().setTitle("読み込み中");
                     getSupportActionBar().setSubtitle(url);
                 }
             }
@@ -64,8 +64,8 @@ public class WebViewActivity extends AppCompatActivity {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (isUrlDistrusted(url)) {
                     if (getSupportActionBar() != null) {
-                        getSupportActionBar().setTitle("接続拒否");
-                        getSupportActionBar().setSubtitle("アクセスしようとしたサイトは非SSL接続のため拒否しました");
+                        getSupportActionBar().setTitle("このサイトにアクセスできません");
+                        getSupportActionBar().setSubtitle("このウェブページは、HTTP接続のため表示できません");
                     }
                 }
                 return isUrlDistrusted(url);

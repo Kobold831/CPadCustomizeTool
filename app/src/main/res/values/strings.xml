@@ -62,7 +62,7 @@
     <string name="pre_main_title_silent_install">サイレントインストール</string>
     <string name="pre_main_title_resolution">解像度を変更</string>
     <string name="pre_main_title_resolution_reset">解像度をリセット</string>
-    <string name="pre_main_title_use_dcha">DchaServiceを使用</string>
+    <string name="pre_main_title_use_dcha">DchaServiceを使用する</string>
     <string name="pre_main_title_device_admin">デバイス管理者を有効にする</string>
     <string name="pre_main_title_launcher">変更するランチャーを設定</string>
     <string name="pre_main_title_device_owner">デバイスオーナーの機能</string>
@@ -87,7 +87,7 @@
     <string name="pre_app_category_log">アプリログ</string>
     <string name="pre_app_title_update_check">アップデートチェックをしない</string>
     <string name="pre_app_title_dcha">DchaServiceで設定を変更する</string>
-    <string name="pre_app_title_usb">デバイス起動時のUSBデバッグを有効</string>
+    <string name="pre_app_title_usb">デバイス起動時にUSBデバッグを有効化</string>
     <string name="pre_app_title_update">インストールモードを選択</string>
     <string name="pre_app_title_crash_history">クラッシュ履歴</string>
     <string name="pre_app_title_delete_crash_history">クラッシュ履歴の消去</string>
@@ -185,7 +185,7 @@
     <string name="dialog_question_reboot">デバイスを通常再起動しますか？</string>
     <string name="dialog_question_dcha_service">DchaServiceの機能を使用しますか?</string>
     <string name="dialog_question_device_owner">デバイスオーナーを解除しますか？</string>
-    <string name="dialog_question_device_admin">デバイス管理者を無効にしますか？\nこの操作を行うと学習環境のときに、アプリがアンインストールされる可能性があります</string>
+    <string name="dialog_question_device_admin">この操作を行うと学習環境のときに、アプリがアンインストールされる可能性があります</string>
     <string name="dialog_question_are_you_sure">本当によろしいですか？</string>
     
     <!-- トースト -->

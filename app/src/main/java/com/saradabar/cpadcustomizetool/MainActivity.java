@@ -17,7 +17,6 @@ import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -36,12 +35,12 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
-import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
 import com.saradabar.cpadcustomizetool.data.installer.Updater;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
@@ -70,58 +69,49 @@ import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class MainActivity extends Activity implements DownloadEventListener {
 
-    ProgressDialog progressDialog;
+    AlertDialog progressDialog;
+    TextView progressPercentText;
+    TextView progressByteText;
+    ProgressBar dialogProgressBar;
+
     IDchaService mDchaService;
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("");
 
         /* 前回クラッシュしているかどうか */
         if (Preferences.load(this, Constants.KEY_FLAG_CRASH_LOG, false)) {
             /* クラッシュダイアログ表示 */
-            crashError();
+            new AlertDialog.Builder(this)
+                    .setCancelable(false)
+                    .setTitle(R.string.dialog_title_error)
+                    .setMessage(R.string.dialog_error_crash)
+                    .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> {
+                        Preferences.save(this, Constants.KEY_FLAG_CRASH_LOG, false);
+                        finish();
+                        startActivity(new Intent(this, getClass()));
+                    })
+                    .setNeutralButton(R.string.dialog_common_check, (dialog, which) -> {
+                        startActivity(new Intent(this, CrashLogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                        finish();
+                    })
+                    .show();
         } else {
-            /* 起動処理 */
-            firstCheck();
-        }
-    }
-
-    private void crashError() {
-        new AlertDialog.Builder(this)
-                .setCancelable(false)
-                .setTitle(R.string.dialog_title_error)
-                .setMessage(R.string.dialog_error_crash)
-                .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> {
-                    Preferences.save(this, Constants.KEY_FLAG_CRASH_LOG, false);
-                    firstCheck();
-                })
-                .setNeutralButton(R.string.dialog_common_check, (dialog, which) -> {
-                    startActivity(new Intent(this, CrashLogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                    finish();
-                })
-                .show();
-    }
-
-    private void firstCheck() {
-        /* 初回起動か確認 */
-        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
-            /* 初回起動ではないならサポート端末か確認 */
-            if (supportModelCheck()) {
-                /* DchaServiceを確認 */
-                checkDchaService();
+            /* 初回起動か確認 */
+            if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
+                /* 初回起動ではないならサポート端末か確認 */
+                if (supportModelCheck()) {
+                    /* DchaServiceを確認 */
+                    checkDchaService();
+                } else {
+                    supportModelError();
+                }
             } else {
-                supportModelError();
+                /* 初回起動はアップデート確認後ウォークスルー起動 */
+                /* アップデートチェック */
+                updateCheck();
             }
-        } else {
-            /* 初回起動はアップデート確認後ウォークスルー起動 */
-            /* アップデートチェック */
-            updateCheck();
         }
     }
 
@@ -178,16 +168,15 @@ public class MainActivity extends Activity implements DownloadEventListener {
         new WelcomeHelper(this, WelAppActivity.class).forceShow();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setProgress(progress);
-        progressDialog.show();
+        progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append("%"));
+        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append("/").append(totalByte));
+        dialogProgressBar.setProgress(progress);
+        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています...\nしばらくお待ち下さい..."));
     }
 
     /* アップデートダイアログ */
-    @SuppressWarnings("deprecation")
     private void showUpdateDialog(String str) {
         /* モデルIDをセット */
         switch (Build.MODEL) {
@@ -222,14 +211,21 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                    progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                    progressDialog.setMessage("お待ち下さい・・・");
-                    progressDialog.show();
                     FileDownloadTask fileDownloadTask = new FileDownloadTask();
                     fileDownloadTask.execute(this, Variables.DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
                     ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
                     progressHandler.fileDownloadTask = fileDownloadTask;
                     progressHandler.sendEmptyMessage(0);
+                    View progressView = getLayoutInflater().inflate(R.layout.view_progress, null);
+                    progressPercentText = progressView.findViewById(R.id.progress_percent);
+                    progressPercentText.setText("");
+                    progressByteText = progressView.findViewById(R.id.progress_byte);
+                    progressByteText.setText("");
+                    dialogProgressBar = progressView.findViewById(R.id.progress);
+                    dialogProgressBar.setProgress(0);
+                    progressDialog = new AlertDialog.Builder(this).setCancelable(false).setView(progressView).create();
+                    progressDialog.setMessage("");
+                    progressDialog.show();
                 })
                 .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> new WelcomeHelper(this, WelAppActivity.class).forceShow())
                 .setNeutralButton(R.string.dialog_common_settings, (dialog2, which2) -> {
@@ -324,17 +320,21 @@ public class MainActivity extends Activity implements DownloadEventListener {
                             .setCancelable(false)
                             .setView(v)
                             .setTitle(getString(R.string.dialog_title_select_mode))
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> firstCheck())
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                                finish();
+                                startActivity(new Intent(this, getClass()));
+                            })
                             .show();
                 })
                 .show();
     }
 
     /* ローディングダイアログを表示する */
-    @SuppressWarnings("deprecation")
     private void showLoadingDialog() {
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setMessage("サーバーと通信しています...");
+        View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
+        TextView textView = view.findViewById(R.id.view_progress_spinner_text);
+        textView.setText("サーバーと通信しています...");
+        progressDialog = new AlertDialog.Builder(this).setCancelable(false).setView(view).create();
         progressDialog.show();
     }
 

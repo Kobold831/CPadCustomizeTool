@@ -21,7 +21,6 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 
-import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.util.Constants;
 
 public class ProtectKeepService extends Service {
@@ -31,11 +30,6 @@ public class ProtectKeepService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
-    }
-
-    @Override
-    public void onCreate() {
-        Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(getApplicationContext()));
     }
 
     @Override

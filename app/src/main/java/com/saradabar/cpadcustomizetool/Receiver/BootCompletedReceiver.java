@@ -21,7 +21,6 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.provider.Settings;
 
-import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -32,7 +31,6 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(context));
         SharedPreferences sp = context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
 
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {

@@ -30,7 +30,6 @@ import android.os.Message;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 
-import com.saradabar.cpadcustomizetool.data.handler.CrashHandler;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
@@ -62,7 +61,6 @@ public class KeepService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(getBaseContext()));
         instance = this;
     }
 

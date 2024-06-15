@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        app:allowDividerAbove="false"
         android:title="@string/pre_app_category_start_settings">
 
         <SwitchPreferenceCompat
@@ -13,7 +12,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:allowDividerAbove="false"
         android:title="@string/pre_app_category_settings">
 
         <SwitchPreferenceCompat
@@ -23,7 +21,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:allowDividerAbove="false"
         android:title="@string/pre_app_category_update">
 
         <Preference
@@ -33,7 +30,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:allowDividerAbove="false"
         android:title="@string/pre_app_category_log">
 
         <Preference
@@ -44,5 +40,14 @@
         <Preference
             android:key="pre_app_del_crash_log"
             android:title="@string/pre_app_title_delete_crash_history" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:isPreferenceVisible="false"
+        android:title="デバッグ">
+
+        <SwitchPreferenceCompat
+            android:key="pre_app_debug_restriction"
+            android:title="" />
     </PreferenceCategory>
 </PreferenceScreen>

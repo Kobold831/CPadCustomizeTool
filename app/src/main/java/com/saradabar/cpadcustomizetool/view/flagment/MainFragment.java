@@ -591,7 +591,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preEnableDchaService.setOnPreferenceClickListener(preference -> {
             if (isCfmDialog(requireActivity())) {
                 new AlertDialog.Builder(requireActivity())
-                        .setTitle(R.string.dialog_title_dcha_service)
                         .setMessage(R.string.dialog_question_dcha_service)
                         .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                             if (!Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_CHECK, 0, 0, "", "")) {
@@ -913,7 +912,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             } else {
                 swDeviceAdmin.setChecked(true);
                 new AlertDialog.Builder(requireActivity())
-                        .setTitle(R.string.dialog_title_dcha_service)
+                        .setTitle("デバイス管理者を無効にしますか？")
                         .setMessage(R.string.dialog_question_device_admin)
                         .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                             ((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).removeActiveAdmin(new ComponentName(requireActivity(), AdministratorReceiver.class));
