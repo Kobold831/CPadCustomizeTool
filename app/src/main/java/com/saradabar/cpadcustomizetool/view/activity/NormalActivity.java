@@ -17,12 +17,10 @@ import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,11 +28,11 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.util.Toast;
 
 import java.util.Objects;
 
@@ -48,20 +46,18 @@ public class NormalActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
-
         ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
 
-        Runnable runnable = () -> {
+        bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
+        new Handler().postDelayed(() -> {
             if (!startCheck()) {
-                Toast.toast(this, R.string.toast_not_completed_settings);
+                Toast.makeText(this, R.string.toast_not_completed_settings, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
                 return;
             }
 
             if (!setSystemSettings()) {
-                Toast.toast(this, R.string.toast_not_install_launcher);
+                Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
                 return;
             }
@@ -73,12 +69,10 @@ public class NormalActivity extends Activity {
                     case "2":
                         activityManager.killBackgroundProcesses("jp.co.benesse.touch.home");
                 }
-                Toast.toast(this, R.string.toast_execution);
+                Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
             }
             finishAndRemoveTask();
-        };
-
-        new Handler().postDelayed(runnable, 10);
+        }, 10);
     }
 
     private boolean startCheck() {
@@ -86,25 +80,21 @@ public class NormalActivity extends Activity {
     }
 
     private boolean setSystemSettings() {
-        ContentResolver resolver = getContentResolver();
-
         if (Preferences.isNormalModeSettingsDchaState(this)) {
             if (isCfmDialog(this)) {
-                Settings.System.putInt(resolver, Constants.DCHA_STATE, 0);
+                Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
             }
         }
 
         if (Preferences.isNormalModeSettingsNavigationBar(this))
-            Settings.System.putInt(resolver, Constants.HIDE_NAVIGATION_BAR, 0);
+            Settings.System.putInt(getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
 
         if (Objects.equals(Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, ""), ""))
             return false;
 
         if (Preferences.isNormalModeSettingsActivity(this)) {
             try {
-                PackageManager pm = getPackageManager();
-                Intent intent = pm.getLaunchIntentForPackage(Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, ""));
-                startActivity(intent);
+                startActivity(getPackageManager().getLaunchIntentForPackage(Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, "")));
             } catch (Exception ignored) {
             }
         }
@@ -112,24 +102,26 @@ public class NormalActivity extends Activity {
     }
 
     private boolean setDchaSettings() {
-        if (!Preferences.load(getApplicationContext(), Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-            Toast.toast(getApplicationContext(), R.string.toast_use_not_dcha);
+        ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
+        ActivityInfo activityInfo = null;
+
+        if (resolveInfo != null) {
+            activityInfo = resolveInfo.activityInfo;
+        }
+
+        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+            Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        ActivityInfo activityInfo = null;
-        ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-
-        if (resolveInfo != null) activityInfo = resolveInfo.activityInfo;
-
-        if (Preferences.isNormalModeSettingsLauncher(getApplicationContext())) {
+        if (Preferences.isNormalModeSettingsLauncher(this)) {
             try {
                 if (activityInfo != null) {
                     mDchaService.clearDefaultPreferredApp(activityInfo.packageName);
-                    mDchaService.setDefaultPreferredHomeApp(Preferences.load(getApplicationContext(), Constants.KEY_NORMAL_LAUNCHER, ""));
+                    mDchaService.setDefaultPreferredHomeApp(Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, ""));
                 }
             } catch (RemoteException ignored) {
-                Toast.toast(getApplicationContext(), R.string.toast_not_install_launcher);
+                Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
             }
         }

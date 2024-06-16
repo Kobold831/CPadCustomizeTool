@@ -13,7 +13,6 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-import static com.saradabar.cpadcustomizetool.util.Common.mDhizukuService;
 import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
 
 import android.annotation.SuppressLint;
@@ -39,6 +38,7 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 
@@ -84,7 +84,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
             if (isDhizukuActive(this)) {
                 if (tryBindDhizukuService(this)) {
                     try {
-                        mDhizukuService.setUninstallBlocked(selectPackage.replace("package:", ""), !mDhizukuService.isUninstallBlocked(selectPackage.replace("package:", "")));
+                        ((MyApplication) getApplicationContext()).mDhizukuService.setUninstallBlocked(selectPackage.replace("package:", ""), !((MyApplication) getApplicationContext()).mDhizukuService.isUninstallBlocked(selectPackage.replace("package:", "")));
                     } catch (RemoteException ignored) {
                     }
                 }
@@ -102,7 +102,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 if (tryBindDhizukuService(this)) {
                     try {
                         for (AppData appData : dataList) {
-                            mDhizukuService.setUninstallBlocked(appData.packName, false);
+                            ((MyApplication) getApplicationContext()).mDhizukuService.setUninstallBlocked(appData.packName, false);
                         }
                         ((Switch) AppListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
                     } catch (RemoteException ignored) {
@@ -124,7 +124,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 if (tryBindDhizukuService(this)) {
                     try {
                         for (AppData appData : dataList) {
-                            mDhizukuService.setUninstallBlocked(appData.packName, true);
+                            ((MyApplication) getApplicationContext()).mDhizukuService.setUninstallBlocked(appData.packName, true);
                         }
                         ((Switch) AppListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
                     } catch (RemoteException ignored) {
@@ -190,7 +190,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 if (isDhizukuActive(getContext())) {
                     if (tryBindDhizukuService(getContext())) {
                         try {
-                            ((Switch) convertView.findViewById(R.id.un_switch)).setChecked(mDhizukuService.isUninstallBlocked(data.packName));
+                            ((Switch) convertView.findViewById(R.id.un_switch)).setChecked(((MyApplication) getContext().getApplicationContext()).mDhizukuService.isUninstallBlocked(data.packName));
                         } catch (Exception ignored) {
                         }
                     }

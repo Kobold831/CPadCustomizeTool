@@ -21,11 +21,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.util.Toast;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
@@ -38,25 +38,24 @@ public class RebootActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-            startReboot();
+            reboot();
         } else {
-            Toast.toast(this, R.string.toast_use_not_dcha);
+            Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
         }
     }
 
-    private void startReboot() {
+    private void reboot() {
         new AlertDialog.Builder(this)
                 .setMessage(R.string.dialog_question_reboot)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                     bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
-                    Runnable runnable = () -> {
+                    new Handler().postDelayed(() -> {
                         try {
                             mDchaService.rebootPad(0, null);
                         } catch (RemoteException ignored) {
                         }
-                    };
-                    new Handler().postDelayed(runnable, 10);
+                    }, 10);
                 })
                 .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> finishAndRemoveTask())
                 .setOnDismissListener(dialogInterface -> finishAndRemoveTask())

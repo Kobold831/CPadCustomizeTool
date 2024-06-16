@@ -13,7 +13,6 @@
 package com.saradabar.cpadcustomizetool.view.flagment;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-import static com.saradabar.cpadcustomizetool.util.Common.mDhizukuService;
 import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
 
 import android.annotation.SuppressLint;
@@ -38,6 +37,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
@@ -111,7 +111,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     if (isDhizukuActive(requireActivity())) {
                         if (tryBindDhizukuService(requireActivity())) {
                             try {
-                                mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
+                                ((MyApplication) requireActivity().getApplicationContext()).mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
                             } catch (RemoteException ignored) {
                             }
                         } else return false;
@@ -132,7 +132,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     if (isDhizukuActive(requireActivity())) {
                         if (tryBindDhizukuService(requireActivity())) {
                             try {
-                                mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_PROMPT);
+                                ((MyApplication) requireActivity().getApplicationContext()).mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_PROMPT);
                             } catch (RemoteException ignored) {
                             }
                         } else {
@@ -190,7 +190,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         if (isDhizukuActive(requireActivity())) {
                             if (tryBindDhizukuService(requireActivity())) {
                                 try {
-                                    mDhizukuService.clearDeviceOwnerApp("com.rosan.dhizuku");
+                                    ((MyApplication) requireActivity().getApplicationContext()).mDhizukuService.clearDeviceOwnerApp("com.rosan.dhizuku");
                                 } catch (RemoteException ignored) {
                                 }
                             }

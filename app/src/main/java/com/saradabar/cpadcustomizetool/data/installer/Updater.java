@@ -13,14 +13,12 @@
 package com.saradabar.cpadcustomizetool.data.installer;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-import static com.saradabar.cpadcustomizetool.util.Common.mDhizukuService;
 import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -31,13 +29,13 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.util.Toast;
-import com.saradabar.cpadcustomizetool.util.Variables;
 
 import java.io.File;
 
@@ -48,6 +46,7 @@ public class Updater implements InstallEventListener {
     AlertDialog progressDialog;
     IDchaService mDchaService;
     Activity activity;
+    String DOWNLOAD_FILE_URL;
 
     @SuppressLint("StaticFieldLeak")
     static Updater instance = null;
@@ -56,10 +55,11 @@ public class Updater implements InstallEventListener {
         return instance;
     }
 
-    public Updater(Activity act, AlertDialog progressDialog) {
+    public Updater(Activity act, String url, AlertDialog progressDialog) {
         instance = this;
         activity = act;
         this.progressDialog = progressDialog;
+        DOWNLOAD_FILE_URL = url;
     }
 
     @Override
@@ -109,8 +109,8 @@ public class Updater implements InstallEventListener {
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                     try {
                                         activity.startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_UPDATE)), Constants.REQUEST_ACTIVITY_UPDATE);
-                                    } catch (ActivityNotFoundException ignored) {
-                                        Toast.toast(activity, R.string.toast_unknown_activity);
+                                    } catch (Exception ignored) {
+                                        Toast.makeText(activity, R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
                                         activity.finish();
                                     }
                                 })
@@ -128,9 +128,9 @@ public class Updater implements InstallEventListener {
                                 .setMessage("遷移先のページよりapkファイルをダウンロードしてadbでインストールしてください")
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                     try {
-                                        activity.startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(Variables.DOWNLOAD_FILE_URL)), Constants.REQUEST_ACTIVITY_UPDATE);
-                                    } catch (ActivityNotFoundException ignored) {
-                                        Toast.toast(activity, R.string.toast_unknown_activity);
+                                        activity.startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(DOWNLOAD_FILE_URL)), Constants.REQUEST_ACTIVITY_UPDATE);
+                                    } catch (Exception ignored) {
+                                        Toast.makeText(activity, R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
                                         activity.finish();
                                     }
                                 })
@@ -242,7 +242,7 @@ public class Updater implements InstallEventListener {
                                     reqCode = Constants.REQUEST_INSTALL_GET_APP;
                                 }
 
-                                if (!mDhizukuService.tryInstallPackages(installData, reqCode)) {
+                                if (!((MyApplication) context.getApplicationContext()).mDhizukuService.tryInstallPackages(installData, reqCode)) {
                                     if (progressDialog.isShowing()) {
                                         progressDialog.cancel();
                                     }

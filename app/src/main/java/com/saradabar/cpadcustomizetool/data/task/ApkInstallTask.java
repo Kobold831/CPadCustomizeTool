@@ -1,7 +1,6 @@
 package com.saradabar.cpadcustomizetool.data.task;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-import static com.saradabar.cpadcustomizetool.util.Common.mDhizukuService;
 import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
 
 import android.content.Context;
@@ -9,6 +8,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
 
+import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.installer.SessionInstaller;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -60,7 +60,7 @@ public class ApkInstallTask {
         if (isDhizukuActive(context)) {
             if (tryBindDhizukuService(context)) {
                 try {
-                    return mDhizukuService.tryInstallPackages(splitInstallData, Constants.REQUEST_INSTALL_SILENT);
+                    return ((MyApplication) context.getApplicationContext()).mDhizukuService.tryInstallPackages(splitInstallData, Constants.REQUEST_INSTALL_SILENT);
                 } catch (RemoteException ignored) {
                 }
             }

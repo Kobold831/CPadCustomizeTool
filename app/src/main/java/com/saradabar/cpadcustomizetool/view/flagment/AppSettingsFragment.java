@@ -23,12 +23,14 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceCategory;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
 
+import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -45,8 +47,11 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
     IDchaService mDchaService;
 
+    PreferenceCategory catDebugRestriction;
+
     SwitchPreferenceCompat swUpdateCheck,
-            swUseDcha;
+            swUseDcha,
+            swDebugRestriction;
 
     Preference preCrashLog,
             preDelCrashLog,
@@ -66,9 +71,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         preCrashLog = findPreference("pre_app_crash_log");
         preDelCrashLog = findPreference("pre_app_del_crash_log");
         preUpdateMode = findPreference("pre_app_update_mode");
-
-        swUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_UPDATE, true));
-        swUseDcha.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false));
+        catDebugRestriction = (PreferenceCategory) findPreference("pre_app_category_debug");
+        swDebugRestriction = (SwitchPreferenceCompat) findPreference("pre_app_debug_restriction");
 
         swUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
             Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE, !((boolean) newValue));
@@ -185,11 +189,27 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             return false;
         });
 
+        swDebugRestriction.setOnPreferenceChangeListener((preference, newValue) -> {
+            Preferences.save(requireActivity(), "debug_restriction", (boolean) newValue);
+            return true;
+        });
+
+        initialize();
+    }
+
+    private void initialize() {
+        swUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_UPDATE, true));
+        swUseDcha.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false));
+
         if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, false)) {
             Preferences.save(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false);
             swUseDcha.setChecked(false);
             swUseDcha.setSummary(getString(R.string.pre_app_sum_confirmation_dcha));
             swUseDcha.setEnabled(false);
+        }
+
+        if (BuildConfig.DEBUG) {
+            catDebugRestriction.setVisible(true);
         }
     }
 

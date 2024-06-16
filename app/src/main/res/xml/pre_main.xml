@@ -141,7 +141,7 @@
     <Preference
         android:key="pre_reboot"
         android:title="@string/pre_main_title_reboot"
-        android:summary="チャレンジパッドを通常再起動します" />
+        android:summary="チャレンジパッドを再起動します" />
 
     <Preference
         android:key="pre_reboot_shortcut"
@@ -155,7 +155,7 @@
     <Preference
         android:key="pre_resolution"
         android:title="@string/pre_main_title_resolution"
-        android:summary="チャレンジパッドの画面解像度を任意の値に変更できます\n極端な値を入力することはできません" />
+        android:summary="チャレンジパッドの画面解像度を任意の値に変更できます" />
 
     <Preference
         android:key="pre_reset_resolution"

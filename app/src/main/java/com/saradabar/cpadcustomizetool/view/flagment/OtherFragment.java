@@ -26,11 +26,11 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.util.Toast;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
 import com.saradabar.cpadcustomizetool.view.views.LaunchAppView;
 
@@ -92,7 +92,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                 } catch (ActivityNotFoundException ignored) {
                 }
             } else {
-                Toast.toast(requireActivity(), R.string.toast_no_development_option);
+                Toast.makeText(requireActivity(), R.string.toast_no_development_option, Toast.LENGTH_SHORT).show();
             }
             return false;
         });

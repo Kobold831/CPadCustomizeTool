@@ -38,7 +38,6 @@ import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.util.Variables;
 import com.saradabar.cpadcustomizetool.view.flagment.AppSettingsFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
 
@@ -53,9 +52,12 @@ import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class StartActivity extends AppCompatActivity implements DownloadEventListener {
 
-    static StartActivity instance = null;
+    String DOWNLOAD_FILE_URL;
     Menu menu;
+
     IDchaService mDchaService;
+
+    static StartActivity instance = null;
 
     public static StartActivity getInstance() {
         return instance;
@@ -170,10 +172,12 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     public void onResume() {
         super.onResume();
         /* DchaServiceが機能していな場合は再起動 */
-        if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-            if (!bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE)) {
-                startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                finish();
+        if (!Preferences.load(this, "debug_restriction", false)) {
+            if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+                if (!bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE)) {
+                    startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                    finish();
+                }
             }
         }
     }
@@ -194,7 +198,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 JSONObject jsonObj1 = parseJson(this);
                 JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                 JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
-                Variables.DOWNLOAD_FILE_URL = jsonObj3.getString("url");
+                DOWNLOAD_FILE_URL = jsonObj3.getString("url");
 
                 if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
                     new AlertDialog.Builder(this)

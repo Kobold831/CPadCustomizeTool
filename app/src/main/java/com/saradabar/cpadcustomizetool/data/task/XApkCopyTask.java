@@ -9,7 +9,6 @@ import android.os.Looper;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
-import com.saradabar.cpadcustomizetool.util.Path;
 
 import org.zeroturnaround.zip.ZipException;
 import org.zeroturnaround.zip.ZipUtil;
@@ -82,7 +81,7 @@ public class XApkCopyTask {
             return "拡張子の変更に失敗しました";
         }
 
-        File tmpFile = new File(Path.getTemporaryPath(context));
+        File tmpFile = new File(Common.getTemporaryPath(context));
 
         /* zipを展開して外部ディレクトリに一時保存 */
         onProgressUpdate(listener, context.getString(R.string.progress_state_unpack));
@@ -175,7 +174,7 @@ public class XApkCopyTask {
         if (totalByte <= 0) return 0;
 
         if (obbPath1 == null) {
-            return (int) Common.getDirectorySize(new File(Path.getTemporaryPath(context))) / (1024 * 1024);
+            return (int) Common.getDirectorySize(new File(Common.getTemporaryPath(context))) / (1024 * 1024);
         } else {
             try {
                 return (int) Files.size(Paths.get(Environment.getExternalStorageDirectory() + "/Android/obb/" + obbPath1 + "/" + obbPath2)) / (1024 * 1024);

@@ -17,10 +17,8 @@ import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -35,6 +33,7 @@ import android.view.IWindowManager;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
+import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
 import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
@@ -63,8 +62,6 @@ import jp.co.benesse.dcha.dchaservice.IDchaService;
 import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
 
 public class Common {
-
-    public static IDhizukuService mDhizukuService;
 
     public static boolean tryBindDchaService(Context context, IDchaService iDchaService, IDchaUtilService iDchaUtilService, ServiceConnection serviceConnection, boolean isDchaService, int reqCode, int i, int i1, String s, String s1) {
         try {
@@ -142,7 +139,7 @@ public class Common {
             if (tryBindDhizukuService(context)) {
                 try {
                     for (String permission : getRuntimePermissions(context, packageName)) {
-                        mDhizukuService.setPermissionGrantState(packageName, permission, grantState);
+                        ((MyApplication) context.getApplicationContext()).mDhizukuService.setPermissionGrantState(packageName, permission, grantState);
                     }
                 } catch (RemoteException ignored) {
                 }
@@ -254,7 +251,7 @@ public class Common {
         return Dhizuku.bindUserService(args, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
+                ((MyApplication) context.getApplicationContext()).mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
             }
 
             @Override
@@ -339,28 +336,6 @@ public class Common {
         return fileSize;
     }
 
-    /* ランチャーのパッケージ名を取得 */
-    public static String getLauncherPackage(Context context) {
-        ResolveInfo resolveInfo = context.getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-
-        if (resolveInfo != null) {
-            return resolveInfo.activityInfo.packageName;
-        }
-
-        return null;
-    }
-
-    /* ランチャーのアプリ名を取得 */
-    public static String getLauncherName(Context context) {
-        ResolveInfo resolveInfo = context.getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-
-        if (resolveInfo != null) {
-            return resolveInfo.activityInfo.loadLabel(context.getPackageManager()).toString();
-        }
-
-        return null;
-    }
-
     public static boolean isRunningService(Context context, String className) {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 
@@ -373,12 +348,10 @@ public class Common {
         return false;
     }
 
-    public static boolean isAppInstalled(Context context, String packageName) {
-        try {
-            context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
-            return true;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
+    public static String getTemporaryPath(Context context) {
+        if (context != null && context.getExternalCacheDir() != null) {
+            return context.getExternalCacheDir().getPath() + "/tmp";
         }
+        return null;
     }
 }

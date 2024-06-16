@@ -44,6 +44,7 @@
 
     <PreferenceCategory
         app:isPreferenceVisible="false"
+        android:key="pre_app_category_debug"
         android:title="デバッグ">
 
         <SwitchPreferenceCompat

@@ -12,17 +12,16 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
-import com.saradabar.cpadcustomizetool.util.Toast;
 
 public class AppInfoActivity extends AppCompatActivity {
 
@@ -36,12 +35,11 @@ public class AppInfoActivity extends AppCompatActivity {
         }
 
         initialize();
-
         findViewById(R.id.download_button).setOnClickListener(view -> {
             try {
                 startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_GITHUB).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            } catch (ActivityNotFoundException ignored) {
-                Toast.toast(this, R.string.toast_unknown_activity);
+            } catch (Exception ignored) {
+                Toast.makeText(this, R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
             }
         });
     }

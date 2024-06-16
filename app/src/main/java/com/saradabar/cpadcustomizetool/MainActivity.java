@@ -18,7 +18,6 @@ import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -37,6 +36,7 @@ import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
@@ -44,11 +44,8 @@ import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
 import com.saradabar.cpadcustomizetool.data.installer.Updater;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
-import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.util.Toast;
-import com.saradabar.cpadcustomizetool.util.Variables;
 import com.saradabar.cpadcustomizetool.view.activity.CrashLogActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
@@ -73,6 +70,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
     TextView progressPercentText;
     TextView progressByteText;
     ProgressBar dialogProgressBar;
+    String DOWNLOAD_FILE_URL;
 
     IDchaService mDchaService;
 
@@ -131,7 +129,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     JSONObject jsonObj1 = parseJson(this);
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
-                    Variables.DOWNLOAD_FILE_URL = jsonObj3.getString("url");
+                    DOWNLOAD_FILE_URL = jsonObj3.getString("url");
 
                     if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
                         cancelLoadingDialog();
@@ -146,7 +144,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 break;
             /* APKダウンロード要求の場合 */
             case Constants.REQUEST_DOWNLOAD_APK:
-                new Handler().post(() -> new Updater(this, progressDialog).installApk(this, 0));
+                new Handler().post(() -> new Updater(this, DOWNLOAD_FILE_URL, progressDialog).installApk(this, 0));
                 break;
             default:
                 break;
@@ -200,8 +198,8 @@ public class MainActivity extends Activity implements DownloadEventListener {
         view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
             try {
                 startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_UPDATE_INFO).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            } catch (ActivityNotFoundException ignored) {
-                Toast.toast(this, R.string.toast_unknown_activity);
+            } catch (Exception ignored) {
+                Toast.makeText(this, R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -212,7 +210,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setCancelable(false)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                     FileDownloadTask fileDownloadTask = new FileDownloadTask();
-                    fileDownloadTask.execute(this, Variables.DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
+                    fileDownloadTask.execute(this, DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
                     ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
                     progressHandler.fileDownloadTask = fileDownloadTask;
                     progressHandler.sendEmptyMessage(0);
@@ -363,7 +361,6 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_common_error)
                 .setMessage(R.string.dialog_error_start_cpad)
-                .setIcon(R.drawable.alert)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
                 .show();
     }
@@ -377,7 +374,6 @@ public class MainActivity extends Activity implements DownloadEventListener {
                         .setCancelable(false)
                         .setTitle(R.string.dialog_title_common_error)
                         .setMessage(R.string.dialog_error_start_dcha_service)
-                        .setIcon(R.drawable.alert)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
                         .setNeutralButton(R.string.dialog_common_continue, (dialogInterface, i) -> {
                             Preferences.save(this, Constants.KEY_FLAG_DCHA_SERVICE, false);
@@ -490,7 +486,6 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_grant_permission)
                     .setMessage(R.string.dialog_error_start_permission)
-                    .setIcon(R.drawable.alert)
                     .setPositiveButton(R.string.dialog_common_settings, (dialog, which) -> {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             startActivityForResult(new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.fromParts("package", getPackageName(), null)).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION), Constants.REQUEST_ACTIVITY_PERMISSION);
@@ -538,7 +533,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
         boolean canWrite = true;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (Common.isAppInstalled(this, "jp.co.benesse.dcha.dchaservice")) {
+            if (isDchaInstalled(this)) {
                 canWrite = checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") == PackageManager.PERMISSION_GRANTED;
                 if (!canWrite) {
                     requestPermissions(new String[]{"jp.co.benesse.dcha.permission.ACCESS_SYSTEM"}, 1);
@@ -547,6 +542,15 @@ public class MainActivity extends Activity implements DownloadEventListener {
         }
 
         return canWrite;
+    }
+
+    private boolean isDchaInstalled(Context context) {
+        try {
+            context.getPackageManager().getPackageInfo("jp.co.benesse.dcha.dchaservice", PackageManager.GET_ACTIVITIES);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 
     ServiceConnection mDchaServiceConnection = new ServiceConnection() {

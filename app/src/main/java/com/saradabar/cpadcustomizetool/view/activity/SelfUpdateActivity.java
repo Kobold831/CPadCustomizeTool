@@ -13,7 +13,6 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
@@ -32,8 +32,6 @@ import com.saradabar.cpadcustomizetool.data.installer.Updater;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
-import com.saradabar.cpadcustomizetool.util.Toast;
-import com.saradabar.cpadcustomizetool.util.Variables;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,6 +45,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     TextView progressPercentText;
     TextView progressByteText;
     ProgressBar dialogProgressBar;
+    String DOWNLOAD_FILE_URL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +67,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                     JSONObject jsonObj1 = Common.parseJson(this);
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
-                    Variables.DOWNLOAD_FILE_URL = jsonObj3.getString("url");
+                    DOWNLOAD_FILE_URL = jsonObj3.getString("url");
 
                     if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
                         cancelLoadingDialog();
@@ -81,7 +80,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 }
                 break;
             case Constants.REQUEST_DOWNLOAD_APK:
-                new Handler().post(() -> new Updater(this, progressDialog).installApk(this, 0));
+                new Handler().post(() -> new Updater(this, DOWNLOAD_FILE_URL, progressDialog).installApk(this, 0));
                 break;
             default:
                 break;
@@ -94,7 +93,6 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
-                .setIcon(R.drawable.alert)
                 .setMessage(R.string.dialog_error)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> finish())
                 .show();
@@ -106,7 +104,6 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
-                .setIcon(R.drawable.alert)
                 .setMessage(R.string.dialog_error_start_connection)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> finish())
                 .show();
@@ -127,8 +124,8 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
             try {
                 startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_UPDATE_INFO).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            } catch (ActivityNotFoundException ignored) {
-                Toast.toast(this, R.string.toast_unknown_activity);
+            } catch (Exception ignored) {
+                Toast.makeText(this, R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -138,7 +135,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 .setTitle(R.string.dialog_title_update)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                     FileDownloadTask fileDownloadTask = new FileDownloadTask();
-                    fileDownloadTask.execute(this, Variables.DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
+                    fileDownloadTask.execute(this, DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
                     ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
                     progressHandler.fileDownloadTask = fileDownloadTask;
                     progressHandler.sendEmptyMessage(0);

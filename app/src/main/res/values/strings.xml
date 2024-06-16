@@ -136,7 +136,7 @@
     <string name="dialog_common_check">確認</string>
     <!-- ダイアログタイトル -->
     <string name="dialog_title_update">アプリの更新</string>
-    <string name="dialog_title_common_error">起動確認に失敗しました</string>
+    <string name="dialog_title_common_error">エラーが発生しました</string>
     <string name="dialog_title_error">エラーが発生しました</string>
     <string name="dialog_title_notice_start">はじめに</string>
     <string name="dialog_title_grant_permission">権限設定が必要です</string>
@@ -170,9 +170,9 @@
     <string name="dialog_error">エラーが発生しました</string>
     <string name="dialog_error_start_connection">サーバーと接続できませんでした\n通信状態を確認してください</string>
     <string name="dialog_error_start_wifi">通信エラーが発生しました\nネットワークに接続してください</string>
-    <string name="dialog_error_start_dcha_service">”DchaService”が動作していません\n”DchaService”を使用しない場合、”続行”を押してください</string>
+    <string name="dialog_error_start_dcha_service">DchaServiceが動作していません\n\n続行を押すと、メイン画面に戻ります</string>
     <string name="dialog_error_start_cpad">この端末はサポートされていません\nこのアプリは使用できません</string>
-    <string name="dialog_error_start_permission">システム設定の変更が許可されていません\n”設定”を押した後に表示されるスイッチを有効にして許可してください</string>
+    <string name="dialog_error_start_permission">システム設定の変更が許可されていません\n\n設定を押すと表示されるスイッチを有効にして、許可してください</string>
     <string name="dialog_error_not_work_dcha">DchaServiceが動作していないため、この機能は使用できません</string>
     <string name="dialog_error_not_work_dcha_util">DchaUtilServiceが動作していないため、この機能は使用できません</string>
     <string name="dialog_error_illegal_value">値が不正なため変更できません\n入力した値が、極端ではないことを確認してください</string>
@@ -182,7 +182,7 @@
     <string name="dialog_error_reset_update_mode">デバイスオーナーではありません\nアップデートモードをリセットしました</string>
     <string name="dialog_error_dhizuku_conn_failure">Dhizukuとの通信に失敗しました</string>
     <!-- ダイアログ操作許可 -->
-    <string name="dialog_question_reboot">デバイスを通常再起動しますか？</string>
+    <string name="dialog_question_reboot">デバイスを再起動しますか？</string>
     <string name="dialog_question_dcha_service">DchaServiceの機能を使用しますか?</string>
     <string name="dialog_question_device_owner">デバイスオーナーを解除しますか？</string>
     <string name="dialog_question_device_admin">この操作を行うと学習環境のときに、アプリがアンインストールされる可能性があります</string>
@@ -232,14 +232,14 @@
     <string name="percent">%</string>
     <string name="shortcut_reboot">再起動</string>
     <string name="logger_empty">ログはありません</string>
-    <string name="progress_state_connecting">通信中です…</string>
-    <string name="progress_state_downloading_update_file">アップデートファイルをサーバーからダウンロード中…</string>
-    <string name="progress_state_update_check">アプリの更新を確認しています…</string>
-    <string name="progress_state_rename">拡張子を変更しています…</string>
-    <string name="progress_state_unpack">圧縮ファイルを展開しています…</string>
-    <string name="progress_state_copy_file">データをコピーしています…</string>
-    <string name="progress_state_check_file">データを確認しています…</string>
-    <string name="progress_state_installing">インストールしています…</string>
+    <string name="progress_state_connecting">通信しています・・・</string>
+    <string name="progress_state_downloading_update_file">アップデートファイルをサーバーからダウンロードしています・・・</string>
+    <string name="progress_state_update_check">アプリの更新を確認しています・・・</string>
+    <string name="progress_state_rename">拡張子を変更しています・・・</string>
+    <string name="progress_state_unpack">圧縮ファイルを展開しています・・・</string>
+    <string name="progress_state_copy_file">データをコピーしています・・・</string>
+    <string name="progress_state_check_file">データを確認しています・・・</string>
+    <string name="progress_state_installing">インストールしています・・・</string>
 
     <!-- インストーラー -->
     <string name="installer_status_user_action">ユーザの確認待ち</string>
