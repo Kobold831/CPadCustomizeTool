@@ -2,6 +2,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <Preference
+        app:selectable="false"
+        android:key="pre_owner_now_set_own_pkg" />
+
     <PreferenceCategory>
 
         <Preference
@@ -27,9 +31,5 @@
         <Preference
             android:key="pre_owner_clr_dev_own"
             android:title="@string/pre_owner_title_device_owner" />
-
-        <Preference
-            app:selectable="false"
-            android:key="pre_owner_now_set_own_pkg" />
     </PreferenceCategory>
 </PreferenceScreen>

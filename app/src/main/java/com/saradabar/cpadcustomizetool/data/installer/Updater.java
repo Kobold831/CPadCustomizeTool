@@ -13,7 +13,6 @@
 package com.saradabar.cpadcustomizetool.data.installer;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -31,9 +30,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rosan.dhizuku.api.Dhizuku;
+import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
+import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
+import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
@@ -149,7 +152,7 @@ public class Updater implements InstallEventListener {
                 progressDialog.show();
 
                 if (tryBindDchaService()) {
-                    Runnable runnable = () -> {
+                    new Handler().postDelayed(() -> {
                         if (!tryInstallPackage()) {
                             if (progressDialog.isShowing()) {
                                 progressDialog.cancel();
@@ -165,8 +168,7 @@ public class Updater implements InstallEventListener {
                                 progressDialog.cancel();
                             }
                         }
-                    };
-                    new Handler().postDelayed(runnable, 10);
+                    }, 10);
                 } else {
                     if (progressDialog.isShowing()) {
                         progressDialog.cancel();
@@ -229,8 +231,8 @@ public class Updater implements InstallEventListener {
                 progressDialog.show();
 
                 if (isDhizukuActive(activity)) {
-                    if (tryBindDhizukuService(activity)) {
-                        Runnable runnable = () -> {
+                    if (tryBindDhizukuService()) {
+                        new Handler().postDelayed(() -> {
                             try {
                                 String[] installData = new String[1];
                                 installData[0] = new File(activity.getExternalCacheDir(), "update.apk").getPath();
@@ -255,8 +257,7 @@ public class Updater implements InstallEventListener {
                                 }
                             } catch (RemoteException ignored) {
                             }
-                        };
-                        new Handler().postDelayed(runnable, 5000);
+                        }, 5000);
                         return;
                     } else {
                         if (progressDialog.isShowing()) {
@@ -339,5 +340,19 @@ public class Updater implements InstallEventListener {
         } catch (Exception ignored) {
             return false;
         }
+    }
+
+    private boolean tryBindDhizukuService() {
+        DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(activity, DhizukuService.class));
+        return Dhizuku.bindUserService(args, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                ((MyApplication) activity.getApplicationContext()).mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+            }
+        });
     }
 }

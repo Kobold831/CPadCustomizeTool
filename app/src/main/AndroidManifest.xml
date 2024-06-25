@@ -125,6 +125,11 @@
             android:label=""
             android:configChanges="keyboardHidden|screenSize|orientation" />
 
+        <activity
+            android:name=".view.activity.EditAdminActivity"
+            android:theme="@style/ActionBarTheme"
+            android:configChanges="keyboardHidden|screenSize|orientation" />
+
         <service
             android:name=".data.service.KeepService"
             android:label="@string/service_keep"

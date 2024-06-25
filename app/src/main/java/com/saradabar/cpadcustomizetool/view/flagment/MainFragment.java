@@ -15,10 +15,8 @@ package com.saradabar.cpadcustomizetool.view.flagment;
 import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
-import static com.saradabar.cpadcustomizetool.util.Common.tryBindDhizukuService;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
@@ -58,12 +56,14 @@ import android.widget.Toast;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
+import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
 import com.saradabar.cpadcustomizetool.data.installer.Updater;
+import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 import com.saradabar.cpadcustomizetool.data.task.DchaInstallTask;
@@ -72,6 +72,7 @@ import com.saradabar.cpadcustomizetool.data.task.ResolutionTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
+import com.saradabar.cpadcustomizetool.view.activity.EditAdminActivity;
 import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NormalActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
@@ -137,6 +138,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preResolution,
             preResetResolution,
             preDeviceOwnerFn,
+            preEditAdmin,
             preDhizukuPermissionReq,
             preSystemUpdate,
             preGetApp;
@@ -189,6 +191,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preResetResolution = findPreference("pre_reset_resolution");
         preSystemUpdate = findPreference("pre_system_update");
         preDeviceOwnerFn = findPreference("pre_device_owner_fn");
+        preEditAdmin = findPreference("pre_edit_admin");
         preDhizukuPermissionReq = findPreference("pre_dhizuku_permission_req");
         swDeviceAdmin = (SwitchPreferenceCompat) findPreference("pre_device_admin");
         preGetApp = findPreference("pre_get_app");
@@ -852,22 +855,19 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         preDeviceOwnerFn.setOnPreferenceClickListener(preference -> {
             if (Common.isDhizukuActive(requireActivity())) {
-                if (tryBindDhizukuService(requireActivity())) {
-                    AlertDialog alertDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setMessage("お待ち下さい...").create();
-                    alertDialog.show();
-
-                    new Handler().postDelayed(() -> {
-                        if (alertDialog.isShowing()) {
-                            alertDialog.dismiss();
-                        }
-
+                requireActivity().runOnUiThread(() -> {
+                    if (tryBindDhizukuService()) {
                         StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
-                    }, 3000);
-                }
+                    }
+                });
             } else {
                 StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
             }
+            return false;
+        });
 
+        preEditAdmin.setOnPreferenceClickListener(preference -> {
+            startActivity(new Intent(requireActivity(), EditAdminActivity.class));
             return false;
         });
 
@@ -1352,12 +1352,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @Override
     public void onResume() {
         super.onResume();
-        ActionBar actionBar = requireActivity().getActionBar();
-
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(false);
-        }
-
+        //Objects.requireNonNull(requireActivity().getActionBar()).setDisplayHomeAsUpEnabled(false);
         /* 一括変更 */
         initialize();
     }
@@ -1414,7 +1409,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             /* プログレスバーの表示 */
             @Override
             public void onShow() {
-                preSilentInstall.setSummary(getString(R.string.progress_state_installing));
                 progressDialog = new ProgressDialog(requireActivity());
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 progressDialog.setMessage(getString(R.string.progress_state_installing));
@@ -1424,8 +1418,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             /* 成功 */
             @Override
             public void onSuccess() {
-                preSilentInstall.setSummary(R.string.pre_main_sum_silent_install);
-
                 if (progressDialog.isShowing()) {
                     progressDialog.cancel();
                 }
@@ -1440,8 +1432,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             /* 失敗 */
             @Override
             public void onFailure() {
-                preSilentInstall.setSummary(R.string.pre_main_sum_silent_install);
-
                 if (progressDialog.isShowing()) {
                     progressDialog.cancel();
                 }
@@ -1666,5 +1656,18 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 .setCancelable(false)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                 .show();
+    }
+
+    private boolean tryBindDhizukuService() {
+        DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(requireActivity(), DhizukuService.class));
+        return Dhizuku.bindUserService(args, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder iBinder) {
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+            }
+        });
     }
 }

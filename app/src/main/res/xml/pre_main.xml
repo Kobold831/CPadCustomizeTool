@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         android:title="@string/pre_main_category_system_ui"
@@ -174,6 +175,11 @@
         android:key="pre_device_owner_fn"
         android:title="@string/pre_main_title_device_owner"
         android:summary="アンインストールブロック、サイレントインストール" />
+
+    <Preference
+        app:isPreferenceVisible="false"
+        android:key="pre_edit_admin"
+        android:title="" />
 
     <Preference
         android:key="pre_dhizuku_permission_req"

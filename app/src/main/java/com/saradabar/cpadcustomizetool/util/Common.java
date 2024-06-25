@@ -15,16 +15,12 @@ package com.saradabar.cpadcustomizetool.util;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
@@ -32,11 +28,6 @@ import android.view.Display;
 import android.view.IWindowManager;
 
 import com.rosan.dhizuku.api.Dhizuku;
-import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
-import com.saradabar.cpadcustomizetool.MyApplication;
-import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
-import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
-import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,8 +42,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -133,43 +122,6 @@ public class Common {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
-    public static void setPermissionGrantState(Context context, String packageName, int grantState) {
-        if (isDhizukuActive(context)) {
-            if (tryBindDhizukuService(context)) {
-                try {
-                    for (String permission : getRuntimePermissions(context, packageName)) {
-                        ((MyApplication) context.getApplicationContext()).mDhizukuService.setPermissionGrantState(packageName, permission, grantState);
-                    }
-                } catch (RemoteException ignored) {
-                }
-            }
-        } else {
-            DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-            for (String permission : getRuntimePermissions(context, packageName)) {
-                dpm.setPermissionGrantState(new ComponentName(context, AdministratorReceiver.class), packageName, permission, grantState);
-            }
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.M)
-    public static String[] getRuntimePermissions(Context context, String packageName) {
-        return new ArrayList<>(Arrays.asList(getRequiredPermissions(context, packageName))).toArray(new String[0]);
-    }
-
-    public static String[] getRequiredPermissions(Context context, String packageName) {
-        try {
-            String[] str = context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS).requestedPermissions;
-            if (str != null && str.length > 0) {
-                return str;
-            } else {
-                return new String[0];
-            }
-        } catch (Exception ignored) {
-            return new String[0];
-        }
-    }
-
     public static String getNowDate() {
         DateFormat df = new SimpleDateFormat("MMM dd HH:mm:ss.SSS z yyyy", Locale.ENGLISH);
         return df.format(System.currentTimeMillis());
@@ -244,20 +196,6 @@ public class Common {
             }
         }
         return false;
-    }
-
-    public static boolean tryBindDhizukuService(Context context) {
-        DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
-        return Dhizuku.bindUserService(args, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                ((MyApplication) context.getApplicationContext()).mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        });
     }
 
     public static boolean isCfmDialog(Context context) {
