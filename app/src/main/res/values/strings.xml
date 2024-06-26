@@ -232,14 +232,14 @@
     <string name="percent">%</string>
     <string name="shortcut_reboot">再起動</string>
     <string name="logger_empty">ログはありません</string>
-    <string name="progress_state_connecting">通信しています・・・</string>
-    <string name="progress_state_downloading_update_file">アップデートファイルをサーバーからダウンロードしています・・・</string>
-    <string name="progress_state_update_check">アプリの更新を確認しています・・・</string>
-    <string name="progress_state_rename">拡張子を変更しています・・・</string>
-    <string name="progress_state_unpack">圧縮ファイルを展開しています・・・</string>
-    <string name="progress_state_copy_file">データをコピーしています・・・</string>
-    <string name="progress_state_check_file">データを確認しています・・・</string>
-    <string name="progress_state_installing">インストールしています・・・</string>
+    <string name="progress_state_connecting">通信しています…</string>
+    <string name="progress_state_downloading_update_file">アップデートファイルをサーバーからダウンロードしています…</string>
+    <string name="progress_state_update_check">アプリの更新を確認しています…</string>
+    <string name="progress_state_rename">拡張子を変更しています…</string>
+    <string name="progress_state_unpack">圧縮ファイルを展開しています…</string>
+    <string name="progress_state_copy_file">データをコピーしています…</string>
+    <string name="progress_state_check_file">データを確認しています…</string>
+    <string name="progress_state_installing">インストールしています…</string>
 
     <!-- インストーラー -->
     <string name="installer_status_user_action">ユーザの確認待ち</string>

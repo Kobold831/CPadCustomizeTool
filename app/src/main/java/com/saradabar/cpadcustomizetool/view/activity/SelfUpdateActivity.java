@@ -14,6 +14,7 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -29,9 +30,11 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
 import com.saradabar.cpadcustomizetool.data.installer.Updater;
+import com.saradabar.cpadcustomizetool.data.task.DchaInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,7 +58,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        showLoadingDialog();
+        showLoadingDialog("サーバーと通信しています…");
         new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
     }
 
@@ -80,7 +83,79 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 }
                 break;
             case Constants.REQUEST_DOWNLOAD_APK:
-                new Handler().post(() -> new Updater(this, DOWNLOAD_FILE_URL, progressDialog).installApk(this, 0));
+                if (progressDialog.isShowing()) {
+                    progressDialog.cancel();
+                }
+                switch (Preferences.load(this, Constants.KEY_FLAG_UPDATE_MODE, 1)) {
+                    case 0:
+                        startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
+                        break;
+                    case 1:
+                        new AlertDialog.Builder(this)
+                                .setCancelable(false)
+                                .setTitle("インストール")
+                                .setMessage("遷移先のページよりapkファイルをダウンロードしてadbでインストールしてください")
+                                .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
+                                    try {
+                                        startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(DOWNLOAD_FILE_URL)), Constants.REQUEST_ACTIVITY_UPDATE);
+                                    } catch (Exception ignored) {
+                                        Toast.makeText(this, R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
+                                })
+                                .setNegativeButton("キャンセル", null)
+                                .show();
+                        break;
+                    case 2:
+                        showLoadingDialog(getString(R.string.progress_state_installing));
+                        new DchaInstallTask().execute(this, dchaInstallTaskListener(), new File(getExternalCacheDir(), "update.apk").getPath());
+                        break;
+                    case 3:
+                        showLoadingDialog(getString(R.string.progress_state_installing));
+                        switch (new Updater(this, DOWNLOAD_FILE_URL).ownerInstallApk(0)) {
+                            case 0:
+                                break;
+                            case 1:
+                                if (progressDialog.isShowing()) {
+                                    progressDialog.cancel();
+                                }
+
+                                new AlertDialog.Builder(this)
+                                        .setCancelable(false)
+                                        .setMessage(getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
+                                        .setPositiveButton(R.string.dialog_common_ok, null)
+                                        .show();
+                                break;
+                            case 2:
+                                if (progressDialog.isShowing()) {
+                                    progressDialog.cancel();
+                                }
+
+                                new AlertDialog.Builder(this)
+                                        .setCancelable(false)
+                                        .setMessage(getString(R.string.dialog_error_reset_update_mode))
+                                        .setPositiveButton(R.string.dialog_common_ok, null)
+                                        .show();
+                                break;
+                        }
+                        break;
+                    case 4:
+                        showLoadingDialog(getString(R.string.progress_state_installing));
+                        new Handler().postDelayed(() -> {
+                            if (!new Updater(this, "").dhizukuInstallApk(1)) {
+                                if (progressDialog.isShowing()) {
+                                    progressDialog.cancel();
+                                }
+
+                                new AlertDialog.Builder(this)
+                                        .setCancelable(false)
+                                        .setMessage(getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
+                                        .setPositiveButton(R.string.dialog_common_ok, null)
+                                        .show();
+                            }
+                        }, 5000);
+                        break;
+                }
                 break;
             default:
                 break;
@@ -112,9 +187,47 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
         progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append("%"));
-        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append("/").append(totalByte));
+        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append("/").append(totalByte).append(" MB"));
         dialogProgressBar.setProgress(progress);
-        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています...\nしばらくお待ち下さい..."));
+        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています…\nしばらくお待ち下さい…"));
+    }
+
+    private DchaInstallTask.Listener dchaInstallTaskListener() {
+        return new DchaInstallTask.Listener() {
+
+            /* プログレスバーの表示 */
+            @Override
+            public void onShow() {
+            }
+
+            /* 成功 */
+            @Override
+            public void onSuccess() {
+                if (progressDialog.isShowing()) {
+                    progressDialog.cancel();
+                }
+
+                new AlertDialog.Builder(SelfUpdateActivity.this)
+                        .setMessage(R.string.dialog_info_success_silent_install)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            /* 失敗 */
+            @Override
+            public void onFailure() {
+                if (progressDialog.isShowing()) {
+                    progressDialog.cancel();
+                }
+
+                new AlertDialog.Builder(SelfUpdateActivity.this)
+                        .setMessage(R.string.dialog_info_failure_silent_install)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+        };
     }
 
     private void showUpdateDialog(String str) {
@@ -164,10 +277,10 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 .show();
     }
 
-    private void showLoadingDialog() {
+    private void showLoadingDialog(String message) {
         View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
         TextView textView = view.findViewById(R.id.view_progress_spinner_text);
-        textView.setText("サーバーと通信しています...");
+        textView.setText(message);
         progressDialog = new AlertDialog.Builder(this).setCancelable(false).setView(view).create();
         progressDialog.show();
     }
