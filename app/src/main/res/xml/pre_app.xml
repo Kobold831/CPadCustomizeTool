@@ -18,6 +18,14 @@
             android:key="pre_app_use_dcha"
             android:title="@string/pre_app_title_dcha"
             android:summary="@string/pre_app_sum_dcha" />
+
+        <Preference
+            android:title="キャッシュをクリア"
+            android:summary="このアプリの不要ファイルを消去します" />
+
+        <Preference
+            android:title="ユーザーデータをクリア"
+            android:summary="このアプリのデータを消去します" />
     </PreferenceCategory>
 
     <PreferenceCategory

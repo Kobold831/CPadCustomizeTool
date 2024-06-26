@@ -12,12 +12,9 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -68,6 +65,7 @@ import java.util.Arrays;
 public class DeviceOwnerFragment extends PreferenceFragmentCompat implements InstallEventListener {
 
     String[] splitInstallData = new String[128];
+    AlertDialog progressDialog;
 
     public Preference preUninstallBlock,
             preSessionInstall,
@@ -117,7 +115,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     swPrePermissionFrc.setChecked(true);
                     swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_forced));
 
-                    if (isDhizukuActive(requireActivity())) {
+                    if (Common.isDhizukuActive(requireActivity())) {
                         if (tryBindDhizukuService()) {
                             try {
                                 ((MyApplication) requireActivity().getApplicationContext()).mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
@@ -138,7 +136,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     swPrePermissionFrc.setChecked(false);
                     swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
 
-                    if (isDhizukuActive(requireActivity())) {
+                    if (Common.isDhizukuActive(requireActivity())) {
                         if (tryBindDhizukuService()) {
                             try {
                                 ((MyApplication) requireActivity().getApplicationContext()).mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_PROMPT);
@@ -196,7 +194,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             new AlertDialog.Builder(requireActivity())
                     .setMessage(R.string.dialog_question_device_owner)
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                        if (isDhizukuActive(requireActivity())) {
+                        if (Common.isDhizukuActive(requireActivity())) {
                             if (tryBindDhizukuService()) {
                                 try {
                                     ((MyApplication) requireActivity().getApplicationContext()).mDhizukuService.clearDeviceOwnerApp("com.rosan.dhizuku");
@@ -269,7 +267,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 }
             }
         } else {
-            if (!isDhizukuActive(requireActivity())) {
+            if (!Common.isDhizukuActive(requireActivity())) {
                 preUninstallBlock.setEnabled(false);
                 preUninstallBlock.setSummary(getString(R.string.pre_owner_sum_not_use_function));
                 preClrDevOwn.setEnabled(false);
@@ -322,7 +320,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
                 /* ファイルの拡張子 */
                 if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
-                    new ApkInstallTask().execute(requireActivity(), apkListener(), splitInstallData);
+                    new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), splitInstallData);
                     return;
                 } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".xapk")) {
                     new XApkCopyTask().execute(requireActivity(), xApkListener(), splitInstallData);
@@ -386,35 +384,18 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         }
     }
 
-    @SuppressWarnings("deprecation")
-    public ApkInstallTask.Listener apkListener() {
+    public ApkInstallTask.Listener apkInstallTaskListener() {
         return new ApkInstallTask.Listener() {
-
-            ProgressDialog progressDialog;
 
             /* プログレスバーの表示 */
             @Override
             public void onShow() {
-                preSessionInstall.setSummary(getString(R.string.progress_state_installing));
-                progressDialog = new ProgressDialog(requireActivity());
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.setMessage(getString(R.string.progress_state_installing));
-                progressDialog.show();
+                showLoadingDialog(getString(R.string.progress_state_installing));
             }
 
             /* 成功 */
             @Override
             public void onSuccess() {
-                if (progressDialog.isShowing()) {
-                    progressDialog.cancel();
-                }
-
-                if (MainFragment.getInstance() != null) {
-                    if (MainFragment.getInstance().isAdded()) {
-                        MainFragment.getInstance().initialize();
-                    }
-                }
-
                 try {
                     /* 一時ファイルを消去 */
                     File tmpFile = StartActivity.getInstance().getExternalCacheDir();
@@ -422,13 +403,15 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
                     }
-                } catch (IOException ignored) {
+                } catch (Exception ignored) {
                 }
+
+                cancelLoadingDialog();
 
                 AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.getInstance())
                         .setMessage(R.string.dialog_info_success_silent_install)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .create();
 
                 if (!alertDialog.isShowing()) {
@@ -439,16 +422,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             /* 失敗 */
             @Override
             public void onFailure(String message) {
-                if (progressDialog.isShowing()) {
-                    progressDialog.cancel();
-                }
-
-                if (MainFragment.getInstance() != null) {
-                    if (MainFragment.getInstance().isAdded()) {
-                        MainFragment.getInstance().initialize();
-                    }
-                }
-
                 try {
                     /* 一時ファイルを消去 */
                     File tmpFile = StartActivity.getInstance().getExternalCacheDir();
@@ -456,28 +429,20 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
                     }
-                } catch (IOException ignored) {
+                } catch (Exception ignored) {
                 }
+
+                cancelLoadingDialog();
 
                 new AlertDialog.Builder(StartActivity.getInstance())
                         .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
 
             @Override
             public void onError(String message) {
-                if (progressDialog.isShowing()) {
-                    progressDialog.cancel();
-                }
-
-                if (MainFragment.getInstance() != null) {
-                    if (MainFragment.getInstance().isAdded()) {
-                        MainFragment.getInstance().initialize();
-                    }
-                }
-
                 try {
                     /* 一時ファイルを消去 */
                     File tmpFile = StartActivity.getInstance().getExternalCacheDir();
@@ -485,13 +450,15 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
                     }
-                } catch (IOException ignored) {
+                } catch (Exception ignored) {
                 }
+
+                cancelLoadingDialog();
 
                 new AlertDialog.Builder(StartActivity.getInstance())
                         .setMessage(getString(R.string.dialog_error) + "\n" + message)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
         };
@@ -534,7 +501,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onSuccess() {
                 alertDialog.dismiss();
-                new ApkInstallTask().execute(requireActivity(), apkListener(), splitInstallData);
+                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), splitInstallData);
             }
 
             @Override
@@ -621,7 +588,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onSuccess() {
                 alertDialog.dismiss();
-                new ApkInstallTask().execute(requireActivity(), apkListener(), splitInstallData);
+                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), splitInstallData);
             }
 
             @Override
@@ -674,21 +641,21 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     @Override
     public void onInstallSuccess(int reqCode) {
         if (reqCode == Constants.REQUEST_INSTALL_SILENT) {
-            apkListener().onSuccess();
+            apkInstallTaskListener().onSuccess();
         }
     }
 
     @Override
     public void onInstallFailure(int reqCode, String message) {
         if (reqCode == Constants.REQUEST_INSTALL_SILENT) {
-            apkListener().onFailure(message);
+            apkInstallTaskListener().onFailure(message);
         }
     }
 
     @Override
     public void onInstallError(int reqCode, String message) {
         if (reqCode == Constants.REQUEST_INSTALL_SILENT) {
-            apkListener().onError(message);
+            apkInstallTaskListener().onError(message);
         }
     }
 
@@ -740,6 +707,22 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             }
         } catch (Exception ignored) {
             return new String[0];
+        }
+    }
+
+    /* ローディングダイアログを表示する */
+    private void showLoadingDialog(String message) {
+        View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
+        TextView textView = view.findViewById(R.id.view_progress_spinner_text);
+        textView.setText(message);
+        progressDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
+        progressDialog.show();
+    }
+
+    /* ローディングダイアログを非表示にする */
+    private void cancelLoadingDialog() {
+        if (progressDialog.isShowing()) {
+            progressDialog.cancel();
         }
     }
 }

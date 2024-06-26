@@ -182,7 +182,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
                                 new AlertDialog.Builder(this)
                                         .setCancelable(false)
-                                        .setMessage(getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
+                                        .setMessage(getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→インストールモードを選択”が有効なモードに設定されているかをご確認ください")
                                         .setPositiveButton(R.string.dialog_common_ok, null)
                                         .show();
                                 break;
@@ -209,7 +209,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
                                 new AlertDialog.Builder(this)
                                         .setCancelable(false)
-                                        .setMessage(getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→アップデートモードを選択”が有効なモードに設定されているかをご確認ください")
+                                        .setMessage(getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→インストールモードを選択”が有効なモードに設定されているかをご確認ください")
                                         .setPositiveButton(R.string.dialog_common_ok, null)
                                         .show();
                             }
@@ -314,7 +314,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_title_update)
-                .setMessage("アップデートモードを変更するには”設定”を押下してください")
+                .setMessage("インストールモードを変更するには”設定”を押下してください")
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
