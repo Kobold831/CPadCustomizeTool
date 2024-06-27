@@ -14,7 +14,9 @@ package com.saradabar.cpadcustomizetool.view.flagment;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.Service;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -55,7 +57,9 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
     Preference preCrashLog,
             preDelCrashLog,
-            preUpdateMode;
+            preUpdateMode,
+            preClearCache,
+            preClearData;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,6 +77,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         preUpdateMode = findPreference("pre_app_update_mode");
         catDebugRestriction = (PreferenceCategory) findPreference("pre_app_category_debug");
         swDebugRestriction = (SwitchPreferenceCompat) findPreference("pre_app_debug_restriction");
+        preClearCache = findPreference("pre_app_clear_cache");
+        preClearData = findPreference("pre_app_clear_data");
 
         swUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
             Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE, !((boolean) newValue));
@@ -192,6 +198,41 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         swDebugRestriction.setOnPreferenceChangeListener((preference, newValue) -> {
             Preferences.save(requireActivity(), "debug_restriction", (boolean) newValue);
             return true;
+        });
+
+        preClearCache.setOnPreferenceClickListener(preference -> {
+            new AlertDialog.Builder(requireActivity())
+                    .setMessage("消去しますか？")
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        if (requireActivity().getCacheDir().delete()) {
+                            if (Common.deleteDirectory(requireActivity().getExternalCacheDir())) {
+                                new AlertDialog.Builder(requireActivity())
+                                        .setMessage("消去しました")
+                                        .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                                        .show();
+                                return;
+                            }
+                        }
+                        new AlertDialog.Builder(requireActivity())
+                                .setMessage("消去できませんでした")
+                                .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                                .show();
+                    })
+                    .setNegativeButton("キャンセル", null)
+                    .show();
+            return false;
+        });
+
+        preClearData.setOnPreferenceClickListener(preference -> {
+            new AlertDialog.Builder(requireActivity())
+                    .setMessage("消去しますか？\nOKを押下すると、アプリは終了します")
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        ActivityManager activityManager = (ActivityManager) requireActivity().getSystemService(Service.ACTIVITY_SERVICE);
+                        activityManager.clearApplicationUserData();
+                    })
+                    .setNegativeButton("キャンセル", null)
+                    .show();
+            return false;
         });
 
         initialize();

@@ -20,10 +20,12 @@
             android:summary="@string/pre_app_sum_dcha" />
 
         <Preference
+            android:key="pre_app_clear_cache"
             android:title="キャッシュをクリア"
             android:summary="このアプリの不要ファイルを消去します" />
 
         <Preference
+            android:key="pre_app_clear_data"
             android:title="ユーザーデータをクリア"
             android:summary="このアプリのデータを消去します" />
     </PreferenceCategory>

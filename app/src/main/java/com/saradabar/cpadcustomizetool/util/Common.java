@@ -292,4 +292,20 @@ public class Common {
         }
         return null;
     }
+
+    public static boolean deleteDirectory(File file) {
+        if (file != null && file.isDirectory()) {
+            String[] fileList = file.list();
+            if (fileList != null) {
+                for (String s : fileList) {
+                    File f = new File(file, s);
+                    if (!f.delete()) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 }
