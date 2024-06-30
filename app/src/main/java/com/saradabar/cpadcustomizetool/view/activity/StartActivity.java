@@ -79,13 +79,31 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 FrameLayout frameLayout = findViewById(R.id.layout_main);
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
-                marginLayoutParams.setMargins(72, 0, 72, 0);
+                switch (Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+                    case Constants.MODEL_CT2:
+                    case Constants.MODEL_CT3:
+                        marginLayoutParams.setMargins(64, 0, 64, 0);
+                        break;
+                    case Constants.MODEL_CTX:
+                    case Constants.MODEL_CTZ:
+                        marginLayoutParams.setMargins(72, 0, 72, 0);
+                        break;
+                }
                 frameLayout.setLayoutParams(marginLayoutParams);
             } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 FrameLayout frameLayout = findViewById(R.id.layout_main);
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
-                marginLayoutParams.setMargins(144, 0, 144, 0);
+                switch (Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+                    case Constants.MODEL_CT2:
+                    case Constants.MODEL_CT3:
+                        marginLayoutParams.setMargins(112, 0, 112, 0);
+                        break;
+                    case Constants.MODEL_CTX:
+                    case Constants.MODEL_CTZ:
+                        marginLayoutParams.setMargins(144, 0, 144, 0);
+                        break;
+                }
                 frameLayout.setLayoutParams(marginLayoutParams);
             }
         }
@@ -228,17 +246,35 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (supportModelCheck()) {
-            if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                 FrameLayout frameLayout = findViewById(R.id.layout_main);
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
-                marginLayoutParams.setMargins(72, 0, 72, 0);
+                switch (Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+                    case Constants.MODEL_CT2:
+                    case Constants.MODEL_CT3:
+                        marginLayoutParams.setMargins(64, 0, 64, 0);
+                        break;
+                    case Constants.MODEL_CTX:
+                    case Constants.MODEL_CTZ:
+                        marginLayoutParams.setMargins(72, 0, 72, 0);
+                        break;
+                }
                 frameLayout.setLayoutParams(marginLayoutParams);
-            } else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 FrameLayout frameLayout = findViewById(R.id.layout_main);
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
-                marginLayoutParams.setMargins(144, 0, 144, 0);
+                switch (Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+                    case Constants.MODEL_CT2:
+                    case Constants.MODEL_CT3:
+                        marginLayoutParams.setMargins(112, 0, 112, 0);
+                        break;
+                    case Constants.MODEL_CTX:
+                    case Constants.MODEL_CTZ:
+                        marginLayoutParams.setMargins(144, 0, 144, 0);
+                        break;
+                }
                 frameLayout.setLayoutParams(marginLayoutParams);
             }
         }
