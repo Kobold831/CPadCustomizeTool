@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory>
 
@@ -19,6 +20,16 @@
             android:key="pre_other_screen_off_time"
             android:title="@string/pre_other_title_screen_off_time"
             android:summary="スクリーンがタイムアウトするまでの時間を変更します" />
+
+        <Preference
+            app:isPreferenceVisible="false"
+            android:key="pre_other_sleep_timeout"
+            android:title="sleep_timeout" />
+
+        <Preference
+            app:isPreferenceVisible="false"
+            android:title="内部設定変更"
+            android:summary="通常では変更できない設定を変更します\n設定、値の入力が必須です" />
 
         <Preference
             android:key="pre_other_web_view"

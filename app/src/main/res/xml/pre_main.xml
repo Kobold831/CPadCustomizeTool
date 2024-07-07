@@ -179,7 +179,7 @@
     <Preference
         app:isPreferenceVisible="false"
         android:key="pre_edit_admin"
-        android:title="" />
+        android:title="デバイス管理者の編集" />
 
     <Preference
         android:key="pre_dhizuku_permission_req"
@@ -199,4 +199,9 @@
         android:key="pre_get_app"
         android:title="アプリを取得"
         android:summary="@string/pre_main_sum_get_app" />
+
+    <Preference
+        app:isPreferenceVisible="false"
+        android:title="EnableGPlay"
+        android:summary="この機能は単体で可能な限り、Googleを利用可能にします" />
 </PreferenceScreen>

@@ -12,10 +12,7 @@
 
 package com.saradabar.cpadcustomizetool.util;
 
-import static android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences;
-
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import java.util.Set;
 
@@ -23,38 +20,37 @@ public class Preferences {
 
     /* データ管理 */
     public static void save(Context context, String key, int value) {
-        getDefaultSharedPreferences(context).edit().putInt(key, value).apply();
+        context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putInt(key, value).apply();
     }
 
     public static void save(Context context, String key, boolean value) {
-        getDefaultSharedPreferences(context).edit().putBoolean(key, value).apply();
+        context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(key, value).apply();
     }
 
     public static void save(Context context, String key, String value) {
-        getDefaultSharedPreferences(context).edit().putString(key, value).apply();
+        context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putString(key, value).apply();
     }
 
     public static int load(Context context, String key, int value) {
-        return getDefaultSharedPreferences(context).getInt(key, value);
+        return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getInt(key, value);
     }
 
     public static boolean load(Context context, String key, boolean value) {
-        return getDefaultSharedPreferences(context).getBoolean(key, value);
+        return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getBoolean(key, value);
     }
 
     public static String load(Context context, String key, String value) {
-        return getDefaultSharedPreferences(context).getString(key, value);
+        return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getString(key, value);
     }
 
     public static boolean delete(Context context, String key) {
-        getDefaultSharedPreferences(context).edit().remove(key).apply();
+        context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().remove(key).apply();
         return true;
     }
 
     /* マルチリストのデータ取得 */
     public static Set<String> getEmergencySettings(Context context) {
-        SharedPreferences preferences = getDefaultSharedPreferences(context);
-        return preferences.getStringSet(Constants.KEY_EMERGENCY_SETTINGS, null);
+        return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getStringSet(Constants.KEY_EMERGENCY_SETTINGS, null);
     }
 
     public static boolean isEmergencySettingsDchaState(Context context) {
@@ -94,8 +90,7 @@ public class Preferences {
     }
 
     private static Set<String> getNormalModeSettings(Context context) {
-        SharedPreferences preferences = getDefaultSharedPreferences(context);
-        return preferences.getStringSet(Constants.KEY_NORMAL_SETTINGS, null);
+        return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getStringSet(Constants.KEY_NORMAL_SETTINGS, null);
     }
 
     public static boolean isNormalModeSettingsDchaState(Context context) {

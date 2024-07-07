@@ -48,6 +48,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
             preStartUiAdjustment,
             preStartDevSettings,
             preScreenOffTimeOut,
+            preSleepTimeout,
             preWebView,
             preLaunchApp;
 
@@ -64,6 +65,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
         preStartUiAdjustment = findPreference("pre_other_start_ui_adjustment");
         preStartDevSettings = findPreference("pre_other_start_dev_settings");
         preScreenOffTimeOut = findPreference("pre_other_screen_off_time");
+        preSleepTimeout = findPreference("pre_other_sleep_timeout");
         preWebView = findPreference("pre_other_web_view");
         preLaunchApp = findPreference("pre_other_launch_app");
 
@@ -134,6 +136,44 @@ public class OtherFragment extends PreferenceFragmentCompat {
                     Settings.System.putInt(requireActivity().getContentResolver(), "screen_off_timeout", Integer.MAX_VALUE);
                     setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
                     setSummaryScreenOffTimeConvert();
+                } catch (Exception e) {
+                    new AlertDialog.Builder(requireActivity())
+                            .setTitle(R.string.dialog_error)
+                            .setMessage(e.getMessage())
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                            .show();
+                }
+            });
+            return false;
+        });
+
+        preSleepTimeout.setOnPreferenceClickListener(preference -> {
+            View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
+            EditText editText = view.findViewById(R.id.time_out_edit);
+            editText.setHint(getString(R.string.layout_time_out_hint, String.valueOf(Integer.MAX_VALUE)));
+            setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
+            new AlertDialog.Builder(requireActivity())
+                    .setView(view)
+                    .setCancelable(false)
+                    .setTitle("sleep_timeout")
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                        try {
+                            Settings.Secure.putInt(requireActivity().getContentResolver(), "sleep_timeout", Integer.parseInt(editText.getText().toString()));
+                        } catch (Exception e) {
+                            new AlertDialog.Builder(requireActivity())
+                                    .setTitle(R.string.dialog_error)
+                                    .setMessage(e.getMessage())
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                                    .show();
+                        }
+                    })
+                    .setNegativeButton(R.string.dialog_common_cancel, null)
+                    .show();
+            view.findViewById(R.id.time_out_button).setOnClickListener(view1 -> {
+                try {
+                    editText.setText(String.valueOf(Integer.MAX_VALUE));
+                    Settings.Secure.putInt(requireActivity().getContentResolver(), "sleep_timeout", Integer.MAX_VALUE);
+                    setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
                 } catch (Exception e) {
                     new AlertDialog.Builder(requireActivity())
                             .setTitle(R.string.dialog_error)
