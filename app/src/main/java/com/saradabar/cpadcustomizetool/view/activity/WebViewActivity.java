@@ -13,11 +13,15 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.annotation.SuppressLint;
+import android.app.DownloadManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.webkit.CookieManager;
+import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -70,6 +74,17 @@ public class WebViewActivity extends AppCompatActivity {
                 }
                 return isUrlDistrusted(url);
             }
+        });
+        webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+            request.setMimeType(mimetype)
+                    .addRequestHeader("Cookie", CookieManager.getInstance().getCookie(url))
+                    .addRequestHeader("User-Agent", userAgent)
+                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                    .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(url, contentDisposition, mimetype))
+                    .allowScanningByMediaScanner();
+            DownloadManager downloadManager = (DownloadManager) getSystemService(android.content.Context.DOWNLOAD_SERVICE);
+            downloadManager.enqueue(request);
         });
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowFileAccessFromFileURLs(false);

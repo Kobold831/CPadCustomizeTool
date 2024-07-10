@@ -12,6 +12,8 @@
 
 package com.saradabar.cpadcustomizetool.util;
 
+import static android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences;
+
 import android.content.Context;
 
 import java.util.Set;
@@ -50,7 +52,7 @@ public class Preferences {
 
     /* マルチリストのデータ取得 */
     public static Set<String> getEmergencySettings(Context context) {
-        return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getStringSet(Constants.KEY_EMERGENCY_SETTINGS, null);
+        return getDefaultSharedPreferences(context).getStringSet(Constants.KEY_EMERGENCY_SETTINGS, null);
     }
 
     public static boolean isEmergencySettingsDchaState(Context context) {
@@ -90,7 +92,7 @@ public class Preferences {
     }
 
     private static Set<String> getNormalModeSettings(Context context) {
-        return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getStringSet(Constants.KEY_NORMAL_SETTINGS, null);
+        return getDefaultSharedPreferences(context).getStringSet(Constants.KEY_NORMAL_SETTINGS, null);
     }
 
     public static boolean isNormalModeSettingsDchaState(Context context) {
