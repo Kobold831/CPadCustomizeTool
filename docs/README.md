@@ -104,6 +104,8 @@ adb shell dpm set-device-owner com.saradabar.cpadcustomizetool/.Receiver.Adminis
 
 新たなバグや修正方法を見つけた場合は、お手数ですが [報告](https://github.com/Kobold831/CPadCustomizeTool/issues/new/choose) をお願いします。
 
+GitHubアカウントを持っていない場合、または匿名を希望の場合は[Google フォームから報告](https://forms.gle/LnGuEc4GdRmwzf3GA)できます。
+
 ## 外部ライブラリー
 
 このアプリは以下のライブラリーを使用しています。
