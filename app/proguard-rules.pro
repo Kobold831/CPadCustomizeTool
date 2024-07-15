@@ -1,3 +1,4 @@
+-keepnames class * implements android.os.Parcelable {public static final ** CREATOR;}
 -keep class com.saradabar.** {*;}
 -keep class jp.co.benesse.dcha.dchaservice.IDchaService
 -keep class org.zeroturnaround.** {*;}
