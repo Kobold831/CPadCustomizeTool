@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -177,10 +178,11 @@
 
         <LinearLayout
             android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:background="@drawable/shape_rounded_corners"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:gravity="center_horizontal"
+            android:background="@drawable/shape_rounded_corners">
 
             <TextView
                 android:textStyle="bold"
@@ -204,6 +206,40 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/info_github_button" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:background="@drawable/shape_rounded_corners">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:text="バグレポート・フィードバック"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="顕在・潜在バグ、不具合、予期せぬ動作、クラッシュなどが発生、または問題がある場合は、「バグレポート」を送信できます\n新機能、改善、提案などがある場合は、「フィードバック」を送信できます"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/act_app_info_button_feedback"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="20dp"
+                android:text="フォームを開く"
+                tools:ignore="HardcodedText" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

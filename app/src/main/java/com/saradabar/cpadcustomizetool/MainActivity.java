@@ -15,6 +15,8 @@ package com.saradabar.cpadcustomizetool;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -76,7 +78,10 @@ public class MainActivity extends Activity implements DownloadEventListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        init();
+    }
 
+    private void init() {
         /* 前回クラッシュしているかどうか */
         if (Preferences.load(this, Constants.KEY_FLAG_CRASH_LOG, false)) {
             /* クラッシュダイアログ表示 */
@@ -86,12 +91,24 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     .setMessage(R.string.dialog_error_crash)
                     .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> {
                         Preferences.save(this, Constants.KEY_FLAG_CRASH_LOG, false);
-                        finish();
-                        startActivity(new Intent(this, getClass()));
+                        init();
                     })
                     .setNeutralButton(R.string.dialog_common_check, (dialog, which) -> {
                         startActivity(new Intent(this, CrashLogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         finish();
+                    })
+                    .setNegativeButton("報告", (dialog, which) -> {
+                        try {
+                            ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                            clipboardManager.setPrimaryClip(ClipData.newPlainText("", Preferences.load(this, Constants.KEY_CRASH_LOG, "")));
+                            startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK));
+                            init();
+                        } catch (Exception e) {
+                            new AlertDialog.Builder(this)
+                                    .setMessage("エラーが発生しました")
+                                    .setPositiveButton("OK", null)
+                                    .show();
+                        }
                     })
                     .show();
         } else {

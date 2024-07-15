@@ -42,6 +42,13 @@ public class AppInfoActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
             }
         });
+        findViewById(R.id.act_app_info_button_feedback).setOnClickListener(v -> {
+            try {
+                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            } catch (Exception ignored) {
+                Toast.makeText(this, R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void initialize() {

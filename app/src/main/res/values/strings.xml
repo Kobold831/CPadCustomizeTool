@@ -166,7 +166,7 @@
     <string name="dialog_info_dhizuku_deny_permission">Dhizukuへのアクセス権限は拒否されました</string>
     <string name="dialog_info_dhizuku_already_grant_permission">Dhizukuへのアクセス権限は付与されています</string>
     <!-- ダイアログエラー -->
-    <string name="dialog_error_crash">致命的なエラーが発生しました\n繰り返し発生する場合は"確認"を押してクラッシュログを開発者に送信してください\n\n続行を押すと、メイン画面に戻ります</string>
+    <string name="dialog_error_crash">致命的なエラーが発生しました\n繰り返し発生する場合は「報告」を押してクラッシュログを開発者に送信してください\n\nクラッシュログは「報告」を押すと自動でコピーされますので、表示されるフォームの入力欄に貼り付けてください\n以下の手順で報告できます\n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します\n・最新バージョンであれば「はい」を押して「次へ」を押します\n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します\n\nクラッシュログを確認、またはコピーしたいときは「確認」を押してください\n\n続行を押すと、メイン画面に戻ります</string>
     <string name="dialog_error">エラーが発生しました</string>
     <string name="dialog_error_start_connection">サーバーと接続できませんでした\n通信状態を確認してください</string>
     <string name="dialog_error_start_wifi">通信エラーが発生しました\nネットワークに接続してください</string>
