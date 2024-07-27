@@ -72,7 +72,7 @@ public class NormalActivity extends Activity {
                 Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
             }
             finishAndRemoveTask();
-        }, 10);
+        }, 1000);
     }
 
     private boolean startCheck() {

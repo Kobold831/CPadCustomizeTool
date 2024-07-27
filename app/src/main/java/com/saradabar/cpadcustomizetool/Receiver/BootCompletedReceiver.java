@@ -12,13 +12,12 @@
 
 package com.saradabar.cpadcustomizetool.Receiver;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
-
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Handler;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.provider.Settings;
 
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
@@ -31,58 +30,63 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        SharedPreferences sp = context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
+        if (!Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+            return;
+        }
 
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            /* UsbDebugを有効にするか確認 */
-            try {
-                if (sp.getBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false)) {
-                    try {
-                        if (isCfmDialog(context)) {
-                            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                                Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 3);
-                                Thread.sleep(100);
-                            }
-                        }
+        /* UsbDebugを有効にするか確認 */
+        if (Preferences.load(context, Constants.KEY_ENABLED_AUTO_USB_DEBUG, false)) {
+            bypassAdbDisabled(context);
+        }
 
-                        Settings.Global.putInt(context.getContentResolver(), Settings.Global.ADB_ENABLED, 1);
+        /* 維持スイッチが有効のときサービスを起動 */
+        if (Preferences.load(context, Constants.KEY_ENABLED_KEEP_SERVICE, false) ||
+                Preferences.load(context, Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) ||
+                Preferences.load(context, Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) ||
+                Preferences.load(context, Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) ||
+                Preferences.load(context, Constants.KEY_ENABLED_KEEP_HOME, false)) {
+            startService(context);
+        }
+    }
 
-                        if (isCfmDialog(context)) {
-                            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                                Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 0);
-                            }
-                        }
-                    } catch (Exception ignored) {
-                        /* 権限が付与されていないなら機能を無効 */
-                        sp.edit().putBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false).apply();
+    private void bypassAdbDisabled(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (context.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
+                Preferences.save(context, Constants.KEY_ENABLED_AUTO_USB_DEBUG, false);
+                return;
+            }
+        }
 
-                        if (isCfmDialog(context)) {
-                            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                                Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 0);
-                            }
-                        }
-                    }
-                }
-            } catch (Exception ignored) {
-                sp.edit().putBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false).apply();
+        if (!Common.isCfmDialog(context)) {
+            Preferences.save(context, Constants.KEY_ENABLED_AUTO_USB_DEBUG, false);
+            return;
+        }
+
+        try {
+            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 3);
+                Thread.sleep(100);
             }
 
-            /* 維持スイッチが有効のときサービスを起動 */
-            if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
-                Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
+            Settings.Global.putInt(context.getContentResolver(), Settings.Global.ADB_ENABLED, 1);
 
-                if (!Common.isRunningService(context, KeepService.class.getName())) {
-                    context.startService(new Intent(context, KeepService.class));
-                }
-
-                if (!Common.isRunningService(context, ProtectKeepService.class.getName())) {
-                    context.startService(new Intent(context, ProtectKeepService.class));
-                }
-
-                Runnable runnable = () -> KeepService.getInstance().startService();
-
-                new Handler().postDelayed(runnable, 1000);
+            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 0);
             }
+        } catch (Exception ignored) {
+            Preferences.save(context, Constants.KEY_ENABLED_AUTO_USB_DEBUG, false);
+            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 0);
+            }
+        }
+    }
+
+    private void startService(Context context) {
+        try {
+            Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
+            context.startService(new Intent(context, KeepService.class));
+            context.startService(new Intent(context, ProtectKeepService.class));
+        } catch (Exception ignored) {
         }
     }
 }

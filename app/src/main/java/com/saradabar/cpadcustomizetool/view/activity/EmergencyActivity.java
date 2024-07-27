@@ -12,21 +12,17 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isCfmDialog;
-
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.widget.Toast;
@@ -48,15 +44,24 @@ public class EmergencyActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
+        bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                mDchaService = IDchaService.Stub.asInterface(iBinder);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+            }
+        }, Context.BIND_AUTO_CREATE);
         new Handler().postDelayed(() -> {
-            if (!startCheck()) {
+            if (!Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
                 Toast.makeText(this, R.string.toast_not_completed_settings, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
                 return;
             }
 
-            if (!setSystemSettings(true)) {
+            if (!setSystemSettings()) {
                 Toast.makeText(this, R.string.toast_not_change, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
                 return;
@@ -76,84 +81,59 @@ public class EmergencyActivity extends Activity {
                     finishAndRemoveTask();
                     break;
             }
-        }, 10);
+        }, 1000);
     }
 
-    private boolean startCheck() {
-        return Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false);
-    }
+    private boolean setSystemSettings() {
+        if (Preferences.load(this, Constants.KEY_ENABLED_KEEP_SERVICE, false) || Preferences.load(this, Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || Preferences.load(this, Constants.KEY_ENABLED_KEEP_HOME, false)) {
+            Preferences.save(this, Constants.KEY_ENABLED_KEEP_SERVICE, false);
+            Preferences.save(this, Constants.KEY_ENABLED_KEEP_DCHA_STATE, false);
+            Preferences.save(this, Constants.KEY_ENABLED_KEEP_HOME, false);
 
-    private boolean setSystemSettings(boolean study) {
-        if (study) {
-            SharedPreferences sp = getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
-
-            if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
-                sp.edit()
-                        .putBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false)
-                        .putBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false)
-                        .putBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)
-                        .apply();
-                ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-
-                for (ActivityManager.RunningServiceInfo serviceInfo : Objects.requireNonNull(manager).getRunningServices(Integer.MAX_VALUE)) {
-                    if (KeepService.class.getName().equals(serviceInfo.service.getClassName())) {
-                        KeepService.getInstance().stopService(1);
-                        KeepService.getInstance().stopService(2);
-                        KeepService.getInstance().stopService(5);
-                    }
+            ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+            for (ActivityManager.RunningServiceInfo serviceInfo : Objects.requireNonNull(manager).getRunningServices(Integer.MAX_VALUE)) {
+                if (KeepService.class.getName().equals(serviceInfo.service.getClassName())) {
+                    KeepService.getInstance().stopService(1);
+                    KeepService.getInstance().stopService(2);
+                    KeepService.getInstance().stopService(5);
                 }
             }
+        }
 
-            try {
-                if (Preferences.isEmergencySettingsDchaState(this)) {
-                    if (isCfmDialog(this)) {
-                        Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 3);
-                    }
-                }
-
-                if (Preferences.isEmergencySettingsNavigationBar(this))
-                    Settings.System.putInt(getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 1);
-                return true;
-            } catch (Exception ignored) {
-                return false;
+        try {
+            if (Preferences.isEmergencySettingsDchaState(this)) {
+                Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 3);
             }
-        } else {
-            try {
-                if (Preferences.isEmergencySettingsDchaState(this)) {
-                    if (isCfmDialog(this)) {
-                        Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
-                    }
-                }
 
-                if (Preferences.isEmergencySettingsNavigationBar(this))
-                    Settings.System.putInt(getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
-                return true;
-            } catch (Exception ignored) {
-                return false;
+            if (Preferences.isEmergencySettingsNavigationBar(this)) {
+                Settings.System.putInt(getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 1);
             }
+            return true;
+        } catch (Exception ignored) {
+            return false;
         }
     }
 
     private boolean setDchaSettings(String packageName, String className) {
+        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+            Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
         ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-        ActivityInfo activityInfo = null;
+        ActivityInfo activityInfo;
 
         if (resolveInfo != null) {
             activityInfo = resolveInfo.activityInfo;
+        } else {
+            Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+            return false;
         }
 
         try {
             startActivity(new Intent().setClassName(packageName, className));
         } catch (Exception ignored) {
             Toast.makeText(this, R.string.toast_not_course, Toast.LENGTH_SHORT).show();
-        }
-
-        if (!Preferences.isEmergencySettingsLauncher(this) && !Preferences.isEmergencySettingsRemoveTask(this))
-            return true;
-
-        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-            Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
-            setSystemSettings(false);
             return false;
         }
 
@@ -165,30 +145,20 @@ public class EmergencyActivity extends Activity {
                 }
             } catch (Exception ignored) {
                 Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
-                setSystemSettings(false);
-                finishAndRemoveTask();
+                return false;
             }
         }
 
         if (Preferences.isEmergencySettingsRemoveTask(this)) {
             try {
                 mDchaService.removeTask(null);
-            } catch (RemoteException ignored) {
+            } catch (Exception ignored) {
+                Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                return false;
             }
         }
         return true;
     }
-
-    ServiceConnection mDchaServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            mDchaService = IDchaService.Stub.asInterface(iBinder);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-        }
-    };
 
     @Override
     public void onPause() {

@@ -18,9 +18,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.R;
@@ -30,8 +28,6 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class RebootActivity extends Activity {
-
-    IDchaService mDchaService;
 
     @Override
     public final void onCreate(Bundle savedInstanceState) {
@@ -48,30 +44,24 @@ public class RebootActivity extends Activity {
     private void reboot() {
         new AlertDialog.Builder(this)
                 .setMessage(R.string.dialog_question_reboot)
-                .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                    bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE);
-                    new Handler().postDelayed(() -> {
+                .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
+                    @Override
+                    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                         try {
+                            IDchaService mDchaService = IDchaService.Stub.asInterface(iBinder);
                             mDchaService.rebootPad(0, null);
-                        } catch (RemoteException ignored) {
+                        } catch (Exception ignored) {
                         }
-                    }, 10);
-                })
+                    }
+
+                    @Override
+                    public void onServiceDisconnected(ComponentName componentName) {
+                    }
+                }, Context.BIND_AUTO_CREATE))
                 .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> finishAndRemoveTask())
                 .setOnDismissListener(dialogInterface -> finishAndRemoveTask())
                 .show();
     }
-
-    ServiceConnection mDchaServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            mDchaService = IDchaService.Stub.asInterface(iBinder);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-        }
-    };
 
     @Override
     public void onPause() {
