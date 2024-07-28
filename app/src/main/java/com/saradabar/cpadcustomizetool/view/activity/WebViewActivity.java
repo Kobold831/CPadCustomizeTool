@@ -24,6 +24,7 @@ import android.webkit.CookieManager;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.R;
 
@@ -76,6 +77,7 @@ public class WebViewActivity extends AppCompatActivity {
             }
         });
         webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
+            Toast.makeText(this, "ダウンロードを開始します", Toast.LENGTH_SHORT).show();
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setMimeType(mimetype)
                     .addRequestHeader("Cookie", CookieManager.getInstance().getCookie(url))

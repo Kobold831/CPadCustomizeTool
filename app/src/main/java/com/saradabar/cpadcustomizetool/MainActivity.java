@@ -105,7 +105,8 @@ public class MainActivity extends Activity implements DownloadEventListener {
                             init();
                         } catch (Exception e) {
                             new AlertDialog.Builder(this)
-                                    .setMessage("エラーが発生しました")
+                                    .setTitle("エラーが発生しました")
+                                    .setMessage(e.getMessage())
                                     .setPositiveButton("OK", null)
                                     .show();
                         }
