@@ -10,8 +10,8 @@ android {
         minSdk 22
         //noinspection ExpiredTargetSdkVersion
         targetSdk 22
-        versionCode 50
-        versionName "2.3.4"
+        versionCode 51
+        versionName "2.3.5"
         proguardFiles += "proguard-rules.pro"
         resourceConfigurations += "ja"
         multiDexEnabled true
