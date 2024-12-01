@@ -10,13 +10,10 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
-import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.util.Common;
 
@@ -41,56 +38,35 @@ public class PermissionIntentService extends IntentService {
             return;
         }
 
-        if (Common.isDhizukuActive(getBaseContext())) {
-            if (tryBindDhizukuService(getBaseContext())) {
-                new Handler().postDelayed(() -> {
-                    try {
-                        PackageInfo packageInfo = getBaseContext().getPackageManager().getPackageInfo(Objects.requireNonNull(intent.getStringExtra("packageName")), 0);
-                        /* ユーザーアプリか確認 */
-                        if (packageInfo.applicationInfo.sourceDir.startsWith("/data/app/")) {
-                            setPermissionGrantState(getBaseContext(), packageInfo.packageName);
-                        }
-                    } catch (PackageManager.NameNotFoundException ignored) {
-                    }
-                }, 5000);
+        try {
+            PackageInfo packageInfo = getBaseContext().getPackageManager().getPackageInfo(Objects.requireNonNull(intent.getStringExtra("packageName")), 0);
+            /* ユーザーアプリか確認 */
+            if (packageInfo.applicationInfo.sourceDir.startsWith("/data/app/")) {
+                setPermissionGrantState(getBaseContext(), packageInfo.packageName);
             }
-        } else {
-            try {
-                PackageInfo packageInfo = getBaseContext().getPackageManager().getPackageInfo(Objects.requireNonNull(intent.getStringExtra("packageName")), 0);
-                /* ユーザーアプリか確認 */
-                if (packageInfo.applicationInfo.sourceDir.startsWith("/data/app/")) {
-                    setPermissionGrantState(getBaseContext(), packageInfo.packageName);
-                }
-            } catch (PackageManager.NameNotFoundException ignored) {
-            }
+        } catch (Exception ignored) {
         }
-    }
-
-    private boolean tryBindDhizukuService(Context context) {
-        DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
-        return Dhizuku.bindUserService(args, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                ((MyApplication) context.getApplicationContext()).mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        });
     }
 
     @TargetApi(Build.VERSION_CODES.M)
     private void setPermissionGrantState(Context context, String packageName) {
         if (Common.isDhizukuActive(context)) {
-            if (tryBindDhizukuService(context)) {
-                try {
-                    for (String permission : getRuntimePermissions(context, packageName)) {
-                        ((MyApplication) context.getApplicationContext()).mDhizukuService.setPermissionGrantState(packageName, permission, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
+            Dhizuku.bindUserService(new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class)), new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                    IDhizukuService iDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
+                    try {
+                        for (String permission : getRuntimePermissions(context, packageName)) {
+                            iDhizukuService.setPermissionGrantState(packageName, permission, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
+                        }
+                    } catch (Exception ignored) {
                     }
-                } catch (RemoteException ignored) {
                 }
-            }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                }
+            });
         } else {
             DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
             for (String permission : getRuntimePermissions(context, packageName)) {

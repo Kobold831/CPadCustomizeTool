@@ -39,7 +39,6 @@ import android.widget.TextView;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
-import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
@@ -48,6 +47,7 @@ import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
 import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 import com.saradabar.cpadcustomizetool.data.task.ApkInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
+import com.saradabar.cpadcustomizetool.data.task.IDhizukuTask;
 import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -64,6 +64,8 @@ import java.util.Arrays;
 
 public class DeviceOwnerFragment extends PreferenceFragmentCompat implements InstallEventListener {
 
+    IDhizukuService mDhizukuService;
+    DevicePolicyManager dpm;
     String[] splitInstallData = new String[128];
     AlertDialog progressDialog;
 
@@ -92,7 +94,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.pre_owner);
 
-        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+        dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+
         preUninstallBlock = findPreference("pre_owner_uninstall_block");
         swPrePermissionFrc = (SwitchPreferenceCompat) findPreference("pre_owner_permission_frc");
         preSessionInstall = findPreference("pre_owner_session_install");
@@ -100,120 +103,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         preClrDevOwn = findPreference("pre_owner_clr_dev_own");
         preNowSetOwnPkg = findPreference("pre_owner_now_set_own_pkg");
 
-        preUninstallBlock.setOnPreferenceClickListener(preference -> {
-            try {
-                startActivity(new Intent(requireActivity(), UninstallBlockActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            } catch (ActivityNotFoundException ignored) {
-            }
-
-            return false;
-        });
-
-        swPrePermissionFrc.setOnPreferenceChangeListener((preference, o) -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if ((boolean) o) {
-                    swPrePermissionFrc.setChecked(true);
-                    swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_forced));
-
-                    if (Common.isDhizukuActive(requireActivity())) {
-                        if (tryBindDhizukuService()) {
-                            try {
-                                ((MyApplication) requireActivity().getApplicationContext()).mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
-                            } catch (RemoteException ignored) {
-                            }
-                        } else return false;
-                    } else {
-                        dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
-                    }
-
-                    for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
-                        /* ユーザーアプリか確認 */
-                        if (app.sourceDir.startsWith("/data/app/")) {
-                            setPermissionGrantState(app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
-                        }
-                    }
-                } else {
-                    swPrePermissionFrc.setChecked(false);
-                    swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
-
-                    if (Common.isDhizukuActive(requireActivity())) {
-                        if (tryBindDhizukuService()) {
-                            try {
-                                ((MyApplication) requireActivity().getApplicationContext()).mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_PROMPT);
-                            } catch (RemoteException ignored) {
-                            }
-                        } else {
-                            return false;
-                        }
-                    } else {
-                        dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_PROMPT);
-                    }
-
-                    for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
-                        /* ユーザーアプリか確認 */
-                        if (app.sourceDir.startsWith("/data/app/")) {
-                            setPermissionGrantState(app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_DEFAULT);
-                        }
-                    }
-                }
-            }
-
-            return true;
-        });
-
-        preSessionInstall.setOnPreferenceClickListener(preference -> {
-            try {
-                startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/*"}).addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), ""), Constants.REQUEST_ACTIVITY_INSTALL);
-            } catch (ActivityNotFoundException ignored) {
-                preSessionInstall.setEnabled(true);
-                new AlertDialog.Builder(requireActivity())
-                        .setMessage(getString(R.string.dialog_error_no_file_browse))
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-            }
-
-            return false;
-        });
-
-        preAbandonSession.setOnPreferenceClickListener(preference -> {
-            for (PackageInstaller.SessionInfo sessionInfo : requireActivity().getPackageManager().getPackageInstaller().getMySessions()) {
-                try {
-                    requireActivity().getPackageManager().getPackageInstaller().abandonSession(sessionInfo.getSessionId());
-                } catch (Exception ignored) {
-                }
-            }
-
-            new AlertDialog.Builder(requireActivity())
-                    .setMessage("セッションを破棄しました")
-                    .setPositiveButton(R.string.dialog_common_ok, null)
-                    .show();
-            return false;
-        });
-
-        preClrDevOwn.setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(requireActivity())
-                    .setMessage(R.string.dialog_question_device_owner)
-                    .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                        if (Common.isDhizukuActive(requireActivity())) {
-                            if (tryBindDhizukuService()) {
-                                try {
-                                    ((MyApplication) requireActivity().getApplicationContext()).mDhizukuService.clearDeviceOwnerApp("com.rosan.dhizuku");
-                                } catch (RemoteException ignored) {
-                                }
-                            }
-                        } else {
-                            dpm.clearDeviceOwnerApp(requireActivity().getPackageName());
-                        }
-
-                        requireActivity().finish();
-                        requireActivity().overridePendingTransition(0, 0);
-                        startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                    })
-                    .setNegativeButton(R.string.dialog_common_no, null)
-                    .show();
-            return false;
-        });
-
+        new IDhizukuTask().execute(requireActivity(), iDhizukuTaskListener());
         /* 初期化 */
         initialize();
     }
@@ -248,8 +138,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             case Constants.MODEL_CTZ:
                 break;
         }
-
-        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
 
         if (dpm.isDeviceOwnerApp(requireActivity().getPackageName())) {
             if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
@@ -315,22 +203,24 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == Constants.REQUEST_ACTIVITY_INSTALL) {
-            if (trySetInstallData(data)) {
-                String installFileName = new File(splitInstallData[0]).getName();
+            try {
+                if (trySetInstallData(data)) {
+                    String installFileName = new File(splitInstallData[0]).getName();
 
-                /* ファイルの拡張子 */
-                if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
-                    new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), splitInstallData);
-                    return;
-                } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".xapk")) {
-                    new XApkCopyTask().execute(requireActivity(), xApkListener(), splitInstallData);
-                    return;
-                } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
-                    new ApkMCopyTask().execute(requireActivity(), apkMListener(), splitInstallData);
-                    return;
+                    /* ファイルの拡張子 */
+                    if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
+                        new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), splitInstallData);
+                        return;
+                    } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".xapk")) {
+                        new XApkCopyTask().execute(requireActivity(), xApkListener(), splitInstallData);
+                        return;
+                    } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
+                        new ApkMCopyTask().execute(requireActivity(), apkMListener(), splitInstallData);
+                        return;
+                    }
                 }
+            } catch (Exception ignored) {
             }
-
             new AlertDialog.Builder(requireActivity())
                     .setMessage(getString(R.string.dialog_error_no_file_data))
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
@@ -664,7 +554,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         return Dhizuku.bindUserService(args, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                ((MyApplication) requireActivity().getApplicationContext()).mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
             }
 
             @Override
@@ -679,13 +568,12 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             if (tryBindDhizukuService()) {
                 try {
                     for (String permission : getRuntimePermissions(packageName)) {
-                        ((MyApplication) requireActivity().getApplicationContext()).mDhizukuService.setPermissionGrantState(packageName, permission, grantState);
+                        mDhizukuService.setPermissionGrantState(packageName, permission, grantState);
                     }
                 } catch (RemoteException ignored) {
                 }
             }
         } else {
-            DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
             for (String permission : getRuntimePermissions(packageName)) {
                 dpm.setPermissionGrantState(new ComponentName(requireActivity(), AdministratorReceiver.class), packageName, permission, grantState);
             }
@@ -724,5 +612,135 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         if (progressDialog.isShowing()) {
             progressDialog.cancel();
         }
+    }
+
+    private IDhizukuTask.Listener iDhizukuTaskListener() {
+        return new IDhizukuTask.Listener() {
+            @Override
+            public void onSuccess(IDhizukuService iDhizukuService) {
+                mDhizukuService = iDhizukuService;
+
+                preUninstallBlock.setOnPreferenceClickListener(preference -> {
+                    try {
+                        startActivity(new Intent(requireActivity(), UninstallBlockActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                    } catch (ActivityNotFoundException ignored) {
+                    }
+
+                    return false;
+                });
+
+                swPrePermissionFrc.setOnPreferenceChangeListener((preference, o) -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if ((boolean) o) {
+                            swPrePermissionFrc.setChecked(true);
+                            swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_forced));
+
+                            if (Common.isDhizukuActive(requireActivity())) {
+                                if (tryBindDhizukuService()) {
+                                    try {
+                                        iDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
+                                    } catch (RemoteException ignored) {
+                                    }
+                                } else return false;
+                            } else {
+                                dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
+                            }
+
+                            for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
+                                /* ユーザーアプリか確認 */
+                                if (app.sourceDir.startsWith("/data/app/")) {
+                                    setPermissionGrantState(app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
+                                }
+                            }
+                        } else {
+                            swPrePermissionFrc.setChecked(false);
+                            swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
+
+                            if (Common.isDhizukuActive(requireActivity())) {
+                                if (tryBindDhizukuService()) {
+                                    try {
+                                        iDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_PROMPT);
+                                    } catch (RemoteException ignored) {
+                                    }
+                                } else {
+                                    return false;
+                                }
+                            } else {
+                                dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_PROMPT);
+                            }
+
+                            for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
+                                /* ユーザーアプリか確認 */
+                                if (app.sourceDir.startsWith("/data/app/")) {
+                                    setPermissionGrantState(app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_DEFAULT);
+                                }
+                            }
+                        }
+                    }
+
+                    return true;
+                });
+
+                preSessionInstall.setOnPreferenceClickListener(preference -> {
+                    try {
+                        startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/*"}).addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), ""), Constants.REQUEST_ACTIVITY_INSTALL);
+                    } catch (Exception ignored) {
+                        preSessionInstall.setEnabled(true);
+                        new AlertDialog.Builder(requireActivity())
+                                .setMessage(getString(R.string.dialog_error_no_file_browse))
+                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                .show();
+                    }
+
+                    return false;
+                });
+
+                preAbandonSession.setOnPreferenceClickListener(preference -> {
+                    for (PackageInstaller.SessionInfo sessionInfo : requireActivity().getPackageManager().getPackageInstaller().getMySessions()) {
+                        try {
+                            requireActivity().getPackageManager().getPackageInstaller().abandonSession(sessionInfo.getSessionId());
+                        } catch (Exception ignored) {
+                        }
+                    }
+
+                    new AlertDialog.Builder(requireActivity())
+                            .setMessage("セッションを破棄しました")
+                            .setPositiveButton(R.string.dialog_common_ok, null)
+                            .show();
+                    return false;
+                });
+
+                preClrDevOwn.setOnPreferenceClickListener(preference -> {
+                    new AlertDialog.Builder(requireActivity())
+                            .setMessage(R.string.dialog_question_device_owner)
+                            .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                                if (Common.isDhizukuActive(requireActivity())) {
+                                    if (tryBindDhizukuService()) {
+                                        try {
+                                            iDhizukuService.clearDeviceOwnerApp("com.rosan.dhizuku");
+                                        } catch (RemoteException ignored) {
+                                        }
+                                    }
+                                } else {
+                                    dpm.clearDeviceOwnerApp(requireActivity().getPackageName());
+                                }
+
+                                requireActivity().finish();
+                                requireActivity().overridePendingTransition(0, 0);
+                                startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                            })
+                            .setNegativeButton(R.string.dialog_common_no, null)
+                            .show();
+                    return false;
+                });
+            }
+
+            @Override
+            public void onFailure() {
+                new AlertDialog.Builder(requireActivity())
+                        .setMessage("エラー")
+                        .show();
+            }
+        };
     }
 }

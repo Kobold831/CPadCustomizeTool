@@ -13,6 +13,7 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,11 +31,11 @@ import android.widget.Switch;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
-import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
 import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
+import com.saradabar.cpadcustomizetool.data.task.IDhizukuTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.view.views.UninstallBlockView;
 
@@ -43,97 +44,18 @@ import java.util.List;
 
 public class UninstallBlockActivity extends AppCompatActivity {
 
+    DevicePolicyManager dpm;
+
     @SuppressLint("WrongConstant")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_uninstall_list);
-
-        DevicePolicyManager dpm = (DevicePolicyManager) this.getSystemService("device_policy");
-        List<UninstallBlockView.AppData> dataList = new ArrayList<>();
-        ListView listView = findViewById(R.id.un_list);
-        Button unDisableButton = findViewById(R.id.un_button_disable);
-        Button unEnableButton = findViewById(R.id.un_button_enable);
-
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-
-        for (ApplicationInfo app : getPackageManager().getInstalledApplications(0)) {
-            /* ユーザーアプリか確認 */
-            if (app.sourceDir.startsWith("/data/app/")) {
-                UninstallBlockView.AppData data = new UninstallBlockView.AppData();
-                data.label = app.loadLabel(getPackageManager()).toString();
-                data.icon = app.loadIcon(getPackageManager());
-                data.packName = app.packageName;
-                dataList.add(data);
-            }
-        }
-
-        UninstallBlockView.AppListAdapter appListAdapter = new UninstallBlockView.AppListAdapter(this, dataList);
-
-        listView.setAdapter(appListAdapter);
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            UninstallBlockView.AppData item = dataList.get(position);
-            String selectPackage = Uri.fromParts("package", item.packName, null).toString();
-            if (Common.isDhizukuActive(this)) {
-                if (tryBindDhizukuService(this)) {
-                    try {
-                        ((MyApplication) getApplicationContext()).mDhizukuService.setUninstallBlocked(selectPackage.replace("package:", ""), !((MyApplication) getApplicationContext()).mDhizukuService.isUninstallBlocked(selectPackage.replace("package:", "")));
-                    } catch (RemoteException ignored) {
-                    }
-                }
-            } else {
-                dpm.setUninstallBlocked(new ComponentName(this, AdministratorReceiver.class), selectPackage.replace("package:", ""), !dpm.isUninstallBlocked(new ComponentName(this, AdministratorReceiver.class), selectPackage.replace("package:", "")));
-            }
-            /* listviewの更新 */
-            listView.invalidateViews();
-        });
-
-        /* ボタンが押されたならスイッチ一括変更 */
-        /* 無効 */
-        unDisableButton.setOnClickListener(v -> {
-            if (Common.isDhizukuActive(this)) {
-                if (tryBindDhizukuService(this)) {
-                    try {
-                        for (UninstallBlockView.AppData appData : dataList) {
-                            ((MyApplication) getApplicationContext()).mDhizukuService.setUninstallBlocked(appData.packName, false);
-                        }
-                        ((Switch) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
-                    } catch (Exception ignored) {
-                    }
-                }
-            } else {
-                for (UninstallBlockView.AppData appData : dataList) {
-                    dpm.setUninstallBlocked(new ComponentName(this, AdministratorReceiver.class), appData.packName, false);
-                }
-                ((Switch) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
-            }
-            /* listviewの更新 */
-            listView.invalidateViews();
-        });
-
-        /* 有効 */
-        unEnableButton.setOnClickListener(v -> {
-            if (Common.isDhizukuActive(this)) {
-                if (tryBindDhizukuService(this)) {
-                    try {
-                        for (UninstallBlockView.AppData appData : dataList) {
-                            ((MyApplication) getApplicationContext()).mDhizukuService.setUninstallBlocked(appData.packName, true);
-                        }
-                        ((Switch) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
-                    } catch (Exception ignored) {
-                    }
-                }
-            } else {
-                for (UninstallBlockView.AppData appData : dataList) {
-                    dpm.setUninstallBlocked(new ComponentName(this, AdministratorReceiver.class), appData.packName, true);
-                }
-                ((Switch) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
-            }
-            /* listviewの更新 */
-            listView.invalidateViews();
-        });
+        dpm = (DevicePolicyManager) getSystemService("device_policy");
+        new IDhizukuTask().execute(this, iDhizukuTaskListener());
     }
 
     /* メニュー選択 */
@@ -151,12 +73,106 @@ public class UninstallBlockActivity extends AppCompatActivity {
         return Dhizuku.bindUserService(args, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                ((MyApplication) context.getApplicationContext()).mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
             }
         });
+    }
+
+    IDhizukuTask.Listener iDhizukuTaskListener() {
+        return new IDhizukuTask.Listener() {
+            @Override
+            public void onSuccess(IDhizukuService iDhizukuService) {
+                List<UninstallBlockView.AppData> dataList = new ArrayList<>();
+                ListView listView = findViewById(R.id.un_list);
+                Button unDisableButton = findViewById(R.id.un_button_disable);
+                Button unEnableButton = findViewById(R.id.un_button_enable);
+
+                for (ApplicationInfo app : getPackageManager().getInstalledApplications(0)) {
+                    /* ユーザーアプリか確認 */
+                    if (app.sourceDir.startsWith("/data/app/")) {
+                        UninstallBlockView.AppData data = new UninstallBlockView.AppData();
+                        data.label = app.loadLabel(getPackageManager()).toString();
+                        data.icon = app.loadIcon(getPackageManager());
+                        data.packName = app.packageName;
+                        dataList.add(data);
+                    }
+                }
+
+                UninstallBlockView.AppListAdapter appListAdapter = new UninstallBlockView.AppListAdapter(UninstallBlockActivity.this, dataList);
+
+                listView.setAdapter(appListAdapter);
+                listView.setOnItemClickListener((parent, view, position, id) -> {
+                    UninstallBlockView.AppData item = dataList.get(position);
+                    String selectPackage = Uri.fromParts("package", item.packName, null).toString();
+                    if (Common.isDhizukuActive(UninstallBlockActivity.this)) {
+                        if (tryBindDhizukuService(UninstallBlockActivity.this)) {
+                            try {
+                                iDhizukuService.setUninstallBlocked(selectPackage.replace("package:", ""), !iDhizukuService.isUninstallBlocked(selectPackage.replace("package:", "")));
+                            } catch (RemoteException ignored) {
+                            }
+                        }
+                    } else {
+                        dpm.setUninstallBlocked(new ComponentName(UninstallBlockActivity.this, AdministratorReceiver.class), selectPackage.replace("package:", ""), !dpm.isUninstallBlocked(new ComponentName(UninstallBlockActivity.this, AdministratorReceiver.class), selectPackage.replace("package:", "")));
+                    }
+                    /* listviewの更新 */
+                    listView.invalidateViews();
+                });
+
+                /* ボタンが押されたならスイッチ一括変更 */
+                /* 無効 */
+                unDisableButton.setOnClickListener(v -> {
+                    if (Common.isDhizukuActive(UninstallBlockActivity.this)) {
+                        if (tryBindDhizukuService(UninstallBlockActivity.this)) {
+                            try {
+                                for (UninstallBlockView.AppData appData : dataList) {
+                                    iDhizukuService.setUninstallBlocked(appData.packName, false);
+                                }
+                                ((Switch) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    } else {
+                        for (UninstallBlockView.AppData appData : dataList) {
+                            dpm.setUninstallBlocked(new ComponentName(UninstallBlockActivity.this, AdministratorReceiver.class), appData.packName, false);
+                        }
+                        ((Switch) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
+                    }
+                    /* listviewの更新 */
+                    listView.invalidateViews();
+                });
+
+                /* 有効 */
+                unEnableButton.setOnClickListener(v -> {
+                    if (Common.isDhizukuActive(UninstallBlockActivity.this)) {
+                        if (tryBindDhizukuService(UninstallBlockActivity.this)) {
+                            try {
+                                for (UninstallBlockView.AppData appData : dataList) {
+                                    iDhizukuService.setUninstallBlocked(appData.packName, true);
+                                }
+                                ((Switch) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    } else {
+                        for (UninstallBlockView.AppData appData : dataList) {
+                            dpm.setUninstallBlocked(new ComponentName(UninstallBlockActivity.this, AdministratorReceiver.class), appData.packName, true);
+                        }
+                        ((Switch) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
+                    }
+                    /* listviewの更新 */
+                    listView.invalidateViews();
+                });
+            }
+
+            @Override
+            public void onFailure() {
+                new AlertDialog.Builder(UninstallBlockActivity.this)
+                        .setMessage("エラー")
+                        .show();
+            }
+        };
     }
 }

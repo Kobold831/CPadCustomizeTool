@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
-import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
@@ -69,31 +68,26 @@ public class UninstallBlockView {
                 holder.imageIcon.setImageDrawable(data.icon);
 
                 if (Common.isDhizukuActive(getContext())) {
-                    if (tryBindDhizukuService(getContext())) {
-                        try {
-                            ((Switch) convertView.findViewById(R.id.un_switch)).setChecked(((MyApplication) getContext().getApplicationContext()).mDhizukuService.isUninstallBlocked(data.packName));
-                        } catch (Exception ignored) {
+                    Dhizuku.bindUserService(new DhizukuUserServiceArgs(new ComponentName(getContext(), DhizukuService.class)), new ServiceConnection() {
+                        @Override
+                        public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                            IDhizukuService iDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
+                            try {
+                                ((Switch) view.findViewById(R.id.un_switch)).setChecked(iDhizukuService.isUninstallBlocked(data.packName));
+                            } catch (Exception ignored) {
+                            }
                         }
-                    }
+
+                        @Override
+                        public void onServiceDisconnected(ComponentName name) {
+                        }
+                    });
                 } else {
-                    ((Switch) convertView.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), AdministratorReceiver.class), data.packName));
+                    ((Switch) view.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), AdministratorReceiver.class), data.packName));
                 }
             }
+
             return convertView;
-        }
-
-        private boolean tryBindDhizukuService(Context context) {
-            DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
-            return Dhizuku.bindUserService(args, new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                    ((MyApplication) context.getApplicationContext()).mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                }
-            });
         }
     }
 

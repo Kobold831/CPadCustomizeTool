@@ -20,7 +20,6 @@ public class ResolutionTask {
     IDchaUtilService mDchaUtilService;
 
     public void execute(Context context, Listener listener, int i, int i1) {
-        onPreExecute();
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
@@ -29,9 +28,6 @@ public class ResolutionTask {
                 handler.post(() -> onPostExecute(listener, result));
             }).start();
         });
-    }
-
-    void onPreExecute() {
     }
 
     void onPostExecute(Listener listener, Boolean result) {
@@ -47,7 +43,7 @@ public class ResolutionTask {
     }
 
     protected Boolean doInBackground(Context context, int i, int i1) {
-        return Common.tryBindDchaService(context, null, mDchaUtilService, mDchaUtilServiceConnection, false, Constants.FLAG_RESOLUTION,i, i1, "", "");
+        return Common.tryBindDchaService(context, null, mDchaUtilService, mDchaUtilServiceConnection, false, Constants.FLAG_RESOLUTION, i, i1, "", "");
     }
 
     public interface Listener {
