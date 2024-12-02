@@ -18,10 +18,11 @@ import android.content.Intent;
 import android.content.pm.PackageInstaller;
 import android.os.IBinder;
 
+import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListenerList;
-import com.saradabar.cpadcustomizetool.data.installer.Updater;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.view.activity.SelfUpdateActivity;
 import com.saradabar.cpadcustomizetool.view.flagment.DeviceOwnerFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
 
@@ -36,7 +37,6 @@ public class InstallService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         postStatus(intent.getIntExtra("REQUEST_SESSION", -1), intent.getIntExtra("REQUEST_CODE", 0), intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1), intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE));
         stopSelf();
-
         return START_NOT_STICKY;
     }
 
@@ -45,13 +45,21 @@ public class InstallService extends Service {
 
         switch (code) {
             case Constants.REQUEST_INSTALL_SILENT:
-                installEventListener.addEventListener(DeviceOwnerFragment.getInstance());
+                if (DeviceOwnerFragment.getInstance() != null) {
+                    installEventListener.addEventListener(DeviceOwnerFragment.getInstance());
+                }
                 break;
             case Constants.REQUEST_INSTALL_GET_APP:
-                installEventListener.addEventListener(MainFragment.getInstance());
+                if (MainFragment.getInstance() != null) {
+                    installEventListener.addEventListener(MainFragment.getInstance());
+                }
                 break;
             case Constants.REQUEST_INSTALL_SELF_UPDATE:
-                installEventListener.addEventListener(Updater.getInstance());
+                if (MainActivity.getInstance() != null) {
+                    installEventListener.addEventListener(MainActivity.getInstance());
+                } else if (SelfUpdateActivity.getInstance() != null) {
+                    installEventListener.addEventListener(SelfUpdateActivity.getInstance());
+                }
                 break;
         }
 
@@ -64,17 +72,11 @@ public class InstallService extends Service {
                 installEventListener.installSuccessNotify(code);
                 break;
             case PackageInstaller.STATUS_FAILURE_ABORTED:
-                try {
-                    getPackageManager().getPackageInstaller().openSession(sessionId).abandon();
-                } catch (Exception ignored) {
-                }
+                getPackageManager().getPackageInstaller().abandonSession(sessionId);
                 installEventListener.installFailureNotify(code, getErrorMessage(this, status) + "\n" + extra);
                 break;
             default:
-                try {
-                    getPackageManager().getPackageInstaller().openSession(sessionId).abandon();
-                } catch (Exception ignored) {
-                }
+                getPackageManager().getPackageInstaller().abandonSession(sessionId);
                 installEventListener.installErrorNotify(code, getErrorMessage(this, status) + "\n" + extra);
                 break;
         }

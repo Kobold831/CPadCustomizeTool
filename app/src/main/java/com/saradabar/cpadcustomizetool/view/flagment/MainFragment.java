@@ -52,16 +52,14 @@ import android.widget.Toast;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
-import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
-import com.saradabar.cpadcustomizetool.data.installer.Updater;
-import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
+import com.saradabar.cpadcustomizetool.data.task.ApkInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.DchaInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.data.task.ResolutionTask;
@@ -77,11 +75,10 @@ import com.saradabar.cpadcustomizetool.view.views.LauncherView;
 import com.saradabar.cpadcustomizetool.view.views.NormalModeView;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -97,6 +94,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     TextView progressByteText;
     ProgressBar dialogProgressBar;
     String DOWNLOAD_FILE_URL;
+    String[] installData = new String[1];
 
     IDchaService mDchaService;
     IDchaUtilService mDchaUtilService;
@@ -142,7 +140,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @SuppressLint("StaticFieldLeak")
     static MainFragment instance = null;
 
-    public static MainFragment getInstance() {//インスタンスを取得
+    public static MainFragment getInstance() {
         return instance;
     }
 
@@ -207,7 +205,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                 }
             }
-
             return false;
         });
 
@@ -247,7 +244,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
                 }
             }
-
             return true;
         });
 
@@ -265,7 +261,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     chgSetting(Constants.FLAG_VIEW_NAVIGATION_BAR);
                 }
             }
-
             return false;
         });
 
@@ -300,7 +295,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
                 }
             }
-
             return true;
         });
 
@@ -318,7 +312,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
                 }
             }
-
             return false;
         });
 
@@ -359,7 +352,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
                 }
             }
-
             return true;
         });
 
@@ -402,7 +394,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
                 }
             }
-
             return false;
         });
 
@@ -469,7 +460,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
                 }
             }
-
             return true;
         });
 
@@ -511,7 +501,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                 return false;
             }
-
             return true;
         });
 
@@ -543,7 +532,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     .setTitle(R.string.dialog_title_launcher)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                     .show();
-
             return false;
         });
 
@@ -578,7 +566,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
                 }
             }
-
             return true;
         });
 
@@ -601,7 +588,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                 Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, true);
                                 requireActivity().finish();
                                 requireActivity().overridePendingTransition(0, 0);
-                                startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("result", true));
+                                startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                             }
                         })
                         .setNegativeButton(R.string.dialog_common_no, null)
@@ -609,7 +596,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             } else {
                 cfmDialog();
             }
-
             return false;
         });
 
@@ -650,7 +636,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_emergency));
                 Toast.makeText(requireActivity(), R.string.toast_common_success, Toast.LENGTH_SHORT).show();
             }
-
             return false;
         });
 
@@ -682,7 +667,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     .setTitle(R.string.dialog_title_launcher)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                     .show();
-
             return false;
         });
 
@@ -717,7 +701,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_normal));
                 Toast.makeText(requireActivity(), R.string.toast_common_success, Toast.LENGTH_SHORT).show();
             }
-
             return false;
         });
 
@@ -740,7 +723,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             } else {
                 makeRebootShortcut();
             }
-
             return false;
         });
 
@@ -756,7 +738,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
             }
-
             return false;
         });
 
@@ -806,7 +787,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     })
                     .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> dialog.dismiss())
                     .show();
-
             return false;
         });
 
@@ -838,20 +818,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
             }
-
             return false;
         });
 
         preDeviceOwnerFn.setOnPreferenceClickListener(preference -> {
-            if (Common.isDhizukuActive(requireActivity())) {
-                requireActivity().runOnUiThread(() -> {
-                    if (tryBindDhizukuService()) {
-                        StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
-                    }
-                });
-            } else {
-                StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true);
-            }
+            requireActivity().runOnUiThread(() -> StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true));
             return false;
         });
 
@@ -894,7 +865,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
             }
-
             return false;
         });
 
@@ -919,7 +889,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         })
                         .show();
             }
-
             return false;
         });
 
@@ -1097,7 +1066,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
-
             try {
                 swDchaState.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
@@ -1111,7 +1079,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
-
             try {
                 swNavigation.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
@@ -1126,7 +1093,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
-
             try {
                 swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
@@ -1140,7 +1106,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
-
             try {
                 swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
@@ -1354,7 +1319,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         switch (requestCode) {
             case Constants.REQUEST_ACTIVITY_INSTALL:
                 preSilentInstall.setEnabled(true);
@@ -1401,15 +1365,13 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             /* プログレスバーの表示 */
             @Override
             public void onShow() {
+                showLoadingDialog(requireActivity().getResources().getString(R.string.progress_state_installing));
             }
 
             /* 成功 */
             @Override
             public void onSuccess() {
-                if (progressDialog.isShowing()) {
-                    progressDialog.cancel();
-                }
-
+                cancelLoadingDialog();
                 new AlertDialog.Builder(requireActivity())
                         .setMessage(R.string.dialog_info_success_silent_install)
                         .setCancelable(false)
@@ -1420,10 +1382,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             /* 失敗 */
             @Override
             public void onFailure() {
-                if (progressDialog.isShowing()) {
-                    progressDialog.cancel();
-                }
-
+                cancelLoadingDialog();
                 new AlertDialog.Builder(requireActivity())
                         .setMessage(R.string.dialog_info_failure_silent_install)
                         .setCancelable(false)
@@ -1504,7 +1463,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         switch (reqCode) {
             case Constants.REQUEST_DOWNLOAD_APP_CHECK:
                 cancelLoadingDialog();
-
                 ArrayList<AppListView.AppData> appDataArrayList = new ArrayList<>();
 
                 try {
@@ -1517,7 +1475,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         data.str = jsonArray.getJSONObject(i).getString("name");
                         appDataArrayList.add(data);
                     }
-                } catch (JSONException | IOException ignored) {
+                } catch (Exception ignored) {
                 }
 
                 view = getLayoutInflater().inflate(R.layout.layout_app_list, null);
@@ -1545,7 +1503,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                         JSONArray jsonArray = jsonObj2.getJSONArray("appList");
                                         str.append("アプリ名：").append(jsonArray.getJSONObject(i).getString("name")).append("\n\n").append("説明：").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
                                         DOWNLOAD_FILE_URL = jsonArray.getJSONObject(i).getString("url");
-                                    } catch (JSONException | IOException ignored) {
+                                    } catch (Exception ignored) {
                                     }
                                 }
                             }
@@ -1582,9 +1540,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 break;
             /* APKダウンロード要求の場合 */
             case Constants.REQUEST_DOWNLOAD_APK:
-                if (progressDialog.isShowing()) {
-                    progressDialog.cancel();
-                }
+                cancelLoadingDialog();
                 switch (Preferences.load(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, 1)) {
                     case 0:
                         requireActivity().startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(requireActivity().getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
@@ -1606,53 +1562,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                 .show();
                         break;
                     case 2:
-                        showLoadingDialog(requireActivity().getResources().getString(R.string.progress_state_installing));
                         new DchaInstallTask().execute(requireActivity(), dchaInstallTaskListener(), new File(requireActivity().getExternalCacheDir(), "update.apk").getPath());
                         break;
-                    case 3:
-                        showLoadingDialog(requireActivity().getResources().getString(R.string.progress_state_installing));
-                        switch (new Updater(requireActivity(), "").ownerInstallApk(1)) {
-                            case 0:
-                                break;
-                            case 1:
-                                if (progressDialog.isShowing()) {
-                                    progressDialog.cancel();
-                                }
-
-                                new AlertDialog.Builder(requireActivity())
-                                        .setCancelable(false)
-                                        .setMessage(requireActivity().getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→インストールモードを選択”が有効なモードに設定されているかをご確認ください")
-                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                        .show();
-                                break;
-                            case 2:
-                                if (progressDialog.isShowing()) {
-                                    progressDialog.cancel();
-                                }
-
-                                new AlertDialog.Builder(requireActivity())
-                                        .setCancelable(false)
-                                        .setMessage(requireActivity().getString(R.string.dialog_error_reset_update_mode))
-                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                        .show();
-                                break;
-                        }
-                        break;
-                    case 4:
-                        showLoadingDialog(requireActivity().getResources().getString(R.string.progress_state_installing));
-                        new Handler().postDelayed(() -> {
-                            if (!new Updater(requireActivity(), "").dhizukuInstallApk(1)) {
-                                if (progressDialog.isShowing()) {
-                                    progressDialog.cancel();
-                                }
-
-                                new AlertDialog.Builder(requireActivity())
-                                        .setCancelable(false)
-                                        .setMessage(requireActivity().getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→インストールモードを選択”が有効なモードに設定されているかをご確認ください")
-                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                        .show();
-                            }
-                        }, 5000);
+                    case 3, 4:
+                        installData[0] = new File(requireActivity().getExternalCacheDir(), "update.apk").getPath();
+                        new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installData, Constants.REQUEST_INSTALL_GET_APP);
                         break;
                 }
                 break;
@@ -1687,53 +1601,93 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onInstallSuccess(int reqCode) {
-        if (progressDialog.isShowing()) {
-            progressDialog.cancel();
-        }
-
-        new AlertDialog.Builder(StartActivity.getInstance())
-                .setMessage(getString(R.string.dialog_info_success_silent_install))
-                .setCancelable(false)
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                .show();
+        apkInstallTaskListener().onSuccess();
     }
 
     @Override
     public void onInstallFailure(int reqCode, String message) {
-        if (progressDialog.isShowing()) {
-            progressDialog.cancel();
-        }
-
-        new AlertDialog.Builder(StartActivity.getInstance())
-                .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
-                .setCancelable(false)
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                .show();
+        apkInstallTaskListener().onFailure(message);
     }
 
     @Override
     public void onInstallError(int reqCode, String message) {
-        if (progressDialog.isShowing()) {
-            progressDialog.cancel();
-        }
-
-        new AlertDialog.Builder(StartActivity.getInstance())
-                .setMessage(getString(R.string.dialog_error) + "\n" + message)
-                .setCancelable(false)
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                .show();
+        apkInstallTaskListener().onError(message);
     }
 
-    private boolean tryBindDhizukuService() {
-        DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(requireActivity(), DhizukuService.class));
-        return Dhizuku.bindUserService(args, new ServiceConnection() {
+    public ApkInstallTask.Listener apkInstallTaskListener() {
+        return new ApkInstallTask.Listener() {
+
+            /* プログレスバーの表示 */
             @Override
-            public void onServiceConnected(ComponentName name, IBinder iBinder) {
+            public void onShow() {
+                showLoadingDialog(getString(R.string.progress_state_installing));
+            }
+
+            /* 成功 */
+            @Override
+            public void onSuccess() {
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (Exception ignored) {
+                }
+
+                cancelLoadingDialog();
+                AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.getInstance())
+                        .setMessage(R.string.dialog_info_success_silent_install)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .create();
+
+                if (!alertDialog.isShowing()) {
+                    alertDialog.show();
+                }
+            }
+
+            /* 失敗 */
+            @Override
+            public void onFailure(String message) {
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (Exception ignored) {
+                }
+
+                cancelLoadingDialog();
+                new AlertDialog.Builder(StartActivity.getInstance())
+                        .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
             }
 
             @Override
-            public void onServiceDisconnected(ComponentName name) {
+            public void onError(String message) {
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (Exception ignored) {
+                }
+
+                cancelLoadingDialog();
+                new AlertDialog.Builder(StartActivity.getInstance())
+                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
             }
-        });
+        };
     }
 }

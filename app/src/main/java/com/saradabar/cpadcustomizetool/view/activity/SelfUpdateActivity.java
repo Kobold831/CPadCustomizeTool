@@ -12,11 +12,11 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -28,8 +28,9 @@ import android.widget.Toast;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
+import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
-import com.saradabar.cpadcustomizetool.data.installer.Updater;
+import com.saradabar.cpadcustomizetool.data.task.ApkInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.DchaInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -38,21 +39,31 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 
-public class SelfUpdateActivity extends AppCompatActivity implements DownloadEventListener {
+public class SelfUpdateActivity extends AppCompatActivity implements DownloadEventListener, InstallEventListener {
 
     AlertDialog progressDialog;
     TextView progressPercentText;
     TextView progressByteText;
     ProgressBar dialogProgressBar;
     String DOWNLOAD_FILE_URL;
+    String[] installData = new String[1];
+
+    @SuppressLint("StaticFieldLeak")
+    static SelfUpdateActivity instance = null;
+
+    public static SelfUpdateActivity getInstance() {
+        return instance;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        instance = this;
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -83,9 +94,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 }
                 break;
             case Constants.REQUEST_DOWNLOAD_APK:
-                if (progressDialog.isShowing()) {
-                    progressDialog.cancel();
-                }
+                cancelLoadingDialog();
                 switch (Preferences.load(this, Constants.KEY_FLAG_UPDATE_MODE, 1)) {
                     case 0:
                         startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
@@ -107,53 +116,11 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                                 .show();
                         break;
                     case 2:
-                        showLoadingDialog(getString(R.string.progress_state_installing));
                         new DchaInstallTask().execute(this, dchaInstallTaskListener(), new File(getExternalCacheDir(), "update.apk").getPath());
                         break;
-                    case 3:
-                        showLoadingDialog(getString(R.string.progress_state_installing));
-                        switch (new Updater(this, DOWNLOAD_FILE_URL).ownerInstallApk(0)) {
-                            case 0:
-                                break;
-                            case 1:
-                                if (progressDialog.isShowing()) {
-                                    progressDialog.cancel();
-                                }
-
-                                new AlertDialog.Builder(this)
-                                        .setCancelable(false)
-                                        .setMessage(getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→インストールモードを選択”が有効なモードに設定されているかをご確認ください")
-                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                        .show();
-                                break;
-                            case 2:
-                                if (progressDialog.isShowing()) {
-                                    progressDialog.cancel();
-                                }
-
-                                new AlertDialog.Builder(this)
-                                        .setCancelable(false)
-                                        .setMessage(getString(R.string.dialog_error_reset_update_mode))
-                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                        .show();
-                                break;
-                        }
-                        break;
-                    case 4:
-                        showLoadingDialog(getString(R.string.progress_state_installing));
-                        new Handler().postDelayed(() -> {
-                            if (!new Updater(this, "").dhizukuInstallApk(1)) {
-                                if (progressDialog.isShowing()) {
-                                    progressDialog.cancel();
-                                }
-
-                                new AlertDialog.Builder(this)
-                                        .setCancelable(false)
-                                        .setMessage(getResources().getString(R.string.dialog_error) + "\n繰り返し発生する場合は”アプリ設定→インストールモードを選択”が有効なモードに設定されているかをご確認ください")
-                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                        .show();
-                            }
-                        }, 5000);
+                    case 3, 4:
+                        installData[0] = new File(getExternalCacheDir(), "update.apk").getPath();
+                        new ApkInstallTask().execute(this, apkInstallTaskListener(), installData, Constants.REQUEST_INSTALL_SELF_UPDATE);
                         break;
                 }
                 break;
@@ -198,15 +165,13 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
             /* プログレスバーの表示 */
             @Override
             public void onShow() {
+                showLoadingDialog(getString(R.string.progress_state_installing));
             }
 
             /* 成功 */
             @Override
             public void onSuccess() {
-                if (progressDialog.isShowing()) {
-                    progressDialog.cancel();
-                }
-
+                cancelLoadingDialog();
                 new AlertDialog.Builder(SelfUpdateActivity.this)
                         .setMessage(R.string.dialog_info_success_silent_install)
                         .setCancelable(false)
@@ -217,10 +182,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
             /* 失敗 */
             @Override
             public void onFailure() {
-                if (progressDialog.isShowing()) {
-                    progressDialog.cancel();
-                }
-
+                cancelLoadingDialog();
                 new AlertDialog.Builder(SelfUpdateActivity.this)
                         .setMessage(R.string.dialog_info_failure_silent_install)
                         .setCancelable(false)
@@ -297,16 +259,106 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
             finish();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == Constants.REQUEST_ACTIVITY_UPDATE) {
             finish();
         }
+    }
+
+    public ApkInstallTask.Listener apkInstallTaskListener() {
+        return new ApkInstallTask.Listener() {
+
+            /* プログレスバーの表示 */
+            @Override
+            public void onShow() {
+                showLoadingDialog(getString(R.string.progress_state_installing));
+            }
+
+            /* 成功 */
+            @Override
+            public void onSuccess() {
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (Exception ignored) {
+                }
+
+                cancelLoadingDialog();
+                AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.getInstance())
+                        .setMessage(R.string.dialog_info_success_silent_install)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .create();
+
+                if (!alertDialog.isShowing()) {
+                    alertDialog.show();
+                }
+            }
+
+            /* 失敗 */
+            @Override
+            public void onFailure(String message) {
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (Exception ignored) {
+                }
+
+                cancelLoadingDialog();
+                new AlertDialog.Builder(StartActivity.getInstance())
+                        .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            }
+
+            @Override
+            public void onError(String message) {
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (Exception ignored) {
+                }
+
+                cancelLoadingDialog();
+                new AlertDialog.Builder(StartActivity.getInstance())
+                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            }
+        };
+    }
+
+    @Override
+    public void onInstallSuccess(int reqCode) {
+        apkInstallTaskListener().onSuccess();
+    }
+
+    @Override
+    public void onInstallFailure(int reqCode, String str) {
+        apkInstallTaskListener().onFailure(str);
+    }
+
+    @Override
+    public void onInstallError(int reqCode, String str) {
+        apkInstallTaskListener().onError(str);
     }
 }
