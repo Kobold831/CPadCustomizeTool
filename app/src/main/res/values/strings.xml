@@ -179,7 +179,7 @@
     <string name="dialog_error_no_file_browse">ファイルブラウザがインストールされていません</string>
     <string name="dialog_error_no_file_data">ファイルデータを取得できませんでした</string>
     <string name="dialog_error_not_work_mode">選択されたモードは機能していないため設定できません</string>
-    <string name="dialog_error_reset_update_mode">デバイスオーナーではありません\nアップデートモードをリセットしました</string>
+    <string name="dialog_error_reset_update_mode">エラーが発生したため、インストールモードをリセットしました</string>
     <string name="dialog_error_dhizuku_conn_failure">Dhizukuとの通信に失敗しました</string>
     <!-- ダイアログ操作許可 -->
     <string name="dialog_question_reboot">デバイスを再起動しますか？</string>

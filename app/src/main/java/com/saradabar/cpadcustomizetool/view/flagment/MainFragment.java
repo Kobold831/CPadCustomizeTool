@@ -12,6 +12,8 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -1564,7 +1566,32 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     case 2:
                         new DchaInstallTask().execute(requireActivity(), dchaInstallTaskListener(), new File(requireActivity().getExternalCacheDir(), "update.apk").getPath());
                         break;
-                    case 3, 4:
+                    case 3:
+                        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+                        if (!dpm.isDeviceOwnerApp(requireActivity().getPackageName())) {
+                            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, 1);
+                            new AlertDialog.Builder(requireActivity())
+                                    .setCancelable(false)
+                                    .setMessage(requireActivity().getString(R.string.dialog_error_reset_update_mode))
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .show();
+                            return;
+                        }
+
+                        installData[0] = new File(requireActivity().getExternalCacheDir(), "update.apk").getPath();
+                        new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installData, Constants.REQUEST_INSTALL_GET_APP);
+                        break;
+                    case 4:
+                        if (!isDhizukuActive(requireActivity())) {
+                            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, 1);
+                            new AlertDialog.Builder(requireActivity())
+                                    .setCancelable(false)
+                                    .setMessage(requireActivity().getString(R.string.dialog_error_reset_update_mode))
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .show();
+                            return;
+                        }
+
                         installData[0] = new File(requireActivity().getExternalCacheDir(), "update.apk").getPath();
                         new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installData, Constants.REQUEST_INSTALL_GET_APP);
                         break;
