@@ -71,7 +71,8 @@ public class ApkInstallTask {
                     }
                     if (mDhizukuService == null) return false;
                     return mDhizukuService.tryInstallPackages(splitInstallData, reqCode);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    return e.getMessage();
                 }
             }
             return false;

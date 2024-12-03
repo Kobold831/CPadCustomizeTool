@@ -153,9 +153,13 @@ public class Common {
             switch (Objects.requireNonNull(uri.getAuthority())) {
                 /* 内部ストレージ */
                 case "com.android.externalstorage.documents":
-                    String[] str = DocumentsContract.getDocumentId(uri).split(":");
-                    return Environment.getExternalStorageDirectory() + "/" + str[1];
-                /* ダウンロード */
+                    String[] split = DocumentsContract.getDocumentId(uri).split(":");
+                    if (Objects.equals(split[0], "primary")) {
+                        return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    } else {
+                        return "/storage/" + split[0] + "/" + split[1];
+                    }
+                    /* ダウンロード */
                 case "com.android.providers.downloads.documents":
                     try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null, null)) {
                         if (cursor != null && cursor.moveToFirst()) {
