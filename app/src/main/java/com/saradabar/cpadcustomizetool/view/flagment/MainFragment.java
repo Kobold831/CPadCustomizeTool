@@ -1327,7 +1327,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                 if (data != null) {
                     if (Common.getFilePath(requireActivity(), data.getData()) != null) {
-                        showLoadingDialog(requireActivity().getResources().getString(R.string.progress_state_installing));
                         new DchaInstallTask().execute(requireActivity(), dchaInstallTaskListener(), Common.getFilePath(requireActivity(), data.getData()));
                         return;
                     }
@@ -1405,7 +1404,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             public void onSuccess() {
                 /* 設定変更カウントダウンダイアログ表示 */
                 AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.getInstance())
-                        .setTitle(R.string.dialog_title_resolution)
+                        .setTitle("解像度の変更を適用しますか？")
                         .setCancelable(false)
                         .setMessage("")
                         .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
@@ -1431,7 +1430,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                     @Override
                     public void run() {
-                        alertDialog.setMessage("変更を適用しますか？\n" + i + "秒後に元の設定に戻ります");
+                        alertDialog.setMessage(i + "秒で初期設定に戻ります");
                         mHandler.postDelayed(this, 1000);
 
                         if (i <= 0) {
