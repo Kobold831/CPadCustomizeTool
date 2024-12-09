@@ -108,35 +108,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         preClrDevOwn = findPreference("pre_owner_clr_dev_own");
         preNowSetOwnPkg = findPreference("pre_owner_now_set_own_pkg");
 
-        if (Common.isDhizukuActive(requireActivity())) {
-            showLoadingDialog("サービスへの接続を待機しています...");
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                try {
-                    new IDhizukuTask().execute(requireActivity(), iDhizukuTaskListener());
-                    synchronized (objLock) {
-                        objLock.wait();
-                    }
-                } catch (Exception ignored) {
-                }
-
-                cancelLoadingDialog();
-                if (mDhizukuService == null) {
-                    new AlertDialog.Builder(requireActivity())
-                            .setCancelable(false)
-                            .setMessage(R.string.dialog_error_dhizuku_conn_failure)
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                                requireActivity().finish();
-                                requireActivity().overridePendingTransition(0, 0);
-                                startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                            })
-                            .show();
-                }
-                setListener();
-            });
-        } else {
-            setListener();
-        }
+        /* 初期化 */
+        initialize();
     }
 
     private void setListener() {
@@ -201,12 +174,13 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
         preSessionInstall.setOnPreferenceClickListener(preference -> {
             try {
+                preSessionInstall.setEnabled(false);
                 startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/*"}).addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), ""), Constants.REQUEST_ACTIVITY_INSTALL);
             } catch (Exception ignored) {
                 preSessionInstall.setEnabled(true);
                 new AlertDialog.Builder(requireActivity())
                         .setMessage(getString(R.string.dialog_error_no_file_browse))
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
             return false;
@@ -250,6 +224,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     .show();
             return false;
         });
+
         /* 初期化 */
         initialize();
     }
@@ -340,50 +315,76 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     @Override
     public void onResume() {
         super.onResume();
-        initialize();
+        if (Common.isDhizukuActive(requireActivity())) {
+            showLoadingDialog("サービスへの接続を待機しています...");
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.submit(() -> {
+                try {
+                    new IDhizukuTask().execute(requireActivity(), iDhizukuTaskListener());
+                    synchronized (objLock) {
+                        objLock.wait();
+                    }
+                } catch (Exception ignored) {
+                }
+
+                cancelLoadingDialog();
+                if (mDhizukuService == null) {
+                    new AlertDialog.Builder(requireActivity())
+                            .setCancelable(false)
+                            .setMessage(R.string.dialog_error_dhizuku_conn_failure)
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                                requireActivity().finish();
+                                requireActivity().overridePendingTransition(0, 0);
+                                startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                            })
+                            .show();
+                } else {
+                    setListener();
+                }
+            });
+        } else {
+            setListener();
+        }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Constants.REQUEST_ACTIVITY_INSTALL) {
+            preSessionInstall.setEnabled(true);
             try {
+                if (data == null) {
+                    return;
+                }
+
                 if (trySetInstallData(data)) {
                     String installFileName = new File(splitInstallData[0]).getName();
 
                     /* ファイルの拡張子 */
                     if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
                         new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), splitInstallData, Constants.REQUEST_INSTALL_SILENT);
-                        return;
                     } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".xapk")) {
                         new XApkCopyTask().execute(requireActivity(), xApkListener(), splitInstallData);
-                        return;
                     } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
                         new ApkMCopyTask().execute(requireActivity(), apkMListener(), splitInstallData);
-                        return;
                     }
+                } else {
+                    new AlertDialog.Builder(requireActivity())
+                            .setMessage(getString(R.string.dialog_error_no_file_data))
+                            .setPositiveButton(R.string.dialog_common_ok, null)
+                            .show();
                 }
             } catch (Exception ignored) {
+                new AlertDialog.Builder(requireActivity())
+                        .setMessage(getString(R.string.dialog_error_no_file_data))
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
             }
-            new AlertDialog.Builder(requireActivity())
-                    .setMessage(getString(R.string.dialog_error_no_file_data))
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                    .show();
         }
     }
 
     /* splitInstallDataにファイルパスを格納 */
     private boolean trySetInstallData(Intent intent) {
-        try {
-            /* 一時ファイルを消去 */
-            File tmpFile = requireActivity().getExternalCacheDir();
-
-            if (tmpFile != null) {
-                FileUtils.deleteDirectory(tmpFile);
-            }
-        } catch (IOException ignored) {
-        }
-
         try {
             ClipData clipData = intent.getClipData();
 
@@ -410,9 +411,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     /* 処理 */
                     splitInstallData[i] = Common.getFilePath(requireActivity(), clipData.getItemAt(i).getUri());
                 }
+                return splitInstallData != null;
             }
-
-            return splitInstallData != null;
         } catch (Exception ignored) {
             return false;
         }
@@ -530,9 +530,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             }
 
             @Override
-            public void onSuccess() {
+            public void onSuccess(String[] s) {
                 alertDialog.dismiss();
-                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), splitInstallData, Constants.REQUEST_INSTALL_SILENT);
+                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), s, Constants.REQUEST_INSTALL_SILENT);
             }
 
             @Override
@@ -617,9 +617,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             }
 
             @Override
-            public void onSuccess() {
+            public void onSuccess(String[] s) {
                 alertDialog.dismiss();
-                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), splitInstallData, Constants.REQUEST_INSTALL_SILENT);
+                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), s, Constants.REQUEST_INSTALL_SILENT);
             }
 
             @Override

@@ -4,3 +4,4 @@
 -keep class org.zeroturnaround.** {*;}
 -dontwarn androidx.annotation.**
 -dontwarn org.slf4j.impl.**
+-keep class android.support.v4.app.CoreComponentFactory {*;}

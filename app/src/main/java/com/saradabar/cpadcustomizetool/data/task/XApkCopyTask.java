@@ -10,7 +10,6 @@ import android.os.Looper;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 
-import org.zeroturnaround.zip.ZipException;
 import org.zeroturnaround.zip.ZipUtil;
 import org.zeroturnaround.zip.commons.FileUtils;
 
@@ -18,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class XApkCopyTask {
@@ -29,8 +27,7 @@ public class XApkCopyTask {
 
     public void execute(Context context, Listener listener, String[] splitInstallData) {
         onPreExecute(listener);
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() -> {
+        Executors.newSingleThreadExecutor().submit(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
             new Thread(() -> {
                 Object result = doInBackground(context, listener, splitInstallData);
@@ -51,9 +48,9 @@ public class XApkCopyTask {
             return;
         }
 
-        if (result.equals(true)) {
+        if (result.getClass() == String[].class) {
             totalByte = -1;
-            listener.onSuccess();
+            listener.onSuccess((String[]) result);
             return;
         }
 
@@ -72,35 +69,17 @@ public class XApkCopyTask {
     }
 
     protected Object doInBackground(Context context, Listener listener, String[] splitInstallData) {
-        String zipFile = new File(splitInstallData[0]).getParent() + File.separator + new File(splitInstallData[0]).getName().replaceFirst("\\..*", ".zip");
-
-        /* 拡張子.xapkを.zipに変更 */
-        onProgressUpdate(listener, context.getString(R.string.progress_state_rename));
-
-        if (!new File(splitInstallData[0]).renameTo(new File(zipFile))) {
-            return "拡張子の変更に失敗しました";
-        }
-
+        String zipFile = splitInstallData[0];
         File tmpFile = new File(Common.getTemporaryPath(context));
+        totalByte = new File(zipFile).length();
 
         /* zipを展開して外部ディレクトリに一時保存 */
         onProgressUpdate(listener, context.getString(R.string.progress_state_unpack));
 
-        totalByte = new File(zipFile).length();
-
         try {
             ZipUtil.unpack(new File(zipFile), tmpFile);
-        } catch (ZipException e) {
-            return "圧縮ファイルが無効のため展開できません\n" + e.getMessage();
         } catch (Exception e) {
-            return context.getString(R.string.installer_status_no_allocatable_space) + e.getMessage();
-        }
-
-        /* 拡張子.zipを.xapkに変更 */
-        onProgressUpdate(listener, context.getString(R.string.progress_state_rename));
-
-        if (!new File(zipFile).renameTo(new File(new File(zipFile).getParent() + File.separator + new File(zipFile).getName().replaceFirst("\\..*", ".xapk")))) {
-            return "拡張子の変更に失敗しました";
+            return e.getMessage();
         }
 
         File[] zipListFiles = tmpFile.listFiles();
@@ -123,8 +102,10 @@ public class XApkCopyTask {
                         obbPath1 = obbName[0].getName();
                         obbPath2 = obbFile != null ? obbFile[0].getName() : null;
                         FileUtils.copyDirectory(new File(zipListFiles[i].getPath() + "/obb/"), new File(Environment.getExternalStorageDirectory() + "/Android/obb"));
-                    } catch (Exception e) {
+                    } catch (IOException e) {
                         return context.getString(R.string.installer_status_no_allocatable_space) + e.getMessage();
+                    } catch (Exception e) {
+                        return e.getMessage();
                     }
                 } else {
                     onProgressUpdate(listener, context.getString(R.string.progress_state_check_file));
@@ -139,18 +120,16 @@ public class XApkCopyTask {
                     }
                 }
             }
-
-            return true;
+            return splitInstallData;
         } else {
             return false;
         }
     }
 
     public interface Listener {
-
         void onShow();
 
-        void onSuccess();
+        void onSuccess(String[] splitInstallData);
 
         void onFailure();
 
@@ -161,7 +140,9 @@ public class XApkCopyTask {
 
     @TargetApi(Build.VERSION_CODES.O)
     public int getLoadedBytePercent(Context context) {
-        if (totalByte <= 0) return 0;
+        if (totalByte <= 0) {
+            return 0;
+        }
         return (int) Math.floor(((double) getLoadedCurrentByte(context) / getLoadedTotalByte()) * 100);
     }
 
@@ -171,7 +152,9 @@ public class XApkCopyTask {
 
     @TargetApi(Build.VERSION_CODES.O)
     public int getLoadedCurrentByte(Context context) {
-        if (totalByte <= 0) return 0;
+        if (totalByte <= 0) {
+            return 0;
+        }
 
         if (obbPath1 == null) {
             return (int) Common.getDirectorySize(new File(Common.getTemporaryPath(context))) / (1024 * 1024);

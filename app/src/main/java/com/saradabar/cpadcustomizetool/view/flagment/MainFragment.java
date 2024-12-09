@@ -729,15 +729,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         preSilentInstall.setOnPreferenceClickListener(preference -> {
-            preSilentInstall.setEnabled(false);
-
             try {
+                preSilentInstall.setEnabled(false);
                 startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/vnd.android.package-archive").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false), ""), Constants.REQUEST_ACTIVITY_INSTALL);
-            } catch (ActivityNotFoundException ignored) {
+            } catch (Exception ignored) {
                 preSilentInstall.setEnabled(true);
                 new AlertDialog.Builder(requireActivity())
                         .setMessage(getString(R.string.dialog_error_no_file_browse))
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
             return false;
@@ -1325,37 +1324,44 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             case Constants.REQUEST_ACTIVITY_INSTALL:
                 preSilentInstall.setEnabled(true);
 
-                if (data != null) {
-                    if (Common.getFilePath(requireActivity(), data.getData()) != null) {
-                        new DchaInstallTask().execute(requireActivity(), dchaInstallTaskListener(), Common.getFilePath(requireActivity(), data.getData()));
-                        return;
-                    }
+                if (data == null) {
+                    return;
                 }
 
-                new AlertDialog.Builder(requireActivity())
-                        .setMessage(getString(R.string.dialog_error_no_file_data))
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
+                String installData = Common.getFilePath(requireActivity(), data.getData());
+
+                if (installData != null) {
+                    new DchaInstallTask().execute(requireActivity(), dchaInstallTaskListener(), installData);
+                    return;
+                } else {
+                    new AlertDialog.Builder(requireActivity())
+                            .setMessage(getString(R.string.dialog_error_no_file_data))
+                            .setPositiveButton(R.string.dialog_common_ok, null)
+                            .show();
+                }
                 break;
             case Constants.REQUEST_ACTIVITY_SYSTEM_UPDATE:
                 preSystemUpdate.setEnabled(true);
 
-                if (data != null) {
-                    if (Common.getFilePath(requireActivity(), data.getData()) != null) {
-                        if (!Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_SYSTEM_UPDATE, 0, 0, Common.getFilePath(requireActivity(), data.getData()), "")) {
-                            new AlertDialog.Builder(requireActivity())
-                                    .setMessage(R.string.dialog_error)
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                                    .show();
-                        }
-                        return;
-                    }
+                if (data == null) {
+                    return;
                 }
 
-                new AlertDialog.Builder(requireActivity())
-                        .setMessage(getString(R.string.dialog_error_no_file_data))
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
+                String updateData = Common.getFilePath(requireActivity(), data.getData());
+
+                if (updateData != null) {
+                    if (!Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_SYSTEM_UPDATE, 0, 0, updateData, "")) {
+                        new AlertDialog.Builder(requireActivity())
+                                .setMessage(R.string.dialog_error)
+                                .setPositiveButton(R.string.dialog_common_ok, null)
+                                .show();
+                    }
+                } else {
+                    new AlertDialog.Builder(requireActivity())
+                            .setMessage(getString(R.string.dialog_error_no_file_data))
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                            .show();
+                }
                 break;
         }
     }

@@ -1,28 +1,33 @@
 package com.saradabar.cpadcustomizetool.data.task;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 
-import org.zeroturnaround.zip.ZipException;
 import org.zeroturnaround.zip.ZipUtil;
+import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.File;
-import java.util.concurrent.ExecutorService;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.Executors;
 
 public class ApkMCopyTask {
 
     public static ApkMCopyTask apkMCopyTask;
     long totalByte = 0;
+    String obbPath1;
 
     public void execute(Context context, Listener listener, String[] splitInstallData) {
         onPreExecute(listener);
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() -> {
+        Executors.newSingleThreadExecutor().submit(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
             new Thread(() -> {
                 Object result = doInBackground(context, listener, splitInstallData);
@@ -43,9 +48,9 @@ public class ApkMCopyTask {
             return;
         }
 
-        if (result.equals(true)) {
+        if (result.getClass() == String[].class) {
             totalByte = -1;
-            listener.onSuccess();
+            listener.onSuccess((String[]) result);
             return;
         }
 
@@ -64,35 +69,17 @@ public class ApkMCopyTask {
     }
 
     protected Object doInBackground(Context context, Listener listener, String[] splitInstallData) {
-        String zipFile = new File(splitInstallData[0]).getParent() + File.separator + new File(splitInstallData[0]).getName().replaceFirst("\\..*", ".zip");
-
-        /* 拡張子.apkmを.zipに変更 */
-        onProgressUpdate(listener, context.getString(R.string.progress_state_rename));
-
-        if (!new File(splitInstallData[0]).renameTo(new File(zipFile))) {
-            return "拡張子の変更に失敗しました";
-        }
-
+        String zipFile = splitInstallData[0];
         File tmpFile = new File(Common.getTemporaryPath(context));
+        totalByte = new File(zipFile).length();
 
         /* zipを展開して外部ディレクトリに一時保存 */
         onProgressUpdate(listener, context.getString(R.string.progress_state_unpack));
 
-        totalByte = new File(zipFile).length();
-
         try {
             ZipUtil.unpack(new File(zipFile), tmpFile);
-        } catch (ZipException e) {
-            return "圧縮ファイルが無効のため展開できません\n" + e.getMessage();
         } catch (Exception e) {
-            return context.getString(R.string.installer_status_no_allocatable_space) + e.getMessage();
-        }
-
-        /* 拡張子.zipを.apkmに変更 */
-        onProgressUpdate(listener, context.getString(R.string.progress_state_rename));
-
-        if (!new File(zipFile).renameTo(new File(new File(zipFile).getParent() + File.separator + new File(zipFile).getName().replaceFirst("\\..*", ".apkm")))) {
-            return "拡張子の変更に失敗しました";
+            return e.getMessage();
         }
 
         File[] zipListFiles = tmpFile.listFiles();
@@ -111,24 +98,35 @@ public class ApkMCopyTask {
                     /* apkファイルならパスをインストールデータへ */
                     if (zipFile.substring(zipFile.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
                         splitInstallData[i - c] = zipListFiles[i].getPath();
+                    } else if (zipFile.substring(zipFile.lastIndexOf(".")).equalsIgnoreCase(".obb")) {
+                        // FIXME: obbデータを正しくコピーするように修正
+                        try {
+                            /* obbデータをコピー */
+                            onProgressUpdate(listener, context.getString(R.string.progress_state_copy_file));
+                            totalByte = zipListFiles[i].length();
+                            obbPath1 = zipListFiles[i].getName();
+                            FileUtils.copyFile(new File(zipListFiles[i].getPath()), new File(Environment.getExternalStorageDirectory() + "/Android/obb"));
+                        } catch (IOException e) {
+                            return context.getString(R.string.installer_status_no_allocatable_space) + e.getMessage();
+                        } catch (Exception e) {
+                            return e.getMessage();
+                        }
                     } else {
                         /* apkファイルでなかったときのリストの順番を修正 */
                         c++;
                     }
                 }
             }
-
-            return true;
+            return splitInstallData;
         } else {
             return false;
         }
     }
 
     public interface Listener {
-
         void onShow();
 
-        void onSuccess();
+        void onSuccess(String[] splitInstallData);
 
         void onFailure();
 
@@ -141,7 +139,6 @@ public class ApkMCopyTask {
         if (totalByte <= 0) {
             return 0;
         }
-
         return (int) Math.floor(((double) getLoadedCurrentByte(context) / getLoadedTotalByte()) * 100);
     }
 
@@ -149,12 +146,21 @@ public class ApkMCopyTask {
         return (int) totalByte / (1024 * 1024);
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
     public int getLoadedCurrentByte(Context context) {
         if (totalByte <= 0) {
             return 0;
         }
 
-        return (int) Common.getFileSize(new File(Common.getTemporaryPath(context))) / (1024 * 1024);
+        if (obbPath1 == null) {
+            return (int) Common.getFileSize(new File(Common.getTemporaryPath(context))) / (1024 * 1024);
+        } else {
+            try {
+                return (int) Files.size(Paths.get(Environment.getExternalStorageDirectory() + "/Android/obb")) / (1024 * 1024);
+            } catch (IOException ignored) {
+                return 0;
+            }
+        }
     }
 
     public boolean isFinish() {

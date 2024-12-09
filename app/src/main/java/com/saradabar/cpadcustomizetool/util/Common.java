@@ -28,6 +28,7 @@ import android.view.Display;
 import android.view.IWindowManager;
 
 import com.rosan.dhizuku.api.Dhizuku;
+import com.saradabar.cpadcustomizetool.BuildConfig;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -134,8 +135,12 @@ public class Common {
                 getNowDate() + ":\n" +
                 "- デバイス情報:\n" +
                 Build.FINGERPRINT + "\n" +
+                "- アプリ情報:\n" +
+                BuildConfig.VERSION_NAME + "\n" +
+                BuildConfig.VERSION_CODE + "\n" +
+                BuildConfig.BUILD_TYPE + "\n" +
                 "- 例外原因:\n" +
-                throwable.getCause() + "\n" +
+                throwable.getMessage() + "\n" +
                 "- スタックトレース:\n" +
                 stringWriter +
                 "- ログ終了 -\n\n";
@@ -286,7 +291,6 @@ public class Common {
                 return true;
             }
         }
-
         return false;
     }
 
