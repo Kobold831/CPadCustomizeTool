@@ -1473,7 +1473,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 ArrayList<AppListView.AppData> appDataArrayList = new ArrayList<>();
 
                 try {
-                    JSONObject jsonObj1 = Common.parseJson(requireActivity());
+                    JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), "Check.json"));
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONArray jsonArray = jsonObj2.getJSONArray("appList");
 
@@ -1505,7 +1505,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                 RadioButton radioButton = listView.getChildAt(i).findViewById(R.id.v_app_list_radio);
                                 if (radioButton.isChecked()) {
                                     try {
-                                        JSONObject jsonObj1 = Common.parseJson(requireActivity());
+                                        JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), "Check.json"));
                                         JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                                         JSONArray jsonArray = jsonObj2.getJSONArray("appList");
                                         str.append("アプリ名：").append(jsonArray.getJSONObject(i).getString("name")).append("\n\n").append("説明：").append(jsonArray.getJSONObject(i).getString("description")).append("\n");

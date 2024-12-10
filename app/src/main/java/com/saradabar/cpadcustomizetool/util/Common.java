@@ -12,7 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.util;
 
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
@@ -39,8 +38,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.LinkedList;
@@ -180,9 +177,9 @@ public class Common {
         return null;
     }
 
-    public static JSONObject parseJson(Context context) throws JSONException, IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(context.getExternalCacheDir(), "Check.json").getPath()));
-        JSONObject json;
+    public static JSONObject parseJson(File json) throws JSONException, IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(json.getPath()));
+        JSONObject jsonObject;
         StringBuilder data = new StringBuilder();
         String str = bufferedReader.readLine();
 
@@ -191,10 +188,10 @@ public class Common {
             str = bufferedReader.readLine();
         }
 
-        json = new JSONObject(data.toString());
+        jsonObject = new JSONObject(data.toString());
 
         bufferedReader.close();
-        return json;
+        return jsonObject;
     }
 
     public static boolean isDhizukuActive(Context context) {
@@ -257,30 +254,6 @@ public class Common {
         }
 
         return result;
-    }
-
-    @TargetApi(Build.VERSION_CODES.O)
-    public static double getDirectorySize(File file) {
-        double fileSize = 0;
-
-        if (file != null) {
-            try {
-                File[] list = file.listFiles();
-
-                for (File value : list != null ? list : new File[0]) {
-                    if (!value.isDirectory()) {
-                        fileSize += Files.size(Paths.get(value.getPath()));
-                    } else {
-                        File[] obbName = new File(value.getPath() + "/obb").listFiles();
-                        File[] obbFile = obbName != null ? obbName[0].listFiles() : new File[0];
-                        fileSize += Files.size(Paths.get(obbFile != null ? obbFile[0].getPath() : null));
-                    }
-                }
-            } catch (Exception ignored) {
-            }
-        }
-
-        return fileSize;
     }
 
     public static boolean isRunningService(Context context, String className) {

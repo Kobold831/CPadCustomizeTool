@@ -213,7 +213,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
         /* アップデートチェック要求の場合 */
         if (reqCode == Constants.REQUEST_DOWNLOAD_UPDATE_CHECK) {
             try {
-                JSONObject jsonObj1 = parseJson(this);
+                JSONObject jsonObj1 = parseJson(new File(getExternalCacheDir(), "Check.json"));
                 JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                 JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
                 DOWNLOAD_FILE_URL = jsonObj3.getString("url");

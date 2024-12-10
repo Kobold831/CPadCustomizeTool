@@ -157,7 +157,7 @@ public class XApkCopyTask {
         }
 
         if (obbPath1 == null) {
-            return (int) Common.getDirectorySize(new File(Common.getTemporaryPath(context))) / (1024 * 1024);
+            return (int) Common.getFileSize(new File(Common.getTemporaryPath(context))) / (1024 * 1024);
         } else {
             try {
                 return (int) Files.size(Paths.get(Environment.getExternalStorageDirectory() + "/Android/obb/" + obbPath1 + "/" + obbPath2)) / (1024 * 1024);

@@ -156,7 +156,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
             /* アップデートチェック要求の場合 */
             case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
                 try {
-                    JSONObject jsonObj1 = Common.parseJson(this);
+                    JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "Check.json"));
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
                     DOWNLOAD_FILE_URL = jsonObj3.getString("url");

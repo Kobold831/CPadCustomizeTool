@@ -23,7 +23,7 @@ public class ApkMCopyTask {
 
     public static ApkMCopyTask apkMCopyTask;
     long totalByte = 0;
-    String obbPath1;
+    String obbPath1, obbPath2;
 
     public void execute(Context context, Listener listener, String[] splitInstallData) {
         onPreExecute(listener);
@@ -99,13 +99,13 @@ public class ApkMCopyTask {
                     if (zipFile.substring(zipFile.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
                         splitInstallData[i - c] = zipListFiles[i].getPath();
                     } else if (zipFile.substring(zipFile.lastIndexOf(".")).equalsIgnoreCase(".obb")) {
-                        // FIXME: obbデータを正しくコピーするように修正
                         try {
                             /* obbデータをコピー */
                             onProgressUpdate(listener, context.getString(R.string.progress_state_copy_file));
                             totalByte = zipListFiles[i].length();
-                            obbPath1 = zipListFiles[i].getName();
-                            FileUtils.copyFile(new File(zipListFiles[i].getPath()), new File(Environment.getExternalStorageDirectory() + "/Android/obb"));
+                            obbPath1 = Common.parseJson(new File(zipListFiles[i].getParent(), "info.json")).getString("pname");
+                            obbPath2 = zipListFiles[i].getName();
+                            FileUtils.copyFile(new File(zipListFiles[i].getPath()), new File(Environment.getExternalStorageDirectory() + "/Android/obb/" + obbPath1 + "/" + obbPath2));
                         } catch (IOException e) {
                             return context.getString(R.string.installer_status_no_allocatable_space) + e.getMessage();
                         } catch (Exception e) {
@@ -156,7 +156,7 @@ public class ApkMCopyTask {
             return (int) Common.getFileSize(new File(Common.getTemporaryPath(context))) / (1024 * 1024);
         } else {
             try {
-                return (int) Files.size(Paths.get(Environment.getExternalStorageDirectory() + "/Android/obb")) / (1024 * 1024);
+                return (int) Files.size(Paths.get(Environment.getExternalStorageDirectory() + "/Android/obb/" + obbPath1 + "/" + obbPath2)) / (1024 * 1024);
             } catch (IOException ignored) {
                 return 0;
             }
