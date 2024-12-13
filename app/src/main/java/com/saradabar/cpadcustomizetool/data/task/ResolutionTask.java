@@ -1,14 +1,10 @@
 package com.saradabar.cpadcustomizetool.data.task;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 
-import com.saradabar.cpadcustomizetool.util.Common;
-import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,6 +12,8 @@ import java.util.concurrent.Executors;
 import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
 
 public class ResolutionTask {
+
+    final Object objLock = new Object();
 
     IDchaUtilService mDchaUtilService;
 
@@ -31,37 +29,50 @@ public class ResolutionTask {
     }
 
     void onPostExecute(Listener listener, Boolean result) {
-        Runnable runnable = () -> {
+        new Handler().postDelayed(() -> {
             if (result) {
                 listener.onSuccess();
             } else {
                 listener.onFailure();
             }
-        };
-
-        new Handler().postDelayed(runnable, 1000);
+        }, 1000);
     }
 
     protected Boolean doInBackground(Context context, int i, int i1) {
-        return Common.tryBindDchaService(context, null, mDchaUtilService, mDchaUtilServiceConnection, false, Constants.FLAG_RESOLUTION, i, i1, "", "");
+        try {
+            new IDchaUtilTask().execute(context, iDchaUtilTaskListener());
+            synchronized (objLock) {
+                objLock.wait();
+            }
+            if (mDchaUtilService == null) return false;
+            return new DchaUtilServiceUtil(mDchaUtilService).setForcedDisplaySize(i, i1);
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     public interface Listener {
-
         void onSuccess();
 
         void onFailure();
     }
 
-    ServiceConnection mDchaUtilServiceConnection = new ServiceConnection() {
+    private IDchaUtilTask.Listener iDchaUtilTaskListener() {
+        return new IDchaUtilTask.Listener() {
+            @Override
+            public void onSuccess(IDchaUtilService iDchaUtilService) {
+                mDchaUtilService = iDchaUtilService;
+                synchronized (objLock) {
+                    objLock.notify();
+                }
+            }
 
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            mDchaUtilService = IDchaUtilService.Stub.asInterface(iBinder);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-        }
-    };
+            @Override
+            public void onFailure() {
+                synchronized (objLock) {
+                    objLock.notify();
+                }
+            }
+        };
+    }
 }

@@ -15,16 +15,12 @@ package com.saradabar.cpadcustomizetool.util;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.ServiceManager;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
-import android.view.Display;
-import android.view.IWindowManager;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.saradabar.cpadcustomizetool.BuildConfig;
@@ -45,80 +41,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import jp.co.benesse.dcha.dchaservice.IDchaService;
-import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
-
 public class Common {
-
-    public static boolean tryBindDchaService(Context context, IDchaService iDchaService, IDchaUtilService iDchaUtilService, ServiceConnection serviceConnection, boolean isDchaService, int reqCode, int i, int i1, String s, String s1) {
-        try {
-            if (isDchaService) {
-                switch (reqCode) {
-                    case Constants.FLAG_SET_DCHA_STATE_0:
-                        if (isCfmDialog(context)) {
-                            iDchaService.setSetupStatus(0);
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    case Constants.FLAG_SET_DCHA_STATE_3:
-                        if (isCfmDialog(context)) {
-                            iDchaService.setSetupStatus(3);
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    case Constants.FLAG_HIDE_NAVIGATION_BAR:
-                        iDchaService.hideNavigationBar(true);
-                        return true;
-                    case Constants.FLAG_VIEW_NAVIGATION_BAR:
-                        iDchaService.hideNavigationBar(false);
-                        return true;
-                    case Constants.FLAG_REBOOT:
-                        iDchaService.rebootPad(i, s);
-                        return true;
-                    case Constants.FLAG_SET_LAUNCHER:
-                        iDchaService.clearDefaultPreferredApp(s);
-                        iDchaService.setDefaultPreferredHomeApp(s1);
-                        return true;
-                    case Constants.FLAG_SYSTEM_UPDATE:
-                        if (iDchaService.copyUpdateImage(s, "/cache/update.zip")) {
-                            iDchaService.rebootPad(i, "/cache/update.zip");
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    case Constants.FLAG_INSTALL_PACKAGE:
-                        return iDchaService.installApp(s, i);
-                    case Constants.FLAG_COPY_UPDATE_IMAGE:
-                        return iDchaService.copyUpdateImage(s, s1);
-                    case Constants.FLAG_CHECK:
-                        return context.getApplicationContext().bindService(Constants.DCHA_SERVICE, serviceConnection, Context.BIND_AUTO_CREATE);
-                    case Constants.FLAG_TEST:
-                        return true;
-                    default:
-                        return false;
-                }
-            } else {
-                switch (reqCode) {
-                    case Constants.FLAG_CHECK:
-                        return context.getApplicationContext().bindService(Constants.DCHA_UTIL_SERVICE, serviceConnection, Context.BIND_AUTO_CREATE);
-                    case Constants.FLAG_RESOLUTION:
-                        if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                            String method = "setForcedDisplaySize";
-                            Class.forName("android.view.IWindowManager").getMethod(method, int.class, int.class, int.class).invoke(IWindowManager.Stub.asInterface(ServiceManager.getService("window")), Display.DEFAULT_DISPLAY, i, i1);
-                            return true;
-                        } else {
-                            return iDchaUtilService.setForcedDisplaySize(i, i1);
-                        }
-                    default:
-                        return false;
-                }
-            }
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
 
     public static String getNowDate() {
         DateFormat df = new SimpleDateFormat("MMM dd HH:mm:ss.SSS z yyyy", Locale.ENGLISH);

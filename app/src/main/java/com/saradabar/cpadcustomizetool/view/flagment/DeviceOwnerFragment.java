@@ -316,7 +316,11 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     public void onResume() {
         super.onResume();
         if (Common.isDhizukuActive(requireActivity())) {
-            showLoadingDialog("サービスへの接続を待機しています...");
+            View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
+            TextView textView = view.findViewById(R.id.view_progress_spinner_text);
+            textView.setText("サービスへの接続を待機しています...");
+            AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
+            waitForServiceDialog.show();
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             executorService.submit(() -> {
                 try {
@@ -327,7 +331,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 } catch (Exception ignored) {
                 }
 
-                cancelLoadingDialog();
+                if (waitForServiceDialog.isShowing()) {
+                    waitForServiceDialog.cancel();
+                }
+
                 if (mDhizukuService == null) {
                     new AlertDialog.Builder(requireActivity())
                             .setCancelable(false)

@@ -1,14 +1,10 @@
 package com.saradabar.cpadcustomizetool.data.task;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 
-import com.saradabar.cpadcustomizetool.util.Common;
-import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,6 +12,8 @@ import java.util.concurrent.Executors;
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class DchaInstallTask {
+
+    final Object objLock = new Object();
 
     IDchaService mDchaService;
 
@@ -25,14 +23,8 @@ public class DchaInstallTask {
         executorService.submit(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
             new Thread(() -> {
-                Common.tryBindDchaService(context, mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_CHECK, 0, 0, "", "");
-
-                Runnable runnable = () -> {
-                    Boolean result = doInBackground(context, installData);
-                    handler.post(() -> onPostExecute(listener, result));
-                };
-
-                new Handler(Looper.getMainLooper()).postDelayed(runnable, 1000);
+                boolean result = doInBackground(context, installData);
+                handler.post(() -> onPostExecute(listener, result));
             }).start();
         });
     }
@@ -41,7 +33,7 @@ public class DchaInstallTask {
         listener.onShow();
     }
 
-    void onPostExecute(Listener listener, Boolean result) {
+    void onPostExecute(Listener listener, boolean result) {
         if (result) {
             listener.onSuccess();
         } else {
@@ -49,12 +41,20 @@ public class DchaInstallTask {
         }
     }
 
-    protected Boolean doInBackground(Context context, String installData) {
-        return Common.tryBindDchaService(context, mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_INSTALL_PACKAGE,0, 0, installData, "");
+    protected boolean doInBackground(Context context, String installData) {
+        try {
+            new IDchaTask().execute(context, iDchaTaskListener());
+            synchronized (objLock) {
+                objLock.wait();
+            }
+            if (mDchaService == null) return false;
+            return new DchaServiceUtil(mDchaService).installApp(installData, 0);
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     public interface Listener {
-
         void onShow();
 
         void onSuccess();
@@ -62,15 +62,22 @@ public class DchaInstallTask {
         void onFailure();
     }
 
-    ServiceConnection mDchaServiceConnection = new ServiceConnection() {
+    private IDchaTask.Listener iDchaTaskListener() {
+        return new IDchaTask.Listener() {
+            @Override
+            public void onSuccess(IDchaService iDchaService) {
+                mDchaService = iDchaService;
+                synchronized (objLock) {
+                    objLock.notify();
+                }
+            }
 
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            mDchaService = IDchaService.Stub.asInterface(iBinder);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-        }
-    };
+            @Override
+            public void onFailure() {
+                synchronized (objLock) {
+                    objLock.notify();
+                }
+            }
+        };
+    }
 }

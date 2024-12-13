@@ -43,11 +43,7 @@ import com.saradabar.cpadcustomizetool.view.views.SingleListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.co.benesse.dcha.dchaservice.IDchaService;
-
 public class AppSettingsFragment extends PreferenceFragmentCompat {
-
-    IDchaService mDchaService;
 
     PreferenceCategory catDebugRestriction;
 
@@ -146,7 +142,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         break;
                     case 2:
                         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-                            if (Common.tryBindDchaService(requireActivity(), mDchaService, null, mDchaServiceConnection, true, Constants.FLAG_CHECK, 0, 0, "", "") && Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                            if (tryBindDchaService() && Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
                                 Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
                                 listView.invalidateViews();
                             } else {
@@ -254,15 +250,17 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         }
     }
 
-    ServiceConnection mDchaServiceConnection = new ServiceConnection() {
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean tryBindDchaService() {
+        return requireActivity().bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
 
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            mDchaService = IDchaService.Stub.asInterface(iBinder);
-        }
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            }
 
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-        }
-    };
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+            }
+        }, Context.BIND_AUTO_CREATE);
+    }
 }
