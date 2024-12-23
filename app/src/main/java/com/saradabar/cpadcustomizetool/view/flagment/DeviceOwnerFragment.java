@@ -316,6 +316,22 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     public void onResume() {
         super.onResume();
         if (Common.isDhizukuActive(requireActivity())) {
+            try {
+                if (requireActivity().getPackageManager().getPackageInfo("com.rosan.dhizuku", 0).versionCode > 11) {
+                    new AlertDialog.Builder(requireActivity())
+                            .setCancelable(false)
+                            .setMessage("Dhizukuの互換性がありません\nバージョン2.8のDhizukuをインストールしてください")
+                            .setPositiveButton("OK", (dialog, which) -> {
+                                requireActivity().finish();
+                                requireActivity().overridePendingTransition(0, 0);
+                                startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                            })
+                            .show();
+                    return;
+                }
+            } catch (Exception ignored) {
+            }
+
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
             TextView textView = view.findViewById(R.id.view_progress_spinner_text);
             textView.setText("サービスへの接続を待機しています...");
