@@ -2,6 +2,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <Preference
+        android:key="pre_notice"
+        android:title="アプリのお知らせ" />
+
     <PreferenceCategory
         android:title="@string/pre_main_category_system_ui"
         android:key="1">

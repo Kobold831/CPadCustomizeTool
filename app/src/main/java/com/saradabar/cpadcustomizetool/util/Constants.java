@@ -60,6 +60,7 @@ public class Constants {
     public static final String URL_UPDATE_INFO = "https://docs.google.com/document/d/1uh-FrHM5o84uh7zXw3W_FRIDuzJo8NcVnUD8Rrw4CMQ/";
     public static final String URL_GITHUB = "https://github.com/Kobold831/CPadCustomizeTool";
     public static final String URL_FEEDBACK = "https://forms.gle/LnGuEc4GdRmwzf3GA";
+    public static final String URL_TEST = "https://raw.githubusercontent.com/Kobold831/Server/refs/heads/main/test/test.json";
 
     public static final String DCHA_STATE = "dcha_state";
     public static final String HIDE_NAVIGATION_BAR = "hide_navigation_bar";

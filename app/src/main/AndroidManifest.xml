@@ -130,6 +130,11 @@
             android:theme="@style/ActionBarTheme"
             android:configChanges="keyboardHidden|screenSize|orientation" />
 
+        <activity
+            android:name=".view.activity.NoticeActivity"
+            android:theme="@style/ActionBarTheme"
+            android:label="アプリのお知らせ" />
+
         <service
             android:name=".data.service.KeepService"
             android:label="@string/service_keep"

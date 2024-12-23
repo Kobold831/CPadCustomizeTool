@@ -77,6 +77,7 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.EditAdminActivity;
 import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NormalActivity;
+import com.saradabar.cpadcustomizetool.view.activity.NoticeActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.views.AppListView;
 import com.saradabar.cpadcustomizetool.view.views.LauncherView;
@@ -147,7 +148,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preEditAdmin,
             preDhizukuPermissionReq,
             preSystemUpdate,
-            preGetApp;
+            preGetApp,
+            preNotice;
 
     @SuppressLint("StaticFieldLeak")
     static MainFragment instance = null;
@@ -197,6 +199,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preDhizukuPermissionReq = findPreference("pre_dhizuku_permission_req");
         swDeviceAdmin = (SwitchPreferenceCompat) findPreference("pre_device_admin");
         preGetApp = findPreference("pre_get_app");
+        preNotice = findPreference("pre_notice");
 
         /* 初期化 */
         initialize();
@@ -1021,6 +1024,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             return false;
         });
 
+        preNotice.setOnPreferenceClickListener(preference -> {
+            startActivity(new Intent(requireActivity(), NoticeActivity.class));
+            return false;
+        });
+
         /* 一括変更 */
         initialize();
     }
@@ -1181,6 +1189,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 swBypassAdbDisable.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                 break;
         }
+
+        new FileDownloadTask().execute(this, Constants.URL_TEST, new File(requireActivity().getExternalCacheDir(), "test.json"), 99);
     }
 
     /* システムUIオブザーバー */
@@ -1617,6 +1627,15 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         installData[0] = new File(requireActivity().getExternalCacheDir(), "update.apk").getPath();
                         new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installData, Constants.REQUEST_INSTALL_GET_APP);
                         break;
+                }
+                break;
+            case 99:
+                try {
+                    JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), "test.json"));
+                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                    JSONArray jsonArray = jsonObj2.getJSONArray("noticeList");
+                    preNotice.setSummary("＊＊アプリのお知らせが" + jsonArray.length() + "件あります＊＊\nタップして確認してください");
+                } catch (Exception ignored) {
                 }
                 break;
         }
