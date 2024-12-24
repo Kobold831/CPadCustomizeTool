@@ -399,8 +399,20 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                 break;
                             case 4:
                                 if (Common.isDhizukuActive(v.getContext())) {
-                                    Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
-                                    listView.invalidateViews();
+                                    try {
+                                        if (getPackageManager().getPackageInfo("com.rosan.dhizuku", 0).versionCode > 11) {
+                                            new AlertDialog.Builder(v.getContext())
+                                                    .setCancelable(false)
+                                                    .setMessage("Dhizuku の互換性がありません\nバージョン2.8のDhizuku をインストールしてください")
+                                                    .setPositiveButton("OK", null)
+                                                    .show();
+                                            return;
+                                        } else {
+                                            Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                            listView.invalidateViews();
+                                        }
+                                    } catch (Exception ignored) {
+                                    }
                                 } else {
                                     if (!Dhizuku.init(v.getContext())) {
                                         new AlertDialog.Builder(v.getContext())
@@ -454,6 +466,10 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
     /* ローディングダイアログを非表示にする */
     private void cancelLoadingDialog() {
+        if (progressDialog == null) {
+            return;
+        }
+
         if (progressDialog.isShowing()) {
             progressDialog.cancel();
         }

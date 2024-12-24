@@ -22,6 +22,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.preference.Preference;
@@ -171,8 +172,20 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         break;
                     case 4:
                         if (isDhizukuActive(requireActivity())) {
-                            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
-                            listView.invalidateViews();
+                            try {
+                                if (requireActivity().getPackageManager().getPackageInfo("com.rosan.dhizuku", 0).versionCode > 11) {
+                                    new AlertDialog.Builder(requireActivity())
+                                            .setCancelable(false)
+                                            .setMessage("Dhizuku の互換性がありません\nバージョン2.8のDhizuku をインストールしてください")
+                                            .setPositiveButton("OK", null)
+                                            .show();
+                                    return;
+                                } else {
+                                    Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                    listView.invalidateViews();
+                                }
+                            } catch (Exception ignored) {
+                            }
                         } else {
                             new AlertDialog.Builder(requireActivity())
                                     .setMessage(getString(R.string.dialog_error_not_work_mode))
