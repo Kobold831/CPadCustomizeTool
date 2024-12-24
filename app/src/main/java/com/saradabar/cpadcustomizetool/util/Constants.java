@@ -51,6 +51,7 @@ public class Constants {
     public static final int REQUEST_DOWNLOAD_UPDATE_CHECK = 0;
     public static final int REQUEST_DOWNLOAD_APK = 1;
     public static final int REQUEST_DOWNLOAD_APP_CHECK = 2;
+    public static final int REQUEST_DOWNLOAD_NOTICE = 3;
 
     public static final int REQUEST_INSTALL_SILENT = 0;
     public static final int REQUEST_INSTALL_SELF_UPDATE = 1;
@@ -61,6 +62,7 @@ public class Constants {
     public static final String URL_GITHUB = "https://github.com/Kobold831/CPadCustomizeTool";
     public static final String URL_FEEDBACK = "https://forms.gle/LnGuEc4GdRmwzf3GA";
     public static final String URL_TEST = "https://raw.githubusercontent.com/Kobold831/Server/refs/heads/main/test/test.json";
+    public static final String URL_NOTICE = "https://raw.githubusercontent.com/Kobold831/Server/refs/heads/main/production/json/ct-notice.json";
 
     public static final String DCHA_STATE = "dcha_state";
     public static final String HIDE_NAVIGATION_BAR = "hide_navigation_bar";

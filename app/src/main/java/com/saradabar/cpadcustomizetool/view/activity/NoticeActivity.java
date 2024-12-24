@@ -1,5 +1,6 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -31,38 +32,48 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        new FileDownloadTask().execute(this, Constants.URL_TEST, new File(getExternalCacheDir(), "test.json"), 0);
+        new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(getExternalCacheDir(), "ct-notice.json"), Constants.REQUEST_DOWNLOAD_NOTICE);
     }
 
     @Override
     public void onDownloadComplete(int reqCode) {
-        try {
-            List<NoticeListView.AppData> appDataList = new ArrayList<>();
-            ListView listView = findViewById(R.id.list_notice);
+        if (reqCode == Constants.REQUEST_DOWNLOAD_NOTICE) {
+            try {
+                List<NoticeListView.AppData> appDataList = new ArrayList<>();
+                ListView listView = findViewById(R.id.list_notice);
 
-            JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "test.json"));
-            JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-            JSONArray jsonArray = jsonObj2.getJSONArray("noticeList");
+                JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "ct-notice.json"));
+                JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                JSONArray jsonArray = jsonObj2.getJSONArray("noticeList");
 
-            for (int i = 0; i < jsonArray.length(); i++) {
-                NoticeListView.AppData appData = new NoticeListView.AppData();
-                appData.title = jsonArray.getJSONObject(i).getString("title");
-                appData.message = jsonArray.getJSONObject(i).getString("message");
-                appDataList.add(appData);
-            }
-
-            NoticeListView.AppListAdapter appListAdapter = new NoticeListView.AppListAdapter(this, appDataList);
-            listView.setAdapter(appListAdapter);
-            listView.setOnItemClickListener((parent, view, position, id) -> {
-                try {
-                    String url = jsonArray.getJSONObject(position).getString("url");
-                    if (!url.isEmpty()) {
-                        startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", url).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                    }
-                } catch (Exception ignored) {
+                if (jsonArray.length() == 0) {
+                    new AlertDialog.Builder(this)
+                            .setMessage("アプリのお知らせはありません")
+                            .setPositiveButton("OK", null)
+                            .show();
+                    return;
                 }
-            });
-        } catch (Exception ignored) {
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    NoticeListView.AppData appData = new NoticeListView.AppData();
+                    appData.title = jsonArray.getJSONObject(i).getString("title");
+                    appData.message = jsonArray.getJSONObject(i).getString("message");
+                    appDataList.add(appData);
+                }
+
+                NoticeListView.AppListAdapter appListAdapter = new NoticeListView.AppListAdapter(this, appDataList);
+                listView.setAdapter(appListAdapter);
+                listView.setOnItemClickListener((parent, view, position, id) -> {
+                    try {
+                        String url = jsonArray.getJSONObject(position).getString("url");
+                        if (!url.isEmpty()) {
+                            startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", url).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                        }
+                    } catch (Exception ignored) {
+                    }
+                });
+            } catch (Exception ignored) {
+            }
         }
     }
 

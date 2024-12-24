@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
-        android:key="pre_notice"
-        android:title="アプリのお知らせ" />
+        android:key="pre_notice" />
 
     <PreferenceCategory
         android:title="@string/pre_main_category_system_ui"
@@ -188,7 +187,7 @@
     <Preference
         android:key="pre_dhizuku_permission_req"
         android:title="@string/pre_main_title_dhizuku_permission_req"
-        android:summary="デバイスオーナーがDhizukuに設定されている場合はタップして権限をリクエストできます\n承認後「デバイスオーナーの機能」を使用できます"/>
+        android:summary="Dhizukuのバージョンが「2.8」であることを確認してください！\nデバイスオーナーがDhizukuに設定されている場合はタップして権限をリクエストできます\n権限が付与されると「デバイスオーナーの機能」を使用できます"/>
 
     <SwitchPreferenceCompat
         android:key="pre_device_admin"

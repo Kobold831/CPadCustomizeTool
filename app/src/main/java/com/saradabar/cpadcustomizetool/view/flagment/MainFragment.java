@@ -1190,7 +1190,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 break;
         }
 
-        new FileDownloadTask().execute(this, Constants.URL_TEST, new File(requireActivity().getExternalCacheDir(), "test.json"), 99);
+        new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(requireActivity().getExternalCacheDir(), "ct-notice.json"), Constants.REQUEST_DOWNLOAD_NOTICE);
+        //new FileDownloadTask().execute(this, Constants.URL_TEST, new File(requireActivity().getExternalCacheDir(), "test.json"), 99);
     }
 
     /* システムUIオブザーバー */
@@ -1296,6 +1297,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     }
 
     public void cancelLoadingDialog() {
+        if (progressDialog == null) {
+            return;
+        }
+
         if (progressDialog.isShowing()) {
             progressDialog.cancel();
         }
@@ -1629,12 +1634,17 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         break;
                 }
                 break;
-            case 99:
+            case Constants.REQUEST_DOWNLOAD_NOTICE:
                 try {
-                    JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), "test.json"));
+                    JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), "ct-notice.json"));
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONArray jsonArray = jsonObj2.getJSONArray("noticeList");
-                    preNotice.setSummary("＊＊アプリのお知らせが" + jsonArray.length() + "件あります＊＊\nタップして確認してください");
+                    if (jsonArray.length() == 0) {
+                        preNotice.setTitle("＊＊アプリのお知らせはありません＊＊");
+                    } else {
+                        preNotice.setTitle("＊＊アプリのお知らせが" + jsonArray.length() + "件あります＊＊");
+                        preNotice.setSummary("タップして確認してください");
+                    }
                 } catch (Exception ignored) {
                 }
                 break;
@@ -1643,20 +1653,24 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onDownloadError(int reqCode) {
-        cancelLoadingDialog();
-        new AlertDialog.Builder(requireActivity())
-                .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                .show();
+        if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
+            cancelLoadingDialog();
+            new AlertDialog.Builder(requireActivity())
+                    .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .show();
+        }
     }
 
     @Override
     public void onConnectionError(int reqCode) {
-        cancelLoadingDialog();
-        new AlertDialog.Builder(requireActivity())
-                .setMessage("データ取得に失敗しました\nネットワークを確認してください")
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                .show();
+        if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
+            cancelLoadingDialog();
+            new AlertDialog.Builder(requireActivity())
+                    .setMessage("データ取得に失敗しました\nネットワークを確認してください")
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .show();
+        }
     }
 
     @Override
