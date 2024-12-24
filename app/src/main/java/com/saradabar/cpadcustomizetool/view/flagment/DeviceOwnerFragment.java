@@ -76,7 +76,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             preSessionInstall,
             preAbandonSession,
             preClrDevOwn,
-            preNowSetOwnPkg;
+            preNowSetOwnPkg,
+            preSessionInstallNotice;
 
     SwitchPreferenceCompat swPrePermissionFrc;
 
@@ -107,6 +108,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         preAbandonSession = findPreference("pre_owner_abandon_session");
         preClrDevOwn = findPreference("pre_owner_clr_dev_own");
         preNowSetOwnPkg = findPreference("pre_owner_now_set_own_pkg");
+        preSessionInstallNotice = findPreference("pre_owner_session_install_notice");
 
         /* 初期化 */
         initialize();
@@ -225,6 +227,14 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             return false;
         });
 
+        preSessionInstallNotice.setOnPreferenceClickListener(preference -> {
+            new AlertDialog.Builder(requireActivity())
+                    .setView(R.layout.view_owner_session_notice)
+                    .setPositiveButton("OK", null)
+                    .show();
+            return false;
+        });
+
         /* 初期化 */
         initialize();
     }
@@ -320,7 +330,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 if (requireActivity().getPackageManager().getPackageInfo("com.rosan.dhizuku", 0).versionCode > 11) {
                     new AlertDialog.Builder(requireActivity())
                             .setCancelable(false)
-                            .setMessage("Dhizukuの互換性がありません\nバージョン2.8のDhizukuをインストールしてください")
+                            .setMessage("Dhizuku の互換性がありません\nバージョン2.8のDhizuku をインストールしてください")
                             .setPositiveButton("OK", (dialog, which) -> {
                                 requireActivity().finish();
                                 requireActivity().overridePendingTransition(0, 0);
@@ -773,6 +783,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
     /* ローディングダイアログを非表示にする */
     private void cancelLoadingDialog() {
+        if (progressDialog == null) {
+            return;
+        }
+
         if (progressDialog.isShowing()) {
             progressDialog.cancel();
         }

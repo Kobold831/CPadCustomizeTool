@@ -6,17 +6,31 @@
         app:selectable="false"
         android:key="pre_owner_now_set_own_pkg" />
 
-    <PreferenceCategory>
+    <PreferenceCategory
+        android:title="アンインストール設定">
 
         <Preference
             android:key="pre_owner_uninstall_block"
             android:title="@string/pre_owner_title_uninstall_block"
             android:summary="@string/pre_owner_sum_uninstall_block" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="権限設定">
 
         <SwitchPreferenceCompat
             android:key="pre_owner_permission_frc"
             android:title="@string/pre_owner_title_permission"
             android:summary="@string/pre_owner_sum_permission_forced" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="インストール">
+
+        <Preference
+            android:key="pre_owner_session_install_notice"
+            android:title="サイレントインストールの注意事項"
+            android:summary="タップして内容を確認してください\n正しい手順で操作しないとエラーの可能性があります！" />
 
         <Preference
             android:key="pre_owner_session_install"
@@ -27,6 +41,10 @@
             android:key="pre_owner_abandon_session"
             android:title="インストールセッション破棄"
             android:summary="インストールで問題が発生した場合に使用してください" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="デバイスオーナー設定">
 
         <Preference
             android:key="pre_owner_clr_dev_own"
