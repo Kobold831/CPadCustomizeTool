@@ -1653,23 +1653,29 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onDownloadError(int reqCode) {
-        if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
-            cancelLoadingDialog();
-            new AlertDialog.Builder(requireActivity())
-                    .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                    .show();
+        switch (reqCode) {
+            case Constants.REQUEST_DOWNLOAD_APK,
+                 Constants.REQUEST_DOWNLOAD_APP_CHECK -> {
+                cancelLoadingDialog();
+                new AlertDialog.Builder(requireActivity())
+                        .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
         }
     }
 
     @Override
     public void onConnectionError(int reqCode) {
-        if (reqCode == Constants.REQUEST_INSTALL_GET_APP) {
-            cancelLoadingDialog();
-            new AlertDialog.Builder(requireActivity())
-                    .setMessage("データ取得に失敗しました\nネットワークを確認してください")
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                    .show();
+        switch (reqCode) {
+            case Constants.REQUEST_DOWNLOAD_APK,
+                 Constants.REQUEST_DOWNLOAD_APP_CHECK -> {
+                cancelLoadingDialog();
+                new AlertDialog.Builder(requireActivity())
+                        .setMessage("データ取得に失敗しました\nネットワークを確認してください")
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
         }
     }
 
