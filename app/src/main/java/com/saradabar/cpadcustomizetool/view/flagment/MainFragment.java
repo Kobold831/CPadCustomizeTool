@@ -1662,6 +1662,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
             }
+            case Constants.REQUEST_DOWNLOAD_NOTICE -> preNotice.setVisible(false);
         }
     }
 
@@ -1676,6 +1677,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
             }
+            case Constants.REQUEST_DOWNLOAD_NOTICE -> preNotice.setVisible(false);
         }
     }
 
