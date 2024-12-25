@@ -88,6 +88,7 @@ import org.json.JSONObject;
 import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -1344,9 +1345,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             try {
                 String method = "setForcedDisplaySize";
                 Class.forName("android.view.IWindowManager").getMethod(method, int.class, int.class, int.class).invoke(IWindowManager.Stub.asInterface(ServiceManager.getService("window")), Display.DEFAULT_DISPLAY, width, height);
-            } catch (Exception ignored) {
+            } catch (InvocationTargetException e) {
                 new AlertDialog.Builder(requireActivity())
-                        .setMessage(R.string.dialog_error)
+                        .setMessage(getString(R.string.dialog_error) + "\n" + e.getTargetException())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            } catch (Exception ignored){
+                new AlertDialog.Builder(requireActivity())
+                        .setMessage(getString(R.string.dialog_error))
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
@@ -1489,6 +1495,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             public void onFailure() {
                 new AlertDialog.Builder(requireActivity())
                         .setMessage(getString(R.string.dialog_info_failure))
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            @Override
+            public void onError(String message) {
+                new AlertDialog.Builder(requireActivity())
+                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
             }
