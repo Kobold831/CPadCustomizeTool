@@ -71,7 +71,6 @@ public class AppInfoActivity extends AppCompatActivity {
             finish();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

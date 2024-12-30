@@ -19,6 +19,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
 
 import com.saradabar.cpadcustomizetool.data.service.InstallService;
+import com.saradabar.cpadcustomizetool.util.Common;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,41 +29,21 @@ import java.io.OutputStream;
 
 public class SessionInstaller {
 
-    public static class Result {
-
-        public final boolean bl;
-
-        public Result(boolean result) {
-            this.bl = result;
-        }
-    }
-
-    public static class SessionId {
-        public final boolean bl;
-        public final int i;
-
-        public SessionId(boolean result, int i) {
-            this.bl = result;
-            this.i = i;
-        }
-    }
-
-    public SessionId splitCreateSession(Context context) throws Exception {
+    public int splitCreateSession(Context context) throws Exception {
         int sessionId = createSession(context.getPackageManager().getPackageInstaller());
 
         if (sessionId < 0) {
-            return new SessionId(false, -1);
+            return -1;
         }
-
-        return new SessionId(true, sessionId);
+        return sessionId;
     }
 
-    public Result splitWriteSession(Context context, File apkFile, int sessionId) throws Exception {
-        return new Result(writeSession(context.getPackageManager().getPackageInstaller(), sessionId, apkFile));
+    public boolean splitWriteSession(Context context, File apkFile, int sessionId) throws Exception {
+        return writeSession(context.getPackageManager().getPackageInstaller(), sessionId, apkFile);
     }
 
-    public Result splitCommitSession(Context context, int sessionId, int code) {
-        return new Result(commitSession(context.getPackageManager().getPackageInstaller(), sessionId, context, code));
+    public boolean splitCommitSession(Context context, int sessionId, int code) {
+        return commitSession(context.getPackageManager().getPackageInstaller(), sessionId, context, code);
     }
 
     private int createSession(PackageInstaller packageInstaller) throws IOException {
@@ -87,7 +68,7 @@ public class SessionInstaller {
         try {
             session = packageInstaller.openSession(sessionId);
             in = new FileInputStream(apkPath);
-            out = session.openWrite(getRandomString(), 0, sizeBytes);
+            out = session.openWrite(Common.getRandomString(), 0, sizeBytes);
             byte[] buffer = new byte[65536];
             int c;
 
@@ -128,18 +109,5 @@ public class SessionInstaller {
         } finally {
             if (session != null) session.close();
         }
-    }
-
-    private String getRandomString() {
-        String theAlphaNumericS;
-        StringBuilder builder;
-        theAlphaNumericS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        builder = new StringBuilder(5);
-
-        for (int m = 0; m < 5; m++) {
-            int myindex = (int) (theAlphaNumericS.length() * Math.random());
-            builder.append(theAlphaNumericS.charAt(myindex));
-        }
-        return builder.toString();
     }
 }

@@ -169,7 +169,7 @@
             android:exported="false" />
 
         <receiver
-            android:name=".Receiver.PackageReceiver"
+            android:name=".data.receiver.PackageReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
@@ -180,7 +180,7 @@
         </receiver>
 
         <receiver
-            android:name=".Receiver.BootCompletedReceiver"
+            android:name=".data.receiver.BootCompletedReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

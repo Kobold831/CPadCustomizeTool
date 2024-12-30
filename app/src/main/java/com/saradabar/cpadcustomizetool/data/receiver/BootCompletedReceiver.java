@@ -10,7 +10,7 @@
  *
  */
 
-package com.saradabar.cpadcustomizetool.Receiver;
+package com.saradabar.cpadcustomizetool.data.receiver;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -45,7 +45,15 @@ public class BootCompletedReceiver extends BroadcastReceiver {
                 Preferences.load(context, Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) ||
                 Preferences.load(context, Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) ||
                 Preferences.load(context, Constants.KEY_ENABLED_KEEP_HOME, false)) {
-            startService(context);
+            Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
+
+            if (!Common.isRunningService(context, KeepService.class.getName())) {
+                context.startService(new Intent(context, KeepService.class));
+            }
+
+            if (!Common.isRunningService(context, ProtectKeepService.class.getName())) {
+                context.startService(new Intent(context, ProtectKeepService.class));
+            }
         }
     }
 
@@ -63,30 +71,24 @@ public class BootCompletedReceiver extends BroadcastReceiver {
         }
 
         try {
-            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                    Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                 Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 3);
                 Thread.sleep(100);
             }
 
             Settings.Global.putInt(context.getContentResolver(), Settings.Global.ADB_ENABLED, 1);
 
-            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                    Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                 Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 0);
             }
         } catch (Exception ignored) {
             Preferences.save(context, Constants.KEY_ENABLED_AUTO_USB_DEBUG, false);
-            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                    Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                 Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 0);
             }
-        }
-    }
-
-    private void startService(Context context) {
-        try {
-            Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
-            context.startService(new Intent(context, KeepService.class));
-            context.startService(new Intent(context, ProtectKeepService.class));
-        } catch (Exception ignored) {
         }
     }
 }

@@ -25,22 +25,14 @@ public class Constants {
     public static final int MODEL_CTX = 2;
     public static final int MODEL_CTZ = 3;
 
-    public static final int FLAG_TEST = -1;
-    public static final int FLAG_CHECK = 0;
     public static final int FLAG_SET_DCHA_STATE_0 = 1;
     public static final int FLAG_SET_DCHA_STATE_3 = 2;
     public static final int FLAG_HIDE_NAVIGATION_BAR = 3;
     public static final int FLAG_VIEW_NAVIGATION_BAR = 4;
-    public static final int FLAG_REBOOT = 5;
     public static final int FLAG_USB_DEBUG_TRUE = 6;
     public static final int FLAG_USB_DEBUG_FALSE = 7;
     public static final int FLAG_MARKET_APP_TRUE = 8;
     public static final int FLAG_MARKET_APP_FALSE = 9;
-    public static final int FLAG_SET_LAUNCHER = 10;
-    public static final int FLAG_SYSTEM_UPDATE= 11;
-    public static final int FLAG_INSTALL_PACKAGE = 12;
-    public static final int FLAG_COPY_UPDATE_IMAGE = 13;
-    public static final int FLAG_RESOLUTION = 20;
 
     public static final int REQUEST_ACTIVITY_UPDATE = 0;
     public static final int REQUEST_ACTIVITY_ADMIN = 1;
@@ -57,11 +49,11 @@ public class Constants {
     public static final int REQUEST_INSTALL_SELF_UPDATE = 1;
     public static final int REQUEST_INSTALL_GET_APP = 2;
 
+    //public static final String URL_TEST = "https://raw.githubusercontent.com/Kobold831/Server/refs/heads/main/test/test.json";
     public static final String URL_CHECK = "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json";
     public static final String URL_UPDATE_INFO = "https://docs.google.com/document/d/1uh-FrHM5o84uh7zXw3W_FRIDuzJo8NcVnUD8Rrw4CMQ/";
     public static final String URL_GITHUB = "https://github.com/Kobold831/CPadCustomizeTool";
     public static final String URL_FEEDBACK = "https://forms.gle/LnGuEc4GdRmwzf3GA";
-    public static final String URL_TEST = "https://raw.githubusercontent.com/Kobold831/Server/refs/heads/main/test/test.json";
     public static final String URL_NOTICE = "https://raw.githubusercontent.com/Kobold831/Server/refs/heads/main/production/json/ct-notice.json";
 
     public static final String DCHA_STATE = "dcha_state";

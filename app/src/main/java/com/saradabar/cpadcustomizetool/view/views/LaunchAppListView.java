@@ -14,7 +14,7 @@ import com.saradabar.cpadcustomizetool.R;
 
 import java.util.List;
 
-public class LaunchAppView {
+public class LaunchAppListView {
 
     public static class AppData {
         public Drawable icon;
@@ -22,11 +22,11 @@ public class LaunchAppView {
         public String packName;
     }
 
-    public static class LaunchAppAdapter extends ArrayAdapter<LaunchAppView.AppData> {
+    public static class LaunchAppAdapter extends ArrayAdapter<LaunchAppListView.AppData> {
 
         private final LayoutInflater mInflater;
 
-        public LaunchAppAdapter(Context context, List<LaunchAppView.AppData> dataList) {
+        public LaunchAppAdapter(Context context, List<LaunchAppListView.AppData> dataList) {
             super(context, R.layout.view_launch_app_item);
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             addAll(dataList);
@@ -36,7 +36,7 @@ public class LaunchAppView {
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
-            LaunchAppView.ViewHolder holder = new LaunchAppView.ViewHolder();
+            LaunchAppListView.ViewHolder holder = new LaunchAppListView.ViewHolder();
 
             if (convertView == null) {
                 convertView = mInflater.inflate(R.layout.view_launch_app_item, parent, false);
@@ -45,10 +45,10 @@ public class LaunchAppView {
                 holder.textPack = convertView.findViewById(R.id.launch_app_text_pack);
                 convertView.setTag(holder);
             } else {
-                holder = (LaunchAppView.ViewHolder) convertView.getTag();
+                holder = (LaunchAppListView.ViewHolder) convertView.getTag();
             }
 
-            final LaunchAppView.AppData data = getItem(position);
+            final LaunchAppListView.AppData data = getItem(position);
 
             if (data != null) {
                 holder.imageIcon.setImageDrawable(data.icon);

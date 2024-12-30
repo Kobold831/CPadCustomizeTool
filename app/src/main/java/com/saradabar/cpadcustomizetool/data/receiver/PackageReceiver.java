@@ -10,15 +10,12 @@
  *
  */
 
-package com.saradabar.cpadcustomizetool.Receiver;
+package com.saradabar.cpadcustomizetool.data.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
-import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
@@ -26,6 +23,7 @@ import com.saradabar.cpadcustomizetool.data.service.PermissionIntentService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import java.util.Objects;
 
@@ -52,10 +50,7 @@ public class PackageReceiver extends BroadcastReceiver {
         }
     }
 
-    @SuppressWarnings("deprecation")
     private void run(Context context, Intent intent) {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-
         if (intent.getData() == null) {
             return;
         }
@@ -63,7 +58,11 @@ public class PackageReceiver extends BroadcastReceiver {
         /* サービス開始 */
         if (intent.getData().toString().replace("package:", "").equals(context.getPackageName())) {
             /* 維持スイッチが有効のときサービスを起動 */
-            if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+            if (Preferences.load(context, Constants.KEY_ENABLED_KEEP_SERVICE, false) ||
+                    Preferences.load(context, Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) ||
+                    Preferences.load(context, Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) ||
+                    Preferences.load(context, Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) ||
+                    Preferences.load(context, Constants.KEY_ENABLED_KEEP_HOME, false)) {
                 Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
 
                 if (!Common.isRunningService(context, KeepService.class.getName())) {
@@ -73,13 +72,11 @@ public class PackageReceiver extends BroadcastReceiver {
                 if (!Common.isRunningService(context, ProtectKeepService.class.getName())) {
                     context.startService(new Intent(context, ProtectKeepService.class));
                 }
-
-                new Handler().postDelayed(() -> KeepService.getInstance().startService(), 1000);
             }
         }
 
         /* ランタイム権限を強制付与が有効な場合 */
-        if (sp.getBoolean("pre_owner_permission_frc", false)) {
+        if (Preferences.load(context, "pre_owner_permission_frc", false)) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                 return;
             }

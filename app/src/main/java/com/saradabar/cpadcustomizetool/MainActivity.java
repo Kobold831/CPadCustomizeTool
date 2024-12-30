@@ -14,7 +14,6 @@ package com.saradabar.cpadcustomizetool;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
@@ -54,7 +53,7 @@ import com.saradabar.cpadcustomizetool.view.activity.CrashLogActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WelAppActivity;
-import com.saradabar.cpadcustomizetool.view.views.SingleListView;
+import com.saradabar.cpadcustomizetool.view.views.UpdateModeListView;
 import com.stephentuso.welcome.WelcomeHelper;
 
 import org.json.JSONException;
@@ -75,22 +74,15 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
     TextView progressPercentText;
     TextView progressByteText;
     ProgressBar dialogProgressBar;
-    String DOWNLOAD_FILE_URL;
-    String[] installData = new String[1];
+
+    String downloadFileUrl;
+    ArrayList<String> installFileArrayList = new ArrayList<>();
 
     IDchaService mDchaService;
-
-    @SuppressLint("StaticFieldLeak")
-    static MainActivity instance = null;
-
-    public static MainActivity getInstance() {
-        return instance;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        instance = this;
         init();
     }
 
@@ -159,7 +151,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                     JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "Check.json"));
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
-                    DOWNLOAD_FILE_URL = jsonObj3.getString("url");
+                    downloadFileUrl = jsonObj3.getString("url");
 
                     if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
                         cancelLoadingDialog();
@@ -186,7 +178,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                 .setMessage("遷移先のページよりapkファイルをダウンロードしてadbでインストールしてください")
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                     try {
-                                        startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(DOWNLOAD_FILE_URL)), Constants.REQUEST_ACTIVITY_UPDATE);
+                                        startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(downloadFileUrl)), Constants.REQUEST_ACTIVITY_UPDATE);
                                     } catch (Exception ignored) {
                                         Toast.makeText(this, R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
                                         finish();
@@ -210,8 +202,8 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                             return;
                         }
 
-                        installData[0] = new File(getExternalCacheDir(), "update.apk").getPath();
-                        new ApkInstallTask().execute(this, apkInstallTaskListener(), installData, Constants.REQUEST_INSTALL_SELF_UPDATE);
+                        installFileArrayList.set(0, new File(getExternalCacheDir(), "update.apk").getPath());
+                        new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                     case 4:
                         if (!isDhizukuActive(this)) {
@@ -224,8 +216,8 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                             return;
                         }
 
-                        installData[0] = new File(getExternalCacheDir(), "update.apk").getPath();
-                        new ApkInstallTask().execute(this, apkInstallTaskListener(), installData, Constants.REQUEST_INSTALL_SELF_UPDATE);
+                        installFileArrayList.set(0, new File(getExternalCacheDir(), "update.apk").getPath());
+                        new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                 }
                 break;
@@ -326,7 +318,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                 .setCancelable(false)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                     FileDownloadTask fileDownloadTask = new FileDownloadTask();
-                    fileDownloadTask.execute(this, DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
+                    fileDownloadTask.execute(this, downloadFileUrl, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
                     ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
                     progressHandler.fileDownloadTask = fileDownloadTask;
                     progressHandler.sendEmptyMessage(0);
@@ -344,11 +336,11 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                 .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> new WelcomeHelper(this, WelAppActivity.class).forceShow())
                 .setNeutralButton(R.string.dialog_common_settings, (dialog2, which2) -> {
                     View v = getLayoutInflater().inflate(R.layout.layout_update_list, null);
-                    List<SingleListView.AppData> dataList = new ArrayList<>();
+                    List<UpdateModeListView.AppData> dataList = new ArrayList<>();
                     int i = 0;
 
                     for (String str1 : Constants.list) {
-                        SingleListView.AppData data = new SingleListView.AppData();
+                        UpdateModeListView.AppData data = new UpdateModeListView.AppData();
                         data.label = str1;
                         data.updateMode = i;
                         dataList.add(data);
@@ -357,7 +349,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
                     ListView listView = v.findViewById(R.id.update_list);
                     listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-                    listView.setAdapter(new SingleListView.AppListAdapter(v.getContext(), dataList));
+                    listView.setAdapter(new UpdateModeListView.AppListAdapter(v.getContext(), dataList));
                     listView.setOnItemClickListener((parent, mView, position, id) -> {
                         switch (position) {
                             case 0:
@@ -791,7 +783,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
             public void onSuccess() {
                 try {
                     /* 一時ファイルを消去 */
-                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
+                    File tmpFile = getExternalCacheDir();
 
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
@@ -800,7 +792,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                 }
 
                 cancelLoadingDialog();
-                AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.getInstance())
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
                         .setMessage(R.string.dialog_info_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
@@ -816,7 +808,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
             public void onFailure(String message) {
                 try {
                     /* 一時ファイルを消去 */
-                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
+                    File tmpFile = getExternalCacheDir();
 
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
@@ -825,7 +817,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                 }
 
                 cancelLoadingDialog();
-                new AlertDialog.Builder(StartActivity.getInstance())
+                new AlertDialog.Builder(MainActivity.this)
                         .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
@@ -836,7 +828,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
             public void onError(String message) {
                 try {
                     /* 一時ファイルを消去 */
-                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
+                    File tmpFile = getExternalCacheDir();
 
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
@@ -845,7 +837,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                 }
 
                 cancelLoadingDialog();
-                new AlertDialog.Builder(StartActivity.getInstance())
+                new AlertDialog.Builder(MainActivity.this)
                         .setMessage(getString(R.string.dialog_error) + "\n" + message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)

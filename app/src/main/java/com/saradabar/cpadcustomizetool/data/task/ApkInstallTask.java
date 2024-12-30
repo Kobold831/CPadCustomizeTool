@@ -11,45 +11,50 @@ import android.os.Looper;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
+import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.installer.SessionInstaller;
 import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
 import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ApkInstallTask {
 
     final Object objLock = new Object();
-    IDhizukuService mDhizukuService;
-    public static ApkInstallTask apkInstallTask;
 
-    public void execute(Context context, Listener listener, String[] splitInstallData, int reqCode) {
+    IDhizukuService mDhizukuService;
+
+    public void execute(Context context, Listener listener, ArrayList<String> splitInstallData, int reqCode, InstallEventListener installEventListener) {
         onPreExecute(listener);
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
             new Thread(() -> {
                 Object result = doInBackground(context, splitInstallData, reqCode);
-                handler.post(() -> onPostExecute(context, listener, result));
+                handler.post(() -> onPostExecute(context, listener, result, installEventListener));
             }).start();
         });
     }
 
     void onPreExecute(Listener listener) {
-        apkInstallTask = this;
         listener.onShow();
     }
 
-    void onPostExecute(Context context, Listener listener, Object result) {
+    void onPostExecute(Context context, Listener listener, Object result, InstallEventListener installEventListener) {
         if (result == null) {
             listener.onError(context.getString(R.string.installer_status_unknown_error));
             return;
         }
 
         if (result.equals(true)) {
+            // InstallServiceで成功イベントを発生
+            MyApplication myApplication = (MyApplication) context.getApplicationContext();
+            myApplication.installEventListener = installEventListener;
             return;
         }
 
@@ -61,7 +66,7 @@ public class ApkInstallTask {
         listener.onError(result.toString());
     }
 
-    protected Object doInBackground(Context context, String[] splitInstallData, int reqCode) {
+    protected Object doInBackground(Context context, ArrayList<String> splitInstallData, int reqCode) {
         if (isDhizukuActive(context)) {
             if (tryBindDhizukuService(context)) {
                 try {
@@ -81,7 +86,7 @@ public class ApkInstallTask {
             int sessionId;
 
             try {
-                sessionId = sessionInstaller.splitCreateSession(context).i;
+                sessionId = sessionInstaller.splitCreateSession(context);
 
                 if (sessionId < 0) {
                     return false;
@@ -95,7 +100,7 @@ public class ApkInstallTask {
                 /* 配列の中身を確認 */
                 if (str != null) {
                     try {
-                        if (!sessionInstaller.splitWriteSession(context, new File(str), sessionId).bl) {
+                        if (!sessionInstaller.splitWriteSession(context, new File(str), sessionId)) {
                             return false;
                         }
                     } catch (Exception e) {
@@ -108,7 +113,7 @@ public class ApkInstallTask {
             }
 
             try {
-                return sessionInstaller.splitCommitSession(context, sessionId, reqCode).bl;
+                return sessionInstaller.splitCommitSession(context, sessionId, reqCode);
             } catch (Exception e) {
                 return e.getMessage();
             }

@@ -32,7 +32,7 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
-import com.saradabar.cpadcustomizetool.view.views.LaunchAppView;
+import com.saradabar.cpadcustomizetool.view.views.LaunchAppListView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -193,11 +193,11 @@ public class OtherFragment extends PreferenceFragmentCompat {
         preLaunchApp.setOnPreferenceClickListener(preference -> {
             View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_app_list, null);
             List<ApplicationInfo> installedAppList = requireActivity().getPackageManager().getInstalledApplications(0);
-            List<LaunchAppView.AppData> dataList = new ArrayList<>();
+            List<LaunchAppListView.AppData> dataList = new ArrayList<>();
 
             for (ApplicationInfo app : installedAppList) {
                 if(requireActivity().getPackageManager().getLaunchIntentForPackage(app.packageName) != null) {
-                    LaunchAppView.AppData data = new LaunchAppView.AppData();
+                    LaunchAppListView.AppData data = new LaunchAppListView.AppData();
                     data.icon = app.loadIcon(requireActivity().getPackageManager());
                     data.label = app.loadLabel(requireActivity().getPackageManager()).toString();
                     data.packName = app.packageName;
@@ -207,7 +207,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
 
             ListView listView = view.findViewById(R.id.app_list);
             listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-            listView.setAdapter(new LaunchAppView.LaunchAppAdapter(requireActivity(), dataList));
+            listView.setAdapter(new LaunchAppListView.LaunchAppAdapter(requireActivity(), dataList));
             listView.setOnItemClickListener((parent, mView, position, id) -> {
                 try {
                     startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(dataList.get(position).packName));

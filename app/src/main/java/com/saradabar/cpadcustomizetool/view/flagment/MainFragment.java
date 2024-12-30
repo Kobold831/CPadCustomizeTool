@@ -23,7 +23,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
@@ -79,9 +78,9 @@ import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NormalActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NoticeActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
-import com.saradabar.cpadcustomizetool.view.views.AppListView;
-import com.saradabar.cpadcustomizetool.view.views.LauncherView;
-import com.saradabar.cpadcustomizetool.view.views.NormalModeView;
+import com.saradabar.cpadcustomizetool.view.views.GetAppListView;
+import com.saradabar.cpadcustomizetool.view.views.HomeAppListView;
+import com.saradabar.cpadcustomizetool.view.views.NormalModeHomeAppListView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -107,8 +106,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     TextView progressPercentText;
     TextView progressByteText;
     ProgressBar dialogProgressBar;
-    String DOWNLOAD_FILE_URL;
-    String[] installData = new String[1];
+
+    String downloadFileUrl;
+    ArrayList<String> installFileArrayList = new ArrayList<>();
 
     IDchaService mDchaService;
     IDchaUtilService mDchaUtilService;
@@ -152,17 +152,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preGetApp,
             preNotice;
 
-    @SuppressLint("StaticFieldLeak")
-    static MainFragment instance = null;
-
-    public static MainFragment getInstance() {
-        return instance;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        instance = this;
     }
 
     @Override
@@ -211,23 +203,23 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     public void onDestroy() {
         super.onDestroy();
         if (isObsDchaState) {
-            requireActivity().getContentResolver().unregisterContentObserver(obsDchaState);
             isObsDchaState = false;
+            requireActivity().getContentResolver().unregisterContentObserver(dchaStateObserver);
         }
 
         if (isObsNavigation) {
-            requireActivity().getContentResolver().unregisterContentObserver(obsNavigation);
             isObsNavigation = false;
+            requireActivity().getContentResolver().unregisterContentObserver(navigationBarObserver);
         }
 
         if (isObsUnkSrc) {
-            requireActivity().getContentResolver().unregisterContentObserver(obsUnkSrc);
             isObsUnkSrc = false;
+            requireActivity().getContentResolver().unregisterContentObserver(marketObserver);
         }
 
         if (isObsAdb) {
-            requireActivity().getContentResolver().unregisterContentObserver(obsAdb);
             isObsAdb = false;
+            requireActivity().getContentResolver().unregisterContentObserver(usbDebugObserver);
         }
     }
 
@@ -351,31 +343,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             if ((boolean) o) {
                 chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
-
-                if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                    requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-                }
+                requireActivity().startService(new Intent(requireActivity(), KeepService.class));
 
                 if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
                     requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
                 }
-
-                new Handler().postDelayed(() -> KeepService.getInstance().startService(), 1000);
             } else {
-                SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
-
-                if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                    KeepService.getInstance().stopService(1);
-                }
-
-                /* 全機能が無効ならサービス停止 */
-                if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
-                    if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                        KeepService.getInstance().stopService(0);
-                    }
-
-                    requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
-                }
+                requireActivity().stopService(new Intent(requireActivity(), KeepService.class));
+                requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
             }
             return true;
         });
@@ -398,31 +373,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             if ((boolean) o) {
                 chgSetting(Constants.FLAG_VIEW_NAVIGATION_BAR);
-
-                if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                    requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-                }
+                requireActivity().startService(new Intent(requireActivity(), KeepService.class));
 
                 if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
                     requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
                 }
-
-                new Handler().postDelayed(() -> KeepService.getInstance().startService(), 1000);
             } else {
-                SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
-
-                if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                    KeepService.getInstance().stopService(2);
-                }
-
-                /* 全機能が無効ならサービス停止 */
-                if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
-                    if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                        KeepService.getInstance().stopService(0);
-                    }
-
-                    requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
-                }
+                requireActivity().stopService(new Intent(requireActivity(), KeepService.class));
+                requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
             }
             return true;
         });
@@ -450,36 +408,19 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             if ((boolean) o) {
                 try {
                     chgSetting(Constants.FLAG_MARKET_APP_TRUE);
-
-                    if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                        requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-                    }
+                    requireActivity().startService(new Intent(requireActivity(), KeepService.class));
 
                     if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
                         requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
                     }
-
-                    new Handler().postDelayed(() -> KeepService.getInstance().startService(), 1000);
                 } catch (Exception ignored) {
                     Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
                     Preferences.save(requireActivity(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false);
                     return false;
                 }
             } else {
-                SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
-
-                if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                    KeepService.getInstance().stopService(3);
-                }
-
-                /* 全機能が無効ならサービス停止 */
-                if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
-                    if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                        KeepService.getInstance().stopService(0);
-                    }
-
-                    requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
-                }
+                requireActivity().stopService(new Intent(requireActivity(), KeepService.class));
+                requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
             }
             return true;
         });
@@ -554,15 +495,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                     }
 
-                    if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                        requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-                    }
+                    requireActivity().startService(new Intent(requireActivity(), KeepService.class));
 
                     if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
                         requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
                     }
-
-                    new Handler().postDelayed(() -> KeepService.getInstance().startService(), 1000);
                 } catch (Exception ignored) {
                     Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
                     Preferences.save(requireActivity(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false);
@@ -574,20 +511,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     return false;
                 }
             } else {
-                SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
-
-                if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                    KeepService.getInstance().stopService(4);
-                }
-
-                /* 全機能が無効ならサービス停止 */
-                if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
-                    if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                        KeepService.getInstance().stopService(0);
-                    }
-
-                    requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
-                }
+                requireActivity().stopService(new Intent(requireActivity(), KeepService.class));
+                requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
             }
             return true;
         });
@@ -636,10 +561,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preLauncher.setOnPreferenceClickListener(preference -> {
             View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_launcher_list, null);
             List<ResolveInfo> installedAppList = requireActivity().getPackageManager().queryIntentActivities(new Intent().setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-            List<LauncherView.AppData> dataList = new ArrayList<>();
+            List<HomeAppListView.AppData> dataList = new ArrayList<>();
 
             for (ResolveInfo resolveInfo : installedAppList) {
-                LauncherView.AppData data = new LauncherView.AppData();
+                HomeAppListView.AppData data = new HomeAppListView.AppData();
                 data.label = resolveInfo.loadLabel(requireActivity().getPackageManager()).toString();
                 data.icon = resolveInfo.loadIcon(requireActivity().getPackageManager());
                 data.packName = resolveInfo.activityInfo.packageName;
@@ -648,7 +573,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             ListView listView = view.findViewById(R.id.launcher_list);
             listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-            listView.setAdapter(new LauncherView.AppListAdapter(requireActivity(), dataList));
+            listView.setAdapter(new HomeAppListView.AppListAdapter(requireActivity(), dataList));
             listView.setOnItemClickListener((parent, mView, position, id) -> {
                 new DchaServiceUtil(mDchaService).setPreferredHomeApp(getLauncherPackage(requireActivity()), Uri.fromParts("package", installedAppList.get(position).activityInfo.packageName, null).toString().replace("package:", ""));
                 listView.invalidateViews();
@@ -668,37 +593,21 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             if ((boolean) o) {
                 Preferences.save(requireActivity(), Constants.KEY_SAVE_KEEP_HOME, getLauncherPackage(requireActivity()));
-
-                if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                    requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-                }
+                requireActivity().startService(new Intent(requireActivity(), KeepService.class));
 
                 if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
                     requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
                 }
-
-                new Handler().postDelayed(() -> KeepService.getInstance().startService(), 1000);
             } else {
-                SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
-
-                if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                    KeepService.getInstance().stopService(5);
-                }
-
-                /* 全機能が無効ならサービス停止 */
-                if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
-                    if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                        KeepService.getInstance().stopService(0);
-                    }
-
-                    requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
-                }
+                requireActivity().stopService(new Intent(requireActivity(), KeepService.class));
+                requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
             }
             return true;
         });
 
         preOtherSettings.setOnPreferenceClickListener(preference -> {
-            StartActivity.getInstance().transitionFragment(new OtherFragment(), true);
+            StartActivity startActivity = (StartActivity) requireActivity();
+            startActivity.transitionFragment(new OtherFragment(), true);
             return false;
         });
 
@@ -770,10 +679,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preSelNorLauncher.setOnPreferenceClickListener(preference -> {
             View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_normal_launcher_list, null);
             List<ResolveInfo> installedAppList = requireActivity().getPackageManager().queryIntentActivities(new Intent().setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-            List<NormalModeView.AppData> dataList = new ArrayList<>();
+            List<NormalModeHomeAppListView.AppData> dataList = new ArrayList<>();
 
             for (ResolveInfo resolveInfo : installedAppList) {
-                NormalModeView.AppData data = new NormalModeView.AppData();
+                NormalModeHomeAppListView.AppData data = new NormalModeHomeAppListView.AppData();
                 data.label = resolveInfo.loadLabel(requireActivity().getPackageManager()).toString();
                 data.icon = resolveInfo.loadIcon(requireActivity().getPackageManager());
                 data.packName = resolveInfo.activityInfo.packageName;
@@ -782,7 +691,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             ListView listView = view.findViewById(R.id.normal_launcher_list);
             listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-            listView.setAdapter(new NormalModeView.AppListAdapter(requireActivity(), dataList));
+            listView.setAdapter(new NormalModeHomeAppListView.AppListAdapter(requireActivity(), dataList));
             listView.setOnItemClickListener((parent, mView, position, id) -> {
                 Preferences.save(requireActivity(), Constants.KEY_NORMAL_LAUNCHER, Uri.fromParts("package", installedAppList.get(position).activityInfo.packageName, null).toString().replace("package:", ""));
                 /* listviewの更新 */
@@ -949,7 +858,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         preDeviceOwnerFn.setOnPreferenceClickListener(preference -> {
-            requireActivity().runOnUiThread(() -> StartActivity.getInstance().transitionFragment(new DeviceOwnerFragment(), true));
+            requireActivity().runOnUiThread(() -> {
+                StartActivity startActivity = (StartActivity) requireActivity();
+                startActivity.transitionFragment(new DeviceOwnerFragment(), true);
+            });
             return false;
         });
 
@@ -1070,14 +982,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         /* オブサーバーを有効化 */
         isObsDchaState = true;
-        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, obsDchaState);
+        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, dchaStateObserver);
         isObsNavigation = true;
-        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, obsNavigation);
+        requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, navigationBarObserver);
         isObsUnkSrc = true;
         //noinspection deprecation
-        requireActivity().getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, obsUnkSrc);
+        requireActivity().getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, marketObserver);
         isObsAdb = true;
-        requireActivity().getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED), false, obsAdb);
+        requireActivity().getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED), false, usbDebugObserver);
 
         try {
             swDchaState.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE) != 0);
@@ -1100,14 +1012,12 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         } catch (Exception ignored) {
         }
 
-        SharedPreferences sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
-
         swDeviceAdmin.setChecked(((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), AdministratorReceiver.class)));
-        swKeepNavigation.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false));
-        swKeepUnkSrc.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false));
-        swKeepDchaState.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false));
-        swKeepAdb.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false));
-        swKeepLauncher.setChecked(sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false));
+        swKeepNavigation.setChecked(Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_SERVICE, false));
+        swKeepUnkSrc.setChecked(Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false));
+        swKeepDchaState.setChecked(Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_DCHA_STATE, false));
+        swKeepAdb.setChecked(Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false));
+        swKeepLauncher.setChecked(Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_HOME, false));
         preLauncher.setSummary(getLauncherName(requireActivity()));
 
         String normalLauncherName = null;
@@ -1124,7 +1034,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         }
 
         /* 維持スイッチが有効のときサービスが停止していたら起動 */
-        if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+        if (Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_SERVICE, false) ||
+                Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) ||
+                Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) ||
+                Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) ||
+                Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_HOME, false)) {
             if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
                 requireActivity().startService(new Intent(requireActivity(), KeepService.class));
             }
@@ -1132,19 +1046,13 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
                 requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
             }
-
-            Runnable runnable = () -> KeepService.getInstance().startService();
-
-            new Handler().postDelayed(runnable, 1000);
         } else {
             /* 全機能が無効ならサービス停止 */
             if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                KeepService.getInstance().stopService(0);
+                requireActivity().stopService(new Intent(requireActivity(), KeepService.class));
             }
 
-            if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
-                requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
-            }
+            requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
         }
 
         /* 端末ごとにPreferenceの状態を設定 */
@@ -1181,7 +1089,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preDhizukuPermissionReq.setSummary(getString(R.string.pre_main_sum_already_device_owner));
         }
 
-        swBypassAdbDisable.setChecked(sp.getBoolean(Constants.KEY_ENABLED_AUTO_USB_DEBUG, false));
+        swBypassAdbDisable.setChecked(Preferences.load(requireActivity(), Constants.KEY_ENABLED_AUTO_USB_DEBUG, false));
 
         switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
             case Constants.MODEL_CT2:
@@ -1196,54 +1104,54 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     }
 
     /* システムUIオブザーバー */
-    ContentObserver obsDchaState = new ContentObserver(new Handler()) {
+    ContentObserver dchaStateObserver = new ContentObserver(new Handler()) {
 
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
             try {
                 swDchaState.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE) != 0);
-            } catch (Settings.SettingNotFoundException ignored) {
+            } catch (Exception ignored) {
             }
         }
     };
 
     /* ナビゲーションバーオブザーバー */
-    ContentObserver obsNavigation = new ContentObserver(new Handler()) {
+    ContentObserver navigationBarObserver = new ContentObserver(new Handler()) {
 
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
             try {
                 swNavigation.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != 0);
-            } catch (Settings.SettingNotFoundException ignored) {
+            } catch (Exception ignored) {
             }
         }
     };
 
     /* 提供元オブザーバー */
     @SuppressWarnings("deprecation")
-    ContentObserver obsUnkSrc = new ContentObserver(new Handler()) {
+    ContentObserver marketObserver = new ContentObserver(new Handler()) {
 
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
             try {
                 swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
-            } catch (Settings.SettingNotFoundException ignored) {
+            } catch (Exception ignored) {
             }
         }
     };
 
     /* USBデバッグオブザーバー */
-    ContentObserver obsAdb = new ContentObserver(new Handler()) {
+    ContentObserver usbDebugObserver = new ContentObserver(new Handler()) {
 
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
             try {
                 swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
-            } catch (Settings.SettingNotFoundException ignored) {
+            } catch (Exception ignored) {
             }
         }
     };
@@ -1341,7 +1249,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             }
         }
 
-        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
             try {
                 String method = "setForcedDisplaySize";
                 Class.forName("android.view.IWindowManager").getMethod(method, int.class, int.class, int.class).invoke(IWindowManager.Stub.asInterface(ServiceManager.getService("window")), Display.DEFAULT_DISPLAY, width, height);
@@ -1350,7 +1259,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         .setMessage(getString(R.string.dialog_error) + "\n" + e.getTargetException())
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
-            } catch (Exception ignored){
+            } catch (Exception ignored) {
                 new AlertDialog.Builder(requireActivity())
                         .setMessage(getString(R.string.dialog_error))
                         .setPositiveButton(R.string.dialog_common_ok, null)
@@ -1368,7 +1277,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     private void startDownload() {
         FileDownloadTask fileDownloadTask = new FileDownloadTask();
-        fileDownloadTask.execute(this, DOWNLOAD_FILE_URL, new File(requireActivity().getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
+        fileDownloadTask.execute(this, downloadFileUrl, new File(requireActivity().getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
         ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
         progressHandler.fileDownloadTask = fileDownloadTask;
         progressHandler.sendEmptyMessage(0);
@@ -1447,7 +1356,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             @Override
             public void onSuccess() {
                 /* 設定変更カウントダウンダイアログ表示 */
-                AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.getInstance())
+                AlertDialog alertDialog = new AlertDialog.Builder(MainFragment.this.requireActivity())
                         .setTitle("解像度の変更を適用しますか？")
                         .setCancelable(false)
                         .setMessage("")
@@ -1458,7 +1367,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
                             dialog.dismiss();
                             mHandler.removeCallbacks(mRunnable);
-                            MainFragment.getInstance().resetResolution();
+                            MainFragment.this.resetResolution();
                         })
                         .create();
 
@@ -1480,7 +1389,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         if (i <= 0) {
                             alertDialog.dismiss();
                             mHandler.removeCallbacks(this);
-                            MainFragment.getInstance().resetResolution();
+                            MainFragment.this.resetResolution();
                         }
 
                         i--;
@@ -1516,7 +1425,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         switch (reqCode) {
             case Constants.REQUEST_DOWNLOAD_APP_CHECK:
                 cancelLoadingDialog();
-                ArrayList<AppListView.AppData> appDataArrayList = new ArrayList<>();
+                ArrayList<GetAppListView.AppData> appDataArrayList = new ArrayList<>();
 
                 try {
                     JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), "Check.json"));
@@ -1524,7 +1433,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     JSONArray jsonArray = jsonObj2.getJSONArray("appList");
 
                     for (int i = 0; i < jsonArray.length(); i++) {
-                        AppListView.AppData data = new AppListView.AppData();
+                        GetAppListView.AppData data = new GetAppListView.AppData();
                         data.str = jsonArray.getJSONObject(i).getString("name");
                         appDataArrayList.add(data);
                     }
@@ -1534,7 +1443,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 view = getLayoutInflater().inflate(R.layout.layout_app_list, null);
                 ListView listView = view.findViewById(R.id.app_list);
                 listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-                listView.setAdapter(new AppListView.AppListAdapter(requireActivity(), appDataArrayList));
+                listView.setAdapter(new GetAppListView.AppListAdapter(requireActivity(), appDataArrayList));
                 listView.setOnItemClickListener((parent, view1, position, id) -> {
                     Preferences.save(requireActivity(), Constants.KEY_RADIO_TMP, (int) id);
                     listView.invalidateViews();
@@ -1555,7 +1464,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                         JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                                         JSONArray jsonArray = jsonObj2.getJSONArray("appList");
                                         str.append("アプリ名：").append(jsonArray.getJSONObject(i).getString("name")).append("\n\n").append("説明：").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
-                                        DOWNLOAD_FILE_URL = jsonArray.getJSONObject(i).getString("url");
+                                        downloadFileUrl = jsonArray.getJSONObject(i).getString("url");
                                     } catch (Exception ignored) {
                                     }
                                 }
@@ -1568,7 +1477,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             new AlertDialog.Builder(requireActivity())
                                     .setMessage(str + "\n" + "よろしければOKを押下してください")
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
-                                        if (!Objects.equals(DOWNLOAD_FILE_URL, "MYURL")) {
+                                        if (!Objects.equals(downloadFileUrl, "MYURL")) {
                                             startDownload();
                                             dialog.dismiss();
                                         } else {
@@ -1580,7 +1489,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                                     .setCancelable(false)
                                                     .setPositiveButton(R.string.dialog_common_ok, (dialog3, which3) -> {
                                                         ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editText.getWindowToken(), 0);
-                                                        DOWNLOAD_FILE_URL = editText.getText().toString();
+                                                        downloadFileUrl = editText.getText().toString();
                                                         startDownload();
                                                     })
                                                     .setNegativeButton(R.string.dialog_common_cancel, null)
@@ -1605,7 +1514,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                 .setMessage("遷移先のページよりapkファイルをダウンロードしてadbでインストールしてください")
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                     try {
-                                        requireActivity().startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(DOWNLOAD_FILE_URL)), Constants.REQUEST_ACTIVITY_UPDATE);
+                                        requireActivity().startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(downloadFileUrl)), Constants.REQUEST_ACTIVITY_UPDATE);
                                     } catch (Exception ignored) {
                                         Toast.makeText(requireActivity(), R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
                                         requireActivity().finish();
@@ -1629,8 +1538,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             return;
                         }
 
-                        installData[0] = new File(requireActivity().getExternalCacheDir(), "update.apk").getPath();
-                        new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installData, Constants.REQUEST_INSTALL_GET_APP);
+                        installFileArrayList.set(0, new File(requireActivity().getExternalCacheDir(), "update.apk").getPath());
+                        new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_GET_APP, this);
                         break;
                     case 4:
                         if (!isDhizukuActive(requireActivity())) {
@@ -1643,8 +1552,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             return;
                         }
 
-                        installData[0] = new File(requireActivity().getExternalCacheDir(), "update.apk").getPath();
-                        new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installData, Constants.REQUEST_INSTALL_GET_APP);
+                        installFileArrayList.set(0, new File(requireActivity().getExternalCacheDir(), "update.apk").getPath());
+                        new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_GET_APP, this);
                         break;
                 }
                 break;
@@ -1732,7 +1641,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             public void onSuccess() {
                 try {
                     /* 一時ファイルを消去 */
-                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
+                    File tmpFile = requireActivity().getExternalCacheDir();
 
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
@@ -1741,7 +1650,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 }
 
                 cancelLoadingDialog();
-                AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.getInstance())
+                AlertDialog alertDialog = new AlertDialog.Builder(MainFragment.this.requireActivity())
                         .setMessage(R.string.dialog_info_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
@@ -1757,7 +1666,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             public void onFailure(String message) {
                 try {
                     /* 一時ファイルを消去 */
-                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
+                    File tmpFile = requireActivity().getExternalCacheDir();
 
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
@@ -1766,7 +1675,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 }
 
                 cancelLoadingDialog();
-                new AlertDialog.Builder(StartActivity.getInstance())
+                new AlertDialog.Builder(MainFragment.this.requireActivity())
                         .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
@@ -1777,7 +1686,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             public void onError(String message) {
                 try {
                     /* 一時ファイルを消去 */
-                    File tmpFile = StartActivity.getInstance().getExternalCacheDir();
+                    File tmpFile = requireActivity().getExternalCacheDir();
 
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
@@ -1786,7 +1695,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 }
 
                 cancelLoadingDialog();
-                new AlertDialog.Builder(StartActivity.getInstance())
+                new AlertDialog.Builder(MainFragment.this.requireActivity())
                         .setMessage(getString(R.string.dialog_error) + "\n" + message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)

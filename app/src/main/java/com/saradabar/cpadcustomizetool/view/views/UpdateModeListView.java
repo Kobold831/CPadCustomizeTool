@@ -26,19 +26,21 @@ import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import java.util.List;
+import java.util.Objects;
 
-public class AppListView {
+public class UpdateModeListView {
 
     public static class AppData {
-        public String str;
+        public String label;
+        public int updateMode;
     }
 
-    public static class AppListAdapter extends ArrayAdapter<AppListView.AppData> {
+    public static class AppListAdapter extends ArrayAdapter<UpdateModeListView.AppData> {
 
         private final LayoutInflater mInflater;
 
-        public AppListAdapter(Context context, List<AppListView.AppData> dataList) {
-            super(context, R.layout.view_app_list_item);
+        public AppListAdapter(Context context, List<UpdateModeListView.AppData> dataList) {
+            super(context, R.layout.view_update_item);
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             addAll(dataList);
         }
@@ -47,31 +49,40 @@ public class AppListView {
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
-            AppListView.ViewHolder holder = new AppListView.ViewHolder();
+            UpdateModeListView.ViewHolder holder = new UpdateModeListView.ViewHolder();
 
             if (convertView == null) {
-                convertView = mInflater.inflate(R.layout.view_app_list_item, parent, false);
-                holder.tv = convertView.findViewById(R.id.v_app_list_text);
+                convertView = mInflater.inflate(R.layout.view_update_item, parent, false);
+                holder.textLabel = convertView.findViewById(R.id.update_label);
                 convertView.setTag(holder);
             } else {
-                holder = (AppListView.ViewHolder) convertView.getTag();
+                holder = (UpdateModeListView.ViewHolder) convertView.getTag();
             }
 
-            final AppListView.AppData data = getItem(position);
+            final UpdateModeListView.AppData data = getItem(position);
 
             if (data != null) {
-                holder.tv.setText(data.str);
-            }
+                holder.textLabel.setText(data.label);
 
-            /* RadioButtonの更新 */
-            RadioButton button = convertView.findViewById(R.id.v_app_list_radio);
-            button.setChecked(Preferences.load(getContext(), Constants.KEY_RADIO_TMP, 0) == position);
+                /* RadioButtonの更新 */
+                RadioButton button = convertView.findViewById(R.id.update_button);
+                button.setChecked(isUpdater(data.updateMode));
+            }
 
             return convertView;
         }
+
+        /* ランチャーに設定されているかの確認 */
+        private boolean isUpdater(int i) {
+            try {
+                return Objects.equals(i, Preferences.load(getContext(), Constants.KEY_FLAG_UPDATE_MODE, 1));
+            } catch (NullPointerException ignored) {
+                return false;
+            }
+        }
     }
 
-    public static class ViewHolder {
-        TextView tv;
+    private static class ViewHolder {
+        TextView textLabel;
     }
 }

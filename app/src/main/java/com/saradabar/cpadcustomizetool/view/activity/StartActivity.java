@@ -41,34 +41,20 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.flagment.AppSettingsFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Objects;
-
-import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class StartActivity extends AppCompatActivity implements DownloadEventListener {
 
-    String DOWNLOAD_FILE_URL;
     Menu menu;
-
-    IDchaService mDchaService;
-
-    static StartActivity instance = null;
-
-    public static StartActivity getInstance() {
-        return instance;
-    }
 
     /* 設定画面表示 */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        instance = this;
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -174,17 +160,6 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
         }
     }
 
-    ServiceConnection mDchaServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            mDchaService = IDchaService.Stub.asInterface(iBinder);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-        }
-    };
-
     /* 再表示 */
     @Override
     public void onResume() {
@@ -192,19 +167,19 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
         /* DchaServiceが機能していな場合は再起動 */
         if (!Preferences.load(this, "debug_restriction", false)) {
             if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-                if (!bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE)) {
+                if (!bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
+                    @Override
+                    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                    }
+
+                    @Override
+                    public void onServiceDisconnected(ComponentName componentName) {
+                    }
+                }, Context.BIND_AUTO_CREATE)) {
                     startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                     finish();
                 }
             }
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mDchaService != null) {
-            unbindService(mDchaServiceConnection);
         }
     }
 
@@ -216,7 +191,6 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 JSONObject jsonObj1 = parseJson(new File(getExternalCacheDir(), "Check.json"));
                 JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                 JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
-                DOWNLOAD_FILE_URL = jsonObj3.getString("url");
 
                 if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
                     new AlertDialog.Builder(this)
@@ -225,7 +199,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                             .setNegativeButton("キャンセル", null)
                             .show();
                 }
-            } catch (JSONException | IOException ignored) {
+            } catch (Exception ignored) {
             }
         }
     }

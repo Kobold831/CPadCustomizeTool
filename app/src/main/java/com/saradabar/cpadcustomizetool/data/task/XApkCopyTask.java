@@ -17,15 +17,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 
 public class XApkCopyTask {
 
-    public static XApkCopyTask xApkCopyTask;
     long totalByte = 0;
     String obbPath1, obbPath2;
 
-    public void execute(Context context, Listener listener, String[] splitInstallData) {
+    public void execute(Context context, Listener listener, ArrayList<String> splitInstallData) {
         onPreExecute(listener);
         Executors.newSingleThreadExecutor().submit(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
@@ -37,7 +38,6 @@ public class XApkCopyTask {
     }
 
     void onPreExecute(Listener listener) {
-        xApkCopyTask = this;
         listener.onShow();
     }
 
@@ -50,7 +50,7 @@ public class XApkCopyTask {
 
         if (result.getClass() == String[].class) {
             totalByte = -1;
-            listener.onSuccess((String[]) result);
+            listener.onSuccess(new ArrayList<>(Arrays.asList((String[]) result)));
             return;
         }
 
@@ -68,8 +68,8 @@ public class XApkCopyTask {
         listener.onProgressUpdate(message);
     }
 
-    protected Object doInBackground(Context context, Listener listener, String[] splitInstallData) {
-        String zipFile = splitInstallData[0];
+    protected Object doInBackground(Context context, Listener listener, ArrayList<String> splitInstallData) {
+        String zipFile = splitInstallData.get(0);
         File tmpFile = new File(Common.getTemporaryPath(context));
         totalByte = new File(zipFile).length();
 
@@ -113,7 +113,7 @@ public class XApkCopyTask {
 
                     /* apkファイルならパスをインストールデータへ */
                     if (zipFile.substring(zipFile.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
-                        splitInstallData[i - c] = zipListFiles[i].getPath();
+                        splitInstallData.set(i - c, zipListFiles[i].getPath());
                     } else {
                         /* apkファイルでなかったときのリストの順番を修正 */
                         c++;
@@ -129,7 +129,7 @@ public class XApkCopyTask {
     public interface Listener {
         void onShow();
 
-        void onSuccess(String[] splitInstallData);
+        void onSuccess(ArrayList<String> splitInstallData);
 
         void onFailure();
 

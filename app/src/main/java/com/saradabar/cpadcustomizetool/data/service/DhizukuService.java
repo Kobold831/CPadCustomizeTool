@@ -22,52 +22,55 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 
 import com.rosan.dhizuku.shared.DhizukuVariables;
+import com.saradabar.cpadcustomizetool.util.Common;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 public class DhizukuService extends IDhizukuService.Stub {
 
-    private final Context context;
-    private final DevicePolicyManager dpm;
+    private final Context mContext;
 
     public DhizukuService(Context context) {
-        this.context = context;
-        dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        mContext = context;
     }
 
     @Override
     public void setUninstallBlocked(String packageName, boolean uninstallBlocked) {
+        DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
         dpm.setUninstallBlocked(DhizukuVariables.COMPONENT_NAME, packageName, uninstallBlocked);
     }
 
     @Override
     public boolean isUninstallBlocked(String packageName) {
+        DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
         return dpm.isUninstallBlocked(DhizukuVariables.COMPONENT_NAME, packageName);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void setPermissionPolicy(int policy) {
+        DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
         dpm.setPermissionPolicy(DhizukuVariables.COMPONENT_NAME, policy);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void setPermissionGrantState(String packageName, String permission, int grantState) {
+        DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
         dpm.setPermissionGrantState(DhizukuVariables.COMPONENT_NAME, packageName, permission, grantState);
     }
 
     @Override
-    public boolean tryInstallPackages(String[] installData, int reqCode) {
-
+    public boolean tryInstallPackages(List<String> installData, int reqCode) {
         int sessionId;
 
         try {
-            sessionId = createSession(context.getPackageManager().getPackageInstaller());
+            sessionId = createSession(mContext.getPackageManager().getPackageInstaller());
             if (sessionId < 0) {
-                context.getPackageManager().getPackageInstaller().abandonSession(sessionId);
+                mContext.getPackageManager().getPackageInstaller().abandonSession(sessionId);
                 return false;
             }
         } catch (IOException ignored) {
@@ -79,12 +82,12 @@ public class DhizukuService extends IDhizukuService.Stub {
             /* 配列の中身を確認 */
             if (str != null) {
                 try {
-                    if (!writeSession(context.getPackageManager().getPackageInstaller(), sessionId, new File(str))) {
-                        context.getPackageManager().getPackageInstaller().abandonSession(sessionId);
+                    if (!writeSession(mContext.getPackageManager().getPackageInstaller(), sessionId, new File(str))) {
+                        mContext.getPackageManager().getPackageInstaller().abandonSession(sessionId);
                         return false;
                     }
                 } catch (Exception e) {
-                    context.getPackageManager().getPackageInstaller().abandonSession(sessionId);
+                    mContext.getPackageManager().getPackageInstaller().abandonSession(sessionId);
                     return false;
                 }
             } else {
@@ -94,20 +97,21 @@ public class DhizukuService extends IDhizukuService.Stub {
         }
 
         try {
-            if (commitSession(context.getPackageManager().getPackageInstaller(), sessionId, context, reqCode)) {
+            if (commitSession(mContext.getPackageManager().getPackageInstaller(), sessionId, mContext, reqCode)) {
                 return true;
             } else {
-                context.getPackageManager().getPackageInstaller().abandonSession(sessionId);
+                mContext.getPackageManager().getPackageInstaller().abandonSession(sessionId);
                 return false;
             }
         } catch (IOException ignored) {
-            context.getPackageManager().getPackageInstaller().abandonSession(sessionId);
+            mContext.getPackageManager().getPackageInstaller().abandonSession(sessionId);
             return false;
         }
     }
 
     @Override
     public void clearDeviceOwnerApp(String packageName) {
+        DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
         dpm.clearDeviceOwnerApp(packageName);
     }
 
@@ -118,7 +122,6 @@ public class DhizukuService extends IDhizukuService.Stub {
     }
 
     private boolean writeSession(PackageInstaller packageInstaller, int sessionId, File apkFile) throws IOException {
-
         long sizeBytes = -1;
         String apkPath = apkFile.getAbsolutePath();
         File file = new File(apkPath);
@@ -134,7 +137,7 @@ public class DhizukuService extends IDhizukuService.Stub {
         try {
             session = packageInstaller.openSession(sessionId);
             in = new FileInputStream(apkPath);
-            out = session.openWrite(getRandomString(), 0, sizeBytes);
+            out = session.openWrite(Common.getRandomString(), 0, sizeBytes);
             byte[] buffer = new byte[65536];
             int c;
 
@@ -154,12 +157,14 @@ public class DhizukuService extends IDhizukuService.Stub {
     }
 
     private boolean commitSession(PackageInstaller packageInstaller, int sessionId, Context context, int reqCode) throws IOException {
-
         PackageInstaller.Session session = null;
 
         try {
             session = packageInstaller.openSession(sessionId);
-            Intent intent = new Intent("com.saradabar.cpadcustomizetool.data.service.InstallService").setPackage("com.saradabar.cpadcustomizetool").putExtra("REQUEST_CODE", reqCode).putExtra("REQUEST_SESSION", sessionId);
+            Intent intent = new Intent("com.saradabar.cpadcustomizetool.data.service.InstallService")
+                    .setPackage("com.saradabar.cpadcustomizetool")
+                    .putExtra("REQUEST_CODE", reqCode)
+                    .putExtra("REQUEST_SESSION", sessionId);
             PendingIntent pendingIntent = PendingIntent.getService(
                     context,
                     sessionId,
@@ -175,19 +180,5 @@ public class DhizukuService extends IDhizukuService.Stub {
         } finally {
             if (session != null) session.close();
         }
-    }
-
-    private String getRandomString() {
-
-        String theAlphaNumericS;
-        StringBuilder builder;
-        theAlphaNumericS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        builder = new StringBuilder(5);
-
-        for (int m = 0; m < 5; m++) {
-            int myindex = (int) (theAlphaNumericS.length() * Math.random());
-            builder.append(theAlphaNumericS.charAt(myindex));
-        }
-        return builder.toString();
     }
 }

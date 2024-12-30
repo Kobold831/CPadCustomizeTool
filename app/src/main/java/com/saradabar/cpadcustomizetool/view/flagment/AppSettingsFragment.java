@@ -22,7 +22,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.preference.Preference;
@@ -39,7 +38,7 @@ import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.CrashLogActivity;
-import com.saradabar.cpadcustomizetool.view.views.SingleListView;
+import com.saradabar.cpadcustomizetool.view.views.UpdateModeListView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,22 +98,22 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         if (Preferences.delete(requireActivity(), Constants.KEY_CRASH_LOG)) {
                             new AlertDialog.Builder(requireActivity())
                                     .setMessage("消去しました")
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         }
                     })
-                    .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> dialog.dismiss())
+                    .setNegativeButton(R.string.dialog_common_no, null)
                     .show();
             return false;
         });
 
         preUpdateMode.setOnPreferenceClickListener(preference -> {
             View v = requireActivity().getLayoutInflater().inflate(R.layout.layout_update_list, null);
-            List<SingleListView.AppData> dataList = new ArrayList<>();
+            List<UpdateModeListView.AppData> dataList = new ArrayList<>();
             int i = 0;
 
             for (String str : Constants.list) {
-                SingleListView.AppData data = new SingleListView.AppData();
+                UpdateModeListView.AppData data = new UpdateModeListView.AppData();
                 data.label = str;
                 data.updateMode = i;
                 dataList.add(data);
@@ -123,7 +122,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
             ListView listView = v.findViewById(R.id.update_list);
             listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-            listView.setAdapter(new SingleListView.AppListAdapter(requireActivity(), dataList));
+            listView.setAdapter(new UpdateModeListView.AppListAdapter(requireActivity(), dataList));
             listView.setOnItemClickListener((parent, mView, position, id) -> {
                 switch (position) {
                     case 0:
@@ -217,15 +216,15 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                             if (Common.deleteDirectory(requireActivity().getExternalCacheDir())) {
                                 new AlertDialog.Builder(requireActivity())
                                         .setMessage("消去しました")
-                                        .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                                        .setPositiveButton(R.string.dialog_common_ok, null)
                                         .show();
-                                return;
                             }
+                        } else {
+                            new AlertDialog.Builder(requireActivity())
+                                    .setMessage("消去できませんでした")
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .show();
                         }
-                        new AlertDialog.Builder(requireActivity())
-                                .setMessage("消去できませんでした")
-                                .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
-                                .show();
                     })
                     .setNegativeButton("キャンセル", null)
                     .show();

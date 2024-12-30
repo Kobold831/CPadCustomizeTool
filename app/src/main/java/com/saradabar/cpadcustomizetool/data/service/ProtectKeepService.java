@@ -17,11 +17,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.Preferences;
 
 public class ProtectKeepService extends Service {
 
@@ -34,9 +34,11 @@ public class ProtectKeepService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        SharedPreferences sp = getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
-
-        if (!sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) && !sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+        if (!Preferences.load(this, Constants.KEY_ENABLED_KEEP_SERVICE, false) &&
+                !Preferences.load(this, Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) &&
+                !Preferences.load(this, Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) &&
+                !Preferences.load(this, Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) &&
+                !Preferences.load(this, Constants.KEY_ENABLED_KEEP_HOME, false)) {
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -48,14 +50,15 @@ public class ProtectKeepService extends Service {
 
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
-                SharedPreferences sp = getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE);
-
-                if (sp.getBoolean(Constants.KEY_ENABLED_KEEP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) || sp.getBoolean(Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                if (Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_SERVICE, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_HOME, false)) {
                     startService(new Intent(getBaseContext(), KeepService.class));
                 }
             }
         }, Context.BIND_AUTO_CREATE);
-
         return START_STICKY;
     }
 }

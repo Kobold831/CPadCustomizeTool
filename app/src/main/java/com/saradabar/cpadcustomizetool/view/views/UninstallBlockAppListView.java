@@ -25,7 +25,7 @@ import com.saradabar.cpadcustomizetool.util.Common;
 
 import java.util.List;
 
-public class UninstallBlockView {
+public class UninstallBlockAppListView {
 
     public static class AppData {
         public String label;

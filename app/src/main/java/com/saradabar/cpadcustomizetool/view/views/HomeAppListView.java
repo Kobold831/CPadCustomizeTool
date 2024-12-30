@@ -13,6 +13,7 @@
 package com.saradabar.cpadcustomizetool.view.views;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -24,13 +25,11 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.util.Constants;
-import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import java.util.List;
 import java.util.Objects;
 
-public class NormalModeView {
+public class HomeAppListView {
 
     public static class AppData {
         public String label;
@@ -79,15 +78,11 @@ public class NormalModeView {
 
         /* ランチャーに設定されているかの確認 */
         private boolean isLauncher(String s) {
-            try {
-                return Objects.equals(s, Preferences.load(getContext(), Constants.KEY_NORMAL_LAUNCHER, ""));
-            } catch (NullPointerException ignored) {
-                return false;
-            }
+            return Objects.equals(s, Objects.requireNonNull(getContext().getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0)).activityInfo.packageName);
         }
     }
 
-    private static class ViewHolder {
+    public static class ViewHolder {
         TextView textLabel;
         ImageView imageIcon;
     }
