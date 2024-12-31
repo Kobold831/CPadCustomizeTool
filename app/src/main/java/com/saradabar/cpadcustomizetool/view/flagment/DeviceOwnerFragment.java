@@ -66,7 +66,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
     final Object objLock = new Object();
 
-    ArrayList<String> installFileArrayList = new ArrayList<>();
     AlertDialog progressDialog;
 
     XApkCopyTask xApkCopyTask;
@@ -378,6 +377,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        ArrayList<String> installFileArrayList = new ArrayList<>();
+
         if (requestCode == Constants.REQUEST_ACTIVITY_INSTALL) {
             preSessionInstall.setEnabled(true);
             try {
@@ -385,7 +386,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     return;
                 }
 
-                if (trySetInstallData(data)) {
+                if (trySetInstallData(data, installFileArrayList)) {
                     String installFileName = new File(installFileArrayList.get(0)).getName();
 
                     /* ファイルの拡張子 */
@@ -414,34 +415,30 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     }
 
     /* splitInstallDataにファイルパスを格納 */
-    private boolean trySetInstallData(Intent intent) {
+    private boolean trySetInstallData(Intent intent, ArrayList<String> stringArrayList) {
         try {
             ClipData clipData = intent.getClipData();
 
             if (clipData == null) {
                 /* シングルApk */
-                installFileArrayList.set(0, Common.getFilePath(requireActivity(), intent.getData()));
+                stringArrayList.add(0, Common.getFilePath(requireActivity(), intent.getData()));
 
-                if (installFileArrayList.get(0) == null) {
+                if (stringArrayList.get(0) == null) {
                     return false;
                 }
 
-                String installFileName = new File(installFileArrayList.get(0)).getName();
+                String installFileName = new File(stringArrayList.get(0)).getName();
 
                 /* ファイルの拡張子 */
-                if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk") || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".xapk") || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
-                    return installFileArrayList != null;
-                } else {
-                    /* 未対応またはインストールファイルでないなら終了 */
-                    return false;
-                }
+                /* 未対応またはインストールファイルでないなら終了 */
+                return installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk") || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".xapk") || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apkm");
             } else {
                 /* マルチApk */
                 for (int i = 0; i < clipData.getItemCount(); i++) {
                     /* 処理 */
-                    installFileArrayList.set(i, Common.getFilePath(requireActivity(), clipData.getItemAt(i).getUri()));
+                    stringArrayList.add(i, Common.getFilePath(requireActivity(), clipData.getItemAt(i).getUri()));
                 }
-                return installFileArrayList != null;
+                return stringArrayList != null;
             }
         } catch (Exception ignored) {
             return false;

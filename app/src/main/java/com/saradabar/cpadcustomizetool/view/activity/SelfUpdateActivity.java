@@ -54,7 +54,6 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     ProgressBar dialogProgressBar;
 
     String downloadFileUrl;
-    ArrayList<String> installFileArrayList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +68,8 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
 
     @Override
     public void onDownloadComplete(int reqCode) {
+        ArrayList<String> installFileArrayList = new ArrayList<>();
+
         switch (reqCode) {
             case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
                 try {
@@ -124,7 +125,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                             return;
                         }
 
-                        installFileArrayList.set(0, new File(getExternalCacheDir(), "update.apk").getPath());
+                        installFileArrayList.add(0, new File(getExternalCacheDir(), "update.apk").getPath());
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                     case 4:
@@ -138,7 +139,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                             return;
                         }
 
-                        installFileArrayList.set(0, new File(getExternalCacheDir(), "update.apk").getPath());
+                        installFileArrayList.add(0, new File(getExternalCacheDir(), "update.apk").getPath());
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                 }

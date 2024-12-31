@@ -108,7 +108,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     ProgressBar dialogProgressBar;
 
     String downloadFileUrl;
-    ArrayList<String> installFileArrayList = new ArrayList<>();
 
     IDchaService mDchaService;
     IDchaUtilService mDchaUtilService;
@@ -1422,6 +1421,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @Override
     public void onDownloadComplete(int reqCode) {
         View view;
+        ArrayList<String> installFileArrayList = new ArrayList<>();
+
         switch (reqCode) {
             case Constants.REQUEST_DOWNLOAD_APP_CHECK:
                 cancelLoadingDialog();
@@ -1538,7 +1539,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             return;
                         }
 
-                        installFileArrayList.set(0, new File(requireActivity().getExternalCacheDir(), "update.apk").getPath());
+                        installFileArrayList.add(0, new File(requireActivity().getExternalCacheDir(), "update.apk").getPath());
                         new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_GET_APP, this);
                         break;
                     case 4:
@@ -1552,7 +1553,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             return;
                         }
 
-                        installFileArrayList.set(0, new File(requireActivity().getExternalCacheDir(), "update.apk").getPath());
+                        installFileArrayList.add(0, new File(requireActivity().getExternalCacheDir(), "update.apk").getPath());
                         new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_GET_APP, this);
                         break;
                 }

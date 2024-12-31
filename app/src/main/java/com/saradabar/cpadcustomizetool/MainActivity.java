@@ -76,7 +76,6 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
     ProgressBar dialogProgressBar;
 
     String downloadFileUrl;
-    ArrayList<String> installFileArrayList = new ArrayList<>();
 
     IDchaService mDchaService;
 
@@ -144,6 +143,8 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
     /* ダウンロード完了 */
     @Override
     public void onDownloadComplete(int reqCode) {
+        ArrayList<String> installFileArrayList = new ArrayList<>();
+
         switch (reqCode) {
             /* アップデートチェック要求の場合 */
             case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
@@ -202,7 +203,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                             return;
                         }
 
-                        installFileArrayList.set(0, new File(getExternalCacheDir(), "update.apk").getPath());
+                        installFileArrayList.add(0, new File(getExternalCacheDir(), "update.apk").getPath());
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                     case 4:
@@ -216,7 +217,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                             return;
                         }
 
-                        installFileArrayList.set(0, new File(getExternalCacheDir(), "update.apk").getPath());
+                        installFileArrayList.add(0, new File(getExternalCacheDir(), "update.apk").getPath());
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                 }

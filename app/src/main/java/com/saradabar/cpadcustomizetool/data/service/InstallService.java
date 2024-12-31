@@ -56,11 +56,17 @@ public class InstallService extends Service {
                 installEventListenerList.installSuccessNotify(code);
                 break;
             case PackageInstaller.STATUS_FAILURE_ABORTED:
-                getPackageManager().getPackageInstaller().abandonSession(sessionId);
+                try {
+                    getPackageManager().getPackageInstaller().abandonSession(sessionId);
+                } catch (Exception ignored) {
+                }
                 installEventListenerList.installFailureNotify(code, getErrorMessage(this, status) + "\n" + extra);
                 break;
             default:
-                getPackageManager().getPackageInstaller().abandonSession(sessionId);
+                try {
+                    getPackageManager().getPackageInstaller().abandonSession(sessionId);
+                } catch (Exception ignored) {
+                }
                 installEventListenerList.installErrorNotify(code, getErrorMessage(this, status) + "\n" + extra);
                 break;
         }

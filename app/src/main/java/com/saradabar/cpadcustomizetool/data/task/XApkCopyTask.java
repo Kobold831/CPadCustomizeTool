@@ -113,7 +113,7 @@ public class XApkCopyTask {
 
                     /* apkファイルならパスをインストールデータへ */
                     if (zipFile.substring(zipFile.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
-                        splitInstallData.set(i - c, zipListFiles[i].getPath());
+                        splitInstallData.add(i - c, zipListFiles[i].getPath());
                     } else {
                         /* apkファイルでなかったときのリストの順番を修正 */
                         c++;
