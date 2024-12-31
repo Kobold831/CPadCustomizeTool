@@ -89,23 +89,16 @@ public class KeepService extends Service {
 
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
-                if (Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_SERVICE, false) || Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) || Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) || Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) || Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                if (Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_SERVICE, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_HOME, false)) {
                     startService(new Intent(getBaseContext(), ProtectKeepService.class));
                 }
             }
         }, Context.BIND_AUTO_CREATE);
         return START_STICKY;
-    }
-
-    public void onDestroy() {
-        super.onDestroy();
-        if (Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_SERVICE, false) ||
-                Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) ||
-                Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) ||
-                Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) ||
-                Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_HOME, false)) {
-            startService(new Intent(this, KeepService.class));
-        }
     }
 
     private void runKeepDefaultLauncher() {

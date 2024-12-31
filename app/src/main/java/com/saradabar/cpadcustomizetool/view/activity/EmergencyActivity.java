@@ -22,8 +22,8 @@ import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
+import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
-import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
@@ -90,17 +90,8 @@ public class EmergencyActivity extends Activity {
 
     private boolean setSystemSettings() {
         try {
-            if (Preferences.load(this, Constants.KEY_ENABLED_KEEP_SERVICE, false) ||
-                    Preferences.load(this, Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) ||
-                    Preferences.load(this, Constants.KEY_ENABLED_KEEP_HOME, false)) {
-                Preferences.save(this, Constants.KEY_ENABLED_KEEP_SERVICE, false);
-                Preferences.save(this, Constants.KEY_ENABLED_KEEP_DCHA_STATE, false);
-                Preferences.save(this, Constants.KEY_ENABLED_KEEP_HOME, false);
-
-                if (Common.isRunningService(this, KeepService.class.getName())) {
-                    stopService(new Intent(this, KeepService.class));
-                }
-            }
+            startService(new Intent(this, KeepService.class));
+            startService(new Intent(this, ProtectKeepService.class));
 
             if (Preferences.isEmergencySettingsDchaState(this)) {
                 Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 3);

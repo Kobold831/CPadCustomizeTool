@@ -342,15 +342,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             if ((boolean) o) {
                 chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
-                requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-
-                if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
-                    requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
-                }
-            } else {
-                requireActivity().stopService(new Intent(requireActivity(), KeepService.class));
-                requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
             }
+
+            requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+            requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
             return true;
         });
 
@@ -372,15 +367,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             if ((boolean) o) {
                 chgSetting(Constants.FLAG_VIEW_NAVIGATION_BAR);
-                requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-
-                if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
-                    requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
-                }
-            } else {
-                requireActivity().stopService(new Intent(requireActivity(), KeepService.class));
-                requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
             }
+
+            requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+            requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
             return true;
         });
 
@@ -407,20 +397,15 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             if ((boolean) o) {
                 try {
                     chgSetting(Constants.FLAG_MARKET_APP_TRUE);
-                    requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-
-                    if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
-                        requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
-                    }
                 } catch (Exception ignored) {
                     Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
                     Preferences.save(requireActivity(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false);
                     return false;
                 }
-            } else {
-                requireActivity().stopService(new Intent(requireActivity(), KeepService.class));
-                requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
             }
+
+            requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+            requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
             return true;
         });
 
@@ -483,36 +468,32 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             if ((boolean) o) {
                 try {
-                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                            Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                         chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
                         Thread.sleep(100);
                     }
 
                     chgSetting(Constants.FLAG_USB_DEBUG_TRUE);
 
-                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                            Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                         chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
-                    }
-
-                    requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-
-                    if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
-                        requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
                     }
                 } catch (Exception ignored) {
                     Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
                     Preferences.save(requireActivity(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false);
 
-                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                            Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                         chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
                     }
-
                     return false;
                 }
-            } else {
-                requireActivity().stopService(new Intent(requireActivity(), KeepService.class));
-                requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
             }
+
+            requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+            requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
             return true;
         });
 
@@ -592,15 +573,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             if ((boolean) o) {
                 Preferences.save(requireActivity(), Constants.KEY_SAVE_KEEP_HOME, getLauncherPackage(requireActivity()));
-                requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-
-                if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
-                    requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
-                }
-            } else {
-                requireActivity().stopService(new Intent(requireActivity(), KeepService.class));
-                requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
             }
+
+            requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+            requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
             return true;
         });
 
@@ -1033,26 +1009,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         }
 
         /* 維持スイッチが有効のときサービスが停止していたら起動 */
-        if (Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_SERVICE, false) ||
-                Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) ||
-                Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) ||
-                Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) ||
-                Preferences.load(requireActivity(), Constants.KEY_ENABLED_KEEP_HOME, false)) {
-            if (!Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-            }
-
-            if (!Common.isRunningService(requireActivity(), ProtectKeepService.class.getName())) {
-                requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
-            }
-        } else {
-            /* 全機能が無効ならサービス停止 */
-            if (Common.isRunningService(requireActivity(), KeepService.class.getName())) {
-                requireActivity().stopService(new Intent(requireActivity(), KeepService.class));
-            }
-
-            requireActivity().stopService(new Intent(requireActivity(), ProtectKeepService.class));
-        }
+        requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+        requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
 
         /* 端末ごとにPreferenceの状態を設定 */
         switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
