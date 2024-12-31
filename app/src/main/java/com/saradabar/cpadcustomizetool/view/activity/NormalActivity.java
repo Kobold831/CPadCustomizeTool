@@ -42,6 +42,19 @@ public class NormalActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (!Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
+            Toast.makeText(this, R.string.toast_not_completed_settings, Toast.LENGTH_SHORT).show();
+            finishAndRemoveTask();
+            return;
+        }
+
+        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+            Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
+            finishAndRemoveTask();
+            return;
+        }
+
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             try {
@@ -58,30 +71,29 @@ public class NormalActivity extends Activity {
                 return;
             }
 
-            if (!Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
-                Toast.makeText(this, R.string.toast_not_completed_settings, Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
-                return;
-            }
-
             if (!setSystemSettings()) {
                 Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
                 return;
             }
 
-            if (setDchaSettings()) {
-                ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-                switch (Objects.requireNonNull(PreferenceManager.getDefaultSharedPreferences(this).getString("emergency_mode", ""))) {
-                    case "1":
-                        activityManager.killBackgroundProcesses("jp.co.benesse.touch.allgrade.b003.touchhomelauncher");
-                        break;
-                    case "2":
-                        activityManager.killBackgroundProcesses("jp.co.benesse.touch.home");
-                        break;
-                }
-                Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
+
+            ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+            switch (Objects.requireNonNull(PreferenceManager.getDefaultSharedPreferences(this).getString("emergency_mode", ""))) {
+                case "1":
+                    if (setDchaSettings()) {
+                        Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
+                    }
+                    activityManager.killBackgroundProcesses("jp.co.benesse.touch.allgrade.b003.touchhomelauncher");
+                    finishAndRemoveTask();
+                    break;
+                case "2":
+                    if (setDchaSettings()) {
+                        Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
+                    }
+                    activityManager.killBackgroundProcesses("jp.co.benesse.touch.home");
+                    finishAndRemoveTask();
+                    break;
             }
         });
     }
@@ -111,11 +123,6 @@ public class NormalActivity extends Activity {
 
     private boolean setDchaSettings() {
         ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-
-        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-            Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
-            return false;
-        }
 
         if (Preferences.isNormalModeSettingsLauncher(this)) {
             try {

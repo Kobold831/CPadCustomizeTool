@@ -43,6 +43,20 @@ public class EmergencyActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // 初期設定が完了していない場合は終了
+        if (!Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
+            Toast.makeText(this, R.string.toast_not_completed_settings, Toast.LENGTH_SHORT).show();
+            finishAndRemoveTask();
+            return;
+        }
+
+        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+            Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
+            finishAndRemoveTask();
+            return;
+        }
+
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             try {
@@ -55,12 +69,6 @@ public class EmergencyActivity extends Activity {
 
             if (mDchaService == null) {
                 Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
-                return;
-            }
-
-            if (!Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
-                Toast.makeText(this, R.string.toast_not_completed_settings, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
                 return;
             }
@@ -90,9 +98,23 @@ public class EmergencyActivity extends Activity {
 
     private boolean setSystemSettings() {
         try {
+            // 維持サービスの無効化
+            if (Preferences.isEmergencySettingsDchaState(this)) {
+                Preferences.save(this, Constants.KEY_ENABLED_KEEP_DCHA_STATE, false);
+            }
+
+            if (Preferences.isEmergencySettingsNavigationBar(this)) {
+                Preferences.save(this, Constants.KEY_ENABLED_KEEP_SERVICE, false);
+            }
+
+            if (Preferences.isEmergencySettingsLauncher(this)) {
+                Preferences.save(this, Constants.KEY_ENABLED_KEEP_HOME, false);
+            }
+
             startService(new Intent(this, KeepService.class));
             startService(new Intent(this, ProtectKeepService.class));
 
+            // サービス無効化後に設定変更
             if (Preferences.isEmergencySettingsDchaState(this)) {
                 Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 3);
             }
@@ -108,11 +130,6 @@ public class EmergencyActivity extends Activity {
 
     private boolean setDchaSettings(String packageName, String className) {
         ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-
-        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-            Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
-            return false;
-        }
 
         try {
             startActivity(new Intent().setClassName(packageName, className));
