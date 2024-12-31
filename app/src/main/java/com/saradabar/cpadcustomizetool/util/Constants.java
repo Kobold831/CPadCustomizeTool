@@ -25,10 +25,6 @@ public class Constants {
     public static final int MODEL_CTX = 2;
     public static final int MODEL_CTZ = 3;
 
-    public static final int FLAG_SET_DCHA_STATE_0 = 1;
-    public static final int FLAG_SET_DCHA_STATE_3 = 2;
-    public static final int FLAG_HIDE_NAVIGATION_BAR = 3;
-    public static final int FLAG_VIEW_NAVIGATION_BAR = 4;
     public static final int FLAG_USB_DEBUG_TRUE = 6;
     public static final int FLAG_USB_DEBUG_FALSE = 7;
     public static final int FLAG_MARKET_APP_TRUE = 8;

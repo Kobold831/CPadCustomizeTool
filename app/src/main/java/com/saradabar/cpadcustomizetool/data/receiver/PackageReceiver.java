@@ -21,7 +21,6 @@ import android.provider.Settings;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.PermissionIntentService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
-import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
@@ -64,14 +63,8 @@ public class PackageReceiver extends BroadcastReceiver {
                     Preferences.load(context, Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) ||
                     Preferences.load(context, Constants.KEY_ENABLED_KEEP_HOME, false)) {
                 Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
-
-                if (!Common.isRunningService(context, KeepService.class.getName())) {
-                    context.startService(new Intent(context, KeepService.class));
-                }
-
-                if (!Common.isRunningService(context, ProtectKeepService.class.getName())) {
-                    context.startService(new Intent(context, ProtectKeepService.class));
-                }
+                context.startService(new Intent(context, KeepService.class));
+                context.startService(new Intent(context, ProtectKeepService.class));
             }
         }
 
@@ -81,9 +74,7 @@ public class PackageReceiver extends BroadcastReceiver {
                 return;
             }
 
-            if (!Common.isRunningService(context, PermissionIntentService.class.getName())) {
-                context.startService(new Intent(context, PermissionIntentService.class).putExtra("packageName", intent.getData().toString().replace("package:", "")));
-            }
+            context.startService(new Intent(context, PermissionIntentService.class).putExtra("packageName", intent.getData().toString().replace("package:", "")));
         }
     }
 }

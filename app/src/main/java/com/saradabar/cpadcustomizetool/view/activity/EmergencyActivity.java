@@ -17,7 +17,6 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.R;
@@ -25,6 +24,7 @@ import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import java.util.Objects;
@@ -116,11 +116,11 @@ public class EmergencyActivity extends Activity {
 
             // サービス無効化後に設定変更
             if (Preferences.isEmergencySettingsDchaState(this)) {
-                Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 3);
+                new DchaServiceUtil(this, mDchaService).setSetupStatus(3);
             }
 
             if (Preferences.isEmergencySettingsNavigationBar(this)) {
-                Settings.System.putInt(getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 1);
+                new DchaServiceUtil(this, mDchaService).hideNavigationBar(true);
             }
             return true;
         } catch (Exception ignored) {
@@ -141,8 +141,7 @@ public class EmergencyActivity extends Activity {
         if (Preferences.isEmergencySettingsLauncher(this)) {
             try {
                 if (resolveInfo != null) {
-                    mDchaService.clearDefaultPreferredApp(resolveInfo.activityInfo.packageName);
-                    mDchaService.setDefaultPreferredHomeApp(packageName);
+                    new DchaServiceUtil(this, mDchaService).setPreferredHomeApp(resolveInfo.activityInfo.packageName, packageName);
                 }
             } catch (Exception ignored) {
                 Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();

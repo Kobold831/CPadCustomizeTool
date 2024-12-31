@@ -12,7 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.util;
 
-import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.database.Cursor;
@@ -177,17 +176,6 @@ public class Common {
         }
 
         return result;
-    }
-
-    public static boolean isRunningService(Context context, String className) {
-        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-
-        for (ActivityManager.RunningServiceInfo serviceInfo : activityManager.getRunningServices(Integer.MAX_VALUE)) {
-            if (className.equals(serviceInfo.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static String getTemporaryPath(Context context) {

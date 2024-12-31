@@ -298,7 +298,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 String updateData = Common.getFilePath(requireActivity(), data.getData());
 
                 if (updateData != null) {
-                    if (!new DchaServiceUtil(mDchaService).execSystemUpdate(updateData, 0)) {
+                    if (!new DchaServiceUtil(requireActivity(), mDchaService).execSystemUpdate(updateData, 0)) {
                         new AlertDialog.Builder(requireActivity())
                                 .setMessage(R.string.dialog_error)
                                 .setPositiveButton(R.string.dialog_common_ok, null)
@@ -316,18 +316,15 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     private void setListener() {
         swDchaState.setOnPreferenceChangeListener((preference, o) -> {
-            if (Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false)) {
-                if ((boolean) o) {
-                    new DchaServiceUtil(mDchaService).setSetupStatus(3);
-                } else {
-                    new DchaServiceUtil(mDchaService).setSetupStatus(0);
-                }
+            if (!Common.isCfmDialog(requireActivity())) {
+                cfmDialog();
+                return false;
+            }
+
+            if ((boolean) o) {
+                new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(3);
             } else {
-                if ((boolean) o) {
-                    chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
-                } else {
-                    chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
-                }
+                new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
             }
             return false;
         });
@@ -341,7 +338,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             Preferences.save(requireActivity(), Constants.KEY_ENABLED_KEEP_DCHA_STATE, (boolean) o);
 
             if ((boolean) o) {
-                chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
             }
 
             requireActivity().startService(new Intent(requireActivity(), KeepService.class));
@@ -350,15 +347,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         swNavigation.setOnPreferenceChangeListener((preference, o) -> {
-            if (Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false)) {
-                new DchaServiceUtil(mDchaService).hideNavigationBar((boolean) o);
-            } else {
-                if ((boolean) o) {
-                    chgSetting(Constants.FLAG_HIDE_NAVIGATION_BAR);
-                } else {
-                    chgSetting(Constants.FLAG_VIEW_NAVIGATION_BAR);
-                }
-            }
+            new DchaServiceUtil(requireActivity(), mDchaService).hideNavigationBar((boolean) o);
             return false;
         });
 
@@ -366,7 +355,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             Preferences.save(requireActivity(), Constants.KEY_ENABLED_KEEP_SERVICE, (boolean) o);
 
             if ((boolean) o) {
-                chgSetting(Constants.FLAG_VIEW_NAVIGATION_BAR);
+                new DchaServiceUtil(requireActivity(), mDchaService).hideNavigationBar(false);
             }
 
             requireActivity().startService(new Intent(requireActivity(), KeepService.class));
@@ -375,35 +364,29 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         swUnkSrc.setOnPreferenceChangeListener((preference, o) -> {
-            if ((boolean) o) {
-                try {
+            try {
+                if ((boolean) o) {
                     chgSetting(Constants.FLAG_MARKET_APP_TRUE);
-                } catch (Exception ignored) {
-                    Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                try {
+                } else {
                     chgSetting(Constants.FLAG_MARKET_APP_FALSE);
-                } catch (Exception ignored) {
-                    Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
                 }
+            } catch (Exception ignored) {
+                Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
             }
             return false;
         });
 
         swKeepUnkSrc.setOnPreferenceChangeListener((preference, o) -> {
-            Preferences.save(requireActivity(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, (boolean) o);
-
-            if ((boolean) o) {
-                try {
+            try {
+                if ((boolean) o) {
                     chgSetting(Constants.FLAG_MARKET_APP_TRUE);
-                } catch (Exception ignored) {
-                    Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
-                    Preferences.save(requireActivity(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false);
-                    return false;
                 }
+            } catch (Exception ignored) {
+                Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
+                return false;
             }
 
+            Preferences.save(requireActivity(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, (boolean) o);
             requireActivity().startService(new Intent(requireActivity(), KeepService.class));
             requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
             return true;
@@ -424,21 +407,24 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             if ((boolean) o) {
                 try {
-                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
+                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                            Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                        new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(3);
                         Thread.sleep(100);
                     }
 
                     chgSetting(Constants.FLAG_USB_DEBUG_TRUE);
 
-                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                            Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                        new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
                     }
                 } catch (Exception ignored) {
                     Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
 
-                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                    if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                            Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                        new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
                     }
                 }
             } else {
@@ -464,13 +450,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 return false;
             }
 
-            Preferences.save(requireActivity(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, (boolean) o);
-
             if ((boolean) o) {
                 try {
                     if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                             Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
+                        new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(3);
                         Thread.sleep(100);
                     }
 
@@ -478,34 +462,26 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                     if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                             Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                        new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
                     }
                 } catch (Exception ignored) {
                     Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
-                    Preferences.save(requireActivity(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false);
 
                     if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                             Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                        new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
                     }
                     return false;
                 }
             }
 
+            Preferences.save(requireActivity(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, (boolean) o);
             requireActivity().startService(new Intent(requireActivity(), KeepService.class));
             requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
             return true;
         });
 
         swBypassAdbDisable.setOnPreferenceChangeListener((preference, o) -> {
-            if (!Common.isCfmDialog(requireActivity())) {
-                new AlertDialog.Builder(requireActivity())
-                        .setMessage(new StringBuilder(Build.MODEL).append("ではこの機能は使用できません"))
-                        .setPositiveButton(R.string.dialog_common_ok, null)
-                        .show();
-                return false;
-            }
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (requireActivity().checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
@@ -513,28 +489,35 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 }
             }
 
+            if (!Common.isCfmDialog(requireActivity())) {
+                cfmDialog();
+                return false;
+            }
+
             try {
-                if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                    chgSetting(Constants.FLAG_SET_DCHA_STATE_3);
+                if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                        Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(3);
                     Thread.sleep(100);
                 }
 
                 chgSetting(Constants.FLAG_USB_DEBUG_TRUE);
 
-                if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                    chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                        Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
                 }
-
-                Preferences.save(requireActivity(), Constants.KEY_ENABLED_AUTO_USB_DEBUG, (boolean) o);
             } catch (Exception ignored) {
                 Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
 
-                if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                    chgSetting(Constants.FLAG_SET_DCHA_STATE_0);
+                if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                        Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
                 }
-
                 return false;
             }
+
+            Preferences.save(requireActivity(), Constants.KEY_ENABLED_AUTO_USB_DEBUG, (boolean) o);
             return true;
         });
 
@@ -555,7 +538,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             listView.setAdapter(new HomeAppListView.AppListAdapter(requireActivity(), dataList));
             listView.setOnItemClickListener((parent, mView, position, id) -> {
-                new DchaServiceUtil(mDchaService).setPreferredHomeApp(getLauncherPackage(requireActivity()), Uri.fromParts("package", installedAppList.get(position).activityInfo.packageName, null).toString().replace("package:", ""));
+                new DchaServiceUtil(requireActivity(), mDchaService)
+                        .setPreferredHomeApp(getLauncherPackage(requireActivity()),
+                                Uri.fromParts("package",
+                                        installedAppList.get(position).activityInfo.packageName, null)
+                                        .toString().replace("package:", ""));
                 listView.invalidateViews();
                 initialize();
             });
@@ -587,27 +574,28 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         preEnableDchaService.setOnPreferenceClickListener(preference -> {
-            if (Common.isCfmDialog(requireActivity())) {
-                new AlertDialog.Builder(requireActivity())
-                        .setMessage(R.string.dialog_question_dcha_service)
-                        .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                            if (!Preferences.load(requireActivity(), "debug_restriction", false) && !tryBindDchaService()) {
-                                new AlertDialog.Builder(requireActivity())
-                                        .setMessage(R.string.dialog_error_not_work_dcha)
-                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                        .show();
-                            } else {
-                                Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, true);
-                                requireActivity().finish();
-                                requireActivity().overridePendingTransition(0, 0);
-                                startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                            }
-                        })
-                        .setNegativeButton(R.string.dialog_common_no, null)
-                        .show();
-            } else {
+            if (!Common.isCfmDialog(requireActivity())) {
                 cfmDialog();
+                return false;
             }
+
+            new AlertDialog.Builder(requireActivity())
+                    .setMessage(R.string.dialog_question_dcha_service)
+                    .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                        if (!Preferences.load(requireActivity(), "debug_restriction", false) && !tryBindDchaService()) {
+                            new AlertDialog.Builder(requireActivity())
+                                    .setMessage(R.string.dialog_error_not_work_dcha)
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .show();
+                        } else {
+                            Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, true);
+                            requireActivity().finish();
+                            requireActivity().overridePendingTransition(0, 0);
+                            startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                        }
+                    })
+                    .setNegativeButton(R.string.dialog_common_no, null)
+                    .show();
             return false;
         });
 
@@ -719,7 +707,12 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preReboot.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
                     .setMessage(R.string.dialog_question_reboot)
-                    .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> new DchaServiceUtil(mDchaService).rebootPad(0, ""))
+                    .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                        try {
+                            mDchaService.rebootPad(0, "");
+                        } catch (Exception ignored) {
+                        }
+                    })
                     .setNegativeButton(R.string.dialog_common_no, null)
                     .show();
             return false;
@@ -1117,26 +1110,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @SuppressWarnings("deprecation")
     private void chgSetting(int req) {
         switch (req) {
-            case Constants.FLAG_SET_DCHA_STATE_0:
-                if (Common.isCfmDialog(requireActivity())) {
-                    Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0);
-                } else {
-                    cfmDialog();
-                }
-                break;
-            case Constants.FLAG_SET_DCHA_STATE_3:
-                if (Common.isCfmDialog(requireActivity())) {
-                    Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
-                } else {
-                    cfmDialog();
-                }
-                break;
-            case Constants.FLAG_HIDE_NAVIGATION_BAR:
-                Settings.System.putInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 1);
-                break;
-            case Constants.FLAG_VIEW_NAVIGATION_BAR:
-                Settings.System.putInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
-                break;
             case Constants.FLAG_USB_DEBUG_TRUE:
                 Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
                 Settings.System.putInt(requireActivity().getContentResolver(), Constants.BC_PASSWORD_HIT_FLAG, 1);

@@ -18,12 +18,12 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import java.util.Objects;
@@ -100,11 +100,11 @@ public class NormalActivity extends Activity {
 
     private boolean setSystemSettings() {
         if (Preferences.isNormalModeSettingsDchaState(this)) {
-            Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
+            new DchaServiceUtil(this, mDchaService).setSetupStatus(0);
         }
 
         if (Preferences.isNormalModeSettingsNavigationBar(this)) {
-            Settings.System.putInt(getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
+            new DchaServiceUtil(this, mDchaService).hideNavigationBar(false);
         }
 
         if (Preferences.isNormalModeSettingsActivity(this)) {
@@ -125,14 +125,12 @@ public class NormalActivity extends Activity {
         ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
 
         if (Preferences.isNormalModeSettingsLauncher(this)) {
-            try {
-                if (resolveInfo != null) {
-                    mDchaService.clearDefaultPreferredApp(resolveInfo.activityInfo.packageName);
-                    mDchaService.setDefaultPreferredHomeApp(Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, ""));
+            if (resolveInfo != null) {
+                if (!new DchaServiceUtil(this, mDchaService).setPreferredHomeApp(resolveInfo.activityInfo.packageName,
+                        Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, ""))) {
+                    Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
+                    return false;
                 }
-            } catch (Exception ignored) {
-                Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
-                return false;
             }
         }
         return true;

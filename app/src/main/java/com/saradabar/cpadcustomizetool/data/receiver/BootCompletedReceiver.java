@@ -46,14 +46,8 @@ public class BootCompletedReceiver extends BroadcastReceiver {
                 Preferences.load(context, Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) ||
                 Preferences.load(context, Constants.KEY_ENABLED_KEEP_HOME, false)) {
             Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
-
-            if (!Common.isRunningService(context, KeepService.class.getName())) {
-                context.startService(new Intent(context, KeepService.class));
-            }
-
-            if (!Common.isRunningService(context, ProtectKeepService.class.getName())) {
-                context.startService(new Intent(context, ProtectKeepService.class));
-            }
+            context.startService(new Intent(context, KeepService.class));
+            context.startService(new Intent(context, ProtectKeepService.class));
         }
     }
 

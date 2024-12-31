@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -48,7 +46,7 @@ public class DchaInstallTask {
                 objLock.wait();
             }
             if (mDchaService == null) return false;
-            return new DchaServiceUtil(mDchaService).installApp(installData, 0);
+            return mDchaService.installApp(installData, 0);
         } catch (Exception ignored) {
             return false;
         }
