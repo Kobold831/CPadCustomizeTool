@@ -36,14 +36,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.ServiceManager;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.SwitchPreferenceCompat;
-import android.view.Display;
-import android.view.IWindowManager;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
@@ -71,7 +68,6 @@ import com.saradabar.cpadcustomizetool.data.task.ResolutionTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
-import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.EditAdminActivity;
 import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
@@ -87,7 +83,6 @@ import org.json.JSONObject;
 import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -96,7 +91,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
-import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
 
 public class MainFragment extends PreferenceFragmentCompat implements DownloadEventListener, InstallEventListener {
 
@@ -110,7 +104,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     String downloadFileUrl;
 
     IDchaService mDchaService;
-    IDchaUtilService mDchaUtilService;
 
     boolean isObsDchaState = false,
             isObsNavigation = false,
@@ -779,7 +772,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
                                         .show();
                             } else {
-                                new ResolutionTask().execute(requireActivity(), resolutionTaskListener(), width, height);
+                                StartActivity startActivity = (StartActivity) requireActivity();
+                                new ResolutionTask().execute(requireActivity(), startActivity.resolutionTaskListener(), width, height);
                             }
                         } catch (NumberFormatException ignored) {
                             new AlertDialog.Builder(requireActivity())
@@ -806,7 +800,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 }
             }
 
-            resetResolution();
+            StartActivity startActivity = (StartActivity) requireActivity();
+            startActivity.resetResolution();
             return false;
         });
 
@@ -1164,47 +1159,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 .show();
     }
 
-    /* 解像度のリセット */
-    public void resetResolution() {
-        int width = 0, height = 0;
-
-        switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
-            case Constants.MODEL_CT2, Constants.MODEL_CT3 -> {
-                width = 1280;
-                height = 800;
-            }
-            case Constants.MODEL_CTX, Constants.MODEL_CTZ -> {
-                width = 1920;
-                height = 1200;
-            }
-        }
-
-        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-            try {
-                String method = "setForcedDisplaySize";
-                Class.forName("android.view.IWindowManager").getMethod(method, int.class, int.class, int.class).invoke(IWindowManager.Stub.asInterface(ServiceManager.getService("window")), Display.DEFAULT_DISPLAY, width, height);
-            } catch (InvocationTargetException e) {
-                new AlertDialog.Builder(requireActivity())
-                        .setMessage(getString(R.string.dialog_error) + "\n" + e.getTargetException())
-                        .setPositiveButton(R.string.dialog_common_ok, null)
-                        .show();
-            } catch (Exception ignored) {
-                new AlertDialog.Builder(requireActivity())
-                        .setMessage(getString(R.string.dialog_error))
-                        .setPositiveButton(R.string.dialog_common_ok, null)
-                        .show();
-            }
-        } else {
-            if (!new DchaUtilServiceUtil(mDchaUtilService).setForcedDisplaySize(width, height)) {
-                new AlertDialog.Builder(requireActivity())
-                        .setMessage(R.string.dialog_error)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
-                        .show();
-            }
-        }
-    }
-
     private void startDownload() {
         FileDownloadTask fileDownloadTask = new FileDownloadTask();
         fileDownloadTask.execute(this, downloadFileUrl, new File(requireActivity().getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
@@ -1270,78 +1224,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 new AlertDialog.Builder(requireActivity())
                         .setMessage(R.string.dialog_info_failure_silent_install)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-            }
-        };
-    }
-
-    private ResolutionTask.Listener resolutionTaskListener() {
-        return new ResolutionTask.Listener() {
-
-            Handler mHandler;
-            Runnable mRunnable;
-
-            /* 成功 */
-            @Override
-            public void onSuccess() {
-                /* 設定変更カウントダウンダイアログ表示 */
-                AlertDialog alertDialog = new AlertDialog.Builder(MainFragment.this.requireActivity())
-                        .setTitle("解像度の変更を適用しますか？")
-                        .setCancelable(false)
-                        .setMessage("")
-                        .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                            dialog.dismiss();
-                            mHandler.removeCallbacks(mRunnable);
-                        })
-                        .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
-                            dialog.dismiss();
-                            mHandler.removeCallbacks(mRunnable);
-                            MainFragment.this.resetResolution();
-                        })
-                        .create();
-
-                if (!alertDialog.isShowing()) {
-                    alertDialog.show();
-                }
-
-                /* カウント開始 */
-                mHandler = new Handler();
-                mRunnable = new Runnable() {
-
-                    int i = 10;
-
-                    @Override
-                    public void run() {
-                        alertDialog.setMessage(i + "秒で初期設定に戻ります");
-                        mHandler.postDelayed(this, 1000);
-
-                        if (i <= 0) {
-                            alertDialog.dismiss();
-                            mHandler.removeCallbacks(this);
-                            MainFragment.this.resetResolution();
-                        }
-
-                        i--;
-                    }
-                };
-
-                mHandler.post(mRunnable);
-            }
-
-            /* 失敗 */
-            @Override
-            public void onFailure() {
-                new AlertDialog.Builder(requireActivity())
-                        .setMessage(getString(R.string.dialog_info_failure))
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-            }
-
-            @Override
-            public void onError(String message) {
-                new AlertDialog.Builder(requireActivity())
-                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
             }

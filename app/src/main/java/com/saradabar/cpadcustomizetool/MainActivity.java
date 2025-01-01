@@ -75,8 +75,6 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
     TextView progressByteText;
     ProgressBar dialogProgressBar;
 
-    String downloadFileUrl;
-
     IDchaService mDchaService;
 
     @Override
@@ -152,11 +150,10 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                     JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "Check.json"));
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
-                    downloadFileUrl = jsonObj3.getString("url");
 
                     if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
                         cancelLoadingDialog();
-                        showUpdateDialog(jsonObj3.getString("description"));
+                        showUpdateDialog(jsonObj3.getString("description"), jsonObj3.getString("url"));
                     } else {
                         cancelLoadingDialog();
                         new WelcomeHelper(this, WelAppActivity.class).forceShow();
@@ -179,7 +176,10 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                 .setMessage("遷移先のページよりapkファイルをダウンロードしてadbでインストールしてください")
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                     try {
-                                        startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(downloadFileUrl)), Constants.REQUEST_ACTIVITY_UPDATE);
+                                        JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "Check.json"));
+                                        JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                                        JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
+                                        startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(jsonObj3.getString("url"))), Constants.REQUEST_ACTIVITY_UPDATE);
                                     } catch (Exception ignored) {
                                         Toast.makeText(this, R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
                                         finish();
@@ -284,7 +284,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
     }
 
     /* アップデートダイアログ */
-    private void showUpdateDialog(String str) {
+    private void showUpdateDialog(String str, String downloadFileUrl) {
         /* モデルIDをセット */
         switch (Build.MODEL) {
             case "TAB-A03-BR3":

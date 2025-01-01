@@ -23,9 +23,13 @@ import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.ServiceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.view.Display;
+import android.view.IWindowManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
@@ -36,7 +40,9 @@ import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
+import com.saradabar.cpadcustomizetool.data.task.ResolutionTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.flagment.AppSettingsFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
@@ -44,6 +50,7 @@ import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
 public class StartActivity extends AppCompatActivity implements DownloadEventListener {
@@ -261,5 +268,118 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
             }
         }
         return false;
+    }
+
+    public ResolutionTask.Listener resolutionTaskListener() {
+        return new ResolutionTask.Listener() {
+
+            Handler mHandler;
+            Runnable mRunnable;
+
+            /* 成功 */
+            @Override
+            public void onSuccess() {
+                /* 設定変更カウントダウンダイアログ表示 */
+                AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.this)
+                        .setTitle("解像度の変更を適用しますか？")
+                        .setCancelable(false)
+                        .setMessage("")
+                        .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                            dialog.dismiss();
+                            mHandler.removeCallbacks(mRunnable);
+                        })
+                        .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
+                            dialog.dismiss();
+                            mHandler.removeCallbacks(mRunnable);
+                            resetResolution();
+                        })
+                        .create();
+
+                if (!alertDialog.isShowing()) {
+                    alertDialog.show();
+                }
+
+                /* カウント開始 */
+                mHandler = new Handler();
+                mRunnable = new Runnable() {
+
+                    int i = 10;
+
+                    @Override
+                    public void run() {
+                        alertDialog.setMessage(i + "秒で初期設定に戻ります");
+                        mHandler.postDelayed(this, 1000);
+
+                        if (i <= 0) {
+                            alertDialog.dismiss();
+                            mHandler.removeCallbacks(this);
+                            resetResolution();
+                        }
+
+                        i--;
+                    }
+                };
+
+                mHandler.post(mRunnable);
+            }
+
+            /* 失敗 */
+            @Override
+            public void onFailure() {
+                new AlertDialog.Builder(StartActivity.this)
+                        .setMessage(getString(R.string.dialog_info_failure))
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+
+            @Override
+            public void onError(String message) {
+                new AlertDialog.Builder(StartActivity.this)
+                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+        };
+    }
+
+    /* 解像度のリセット */
+    public void resetResolution() {
+        int width = 0, height = 0;
+
+        switch (Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+            case Constants.MODEL_CT2, Constants.MODEL_CT3 -> {
+                width = 1280;
+                height = 800;
+            }
+            case Constants.MODEL_CTX, Constants.MODEL_CTZ -> {
+                width = 1920;
+                height = 1200;
+            }
+        }
+
+        if (Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+            try {
+                String method = "setForcedDisplaySize";
+                Class.forName("android.view.IWindowManager").getMethod(method, int.class, int.class, int.class).invoke(IWindowManager.Stub.asInterface(ServiceManager.getService("window")), Display.DEFAULT_DISPLAY, width, height);
+            } catch (InvocationTargetException e) {
+                new AlertDialog.Builder(this)
+                        .setMessage(getString(R.string.dialog_error) + "\n" + e.getTargetException())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            } catch (Exception ignored) {
+                new AlertDialog.Builder(this)
+                        .setMessage(getString(R.string.dialog_error))
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            }
+        } else {
+            if (!new DchaUtilServiceUtil(this, null).setForcedDisplaySize(width, height)) {
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.dialog_error)
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            }
+        }
     }
 }
