@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.Executors;
 
 public class XApkCopyTask {
@@ -48,9 +47,15 @@ public class XApkCopyTask {
             return;
         }
 
-        if (result.getClass() == String[].class) {
+        if (result.getClass() == ArrayList.class) {
+            ArrayList<String> stringArrayList = new ArrayList<>();
+
+            for (Object o : (Iterable<?>) result) {
+                stringArrayList.add((String) o);
+            }
+
             totalByte = -1;
-            listener.onSuccess(new ArrayList<>(Arrays.asList((String[]) result)));
+            listener.onSuccess(stringArrayList);
             return;
         }
 
@@ -72,6 +77,9 @@ public class XApkCopyTask {
         String zipFile = splitInstallData.get(0);
         File tmpFile = new File(Common.getTemporaryPath(context));
         totalByte = new File(zipFile).length();
+
+        // xapkのファイルパスを削除
+        splitInstallData.remove(0);
 
         /* zipを展開して外部ディレクトリに一時保存 */
         onProgressUpdate(listener, context.getString(R.string.progress_state_unpack));
