@@ -17,7 +17,7 @@ public class DchaServiceUtil {
 
     public boolean setSetupStatus(int i) {
         try {
-            if (Preferences.load(mContext, Constants.KEY_FLAG_SETTINGS_DCHA, false)) {
+            if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
                 if (Common.isCfmDialog(mContext)) {
                     Settings.System.putInt(mContext.getContentResolver(), Constants.DCHA_STATE, i);
                 } else {
@@ -34,7 +34,7 @@ public class DchaServiceUtil {
 
     public boolean hideNavigationBar(boolean b) {
         try {
-            if (Preferences.load(mContext, Constants.KEY_FLAG_SETTINGS_DCHA, false)) {
+            if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
                 if (Common.isCfmDialog(mContext)) {
                     if (b) {
                         Settings.System.putInt(mContext.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 1);

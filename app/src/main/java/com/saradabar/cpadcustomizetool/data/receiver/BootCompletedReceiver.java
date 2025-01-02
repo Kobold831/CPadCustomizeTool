@@ -35,16 +35,16 @@ public class BootCompletedReceiver extends BroadcastReceiver {
         }
 
         /* UsbDebugを有効にするか確認 */
-        if (Preferences.load(context, Constants.KEY_ENABLED_AUTO_USB_DEBUG, false)) {
+        if (Preferences.load(context, Constants.KEY_FLAG_AUTO_USB_DEBUG, false)) {
             bypassAdbDisabled(context);
         }
 
         /* 維持スイッチが有効のときサービスを起動 */
-        if (Preferences.load(context, Constants.KEY_ENABLED_KEEP_SERVICE, false) ||
-                Preferences.load(context, Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) ||
-                Preferences.load(context, Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) ||
-                Preferences.load(context, Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) ||
-                Preferences.load(context, Constants.KEY_ENABLED_KEEP_HOME, false)) {
+        if (Preferences.load(context, Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false) ||
+                Preferences.load(context, Constants.KEY_FLAG_KEEP_DCHA_STATE, false) ||
+                Preferences.load(context, Constants.KEY_FLAG_KEEP_MARKET_APP, false) ||
+                Preferences.load(context, Constants.KEY_FLAG_KEEP_USB_DEBUG, false) ||
+                Preferences.load(context, Constants.KEY_FLAG_KEEP_HOME, false)) {
             Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
             context.startService(new Intent(context, KeepService.class));
             context.startService(new Intent(context, ProtectKeepService.class));
@@ -54,33 +54,33 @@ public class BootCompletedReceiver extends BroadcastReceiver {
     private void bypassAdbDisabled(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (context.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
-                Preferences.save(context, Constants.KEY_ENABLED_AUTO_USB_DEBUG, false);
+                Preferences.save(context, Constants.KEY_FLAG_AUTO_USB_DEBUG, false);
                 return;
             }
         }
 
         if (!Common.isCfmDialog(context)) {
-            Preferences.save(context, Constants.KEY_ENABLED_AUTO_USB_DEBUG, false);
+            Preferences.save(context, Constants.KEY_FLAG_AUTO_USB_DEBUG, false);
             return;
         }
 
         try {
-            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                    Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+            if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                    Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                 Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 3);
                 Thread.sleep(100);
             }
 
             Settings.Global.putInt(context.getContentResolver(), Settings.Global.ADB_ENABLED, 1);
 
-            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                    Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+            if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                    Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                 Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 0);
             }
         } catch (Exception ignored) {
-            Preferences.save(context, Constants.KEY_ENABLED_AUTO_USB_DEBUG, false);
-            if (Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                    Preferences.load(context, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+            Preferences.save(context, Constants.KEY_FLAG_AUTO_USB_DEBUG, false);
+            if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                    Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                 Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 0);
             }
         }

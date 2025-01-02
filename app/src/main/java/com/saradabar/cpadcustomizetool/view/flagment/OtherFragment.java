@@ -228,7 +228,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT2) {
+        if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2) {
             preStartUiAdjustment.setEnabled(false);
             preStartUiAdjustment.setSummary(Build.MODEL + "ではこの機能は使用できません");
         }

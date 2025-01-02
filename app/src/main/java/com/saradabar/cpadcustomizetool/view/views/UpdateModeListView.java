@@ -75,7 +75,7 @@ public class UpdateModeListView {
         /* ランチャーに設定されているかの確認 */
         private boolean isUpdater(int i) {
             try {
-                return Objects.equals(i, Preferences.load(getContext(), Constants.KEY_FLAG_UPDATE_MODE, 1));
+                return Objects.equals(i, Preferences.load(getContext(), Constants.KEY_INT_UPDATE_MODE, 1));
             } catch (NullPointerException ignored) {
                 return false;
             }

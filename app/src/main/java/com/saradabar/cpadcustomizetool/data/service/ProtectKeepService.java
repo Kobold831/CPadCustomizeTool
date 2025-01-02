@@ -34,11 +34,11 @@ public class ProtectKeepService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (!Preferences.load(this, Constants.KEY_ENABLED_KEEP_SERVICE, false) &&
-                !Preferences.load(this, Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) &&
-                !Preferences.load(this, Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) &&
-                !Preferences.load(this, Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) &&
-                !Preferences.load(this, Constants.KEY_ENABLED_KEEP_HOME, false)) {
+        if (!Preferences.load(this, Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false) &&
+                !Preferences.load(this, Constants.KEY_FLAG_KEEP_DCHA_STATE, false) &&
+                !Preferences.load(this, Constants.KEY_FLAG_KEEP_MARKET_APP, false) &&
+                !Preferences.load(this, Constants.KEY_FLAG_KEEP_USB_DEBUG, false) &&
+                !Preferences.load(this, Constants.KEY_FLAG_KEEP_HOME, false)) {
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -50,11 +50,11 @@ public class ProtectKeepService extends Service {
 
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
-                if (Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_SERVICE, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
                     startService(new Intent(getBaseContext(), KeepService.class));
                 }
             }

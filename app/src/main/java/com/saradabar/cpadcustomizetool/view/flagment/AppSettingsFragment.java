@@ -77,12 +77,12 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         preClearData = findPreference("pre_app_clear_data");
 
         swUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
-            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE, !((boolean) newValue));
+            Preferences.save(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, !((boolean) newValue));
             return true;
         });
 
         swUseDcha.setOnPreferenceChangeListener((preference, newValue) -> {
-            Preferences.save(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, (boolean) newValue);
+            Preferences.save(requireActivity(), Constants.KEY_FLAG_APP_SETTING_DCHA, (boolean) newValue);
             return true;
         });
 
@@ -95,7 +95,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             new AlertDialog.Builder(requireActivity())
                     .setMessage("消去しますか？")
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                        if (Preferences.delete(requireActivity(), Constants.KEY_CRASH_LOG)) {
+                        if (Preferences.delete(requireActivity(), Constants.KEY_STRINGS_CRASH_LOG)) {
                             new AlertDialog.Builder(requireActivity())
                                     .setMessage("消去しました")
                                     .setPositiveButton(R.string.dialog_common_ok, null)
@@ -112,7 +112,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             List<UpdateModeListView.AppData> dataList = new ArrayList<>();
             int i = 0;
 
-            for (String str : Constants.list) {
+            for (String str : Constants.LIST_UPDATE_MODE) {
                 UpdateModeListView.AppData data = new UpdateModeListView.AppData();
                 data.label = str;
                 data.updateMode = i;
@@ -126,8 +126,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             listView.setOnItemClickListener((parent, mView, position, id) -> {
                 switch (position) {
                     case 0:
-                        if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
-                            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                        if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
+                            Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
                             new AlertDialog.Builder(requireActivity())
@@ -137,13 +137,13 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         }
                         break;
                     case 1:
-                        Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                        Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                         listView.invalidateViews();
                         break;
                     case 2:
-                        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-                            if (tryBindDchaService() && Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
-                                Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
+                            if (tryBindDchaService() && Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                                Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                 listView.invalidateViews();
                             } else {
                                 new AlertDialog.Builder(requireActivity())
@@ -159,8 +159,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         }
                         break;
                     case 3:
-                        if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName()) && Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
-                            Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                        if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName()) && Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                            Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
                             new AlertDialog.Builder(requireActivity())
@@ -180,7 +180,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                                             .show();
                                     return;
                                 } else {
-                                    Preferences.save(requireActivity(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                    Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 }
                             } catch (Exception ignored) {
@@ -247,11 +247,11 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void initialize() {
-        swUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_UPDATE, true));
-        swUseDcha.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false));
+        swUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true));
+        swUseDcha.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_SETTING_DCHA, false));
 
-        if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_SERVICE, false)) {
-            Preferences.save(requireActivity(), Constants.KEY_FLAG_SETTINGS_DCHA, false);
+        if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
+            Preferences.save(requireActivity(), Constants.KEY_FLAG_APP_SETTING_DCHA, false);
             swUseDcha.setChecked(false);
             swUseDcha.setSummary(getString(R.string.pre_app_sum_confirmation_dcha));
             swUseDcha.setEnabled(false);

@@ -64,10 +64,10 @@ public class Common {
                 stringWriter +
                 "- ログ終了 -\n\n";
 
-        if (!Preferences.load(context, Constants.KEY_CRASH_LOG, "").isEmpty()) {
-            Preferences.save(context, Constants.KEY_CRASH_LOG, String.join(",", Preferences.load(context, Constants.KEY_CRASH_LOG, "")).replace("    ", "") + message);
+        if (!Preferences.load(context, Constants.KEY_STRINGS_CRASH_LOG, "").isEmpty()) {
+            Preferences.save(context, Constants.KEY_STRINGS_CRASH_LOG, String.join(",", Preferences.load(context, Constants.KEY_STRINGS_CRASH_LOG, "")).replace("    ", "") + message);
         } else {
-            Preferences.save(context, Constants.KEY_CRASH_LOG, message);
+            Preferences.save(context, Constants.KEY_STRINGS_CRASH_LOG, message);
         }
     }
 
@@ -127,10 +127,10 @@ public class Common {
     }
 
     public static boolean isCfmDialog(Context context) {
-        if (Preferences.load(context, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_MODEL_NAME, 0) == Constants.MODEL_CTZ) {
+        if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, 0) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, 0) == Constants.MODEL_CTZ) {
             /* チャレパNEO・NEXTは対象 */
             if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
-                return Preferences.load(context, Constants.KEY_FLAG_CONFIRMATION, false);
+                return Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, false);
             } else {
                 return true;
             }

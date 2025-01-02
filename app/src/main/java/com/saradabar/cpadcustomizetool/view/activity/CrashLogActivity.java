@@ -39,8 +39,8 @@ public class CrashLogActivity extends AppCompatActivity {
         textView = findViewById(R.id.textView);
         scrollView = findViewById(R.id.scrollView);
 
-        if (!Preferences.load(this, Constants.KEY_CRASH_LOG, "").isEmpty()) {
-            addText(Preferences.load(this, Constants.KEY_CRASH_LOG, ""));
+        if (!Preferences.load(this, Constants.KEY_STRINGS_CRASH_LOG, "").isEmpty()) {
+            addText(Preferences.load(this, Constants.KEY_STRINGS_CRASH_LOG, ""));
         } else {
             addText(getString(R.string.logger_empty));
         }

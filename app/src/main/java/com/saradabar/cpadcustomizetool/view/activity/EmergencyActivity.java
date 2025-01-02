@@ -27,7 +27,6 @@ import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -45,13 +44,13 @@ public class EmergencyActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         // 初期設定が完了していない場合は終了
-        if (!Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
+        if (!Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
             Toast.makeText(this, R.string.toast_not_completed_settings, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
         }
 
-        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
             Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
@@ -73,21 +72,18 @@ public class EmergencyActivity extends Activity {
                 return;
             }
 
-            if (!setSystemSettings()) {
-                Toast.makeText(this, R.string.toast_not_change, Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
-                return;
-            }
-
-            switch (Objects.requireNonNull(PreferenceManager.getDefaultSharedPreferences(this).getString("emergency_mode", ""))) {
+            // メイン処理
+            switch (PreferenceManager.getDefaultSharedPreferences(this).getString("emergency_mode", "")) {
                 case "1":
-                    if (setDchaSettings("jp.co.benesse.touch.allgrade.b003.touchhomelauncher", "jp.co.benesse.touch.allgrade.b003.touchhomelauncher.HomeLauncherActivity")) {
+                    if (run("jp.co.benesse.touch.allgrade.b003.touchhomelauncher", "jp.co.benesse.touch.allgrade.b003.touchhomelauncher.HomeLauncherActivity")) {
+                        // 成功
                         Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
                     }
                     finishAndRemoveTask();
                     break;
                 case "2":
-                    if (setDchaSettings("jp.co.benesse.touch.home", "jp.co.benesse.touch.home.LoadingActivity")) {
+                    if (run("jp.co.benesse.touch.home", "jp.co.benesse.touch.home.LoadingActivity")) {
+                        // 成功
                         Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
                     }
                     finishAndRemoveTask();
@@ -96,41 +92,24 @@ public class EmergencyActivity extends Activity {
         });
     }
 
-    private boolean setSystemSettings() {
-        try {
-            // 維持サービスの無効化
-            if (Preferences.isEmergencySettingsDchaState(this)) {
-                Preferences.save(this, Constants.KEY_ENABLED_KEEP_DCHA_STATE, false);
-            }
-
-            if (Preferences.isEmergencySettingsNavigationBar(this)) {
-                Preferences.save(this, Constants.KEY_ENABLED_KEEP_SERVICE, false);
-            }
-
-            if (Preferences.isEmergencySettingsLauncher(this)) {
-                Preferences.save(this, Constants.KEY_ENABLED_KEEP_HOME, false);
-            }
-
-            startService(new Intent(this, KeepService.class));
-            startService(new Intent(this, ProtectKeepService.class));
-
-            // サービス無効化後に設定変更
-            if (Preferences.isEmergencySettingsDchaState(this)) {
-                new DchaServiceUtil(this, mDchaService).setSetupStatus(3);
-            }
-
-            if (Preferences.isEmergencySettingsNavigationBar(this)) {
-                new DchaServiceUtil(this, mDchaService).hideNavigationBar(true);
-            }
-            return true;
-        } catch (Exception ignored) {
-            return false;
+    private boolean run(String packageName, String className) {
+        // 維持サービスの無効化
+        if (Preferences.isEmergencySettingsDchaState(this)) {
+            Preferences.save(this, Constants.KEY_FLAG_KEEP_DCHA_STATE, false);
         }
-    }
 
-    private boolean setDchaSettings(String packageName, String className) {
-        ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
+        if (Preferences.isEmergencySettingsNavigationBar(this)) {
+            Preferences.save(this, Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false);
+        }
 
+        if (Preferences.isEmergencySettingsLauncher(this)) {
+            Preferences.save(this, Constants.KEY_FLAG_KEEP_HOME, false);
+        }
+
+        startService(new Intent(this, KeepService.class));
+        startService(new Intent(this, ProtectKeepService.class));
+
+        // 勉強ホームを起動
         try {
             startActivity(new Intent().setClassName(packageName, className));
         } catch (Exception ignored) {
@@ -138,17 +117,32 @@ public class EmergencyActivity extends Activity {
             return false;
         }
 
+        // 設定変更
+        if (Preferences.isEmergencySettingsDchaState(this)) {
+            new DchaServiceUtil(this, mDchaService).setSetupStatus(3);
+        }
+
+        if (Preferences.isEmergencySettingsNavigationBar(this)) {
+            new DchaServiceUtil(this, mDchaService).hideNavigationBar(true);
+        }
+
+        // ホームを変更
+        ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
+
         if (Preferences.isEmergencySettingsLauncher(this)) {
-            try {
-                if (resolveInfo != null) {
-                    new DchaServiceUtil(this, mDchaService).setPreferredHomeApp(resolveInfo.activityInfo.packageName, packageName);
+            if (resolveInfo != null) {
+                if (!new DchaServiceUtil(this, mDchaService).setPreferredHomeApp(resolveInfo.activityInfo.packageName, packageName)) {
+                    // 失敗
+                    Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
+                    return false;
                 }
-            } catch (Exception ignored) {
-                Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
                 return false;
             }
         }
 
+        // タスクの消去
         if (Preferences.isEmergencySettingsRemoveTask(this)) {
             try {
                 mDchaService.removeTask(null);

@@ -235,7 +235,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     private void initialize() {
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
 
-        switch (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+        switch (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
             /* チャレンジパッド２ */
             case Constants.MODEL_CT2:
                 swPrePermissionFrc.setEnabled(false);
@@ -265,7 +265,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         }
 
         if (dpm.isDeviceOwnerApp(requireActivity().getPackageName())) {
-            if (Preferences.load(requireActivity(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+            if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     switch (dpm.getPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
                         case DevicePolicyManager.PERMISSION_POLICY_PROMPT:

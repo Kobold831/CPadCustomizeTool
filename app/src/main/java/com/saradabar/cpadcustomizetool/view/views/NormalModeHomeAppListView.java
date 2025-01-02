@@ -80,7 +80,7 @@ public class NormalModeHomeAppListView {
         /* ランチャーに設定されているかの確認 */
         private boolean isLauncher(String s) {
             try {
-                return Objects.equals(s, Preferences.load(getContext(), Constants.KEY_NORMAL_LAUNCHER, ""));
+                return Objects.equals(s, Preferences.load(getContext(), Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, ""));
             } catch (NullPointerException ignored) {
                 return false;
             }

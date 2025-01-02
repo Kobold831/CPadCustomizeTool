@@ -85,14 +85,14 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
     private void init() {
         /* 前回クラッシュしているかどうか */
-        if (Preferences.load(this, Constants.KEY_FLAG_CRASH_LOG, false)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_ERROR_CRASH, false)) {
             /* クラッシュダイアログ表示 */
             new AlertDialog.Builder(this)
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_error)
                     .setMessage(R.string.dialog_error_crash)
                     .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> {
-                        Preferences.save(this, Constants.KEY_FLAG_CRASH_LOG, false);
+                        Preferences.save(this, Constants.KEY_FLAG_ERROR_CRASH, false);
                         init();
                     })
                     .setNeutralButton(R.string.dialog_common_check, (dialog, which) -> {
@@ -102,7 +102,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                     .setNegativeButton("報告", (dialog, which) -> {
                         try {
                             ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                            clipboardManager.setPrimaryClip(ClipData.newPlainText("", Preferences.load(this, Constants.KEY_CRASH_LOG, "")));
+                            clipboardManager.setPrimaryClip(ClipData.newPlainText("", Preferences.load(this, Constants.KEY_STRINGS_CRASH_LOG, "")));
                             startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK));
                             init();
                         } catch (Exception e) {
@@ -116,7 +116,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                     .show();
         } else {
             /* 初回起動か確認 */
-            if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
+            if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
                 /* 初回起動ではないならサポート端末か確認 */
                 if (supportModelCheck()) {
                     /* DchaServiceを確認 */
@@ -165,7 +165,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
             /* APKダウンロード要求の場合 */
             case Constants.REQUEST_DOWNLOAD_APK:
                 cancelLoadingDialog();
-                switch (Preferences.load(this, Constants.KEY_FLAG_UPDATE_MODE, 1)) {
+                switch (Preferences.load(this, Constants.KEY_INT_UPDATE_MODE, 1)) {
                     case 0:
                         startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
                         break;
@@ -194,7 +194,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                     case 3:
                         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
                         if (!dpm.isDeviceOwnerApp(getPackageName())) {
-                            Preferences.save(this, Constants.KEY_FLAG_UPDATE_MODE, 1);
+                            Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_update_mode))
@@ -208,7 +208,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                         break;
                     case 4:
                         if (!isDhizukuActive(this)) {
-                            Preferences.save(this, Constants.KEY_FLAG_UPDATE_MODE, 1);
+                            Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_update_mode))
@@ -288,16 +288,16 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
         /* モデルIDをセット */
         switch (Build.MODEL) {
             case "TAB-A03-BR3":
-                Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT3);
+                Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT3);
                 break;
             case "TAB-A05-BD":
-                Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTX);
+                Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CTX);
                 break;
             case "TAB-A05-BA1":
-                Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTZ);
+                Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CTZ);
                 break;
             default:
-                Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2);
+                Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2);
                 break;
         }
 
@@ -340,7 +340,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                     List<UpdateModeListView.AppData> dataList = new ArrayList<>();
                     int i = 0;
 
-                    for (String str1 : Constants.list) {
+                    for (String str1 : Constants.LIST_UPDATE_MODE) {
                         UpdateModeListView.AppData data = new UpdateModeListView.AppData();
                         data.label = str1;
                         data.updateMode = i;
@@ -354,8 +354,8 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                     listView.setOnItemClickListener((parent, mView, position, id) -> {
                         switch (position) {
                             case 0:
-                                if (Preferences.load(v.getContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(v.getContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
-                                    Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                if (Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
+                                    Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 } else {
                                     new AlertDialog.Builder(v.getContext())
@@ -365,12 +365,12 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                 }
                                 break;
                             case 1:
-                                Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                 listView.invalidateViews();
                                 break;
                             case 2:
-                                if (bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE) && Preferences.load(v.getContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
-                                    Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                if (bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE) && Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                                    Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 } else {
                                     new AlertDialog.Builder(v.getContext())
@@ -380,8 +380,8 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                 }
                                 break;
                             case 3:
-                                if (((DevicePolicyManager) v.getContext().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(v.getContext().getPackageName()) && Preferences.load(v.getContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
-                                    Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                if (((DevicePolicyManager) v.getContext().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(v.getContext().getPackageName()) && Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                                    Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 } else {
                                     new AlertDialog.Builder(v.getContext())
@@ -401,7 +401,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                                     .show();
                                             return;
                                         } else {
-                                            Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                            Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                             listView.invalidateViews();
                                         }
                                     } catch (Exception ignored) {
@@ -419,7 +419,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                         public void onRequestPermission(int grantResult) {
                                             runOnUiThread(() -> {
                                                 if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                                                    Preferences.save(v.getContext(), Constants.KEY_FLAG_UPDATE_MODE, (int) id);
+                                                    Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                                     listView.invalidateViews();
                                                 } else {
                                                     new AlertDialog.Builder(v.getContext())
@@ -470,7 +470,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
     /* 端末チェック */
     private boolean supportModelCheck() {
-        for (String string : Constants.modelName) {
+        for (String string : Constants.LIST_MODEL) {
             if (Objects.equals(string, Build.MODEL)) {
                 return true;
             }
@@ -492,7 +492,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
     /* DchaService動作チェック */
     private void checkDchaService() {
         /* DchaServiceを使用するか確認 */
-        if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
             if (!bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE)) {
                 new AlertDialog.Builder(this)
                         .setCancelable(false)
@@ -500,7 +500,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                         .setMessage(R.string.dialog_error_start_dcha_service)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
                         .setNeutralButton(R.string.dialog_common_continue, (dialogInterface, i) -> {
-                            Preferences.save(this, Constants.KEY_FLAG_DCHA_SERVICE, false);
+                            Preferences.save(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
                             confCheck();
                         })
                         .show();
@@ -530,9 +530,9 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
     /* Pad2起動設定チェック */
     private void confCheckCT2() {
-        Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2);
+        Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2);
 
-        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
             startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             overridePendingTransition(0, 0);
             finish();
@@ -543,9 +543,9 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
     /* Pad3起動設定チェック */
     private void confCheckCT3() {
-        Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT3);
+        Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT3);
 
-        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
             if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 overridePendingTransition(0, 0);
@@ -558,9 +558,9 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
     /* NEO起動設定チェック */
     private void confCheckCTX() {
-        Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTX);
+        Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CTX);
 
-        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
             if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 overridePendingTransition(0, 0);
@@ -573,9 +573,9 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
     /* NEXT起動設定チェック */
     private void confCheckCTZ() {
-        Preferences.save(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CTZ);
+        Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CTZ);
 
-        if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
             if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 overridePendingTransition(0, 0);
@@ -594,7 +594,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                 .setMessage(R.string.dialog_notice_start)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                     if (isPermissionCheck()) {
-                        Preferences.save(this, Constants.KEY_FLAG_SETTINGS, true);
+                        Preferences.save(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, true);
                         startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         overridePendingTransition(0, 0);
                         finish();
@@ -729,7 +729,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
         }
 
         if (isPermissionCheck()) {
-            Preferences.save(this, Constants.KEY_FLAG_SETTINGS, true);
+            Preferences.save(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, true);
             startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             overridePendingTransition(0, 0);
             finish();
@@ -741,7 +741,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case Constants.REQUEST_ACTIVITY_UPDATE:
-                if (Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
+                if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
                     if (supportModelCheck()) {
                         checkDchaService();
                     } else {

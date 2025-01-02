@@ -72,7 +72,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 FrameLayout frameLayout = findViewById(R.id.layout_main);
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
-                switch (Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+                switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
                     case Constants.MODEL_CT2:
                     case Constants.MODEL_CT3:
                         marginLayoutParams.setMargins(64, 0, 64, 0);
@@ -87,7 +87,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 FrameLayout frameLayout = findViewById(R.id.layout_main);
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
-                switch (Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+                switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
                     case Constants.MODEL_CT2:
                     case Constants.MODEL_CT3:
                         marginLayoutParams.setMargins(112, 0, 112, 0);
@@ -104,7 +104,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
         transitionFragment(new MainFragment(), false);
 
         /* アップデートチェックするか確認 */
-        if (Preferences.load(this, Constants.KEY_FLAG_UPDATE, true)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
             new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
         }
     }
@@ -173,7 +173,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
         super.onResume();
         /* DchaServiceが機能していな場合は再起動 */
         if (!Preferences.load(this, "debug_restriction", false)) {
-            if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+            if (Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
                 if (!bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
                     @Override
                     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -231,7 +231,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 FrameLayout frameLayout = findViewById(R.id.layout_main);
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
-                switch (Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+                switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
                     case Constants.MODEL_CT2:
                     case Constants.MODEL_CT3:
                         marginLayoutParams.setMargins(64, 0, 64, 0);
@@ -246,7 +246,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 FrameLayout frameLayout = findViewById(R.id.layout_main);
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
-                switch (Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+                switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
                     case Constants.MODEL_CT2:
                     case Constants.MODEL_CT3:
                         marginLayoutParams.setMargins(112, 0, 112, 0);
@@ -262,7 +262,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     }
 
     private boolean supportModelCheck() {
-        for (String string : Constants.modelName) {
+        for (String string : Constants.LIST_MODEL) {
             if (Objects.equals(string, Build.MODEL)) {
                 return true;
             }
@@ -346,7 +346,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     public void resetResolution() {
         int width = 0, height = 0;
 
-        switch (Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2)) {
+        switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
             case Constants.MODEL_CT2, Constants.MODEL_CT3 -> {
                 width = 1280;
                 height = 800;
@@ -357,8 +357,8 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
             }
         }
 
-        if (Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                Preferences.load(this, Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+        if (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
             try {
                 String method = "setForcedDisplaySize";
                 Class.forName("android.view.IWindowManager").getMethod(method, int.class, int.class, int.class).invoke(IWindowManager.Stub.asInterface(ServiceManager.getService("window")), Display.DEFAULT_DISPLAY, width, height);

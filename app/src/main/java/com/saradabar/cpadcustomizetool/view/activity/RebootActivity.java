@@ -33,7 +33,7 @@ public class RebootActivity extends Activity {
     public final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
             reboot();
         } else {
             Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();

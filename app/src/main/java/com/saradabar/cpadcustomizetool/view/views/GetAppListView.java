@@ -65,7 +65,7 @@ public class GetAppListView {
 
             /* RadioButtonの更新 */
             RadioButton button = convertView.findViewById(R.id.v_app_list_radio);
-            button.setChecked(Preferences.load(getContext(), Constants.KEY_RADIO_TMP, 0) == position);
+            button.setChecked(Preferences.load(getContext(), Constants.KEY_INT_GET_APP_TMP, 0) == position);
 
             return convertView;
         }

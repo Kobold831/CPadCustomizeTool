@@ -90,7 +90,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 break;
             case Constants.REQUEST_DOWNLOAD_APK:
                 cancelLoadingDialog();
-                switch (Preferences.load(this, Constants.KEY_FLAG_UPDATE_MODE, 1)) {
+                switch (Preferences.load(this, Constants.KEY_INT_UPDATE_MODE, 1)) {
                     case 0:
                         startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
                         break;
@@ -116,7 +116,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                     case 3:
                         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
                         if (!dpm.isDeviceOwnerApp(getPackageName())) {
-                            Preferences.save(this, Constants.KEY_FLAG_UPDATE_MODE, 1);
+                            Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_update_mode))
@@ -130,7 +130,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                         break;
                     case 4:
                         if (!isDhizukuActive(this)) {
-                            Preferences.save(this, Constants.KEY_FLAG_UPDATE_MODE, 1);
+                            Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_update_mode))

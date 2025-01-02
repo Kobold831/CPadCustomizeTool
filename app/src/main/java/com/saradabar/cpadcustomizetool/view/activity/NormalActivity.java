@@ -26,7 +26,6 @@ import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,13 +42,13 @@ public class NormalActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!Preferences.load(this, Constants.KEY_FLAG_SETTINGS, false)) {
+        if (!Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
             Toast.makeText(this, R.string.toast_not_completed_settings, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
         }
 
-        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_SERVICE, false)) {
+        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
             Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
@@ -71,34 +70,46 @@ public class NormalActivity extends Activity {
                 return;
             }
 
-            if (!setSystemSettings()) {
-                Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
-                return;
-            }
-
-
             ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-            switch (Objects.requireNonNull(PreferenceManager.getDefaultSharedPreferences(this).getString("emergency_mode", ""))) {
+            switch (PreferenceManager.getDefaultSharedPreferences(this).getString("emergency_mode", "")) {
                 case "1":
-                    if (setDchaSettings()) {
+                    if (run()) {
+                        // 成功
+                        activityManager.killBackgroundProcesses("jp.co.benesse.touch.allgrade.b003.touchhomelauncher");
                         Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
                     }
-                    activityManager.killBackgroundProcesses("jp.co.benesse.touch.allgrade.b003.touchhomelauncher");
                     finishAndRemoveTask();
                     break;
                 case "2":
-                    if (setDchaSettings()) {
+                    if (run()) {
+                        // 成功
+                        activityManager.killBackgroundProcesses("jp.co.benesse.touch.home");
                         Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
                     }
-                    activityManager.killBackgroundProcesses("jp.co.benesse.touch.home");
                     finishAndRemoveTask();
                     break;
             }
         });
     }
 
-    private boolean setSystemSettings() {
+    private boolean run() {
+        // ホームを起動
+        if (Preferences.isNormalModeSettingsActivity(this)) {
+            // 変更するホームが設定されているかチェック
+            if (Preferences.load(this, Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, "").isEmpty()) {
+                Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
+            try {
+                startActivity(getPackageManager().getLaunchIntentForPackage(Preferences.load(this, Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, "")));
+            } catch (Exception ignored) {
+                Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+
+        // 設定変更
         if (Preferences.isNormalModeSettingsDchaState(this)) {
             new DchaServiceUtil(this, mDchaService).setSetupStatus(0);
         }
@@ -107,30 +118,20 @@ public class NormalActivity extends Activity {
             new DchaServiceUtil(this, mDchaService).hideNavigationBar(false);
         }
 
-        if (Preferences.isNormalModeSettingsActivity(this)) {
-            if (Objects.equals(Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, ""), "")) {
-                return false;
-            }
-
-            try {
-                startActivity(getPackageManager().getLaunchIntentForPackage(Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, "")));
-            } catch (Exception ignored) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean setDchaSettings() {
+        // ホームを変更
         ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
 
         if (Preferences.isNormalModeSettingsLauncher(this)) {
             if (resolveInfo != null) {
                 if (!new DchaServiceUtil(this, mDchaService).setPreferredHomeApp(resolveInfo.activityInfo.packageName,
-                        Preferences.load(this, Constants.KEY_NORMAL_LAUNCHER, ""))) {
+                        Preferences.load(this, Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, ""))) {
+                    // 失敗
                     Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
                     return false;
                 }
+            } else {
+                Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                return false;
             }
         }
         return true;

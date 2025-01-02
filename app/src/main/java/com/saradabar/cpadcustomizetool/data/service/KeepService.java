@@ -44,39 +44,39 @@ public class KeepService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         /* オブザーバーを有効化 */
-        if (Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_SERVICE, false)) {
+        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false)) {
             getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, navigationBarObserver);
         } else {
             getContentResolver().unregisterContentObserver(navigationBarObserver);
         }
 
-        if (Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_DCHA_STATE, false)) {
+        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false)) {
             getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, dchaStateObserver);
         } else {
             getContentResolver().unregisterContentObserver(dchaStateObserver);
         }
 
-        if (Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false)) {
+        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false)) {
             getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, marketObserver);
         } else {
             getContentResolver().unregisterContentObserver(marketObserver);
         }
 
-        if (Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false)) {
+        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false)) {
             getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED), false, usbDebugObserver);
         } else {
             getContentResolver().unregisterContentObserver(usbDebugObserver);
         }
 
-        if (Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_HOME, false)) {
+        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
             runKeepDefaultLauncher();
         }
 
-        if (!Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_SERVICE, false) &&
-                !Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) &&
-                !Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) &&
-                !Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) &&
-                !Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_HOME, false)) {
+        if (!Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false) &&
+                !Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false) &&
+                !Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false) &&
+                !Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false) &&
+                !Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -89,11 +89,11 @@ public class KeepService extends Service {
 
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
-                if (Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_SERVICE, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_DCHA_STATE, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_USB_DEBUG, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false) ||
+                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
                     startService(new Intent(getBaseContext(), ProtectKeepService.class));
                 }
             }
@@ -108,19 +108,19 @@ public class KeepService extends Service {
             public void handleMessage(@NonNull Message msg) {
                 super.handleMessage(msg);
 
-                if (!Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_HOME, false)) {
+                if (!Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
                     return;
                 }
 
                 if (getDefaultLauncherPackageName() != null) {
-                    if (!getDefaultLauncherPackageName().equals(Preferences.load(getBaseContext(), Constants.KEY_SAVE_KEEP_HOME, null))) {
+                    if (!getDefaultLauncherPackageName().equals(Preferences.load(getBaseContext(), Constants.KEY_STRINGS_KEEP_HOME_APP_PACKAGE, null))) {
                         bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
                             @Override
                             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                                 try {
                                     IDchaService iDchaService = IDchaService.Stub.asInterface(iBinder);
                                     iDchaService.clearDefaultPreferredApp(getDefaultLauncherPackageName());
-                                    iDchaService.setDefaultPreferredHomeApp(Preferences.load(getBaseContext(), Constants.KEY_SAVE_KEEP_HOME, null));
+                                    iDchaService.setDefaultPreferredHomeApp(Preferences.load(getBaseContext(), Constants.KEY_STRINGS_KEEP_HOME_APP_PACKAGE, null));
                                 } catch (Exception ignored) {
                                 }
                             }
@@ -135,7 +135,7 @@ public class KeepService extends Service {
             }
         };
 
-        if (Preferences.load(getBaseContext(), Constants.KEY_ENABLED_KEEP_HOME, false)) {
+        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
             handler.sendEmptyMessageDelayed(0, 0);
         }
     }
@@ -192,7 +192,7 @@ public class KeepService extends Service {
                     Settings.Secure.putInt(getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS, 1);
                 }
             } catch (Exception ignored) {
-                Preferences.save(getBaseContext(), Constants.KEY_ENABLED_KEEP_MARKET_APP_SERVICE, false);
+                Preferences.save(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false);
             }
         }
     };
@@ -205,8 +205,8 @@ public class KeepService extends Service {
             super.onChange(selfChange);
             try {
                 if (Settings.Global.getInt(getContentResolver(), Settings.Global.ADB_ENABLED) == 0) {
-                    if (Preferences.load(getBaseContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                            Preferences.load(getBaseContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    if (Preferences.load(getBaseContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                            Preferences.load(getBaseContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                         Settings.System.putInt(getBaseContext().getContentResolver(), Constants.DCHA_STATE, 3);
                         Thread.sleep(100);
                     }
@@ -214,15 +214,15 @@ public class KeepService extends Service {
                     Settings.System.putInt(getContentResolver(), Constants.BC_PASSWORD_HIT_FLAG, 1);
                     Settings.Global.putInt(getBaseContext().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
 
-                    if (Preferences.load(getBaseContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                            Preferences.load(getBaseContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    if (Preferences.load(getBaseContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                            Preferences.load(getBaseContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                         Settings.System.putInt(getBaseContext().getContentResolver(), Constants.DCHA_STATE, 0);
                     }
                 }
             } catch (Exception ignored) {
-                Preferences.save(getBaseContext(), Constants.KEY_ENABLED_AUTO_USB_DEBUG, false);
-                if (Preferences.load(getBaseContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                        Preferences.load(getBaseContext(), Constants.KEY_MODEL_NAME, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                Preferences.save(getBaseContext(), Constants.KEY_FLAG_AUTO_USB_DEBUG, false);
+                if (Preferences.load(getBaseContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
+                        Preferences.load(getBaseContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
                     Settings.System.putInt(getBaseContext().getContentResolver(), Constants.DCHA_STATE, 0);
                 }
             }

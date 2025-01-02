@@ -193,7 +193,7 @@
             android:exported="false">
             <meta-data
                 android:name="android.app.device_admin"
-                android:resource="@xml/administrator" />
+                android:resource="@xml/device_admin" />
             <intent-filter>
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>

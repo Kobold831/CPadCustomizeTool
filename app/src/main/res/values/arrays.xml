@@ -11,10 +11,10 @@
     </string-array>
 
     <string-array name="emergency_settings_text" >
-        <item>システムUIを変更</item>
-        <item>ナビゲーションバーを非表示</item>
-        <item>ホームを変更</item>
-        <item>アプリ履歴を全消去</item>
+        <item>システムUIを学習モードに変更</item>
+        <item>ナビゲーションバーの非表示</item>
+        <item>ホームランチャーを勉強ホームに変更</item>
+        <item>アプリ履歴の全消去</item>
     </string-array>
 
     <string-array name="emergency_settings_value" >
@@ -32,10 +32,10 @@
     </string-array>
 
     <string-array name="normal_mode_text" >
-        <item>システムUIを通常用に変更</item>
-        <item>ナビゲーションバーを表示</item>
-        <item>ホームを変更</item>
-        <item>実行時にホームを起動</item>
+        <item>システムUIを通常モードに変更</item>
+        <item>ナビゲーションバーの表示</item>
+        <item>ホームランチャーを通常ホームに変更</item>
+        <item>通常ホームの起動</item>
     </string-array>
 
     <string-array name="normal_mode_value" >
