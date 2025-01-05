@@ -160,7 +160,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.layout_main, preferenceFragmentCompat)
-                .commit();
+                .commitAllowingStateLoss();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showHomeAsUp);
