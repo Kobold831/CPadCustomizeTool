@@ -30,7 +30,7 @@
         <Preference
             android:key="pre_owner_session_install_notice"
             android:title="サイレントインストールの注意事項"
-            android:summary="タップして内容を確認してください\n正しい手順で操作しないとエラーの可能性があります！" />
+            android:summary="タップして内容を確認してください。正しい手順で操作しないとエラーの可能性があります！" />
 
         <Preference
             android:key="pre_owner_session_install"
@@ -40,7 +40,7 @@
         <Preference
             android:key="pre_owner_abandon_session"
             android:title="インストールセッション破棄"
-            android:summary="インストールで問題が発生した場合に使用してください" />
+            android:summary="インストールで問題が発生した場合に使用してください。" />
     </PreferenceCategory>
 
     <PreferenceCategory

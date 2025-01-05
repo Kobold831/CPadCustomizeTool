@@ -38,6 +38,7 @@ import android.widget.TextView;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
+import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
@@ -291,11 +292,26 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 preSessionInstall.setSummary(getString(R.string.pre_owner_sum_not_use_function));
                 preAbandonSession.setEnabled(false);
                 preAbandonSession.setSummary(getString(R.string.pre_owner_sum_not_use_function));
+            } else {
+                if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        switch (dpm.getPermissionPolicy(DhizukuVariables.COMPONENT_NAME)) {
+                            case DevicePolicyManager.PERMISSION_POLICY_PROMPT:
+                                swPrePermissionFrc.setChecked(false);
+                                swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
+                                break;
+                            case DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT:
+                                swPrePermissionFrc.setChecked(true);
+                                swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_forced));
+                                break;
+                        }
+                    }
+                }
             }
         }
 
         if (getDeviceOwnerPackage() != null) {
-            preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_message_1) + getDeviceOwnerPackage() + getString(R.string.pre_owner_sum_message_2));
+            preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_message_1, getDeviceOwnerPackage()));
         } else {
             preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_no_device_owner));
         }

@@ -221,7 +221,7 @@
                 android:layout_marginTop="20dp"
                 android:textStyle="bold"
                 android:textSize="15sp"
-                android:text="バグレポート・フィードバック"
+                android:text="バグレポートとフィードバック"
                 tools:ignore="HardcodedText" />
 
             <TextView
@@ -229,7 +229,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
-                android:text="顕在・潜在バグ、不具合、予期せぬ動作、クラッシュなどが発生、または問題がある場合は、「バグレポート」を送信できます\n新機能、改善、提案などがある場合は、「フィードバック」を送信できます"
+                android:text="開発者に問題や提案を送信できます。"
                 tools:ignore="HardcodedText" />
 
             <Button

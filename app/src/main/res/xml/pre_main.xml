@@ -95,7 +95,7 @@
         <Preference
             android:key="pre_emg_execute"
             android:title="緊急モードを起動"
-            android:summary="起動すると、チャレンジパッドを学習環境に変更します" />
+            android:summary="起動すると、学習環境に変更します。" />
 
         <Preference
             android:key="pre_emg_shortcut"
@@ -126,7 +126,7 @@
         <Preference
             android:key="pre_nor_execute"
             android:title="通常モードを起動"
-            android:summary="起動すると、チャレンジパッドを通常環境に変更します" />
+            android:summary="起動すると、通常環境に変更します。" />
 
         <Preference
             android:key="pre_nor_shortcut"
@@ -145,7 +145,7 @@
     <Preference
         android:key="pre_reboot"
         android:title="@string/pre_main_title_reboot"
-        android:summary="チャレンジパッドを再起動します" />
+        android:summary="デバイスを再起動します。" />
 
     <Preference
         android:key="pre_reboot_shortcut"
@@ -159,17 +159,17 @@
     <Preference
         android:key="pre_resolution"
         android:title="@string/pre_main_title_resolution"
-        android:summary="チャレンジパッドの画面解像度を任意の値に変更できます" />
+        android:summary="画面解像度を任意の値に変更できます。" />
 
     <Preference
         android:key="pre_reset_resolution"
         android:title="@string/pre_main_title_resolution_reset"
-        android:summary="チャレンジパッドの画面解像度をデフォルト値に変更します" />
+        android:summary="画面解像度をデフォルト値に変更します。" />
 
     <Preference
         android:key="pre_system_update"
         android:title="@string/pre_main_title_system_update"
-        android:summary="チャレンジパッドのシステムをアップデートします" />
+        android:summary="デバイスのシステムをアップデートします。" />
 
     <PreferenceCategory
         android:title="デバイス管理者設定" />
@@ -187,7 +187,7 @@
     <Preference
         android:key="pre_dhizuku_permission_req"
         android:title="@string/pre_main_title_dhizuku_permission_req"
-        android:summary="Dhizukuのバージョンが「2.8」であることを確認してください！\nデバイスオーナーがDhizukuに設定されている場合はタップして権限をリクエストできます\n権限が付与されると「デバイスオーナーの機能」を使用できます"/>
+        android:summary="Dhizuku のバージョンが v2.8 であることを確認してください！デバイスオーナーが Dhizuku の場合はタップして権限をリクエストしてください。\n権限が付与されるとデバイスオーナーの機能を使用できます。"/>
 
     <SwitchPreferenceCompat
         android:key="pre_device_admin"
