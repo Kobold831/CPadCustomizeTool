@@ -201,7 +201,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
 
                 if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
                     new AlertDialog.Builder(this)
-                            .setMessage("新しいバージョンが利用可能です")
+                            .setMessage("新しいバージョンが利用可能です。")
                             .setPositiveButton("更新", (dialog, which) -> startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
                             .setNegativeButton("キャンセル", null)
                             .show();
@@ -307,7 +307,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
 
                     @Override
                     public void run() {
-                        alertDialog.setMessage(i + "秒で初期設定に戻ります");
+                        alertDialog.setMessage(i + "秒で初期設定に戻ります。");
                         mHandler.postDelayed(this, 1000);
 
                         if (i <= 0) {

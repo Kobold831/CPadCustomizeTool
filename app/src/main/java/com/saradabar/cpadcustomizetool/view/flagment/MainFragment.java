@@ -242,7 +242,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 if (mDchaService == null) {
                     new AlertDialog.Builder(requireActivity())
                             .setCancelable(false)
-                            .setMessage("DchaServiceとの通信に失敗しました")
+                            .setMessage("DchaService との通信に失敗しました。")
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                                 requireActivity().finish();
                                 requireActivity().overridePendingTransition(0, 0);
@@ -609,7 +609,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         preEmgExecute.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
-                    .setMessage("緊急モードを起動してもよろしいですか？\nよろしければ\"はい\"を押下してください")
+                    .setMessage("緊急モードを起動してもよろしいですか？\nよろしければ はい を押下してください。")
                     .setNeutralButton(R.string.dialog_common_yes, (dialogInterface, i) -> startActivity(new Intent(requireActivity(), EmergencyActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
                     .setPositiveButton(R.string.dialog_common_no, null)
                     .show();
@@ -674,7 +674,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         preNorExecute.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
-                    .setMessage("通常モードを起動してもよろしいですか？\nよろしければ\"はい\"を押下してください")
+                    .setMessage("通常モードを起動してもよろしいですか？\nよろしければ はい を押下してください。")
                     .setNeutralButton(R.string.dialog_common_yes, (dialogInterface, i) -> startActivity(new Intent(requireActivity(), NormalActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
                     .setPositiveButton(R.string.dialog_common_no, null)
                     .show();
@@ -1265,8 +1265,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                 new AlertDialog.Builder(requireActivity())
                         .setView(view)
-                        .setTitle("アプリを選択してください")
-                        .setMessage("選択してOKを押下すると詳細な情報が表示されます")
+                        .setTitle("アプリを選択")
+                        .setMessage("選択してOKを押下すると詳細な情報が表示されます。")
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             StringBuilder str = new StringBuilder();
 
@@ -1289,7 +1289,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             }
 
                             new AlertDialog.Builder(requireActivity())
-                                    .setMessage(str + "\n" + "よろしければOKを押下してください")
+                                    .setMessage(str + "\n" + "よろしければOKを押下してください。")
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                         if (!Objects.equals(downloadFileUrl, "MYURL")) {
                                             startDownload();
@@ -1298,7 +1298,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                             View view1 = getLayoutInflater().inflate(R.layout.view_app_url, null);
                                             EditText editText = view1.findViewById(R.id.edit_app_url);
                                             new AlertDialog.Builder(requireActivity())
-                                                    .setMessage("http://またはhttps://を含むURLを指定してください")
+                                                    .setMessage("http://またはhttps://を含むURLを指定してください。")
                                                     .setView(view1)
                                                     .setCancelable(false)
                                                     .setPositiveButton(R.string.dialog_common_ok, (dialog3, which3) -> {
@@ -1325,7 +1325,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         new AlertDialog.Builder(requireActivity())
                                 .setCancelable(false)
                                 .setTitle("インストール")
-                                .setMessage("遷移先のページよりapkファイルをダウンロードしてadbでインストールしてください")
+                                .setMessage(getString(R.string.dialog_info_update_caution))
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                     try {
                                         requireActivity().startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(downloadFileUrl)), Constants.REQUEST_ACTIVITY_UPDATE);
@@ -1379,8 +1379,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     if (jsonArray.length() == 0) {
                         preNotice.setTitle("＊＊アプリのお知らせはありません＊＊");
                     } else {
-                        preNotice.setTitle("＊＊アプリのお知らせが" + jsonArray.length() + "件あります＊＊");
-                        preNotice.setSummary("タップして確認してください");
+                        preNotice.setTitle("＊＊アプリのお知らせが " + jsonArray.length() + " 件あります＊＊");
+                        preNotice.setSummary("タップして確認してください。");
                     }
                 } catch (Exception ignored) {
                 }
@@ -1395,7 +1395,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                  Constants.REQUEST_DOWNLOAD_APP_CHECK -> {
                 cancelLoadingDialog();
                 new AlertDialog.Builder(requireActivity())
-                        .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
+                        .setMessage("ダウンロードに失敗しました。\nネットワークが安定しているか確認してください。")
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
             }
@@ -1410,7 +1410,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                  Constants.REQUEST_DOWNLOAD_APP_CHECK -> {
                 cancelLoadingDialog();
                 new AlertDialog.Builder(requireActivity())
-                        .setMessage("データ取得に失敗しました\nネットワークを確認してください")
+                        .setMessage("データ取得に失敗しました。\nネットワークを確認してください。")
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
             }
@@ -1423,7 +1423,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append("%"));
         progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append("/").append(totalByte).append(" MB"));
         dialogProgressBar.setProgress(progress);
-        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています…\nしばらくお待ち下さい…"));
+        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています…\n画面を切り替えないでください。"));
     }
 
     @Override

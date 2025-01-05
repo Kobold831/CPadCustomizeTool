@@ -107,7 +107,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                             init();
                         } catch (Exception e) {
                             new AlertDialog.Builder(this)
-                                    .setTitle("エラーが発生しました")
+                                    .setTitle("エラーの発生")
                                     .setMessage(e.getMessage())
                                     .setPositiveButton("OK", null)
                                     .show();
@@ -173,7 +173,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                         new AlertDialog.Builder(this)
                                 .setCancelable(false)
                                 .setTitle("インストール")
-                                .setMessage("遷移先のページよりapkファイルをダウンロードしてadbでインストールしてください")
+                                .setMessage(getString(R.string.dialog_info_update_caution))
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                     try {
                                         JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "Check.json"));
@@ -280,7 +280,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
         progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append("%"));
         progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append("/").append(totalByte).append(" MB"));
         dialogProgressBar.setProgress(progress);
-        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています…\nしばらくお待ち下さい…"));
+        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています…\n画面を切り替えないでください。"));
     }
 
     /* アップデートダイアログ */
@@ -314,7 +314,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_title_update)
-                .setMessage("インストールモードを変更するには”設定”を押下してください")
+                .setMessage("インストールモードを変更するには 設定 を押下してください。")
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
@@ -396,7 +396,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                         if (getPackageManager().getPackageInfo("com.rosan.dhizuku", 0).versionCode > 11) {
                                             new AlertDialog.Builder(v.getContext())
                                                     .setCancelable(false)
-                                                    .setMessage("Dhizuku の互換性がありません\nバージョン2.8のDhizuku をインストールしてください")
+                                                    .setMessage("Dhizuku の互換性がありません。バージョン 2.8 の Dhizuku をインストールしてください。")
                                                     .setPositiveButton("OK", null)
                                                     .show();
                                             return;
@@ -697,7 +697,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                 if (checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED) {
                     new AlertDialog.Builder(this)
                             .setCancelable(false)
-                            .setMessage("ストレージ権限を付与してください\n付与されない場合はアプリをご利用できません\n権限を付与される場合は\"OK\"を押下してください\n同意いただけない場合は\"キャンセル\"を押下してください")
+                            .setMessage("ストレージ権限を付与してください。付与されない場合はアプリをご利用できません。権限を付与される場合は OK を押下してください。同意いただけない場合は キャンセル を押下してください。")
                             .setPositiveButton("OK", (dialog, which) -> {
                                 if (checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED) {
                                     requestPermissions(new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"}, 0);
@@ -715,7 +715,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                 if (checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") != PackageManager.PERMISSION_GRANTED) {
                     new AlertDialog.Builder(this)
                             .setCancelable(false)
-                            .setMessage("jp.co.benesse.dcha.permission.ACCESS_SYSTEM権限を付与してください\n付与されない場合はアプリをご利用できません\n権限を付与される場合は\"OK\"を押下してください\n同意いただけない場合は\"キャンセル\"を押下してください")
+                            .setMessage("jp.co.benesse.dcha.permission.ACCESS_SYSTEM 権限を付与してください。付与されない場合はアプリをご利用できません。権限を付与される場合は OK を押下してください。同意いただけない場合は キャンセル を押下してください。")
                             .setPositiveButton("OK", (dialog, which) -> {
                                 if (checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") != PackageManager.PERMISSION_GRANTED) {
                                     requestPermissions(new String[]{"jp.co.benesse.dcha.permission.ACCESS_SYSTEM"}, 1);

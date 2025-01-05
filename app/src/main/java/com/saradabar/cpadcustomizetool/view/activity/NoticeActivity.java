@@ -48,7 +48,7 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
 
                 if (jsonArray.length() == 0) {
                     new AlertDialog.Builder(this)
-                            .setMessage("アプリのお知らせはありません")
+                            .setMessage("アプリのお知らせはありません。")
                             .setPositiveButton("OK", null)
                             .show();
                     return;

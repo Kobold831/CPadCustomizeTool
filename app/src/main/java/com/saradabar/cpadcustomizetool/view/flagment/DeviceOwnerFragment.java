@@ -189,7 +189,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             }
 
             new AlertDialog.Builder(requireActivity())
-                    .setMessage("セッションを破棄しました")
+                    .setMessage("セッションを破棄しました。")
                     .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
             return false;
@@ -340,7 +340,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 if (requireActivity().getPackageManager().getPackageInfo("com.rosan.dhizuku", 0).versionCode > 11) {
                     new AlertDialog.Builder(requireActivity())
                             .setCancelable(false)
-                            .setMessage("Dhizuku の互換性がありません\nバージョン2.8のDhizuku をインストールしてください")
+                            .setMessage("Dhizuku の互換性がありません。バージョン 2.8 の Dhizuku をインストールしてください。")
                             .setPositiveButton("OK", (dialog, which) -> {
                                 requireActivity().finish();
                                 requireActivity().overridePendingTransition(0, 0);

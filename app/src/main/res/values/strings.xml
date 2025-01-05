@@ -149,10 +149,10 @@
     <!-- ダイアログメッセージ -->
     <string name="dialog_notice_start">ウイルス対策アプリなどに脅威として検知される場合があります。検知された場合は、除外設定してください。\nこのダイアログは以降表示されません。</string>
     <string name="dialog_emergency_select_course">受講中の講座を選択してください。</string>
-    <string name="dialog_mode_select_settings">変更する設定を選択してください。設定後は OK を押してください。</string>
-    <string name="dialog_emergency_manual">\nこの機能はアクティビティを呼び出すアプリで使用できます。\n\n.view.activity.EmergencyActivity を追加して起動してください。\n\n呼び出されると以下の動作をします。\n\n＊ナビゲーションバーを隠す＊\n\n＊アプリ履歴を全消去＊\n\n＊ホームを勉強ホームに変更＊\n\n＊システムUIを学習用に変更＊</string>
-    <string name="dialog_emergency_manual_red">\nシステムUIを変更するためアクティビティや他のアプリを起動させるアプリをインストールしておかないと初期化以外に勉強ホームから抜け出すことができなくなります。\n\nアプリ履歴を全消去はナビゲーションバーの□ボタンを押すと表示されるアプリ履歴のアプリを終了します。</string>
-    <string name="dialog_normal_manual">\nこの機能はアクティビティを呼び出すアプリで使用できます。\n\n.view.activity.NormalActivity を追加して起動してください。\n\n呼び出されると以下の動作をします。\n\n＊ナビゲーションバーを表示＊\n\n＊ホームを変更＊\n\n＊システムUIを通常用に変更＊\n\n＊ホームを起動＊</string>
+    <string name="dialog_mode_select_settings">変更する設定を選択してください。\n設定後は OK を押してください。</string>
+    <string name="dialog_emergency_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.EmergencyActivity を追加して起動してください。\n呼び出されると以下の動作をします。\n＊ナビゲーションバーを隠す＊\n＊アプリ履歴を全消去＊\n＊ホームを勉強ホームに変更＊\n＊システムUIを学習用に変更＊</string>
+    <string name="dialog_emergency_manual_red">システムUIを変更するためアクティビティや他のアプリを起動させるアプリをインストールしておかないと初期化以外に勉強ホームから抜け出すことができなくなります。\nアプリ履歴を全消去はナビゲーションバーの□ボタンを押すと表示されるアプリ履歴のアプリを終了します。</string>
+    <string name="dialog_normal_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.NormalActivity を追加して起動してください。\n呼び出されると以下の動作をします。\n＊ナビゲーションバーを表示＊\n＊ホームを変更＊\n＊システムUIを通常用に変更＊\n＊ホームを起動＊</string>
     <string name="dialog_confirmation">このデバイスのシステム領域を DchaService が変更していないことを検知しました。続行すると一部の動作がシステムで制限される可能性があります。</string>
     <string name="dialog_final_confirmation">続行するとこの操作は取り消せません。警告は無効になります。</string>
     <!-- 情報 -->
@@ -165,7 +165,7 @@
     <string name="dialog_info_dhizuku_deny_permission">Dhizuku へのアクセス権限は拒否されました。</string>
     <string name="dialog_info_dhizuku_already_grant_permission">Dhizuku へのアクセス権限は付与されています。</string>
     <!-- ダイアログエラー -->
-    <string name="dialog_error_crash">致命的なエラーが発生しました。\n繰り返し発生する場合は 報告 を押してクラッシュログを開発者に報告できます。\n\nクラッシュログは 報告 を押すと自動でコピーされますので、表示されるフォームの入力欄に貼り付けてください。\n報告手順\n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します。\n・最新バージョンであれば「はい」を押して「次へ」を押します。\n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します。\n\nクラッシュログを確認、またはコピーしたいときは「確認」を押してください。\n\n続行を押すと、メイン画面に戻ります。</string>
+    <string name="dialog_error_crash">致命的なエラーが発生しました。\n\n繰り返し発生する場合は 報告 を押してクラッシュログを開発者に報告できます。\nクラッシュログは 報告 を押すと自動でコピーされますので、表示されるフォームの入力欄に貼り付けてください。\n報告手順\n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します。\n・最新バージョンであれば「はい」を押して「次へ」を押します。\n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します。\n\nクラッシュログを確認、またはコピーしたいときは「確認」を押してください。\n\n続行を押すと、メイン画面に戻ります。</string>
     <string name="dialog_error">エラーが発生しました。</string>
     <string name="dialog_error_start_connection">サーバーと接続できませんでした。通信状態を確認してください。</string>
     <string name="dialog_error_start_wifi">通信エラーが発生しました。ネットワークに接続してください。</string>

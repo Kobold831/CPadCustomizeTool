@@ -97,7 +97,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
                         if (Preferences.delete(requireActivity(), Constants.KEY_STRINGS_CRASH_LOG)) {
                             new AlertDialog.Builder(requireActivity())
-                                    .setMessage("消去しました")
+                                    .setMessage("消去しました。")
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         }
@@ -175,7 +175,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                                 if (requireActivity().getPackageManager().getPackageInfo("com.rosan.dhizuku", 0).versionCode > 11) {
                                     new AlertDialog.Builder(requireActivity())
                                             .setCancelable(false)
-                                            .setMessage("Dhizuku の互換性がありません\nバージョン2.8のDhizuku をインストールしてください")
+                                            .setMessage("Dhizuku の互換性がありません。バージョン 2.8 の Dhizuku をインストールしてください。")
                                             .setPositiveButton("OK", null)
                                             .show();
                                     return;
@@ -215,13 +215,13 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         if (requireActivity().getCacheDir().delete()) {
                             if (Common.deleteDirectory(requireActivity().getExternalCacheDir())) {
                                 new AlertDialog.Builder(requireActivity())
-                                        .setMessage("消去しました")
+                                        .setMessage("消去しました。")
                                         .setPositiveButton(R.string.dialog_common_ok, null)
                                         .show();
                             }
                         } else {
                             new AlertDialog.Builder(requireActivity())
-                                    .setMessage("消去できませんでした")
+                                    .setMessage("不要ファイルがないため消去できませんでした。")
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         }
@@ -233,7 +233,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
         preClearData.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
-                    .setMessage("消去しますか？\nOKを押下すると、アプリは終了します")
+                    .setMessage("消去しますか？\nOK を押下すると、アプリは終了します。")
                     .setPositiveButton("OK", (dialog, which) -> {
                         ActivityManager activityManager = (ActivityManager) requireActivity().getSystemService(Service.ACTIVITY_SERVICE);
                         activityManager.clearApplicationUserData();

@@ -70,7 +70,7 @@ public class WebViewActivity extends AppCompatActivity {
                 if (isUrlDistrusted(url)) {
                     if (getSupportActionBar() != null) {
                         getSupportActionBar().setTitle("このサイトにアクセスできません");
-                        getSupportActionBar().setSubtitle("このウェブページは、HTTP接続のため表示できません");
+                        getSupportActionBar().setSubtitle("このウェブページは、HTTP 接続のため表示できません");
                     }
                 }
                 return isUrlDistrusted(url);

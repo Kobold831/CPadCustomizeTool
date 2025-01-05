@@ -98,7 +98,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                         new AlertDialog.Builder(this)
                                 .setCancelable(false)
                                 .setTitle("インストール")
-                                .setMessage("遷移先のページよりapkファイルをダウンロードしてadbでインストールしてください")
+                                .setMessage(getString(R.string.dialog_info_update_caution))
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                     try {
                                         startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(downloadFileUrl)), Constants.REQUEST_ACTIVITY_UPDATE);
@@ -176,7 +176,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append("%"));
         progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append("/").append(totalByte).append(" MB"));
         dialogProgressBar.setProgress(progress);
-        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています…\nしばらくお待ち下さい…"));
+        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています…\n画面を切り替えないでください。"));
     }
 
     private DchaInstallTask.Listener dchaInstallTaskListener() {
