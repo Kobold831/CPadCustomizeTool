@@ -33,24 +33,27 @@ public class RebootActivity extends Activity {
     public final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-            reboot();
-        } else {
+        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
             Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
+            return;
         }
+
+        reboot();
     }
 
     private void reboot() {
         new AlertDialog.Builder(this)
                 .setMessage(R.string.dialog_question_reboot)
-                .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
                     @Override
                     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                         try {
-                            IDchaService mDchaService = IDchaService.Stub.asInterface(iBinder);
-                            mDchaService.rebootPad(0, null);
+                            IDchaService iDchaService = IDchaService.Stub.asInterface(iBinder);
+                            iDchaService.rebootPad(0, null);
                         } catch (Exception ignored) {
+                            Toast.makeText(RebootActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                            finishAndRemoveTask();
                         }
                     }
 
@@ -58,7 +61,7 @@ public class RebootActivity extends Activity {
                     public void onServiceDisconnected(ComponentName componentName) {
                     }
                 }, Context.BIND_AUTO_CREATE))
-                .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> finishAndRemoveTask())
+                .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> finishAndRemoveTask())
                 .setOnDismissListener(dialogInterface -> finishAndRemoveTask())
                 .show();
     }

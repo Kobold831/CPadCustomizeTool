@@ -50,24 +50,18 @@ public class Common {
     public static void LogOverWrite(Context context, Throwable throwable) {
         StringWriter stringWriter = new StringWriter();
         throwable.printStackTrace(new PrintWriter(stringWriter));
-        String message = "- ログ開始 -\n" +
-                getNowDate() + ":\n" +
-                "- デバイス情報:\n" +
-                Build.FINGERPRINT + "\n" +
-                "- アプリ情報:\n" +
-                BuildConfig.VERSION_NAME + "\n" +
-                BuildConfig.VERSION_CODE + "\n" +
-                BuildConfig.BUILD_TYPE + "\n" +
-                "- 例外原因:\n" +
-                throwable.getMessage() + "\n" +
-                "- スタックトレース:\n" +
-                stringWriter +
-                "- ログ終了 -\n\n";
+        String message = getNowDate() + System.lineSeparator() +
+                Build.FINGERPRINT + System.lineSeparator() +
+                BuildConfig.VERSION_NAME + System.lineSeparator() +
+                BuildConfig.VERSION_CODE + System.lineSeparator() +
+                BuildConfig.BUILD_TYPE + System.lineSeparator() +
+                throwable.getMessage() + System.lineSeparator() +
+                stringWriter + System.lineSeparator();
 
-        if (!Preferences.load(context, Constants.KEY_STRINGS_CRASH_LOG, "").isEmpty()) {
-            Preferences.save(context, Constants.KEY_STRINGS_CRASH_LOG, String.join(",", Preferences.load(context, Constants.KEY_STRINGS_CRASH_LOG, "")).replace("    ", "") + message);
-        } else {
+        if (Preferences.load(context, Constants.KEY_STRINGS_CRASH_LOG, "").isEmpty()) {
             Preferences.save(context, Constants.KEY_STRINGS_CRASH_LOG, message);
+        } else {
+            Preferences.save(context, Constants.KEY_STRINGS_CRASH_LOG, String.join(",", Preferences.load(context, Constants.KEY_STRINGS_CRASH_LOG, "")).replace("    ", "") + message);
         }
     }
 

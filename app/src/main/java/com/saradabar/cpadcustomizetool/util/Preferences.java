@@ -45,89 +45,17 @@ public class Preferences {
         return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getString(key, value);
     }
 
-    public static boolean delete(Context context, String key) {
+    public static void delete(Context context, String key) {
         context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().remove(key).apply();
-        return true;
     }
 
     /* マルチリストのデータ取得 */
-    public static Set<String> getEmergencySettings(Context context) {
-        return getDefaultSharedPreferences(context).getStringSet(Constants.KEY_EMERGENCY_SETTINGS, null);
-    }
+    public static boolean loadMultiList(Context context, String key, int item) {
+        Set<String> strings = getDefaultSharedPreferences(context).getStringSet(key, null);
 
-    public static boolean isEmergencySettingsDchaState(Context context) {
-        Set<String> set = getEmergencySettings(context);
-
-        if (set != null) {
-            return set.contains(Integer.toString(1));
+        if (strings == null) {
+            return false;
         }
-        return false;
-    }
-
-    public static boolean isEmergencySettingsNavigationBar(Context context) {
-        Set<String> set = getEmergencySettings(context);
-
-        if (set != null) {
-            return set.contains(Integer.toString(2));
-        }
-        return false;
-    }
-
-    public static boolean isEmergencySettingsLauncher(Context context) {
-        Set<String> set = getEmergencySettings(context);
-
-        if (set != null) {
-            return set.contains(Integer.toString(3));
-        }
-        return false;
-    }
-
-    public static boolean isEmergencySettingsRemoveTask(Context context) {
-        Set<String> set = getEmergencySettings(context);
-
-        if (set != null) {
-            return set.contains(Integer.toString(4));
-        }
-        return false;
-    }
-
-    private static Set<String> getNormalModeSettings(Context context) {
-        return getDefaultSharedPreferences(context).getStringSet(Constants.KEY_NORMAL_SETTINGS, null);
-    }
-
-    public static boolean isNormalModeSettingsDchaState(Context context) {
-        Set<String> set = getNormalModeSettings(context);
-
-        if (set != null) {
-            return set.contains(Integer.toString(1));
-        }
-        return false;
-    }
-
-    public static boolean isNormalModeSettingsNavigationBar(Context context) {
-        Set<String> set = getNormalModeSettings(context);
-
-        if (set != null) {
-            return set.contains(Integer.toString(2));
-        }
-        return false;
-    }
-
-    public static boolean isNormalModeSettingsLauncher(Context context) {
-        Set<String> set = getNormalModeSettings(context);
-
-        if (set != null) {
-            return set.contains(Integer.toString(3));
-        }
-        return false;
-    }
-
-    public static boolean isNormalModeSettingsActivity(Context context) {
-        Set<String> set = getNormalModeSettings(context);
-
-        if (set != null) {
-            return set.contains(Integer.toString(4));
-        }
-        return false;
+        return strings.contains(Integer.toString(item));
     }
 }

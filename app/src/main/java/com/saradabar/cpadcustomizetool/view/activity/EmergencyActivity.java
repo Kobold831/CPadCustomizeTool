@@ -56,20 +56,23 @@ public class EmergencyActivity extends Activity {
             return;
         }
 
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() -> {
-            try {
-                new IDchaTask().execute(this, iDchaTaskListener());
-                synchronized (objLock) {
-                    objLock.wait();
+        try {
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.submit(() -> {
+                try {
+                    new IDchaTask().execute(this, iDchaTaskListener());
+                    synchronized (objLock) {
+                        objLock.wait();
+                    }
+                } catch (Exception ignored) {
+                    Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                    finishAndRemoveTask();
                 }
-            } catch (Exception ignored) {
-            }
-
+            });
+        } finally {
             if (mDchaService == null) {
                 Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
-                return;
             }
 
             // メイン処理
@@ -89,20 +92,20 @@ public class EmergencyActivity extends Activity {
                     finishAndRemoveTask();
                     break;
             }
-        });
+        }
     }
 
     private boolean run(String packageName, String className) {
         // 維持サービスの無効化
-        if (Preferences.isEmergencySettingsDchaState(this)) {
+        if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 1)) {
             Preferences.save(this, Constants.KEY_FLAG_KEEP_DCHA_STATE, false);
         }
 
-        if (Preferences.isEmergencySettingsNavigationBar(this)) {
+        if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 2)) {
             Preferences.save(this, Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false);
         }
 
-        if (Preferences.isEmergencySettingsLauncher(this)) {
+        if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 3)) {
             Preferences.save(this, Constants.KEY_FLAG_KEEP_HOME, false);
         }
 
@@ -110,26 +113,28 @@ public class EmergencyActivity extends Activity {
         startService(new Intent(this, ProtectKeepService.class));
 
         // 勉強ホームを起動
-        try {
-            startActivity(new Intent().setClassName(packageName, className));
-        } catch (Exception ignored) {
-            Toast.makeText(this, R.string.toast_not_course, Toast.LENGTH_SHORT).show();
-            return false;
+        if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 5)) {
+            try {
+                startActivity(new Intent().setClassName(packageName, className));
+            } catch (Exception ignored) {
+                Toast.makeText(this, R.string.toast_not_course, Toast.LENGTH_SHORT).show();
+                return false;
+            }
         }
 
         // 設定変更
-        if (Preferences.isEmergencySettingsDchaState(this)) {
+        if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 1)) {
             new DchaServiceUtil(this, mDchaService).setSetupStatus(3);
         }
 
-        if (Preferences.isEmergencySettingsNavigationBar(this)) {
+        if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 2)) {
             new DchaServiceUtil(this, mDchaService).hideNavigationBar(true);
         }
 
         // ホームを変更
         ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
 
-        if (Preferences.isEmergencySettingsLauncher(this)) {
+        if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 3)) {
             if (resolveInfo != null) {
                 if (!new DchaServiceUtil(this, mDchaService).setPreferredHomeApp(resolveInfo.activityInfo.packageName, packageName)) {
                     // 失敗
@@ -143,7 +148,7 @@ public class EmergencyActivity extends Activity {
         }
 
         // タスクの消去
-        if (Preferences.isEmergencySettingsRemoveTask(this)) {
+        if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 4)) {
             try {
                 mDchaService.removeTask(null);
             } catch (Exception ignored) {

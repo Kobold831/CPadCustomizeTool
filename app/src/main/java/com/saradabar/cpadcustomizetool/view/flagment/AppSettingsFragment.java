@@ -95,12 +95,11 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             new AlertDialog.Builder(requireActivity())
                     .setMessage("消去しますか？")
                     .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
-                        if (Preferences.delete(requireActivity(), Constants.KEY_STRINGS_CRASH_LOG)) {
-                            new AlertDialog.Builder(requireActivity())
-                                    .setMessage("消去しました。")
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                    .show();
-                        }
+                        Preferences.delete(requireActivity(), Constants.KEY_STRINGS_CRASH_LOG);
+                        new AlertDialog.Builder(requireActivity())
+                                .setMessage("消去しました。")
+                                .setPositiveButton(R.string.dialog_common_ok, null)
+                                .show();
                     })
                     .setNegativeButton(R.string.dialog_common_no, null)
                     .show();

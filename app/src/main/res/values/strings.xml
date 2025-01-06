@@ -150,9 +150,9 @@
     <string name="dialog_notice_start">ウイルス対策アプリなどに脅威として検知される場合があります。検知された場合は、除外設定してください。\nこのダイアログは以降表示されません。</string>
     <string name="dialog_emergency_select_course">受講中の講座を選択してください。</string>
     <string name="dialog_mode_select_settings">変更する設定を選択してください。\n設定後は OK を押してください。</string>
-    <string name="dialog_emergency_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.EmergencyActivity を追加して起動してください。\n呼び出されると以下の動作をします。\n＊ナビゲーションバーを隠す＊\n＊アプリ履歴を全消去＊\n＊ホームを勉強ホームに変更＊\n＊システムUIを学習用に変更＊</string>
+    <string name="dialog_emergency_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.EmergencyActivity を追加して起動してください。\n</string>
     <string name="dialog_emergency_manual_red">システムUIを変更するためアクティビティや他のアプリを起動させるアプリをインストールしておかないと初期化以外に勉強ホームから抜け出すことができなくなります。\nアプリ履歴を全消去はナビゲーションバーの□ボタンを押すと表示されるアプリ履歴のアプリを終了します。</string>
-    <string name="dialog_normal_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.NormalActivity を追加して起動してください。\n呼び出されると以下の動作をします。\n＊ナビゲーションバーを表示＊\n＊ホームを変更＊\n＊システムUIを通常用に変更＊\n＊ホームを起動＊</string>
+    <string name="dialog_normal_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.NormalActivity を追加して起動してください。</string>
     <string name="dialog_confirmation">このデバイスのシステム領域を DchaService が変更していないことを検知しました。続行すると一部の動作がシステムで制限される可能性があります。</string>
     <string name="dialog_final_confirmation">続行するとこの操作は取り消せません。警告は無効になります。</string>
     <!-- 情報 -->

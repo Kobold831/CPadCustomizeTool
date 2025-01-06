@@ -54,20 +54,23 @@ public class NormalActivity extends Activity {
             return;
         }
 
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() -> {
-            try {
-                new IDchaTask().execute(this, iDchaTaskListener());
-                synchronized (objLock) {
-                    objLock.wait();
+        try {
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.submit(() -> {
+                try {
+                    new IDchaTask().execute(this, iDchaTaskListener());
+                    synchronized (objLock) {
+                        objLock.wait();
+                    }
+                } catch (Exception ignored) {
+                    Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                    finishAndRemoveTask();
                 }
-            } catch (Exception ignored) {
-            }
-
+            });
+        } finally {
             if (mDchaService == null) {
                 Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
-                return;
             }
 
             ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
@@ -89,12 +92,12 @@ public class NormalActivity extends Activity {
                     finishAndRemoveTask();
                     break;
             }
-        });
+        }
     }
 
     private boolean run() {
         // ホームを起動
-        if (Preferences.isNormalModeSettingsActivity(this)) {
+        if (Preferences.loadMultiList(this, Constants.KEY_NORMAL_SETTINGS, 4)) {
             // 変更するホームが設定されているかチェック
             if (Preferences.load(this, Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, "").isEmpty()) {
                 Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
@@ -110,18 +113,18 @@ public class NormalActivity extends Activity {
         }
 
         // 設定変更
-        if (Preferences.isNormalModeSettingsDchaState(this)) {
+        if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 1)) {
             new DchaServiceUtil(this, mDchaService).setSetupStatus(0);
         }
 
-        if (Preferences.isNormalModeSettingsNavigationBar(this)) {
+        if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 2)) {
             new DchaServiceUtil(this, mDchaService).hideNavigationBar(false);
         }
 
         // ホームを変更
         ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
 
-        if (Preferences.isNormalModeSettingsLauncher(this)) {
+        if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 3)) {
             if (resolveInfo != null) {
                 if (!new DchaServiceUtil(this, mDchaService).setPreferredHomeApp(resolveInfo.activityInfo.packageName,
                         Preferences.load(this, Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, ""))) {

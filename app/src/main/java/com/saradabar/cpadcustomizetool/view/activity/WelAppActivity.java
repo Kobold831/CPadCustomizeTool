@@ -13,7 +13,6 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
 import android.support.v4.app.Fragment;
 
 import com.saradabar.cpadcustomizetool.R;
@@ -26,15 +25,14 @@ import com.stephentuso.welcome.WelcomeConfiguration;
 
 public class WelAppActivity extends WelcomeActivity {
 
-    @SuppressLint({"ResourceAsColor", "ResourceType"})
     @Override
     protected WelcomeConfiguration configuration() {
         return new WelcomeConfiguration.Builder(this)
                 .bottomLayout(WelcomeConfiguration.BottomLayout.INDICATOR_ONLY)
-                .defaultBackgroundColor(Color.WHITE)
-                .page(new TitlePage(R.drawable.cpadmaterial, getString(R.string.wel_title_page_1)).titleColor(Color.BLACK))
-                .page(new BasicPage(R.drawable.navigationbar, getString(R.string.wel_title_page_2), getString(R.string.wel_description_page_2)).descriptionColor(Color.BLACK).headerColor(Color.BLACK))
-                .page(new BasicPage(R.drawable.ex, getString(R.string.wel_title_page_3), getString(R.string.wel_description_page_3)).descriptionColor(Color.BLACK).headerColor(Color.BLACK))
+                .defaultBackgroundColor(R.color.white)
+                .page(new TitlePage(R.drawable.cpadmaterial, getString(R.string.wel_title_page_1)).titleColor(getResources().getColor(R.color.black)))
+                .page(new BasicPage(R.drawable.navigationbar, getString(R.string.wel_title_page_2), getString(R.string.wel_description_page_2)).descriptionColor(getResources().getColor(R.color.black)).headerColor(getResources().getColor(R.color.black)))
+                .page(new BasicPage(R.drawable.ex, getString(R.string.wel_title_page_3), getString(R.string.wel_description_page_3)).descriptionColor(getResources().getColor(R.color.black)).headerColor(getResources().getColor(R.color.black)))
                 .page(new FragmentWelcomePage() {
                     @Override
                     protected Fragment fragment() {
