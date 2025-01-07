@@ -53,6 +53,8 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
+import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
+
 public class StartActivity extends AppCompatActivity implements DownloadEventListener {
 
     Menu menu;
@@ -374,12 +376,26 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                         .show();
             }
         } else {
-            if (!new DchaUtilServiceUtil(this, null).setForcedDisplaySize(width, height)) {
-                new AlertDialog.Builder(this)
-                        .setMessage(R.string.dialog_error)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
-                        .show();
-            }
+            int finalWidth = width;
+            int finalHeight = height;
+
+            bindService(Constants.DCHA_UTIL_SERVICE, new ServiceConnection() {
+
+                @Override
+                public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                    IDchaUtilService iDchaUtilService = IDchaUtilService.Stub.asInterface(iBinder);
+                    if (!new DchaUtilServiceUtil(iDchaUtilService).setForcedDisplaySize(finalWidth, finalHeight)) {
+                        new AlertDialog.Builder(StartActivity.this)
+                                .setMessage(R.string.dialog_error)
+                                .setPositiveButton(R.string.dialog_common_ok, null)
+                                .show();
+                    }
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName componentName) {
+                }
+            }, Context.BIND_AUTO_CREATE);
         }
     }
 }

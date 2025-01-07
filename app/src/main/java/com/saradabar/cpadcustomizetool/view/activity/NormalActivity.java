@@ -14,26 +14,24 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class NormalActivity extends Activity {
-
-    final Object objLock = new Object();
 
     IDchaService mDchaService;
 
@@ -54,44 +52,44 @@ public class NormalActivity extends Activity {
             return;
         }
 
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                try {
-                    new IDchaTask().execute(this, iDchaTaskListener());
-                    synchronized (objLock) {
-                        objLock.wait();
-                    }
-                } catch (Exception ignored) {
-                    Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+        if (!bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
+
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                mDchaService = IDchaService.Stub.asInterface(iBinder);
+
+                if (mDchaService == null) {
+                    Toast.makeText(NormalActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
                     finishAndRemoveTask();
                 }
-            });
-        } finally {
-            if (mDchaService == null) {
-                Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
+
+                ActivityManager activityManager = (ActivityManager) NormalActivity.this.getSystemService(ACTIVITY_SERVICE);
+                switch (PreferenceManager.getDefaultSharedPreferences(NormalActivity.this).getString("emergency_mode", "")) {
+                    case "1":
+                        if (run()) {
+                            // 成功
+                            activityManager.killBackgroundProcesses("jp.co.benesse.touch.allgrade.b003.touchhomelauncher");
+                            Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
+                        }
+                        finishAndRemoveTask();
+                        break;
+                    case "2":
+                        if (run()) {
+                            // 成功
+                            activityManager.killBackgroundProcesses("jp.co.benesse.touch.home");
+                            Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
+                        }
+                        finishAndRemoveTask();
+                        break;
+                }
             }
 
-            ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-            switch (PreferenceManager.getDefaultSharedPreferences(this).getString("emergency_mode", "")) {
-                case "1":
-                    if (run()) {
-                        // 成功
-                        activityManager.killBackgroundProcesses("jp.co.benesse.touch.allgrade.b003.touchhomelauncher");
-                        Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                    }
-                    finishAndRemoveTask();
-                    break;
-                case "2":
-                    if (run()) {
-                        // 成功
-                        activityManager.killBackgroundProcesses("jp.co.benesse.touch.home");
-                        Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                    }
-                    finishAndRemoveTask();
-                    break;
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
             }
+        }, Context.BIND_AUTO_CREATE)) {
+            Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+            finishAndRemoveTask();
         }
     }
 
@@ -144,24 +142,5 @@ public class NormalActivity extends Activity {
     public void onPause() {
         super.onPause();
         finishAndRemoveTask();
-    }
-
-    private IDchaTask.Listener iDchaTaskListener() {
-        return new IDchaTask.Listener() {
-            @Override
-            public void onSuccess(IDchaService iDchaService) {
-                mDchaService = iDchaService;
-                synchronized (objLock) {
-                    objLock.notify();
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                synchronized (objLock) {
-                    objLock.notify();
-                }
-            }
-        };
     }
 }

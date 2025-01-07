@@ -700,13 +700,13 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preReboot.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
                     .setMessage(R.string.dialog_question_reboot)
-                    .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         try {
                             mDchaService.rebootPad(0, "");
                         } catch (Exception ignored) {
                         }
                     })
-                    .setNegativeButton(R.string.dialog_common_no, null)
+                    .setNegativeButton(R.string.dialog_common_cancel, null)
                     .show();
             return false;
         });

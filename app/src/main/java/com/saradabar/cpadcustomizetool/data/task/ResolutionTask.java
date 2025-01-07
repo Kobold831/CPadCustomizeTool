@@ -61,8 +61,10 @@ public class ResolutionTask {
                 synchronized (objLock) {
                     objLock.wait();
                 }
-                if (mDchaUtilService == null) return false;
-                return new DchaUtilServiceUtil(context, mDchaUtilService).setForcedDisplaySize(i, i1);
+                if (mDchaUtilService == null) {
+                    return false;
+                }
+                return new DchaUtilServiceUtil(mDchaUtilService).setForcedDisplaySize(i, i1);
             }
         } catch (InvocationTargetException e) {
             return e.getTargetException();
