@@ -28,12 +28,12 @@
     <string name="wel_title_page_1">CPad Customize Toolへようこそ！</string>
     <string name="wel_title_page_2">ナビゲーションバー常時表示</string>
     <string name="wel_title_page_3">緊急モード</string>
-    <string name="wel_description_page_2">学習中、それ以外の時でもナビゲーションバーを表示します</string>
-    <string name="wel_description_page_3">瞬時に学習環境に変更します</string>
+    <string name="wel_description_page_2">学習中、それ以外の時でもナビゲーションバーを表示します。</string>
+    <string name="wel_description_page_3">瞬時に学習環境に変更します。</string>
     <string name="wel_title">利用規約</string>
     <string name="wel_disagree">同意しない</string>
     <string name="wel_agree">同意する</string>
-    <string name="wel_terms_of_service">このアプリの利用を開始するには、必ずこの利用規約をお読みいただき、同意してください。\n「同意する」を押した時点で、この規約に同意したことになります。\n開発者は一切の問題において責任を負わないものとします。</string>
+    <string name="wel_terms_of_service">このアプリの利用を開始するには、必ずこの利用規約をお読みいただき、同意してください。「同意する」を押した時点で、この規約に同意したことになります。\n・開発者は一切の問題において責任を負わないものとします。</string>
 
     <!-- メイン設定 -->
     <string name="pre_main_category_system_ui">システム UI 設定</string>
@@ -147,7 +147,7 @@
     <string name="dialog_title_final_confirmation">最終確認</string>
     <string name="dialog_title_select_mode">モードを選択</string>
     <!-- ダイアログメッセージ -->
-    <string name="dialog_notice_start">ウイルス対策アプリなどに脅威として検知される場合があります。検知された場合は、除外設定してください。\nこのダイアログは以降表示されません。</string>
+    <string name="dialog_notice_start">ウイルス対策アプリなどに脅威として検知される場合があります。検知された場合は、除外設定してください。このダイアログは以降表示されません。</string>
     <string name="dialog_emergency_select_course">受講中の講座を選択してください。</string>
     <string name="dialog_mode_select_settings">変更する設定を選択してください。\n設定後は OK を押してください。</string>
     <string name="dialog_emergency_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.EmergencyActivity を追加して起動してください。\n</string>
@@ -165,7 +165,7 @@
     <string name="dialog_info_dhizuku_deny_permission">Dhizuku へのアクセス権限は拒否されました。</string>
     <string name="dialog_info_dhizuku_already_grant_permission">Dhizuku へのアクセス権限は付与されています。</string>
     <!-- ダイアログエラー -->
-    <string name="dialog_error_crash">致命的なエラーが発生しました。\n\n繰り返し発生する場合は 報告 を押してクラッシュログを開発者に報告できます。\nクラッシュログは 報告 を押すと自動でコピーされますので、表示されるフォームの入力欄に貼り付けてください。\n報告手順\n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します。\n・最新バージョンであれば「はい」を押して「次へ」を押します。\n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します。\n\nクラッシュログを確認、またはコピーしたいときは「確認」を押してください。\n\n続行を押すと、メイン画面に戻ります。</string>
+    <string name="dialog_error_crash">致命的なエラーが発生しました。続行を押すと、メイン画面に戻ります。\n\n繰り返し発生する場合は 報告 を押してクラッシュログを開発者に報告できます。クラッシュログは 報告 を押すと自動でコピーされますので、表示されるフォームの入力欄に貼り付けてください。\n報告手順\n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します。\n・最新バージョンであれば「はい」を押して「次へ」を押します。\n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します。\n\nクラッシュログを確認、またはコピーしたいときは「確認」を押してください。</string>
     <string name="dialog_error">エラーが発生しました。</string>
     <string name="dialog_error_start_connection">サーバーと接続できませんでした。通信状態を確認してください。</string>
     <string name="dialog_error_start_wifi">通信エラーが発生しました。ネットワークに接続してください。</string>
