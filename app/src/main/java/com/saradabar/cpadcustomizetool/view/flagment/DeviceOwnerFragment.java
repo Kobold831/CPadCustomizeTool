@@ -60,12 +60,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class DeviceOwnerFragment extends PreferenceFragmentCompat implements InstallEventListener {
-
-    final Object objLock = new Object();
 
     AlertDialog progressDialog;
 
@@ -357,21 +353,35 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             textView.setText("サービスへの接続を待機しています...");
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                try {
-                    new IDhizukuTask().execute(requireActivity(), iDhizukuTaskListener());
-                    synchronized (objLock) {
-                        objLock.wait();
+            new IDhizukuTask().execute(requireActivity(), new IDhizukuTask.Listener() {
+                @Override
+                public void onSuccess(IDhizukuService iDhizukuService) {
+                    mDhizukuService = iDhizukuService;
+
+                    if (waitForServiceDialog.isShowing()) {
+                        waitForServiceDialog.cancel();
                     }
-                } catch (Exception ignored) {
+
+                    if (mDhizukuService == null) {
+                        new AlertDialog.Builder(requireActivity())
+                                .setCancelable(false)
+                                .setMessage(R.string.dialog_error_dhizuku_conn_failure)
+                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                                    requireActivity().finish();
+                                    requireActivity().overridePendingTransition(0, 0);
+                                    startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                                })
+                                .show();
+                    }
+                    setListener();
                 }
 
-                if (waitForServiceDialog.isShowing()) {
-                    waitForServiceDialog.cancel();
-                }
+                @Override
+                public void onFailure() {
+                    if (waitForServiceDialog.isShowing()) {
+                        waitForServiceDialog.cancel();
+                    }
 
-                if (mDhizukuService == null) {
                     new AlertDialog.Builder(requireActivity())
                             .setCancelable(false)
                             .setMessage(R.string.dialog_error_dhizuku_conn_failure)
@@ -381,8 +391,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                                 startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                             })
                             .show();
-                } else {
-                    setListener();
                 }
             });
         } else {
@@ -801,24 +809,5 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         if (progressDialog.isShowing()) {
             progressDialog.cancel();
         }
-    }
-
-    private IDhizukuTask.Listener iDhizukuTaskListener() {
-        return new IDhizukuTask.Listener() {
-            @Override
-            public void onSuccess(IDhizukuService iDhizukuService) {
-                mDhizukuService = iDhizukuService;
-                synchronized (objLock) {
-                    objLock.notify();
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                synchronized (objLock) {
-                    objLock.notify();
-                }
-            }
-        };
     }
 }

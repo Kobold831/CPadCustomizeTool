@@ -87,14 +87,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class MainFragment extends PreferenceFragmentCompat implements DownloadEventListener, InstallEventListener {
-
-    final Object objLock = new Object();
 
     AlertDialog progressDialog;
     TextView progressPercentText;
@@ -225,21 +221,35 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             textView.setText("サービスへの接続を待機しています...");
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                try {
-                    new IDchaTask().execute(requireActivity(), iDchaTaskListener());
-                    synchronized (objLock) {
-                        objLock.wait();
+            new IDchaTask().execute(requireActivity(), new IDchaTask.Listener() {
+                @Override
+                public void onSuccess(IDchaService iDchaService) {
+                    mDchaService = iDchaService;
+
+                    if (waitForServiceDialog.isShowing()) {
+                        waitForServiceDialog.cancel();
                     }
-                } catch (Exception ignored) {
+
+                    if (mDchaService == null) {
+                        new AlertDialog.Builder(requireActivity())
+                                .setCancelable(false)
+                                .setMessage("DchaService との通信に失敗しました。")
+                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                                    requireActivity().finish();
+                                    requireActivity().overridePendingTransition(0, 0);
+                                    startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                                })
+                                .show();
+                    }
+                    setListener();
                 }
 
-                if (waitForServiceDialog.isShowing()) {
-                    waitForServiceDialog.cancel();
-                }
+                @Override
+                public void onFailure() {
+                    if (waitForServiceDialog.isShowing()) {
+                        waitForServiceDialog.cancel();
+                    }
 
-                if (mDchaService == null) {
                     new AlertDialog.Builder(requireActivity())
                             .setCancelable(false)
                             .setMessage("DchaService との通信に失敗しました。")
@@ -249,8 +259,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                 startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                             })
                             .show();
-                } else {
-                    setListener();
                 }
             });
         } else {
@@ -534,7 +542,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 new DchaServiceUtil(requireActivity(), mDchaService)
                         .setPreferredHomeApp(getLauncherPackage(requireActivity()),
                                 Uri.fromParts("package",
-                                        installedAppList.get(position).activityInfo.packageName, null)
+                                                installedAppList.get(position).activityInfo.packageName, null)
                                         .toString().replace("package:", ""));
                 listView.invalidateViews();
                 initialize();
@@ -1324,17 +1332,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     case 1:
                         new AlertDialog.Builder(requireActivity())
                                 .setCancelable(false)
-                                .setTitle("インストール")
-                                .setMessage(getString(R.string.dialog_info_update_caution))
-                                .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
-                                    try {
-                                        requireActivity().startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(downloadFileUrl)), Constants.REQUEST_ACTIVITY_UPDATE);
-                                    } catch (Exception ignored) {
-                                        Toast.makeText(requireActivity(), R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
-                                        requireActivity().finish();
-                                    }
-                                })
-                                .setNegativeButton("キャンセル", null)
+                                .setTitle(getString(R.string.dialog_title_common_error))
+                                .setMessage(getString(R.string.dialog_info_update_caution, downloadFileUrl))
+                                .setPositiveButton(R.string.dialog_common_ok, null)
                                 .show();
                         break;
                     case 2:
@@ -1543,24 +1543,5 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             public void onServiceDisconnected(ComponentName componentName) {
             }
         }, Context.BIND_AUTO_CREATE);
-    }
-
-    private IDchaTask.Listener iDchaTaskListener() {
-        return new IDchaTask.Listener() {
-            @Override
-            public void onSuccess(IDchaService iDchaService) {
-                mDchaService = iDchaService;
-                synchronized (objLock) {
-                    objLock.notify();
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                synchronized (objLock) {
-                    objLock.notify();
-                }
-            }
-        };
     }
 }

@@ -160,7 +160,7 @@
     <string name="dialog_info_no_update">アップデートはありません。</string>
     <string name="dialog_info_failure_silent_install">サイレントインストールに失敗しました。</string>
     <string name="dialog_info_success_silent_install">サイレントインストールに成功しました。</string>
-    <string name="dialog_info_update_caution">遷移先のページから新しいバージョンの apk ファイルをダウンロードして adb でインストールしてください。</string>
+    <string name="dialog_info_update_caution">インストーラーが設定されていません。インストーラーを選択して設定してください。 ADB でインストールするには、次の URL から PC でダウンロードしてください。\n%1$s</string>
     <string name="dialog_info_dhizuku_grant_permission">Dhizuku へのアクセス権限は付与されました。</string>
     <string name="dialog_info_dhizuku_deny_permission">Dhizuku へのアクセス権限は拒否されました。</string>
     <string name="dialog_info_dhizuku_already_grant_permission">Dhizuku へのアクセス権限は付与されています。</string>

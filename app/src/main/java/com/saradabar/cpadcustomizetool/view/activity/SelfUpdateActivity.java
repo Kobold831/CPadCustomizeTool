@@ -53,8 +53,6 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     TextView progressByteText;
     ProgressBar dialogProgressBar;
 
-    String downloadFileUrl;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,11 +74,10 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                     JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "Check.json"));
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
-                    downloadFileUrl = jsonObj3.getString("url");
 
                     if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
                         cancelLoadingDialog();
-                        showUpdateDialog(jsonObj3.getString("description"), downloadFileUrl);
+                        showUpdateDialog(jsonObj3.getString("description"), jsonObj3.getString("url"));
                     } else {
                         cancelLoadingDialog();
                         showNoUpdateDialog();
@@ -95,20 +92,21 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                         startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
                         break;
                     case 1:
-                        new AlertDialog.Builder(this)
-                                .setCancelable(false)
-                                .setTitle("インストール")
-                                .setMessage(getString(R.string.dialog_info_update_caution))
-                                .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
-                                    try {
-                                        startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(downloadFileUrl)), Constants.REQUEST_ACTIVITY_UPDATE);
-                                    } catch (Exception ignored) {
-                                        Toast.makeText(this, R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
-                                        finish();
-                                    }
-                                })
-                                .setNegativeButton("キャンセル", null)
-                                .show();
+                        try {
+                            JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "Check.json"));
+                            JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                            JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
+
+                            new AlertDialog.Builder(this)
+                                    .setCancelable(false)
+                                    .setTitle(getString(R.string.dialog_title_common_error))
+                                    .setMessage(getString(R.string.dialog_info_update_caution, jsonObj3.getString("url")))
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .show();
+                        } catch (Exception ignored) {
+                            Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
                         break;
                     case 2:
                         new DchaInstallTask().execute(this, dchaInstallTaskListener(), new File(getExternalCacheDir(), "update.apk").getPath());
