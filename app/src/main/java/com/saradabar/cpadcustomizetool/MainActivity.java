@@ -91,11 +91,11 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_error)
                     .setMessage(R.string.dialog_error_crash)
-                    .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> {
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         Preferences.save(this, Constants.KEY_FLAG_ERROR_CRASH, false);
                         init();
                     })
-                    .setNeutralButton(R.string.dialog_common_check, (dialog, which) -> {
+                    .setNeutralButton("確認", (dialog, which) -> {
                         startActivity(new Intent(this, CrashLogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         finish();
                     })
@@ -107,9 +107,9 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                             init();
                         } catch (Exception e) {
                             new AlertDialog.Builder(this)
-                                    .setTitle("エラーの発生")
+                                    .setTitle(R.string.dialog_title_error)
                                     .setMessage(e.getMessage())
-                                    .setPositiveButton("OK", null)
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         }
                     })
@@ -134,7 +134,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
     /* アップデートチェック */
     private void updateCheck() {
-        showLoadingDialog("サーバーと通信しています…");
+        showLoadingDialog(getString(R.string.progress_state_connecting));
         new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
     }
 
@@ -177,8 +177,8 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
-                                    .setTitle(getString(R.string.dialog_title_common_error))
-                                    .setMessage(getString(R.string.dialog_info_update_caution, jsonObj3.getString("url")))
+                                    .setTitle(getString(R.string.dialog_title_error))
+                                    .setMessage(getString(R.string.dialog_no_installer, jsonObj3.getString("url")))
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         } catch (Exception ignored) {
@@ -195,7 +195,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
-                                    .setMessage(getString(R.string.dialog_error_reset_update_mode))
+                                    .setMessage(getString(R.string.dialog_error_reset_installer))
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                             return;
@@ -209,7 +209,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
-                                    .setMessage(getString(R.string.dialog_error_reset_update_mode))
+                                    .setMessage(getString(R.string.dialog_error_reset_installer))
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                             return;
@@ -239,7 +239,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
             public void onSuccess() {
                 cancelLoadingDialog();
                 new AlertDialog.Builder(MainActivity.this)
-                        .setMessage(R.string.dialog_info_success_silent_install)
+                        .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
@@ -250,7 +250,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
             public void onFailure() {
                 cancelLoadingDialog();
                 new AlertDialog.Builder(MainActivity.this)
-                        .setMessage(R.string.dialog_info_failure_silent_install)
+                        .setMessage(R.string.dialog_failure_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
@@ -278,7 +278,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
         progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append("%"));
         progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append("/").append(totalByte).append(" MB"));
         dialogProgressBar.setProgress(progress);
-        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています…\n画面を切り替えないでください。"));
+        progressDialog.setMessage(new StringBuilder(getString(R.string.progress_state_download_file)));
     }
 
     /* アップデートダイアログ */
@@ -306,7 +306,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
             try {
                 startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_UPDATE_INFO).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (Exception ignored) {
-                Toast.makeText(this, R.string.toast_unknown_activity, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.toast_no_browser, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -315,7 +315,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                 .setMessage("インストールモードを変更するには 設定 を押下してください。")
                 .setView(view)
                 .setCancelable(false)
-                .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                     FileDownloadTask fileDownloadTask = new FileDownloadTask();
                     fileDownloadTask.execute(this, downloadFileUrl, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
                     ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
@@ -332,8 +332,8 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                     progressDialog.setMessage("");
                     progressDialog.show();
                 })
-                .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> new WelcomeHelper(this, WelAppActivity.class).forceShow())
-                .setNeutralButton(R.string.dialog_common_settings, (dialog2, which2) -> {
+                .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> new WelcomeHelper(this, WelAppActivity.class).forceShow())
+                .setNeutralButton("設定", (dialog2, which2) -> {
                     View v = getLayoutInflater().inflate(R.layout.layout_update_list, null);
                     List<UpdateModeListView.AppData> dataList = new ArrayList<>();
                     int i = 0;
@@ -357,7 +357,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                     listView.invalidateViews();
                                 } else {
                                     new AlertDialog.Builder(v.getContext())
-                                            .setMessage(getString(R.string.dialog_error_not_work_mode))
+                                            .setMessage(getString(R.string.dialog_error_no_mode))
                                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                             .show();
                                 }
@@ -372,7 +372,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                     listView.invalidateViews();
                                 } else {
                                     new AlertDialog.Builder(v.getContext())
-                                            .setMessage(getString(R.string.dialog_error_not_work_mode))
+                                            .setMessage(getString(R.string.dialog_error_no_mode))
                                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                             .show();
                                 }
@@ -383,7 +383,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                     listView.invalidateViews();
                                 } else {
                                     new AlertDialog.Builder(v.getContext())
-                                            .setMessage(getString(R.string.dialog_error_not_work_mode))
+                                            .setMessage(getString(R.string.dialog_error_no_mode))
                                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                             .show();
                                 }
@@ -395,7 +395,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                             new AlertDialog.Builder(v.getContext())
                                                     .setCancelable(false)
                                                     .setMessage("Dhizuku の互換性がありません。バージョン 2.8 の Dhizuku をインストールしてください。")
-                                                    .setPositiveButton("OK", null)
+                                                    .setPositiveButton(getString(R.string.dialog_common_ok), null)
                                                     .show();
                                             return;
                                         } else {
@@ -407,7 +407,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                 } else {
                                     if (!Dhizuku.init(v.getContext())) {
                                         new AlertDialog.Builder(v.getContext())
-                                                .setMessage(getString(R.string.dialog_error_not_work_mode))
+                                                .setMessage(getString(R.string.dialog_error_no_mode))
                                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                                 .show();
                                     }
@@ -421,7 +421,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                                                     listView.invalidateViews();
                                                 } else {
                                                     new AlertDialog.Builder(v.getContext())
-                                                            .setMessage(R.string.dialog_info_dhizuku_deny_permission)
+                                                            .setMessage(R.string.dialog_dhizuku_deny_permission)
                                                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                                             .show();
                                                 }
@@ -481,9 +481,9 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
     private void supportModelError() {
         new AlertDialog.Builder(this)
                 .setCancelable(false)
-                .setTitle(R.string.dialog_title_common_error)
-                .setMessage(R.string.dialog_error_start_cpad)
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
+                .setTitle(R.string.dialog_title_error)
+                .setMessage(R.string.dialog_error_check_device)
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAffinity())
                 .show();
     }
 
@@ -494,10 +494,10 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
             if (!bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE)) {
                 new AlertDialog.Builder(this)
                         .setCancelable(false)
-                        .setTitle(R.string.dialog_title_common_error)
-                        .setMessage(R.string.dialog_error_start_dcha_service)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAndRemoveTask())
-                        .setNeutralButton(R.string.dialog_common_continue, (dialogInterface, i) -> {
+                        .setTitle(R.string.dialog_title_error)
+                        .setMessage(R.string.dialog_error_check_dcha)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAffinity())
+                        .setNeutralButton(R.string.dialog_common_ok, (dialog, which) -> {
                             Preferences.save(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
                             confCheck();
                         })
@@ -589,7 +589,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_notice_start)
-                .setMessage(R.string.dialog_notice_start)
+                .setMessage(R.string.dialog_app_start_message)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                     if (isPermissionCheck()) {
                         Preferences.save(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, true);
@@ -607,13 +607,13 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
             new AlertDialog.Builder(this)
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_grant_permission)
-                    .setMessage(R.string.dialog_error_start_permission)
-                    .setPositiveButton(R.string.dialog_common_settings, (dialog, which) -> {
+                    .setMessage(R.string.dialog_error_check_permission)
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             startActivityForResult(new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.fromParts("package", getPackageName(), null)).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION), Constants.REQUEST_ACTIVITY_PERMISSION);
                         }
                     })
-                    .setNeutralButton(R.string.dialog_common_exit, (dialogInterface, i) -> finishAndRemoveTask())
+                    .setNeutralButton(R.string.dialog_common_cancel, (dialog, which) -> finishAffinity())
                     .show();
             return false;
         }
@@ -695,13 +695,13 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                 if (checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED) {
                     new AlertDialog.Builder(this)
                             .setCancelable(false)
-                            .setMessage("ストレージ権限を付与してください。付与されない場合はアプリをご利用できません。権限を付与される場合は OK を押下してください。同意いただけない場合は キャンセル を押下してください。")
-                            .setPositiveButton("OK", (dialog, which) -> {
+                            .setMessage("ストレージ権限を付与してください。権限を付与される場合は OK を押下してください。")
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                                 if (checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED) {
                                     requestPermissions(new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"}, 0);
                                 }
                             })
-                            .setNegativeButton("キャンセル", (dialog, which) -> finishAffinity())
+                            .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> finishAffinity())
                             .show();
                     return;
                 }
@@ -713,13 +713,13 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
                 if (checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") != PackageManager.PERMISSION_GRANTED) {
                     new AlertDialog.Builder(this)
                             .setCancelable(false)
-                            .setMessage("jp.co.benesse.dcha.permission.ACCESS_SYSTEM 権限を付与してください。付与されない場合はアプリをご利用できません。権限を付与される場合は OK を押下してください。同意いただけない場合は キャンセル を押下してください。")
-                            .setPositiveButton("OK", (dialog, which) -> {
+                            .setMessage("jp.co.benesse.dcha.permission.ACCESS_SYSTEM 権限を付与してください。権限を付与される場合は OK を押下してください。")
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                                 if (checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") != PackageManager.PERMISSION_GRANTED) {
                                     requestPermissions(new String[]{"jp.co.benesse.dcha.permission.ACCESS_SYSTEM"}, 1);
                                 }
                             })
-                            .setNegativeButton("キャンセル", (dialog, which) -> finishAffinity())
+                            .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> finishAffinity())
                             .show();
                     return;
                 }
@@ -792,7 +792,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
                 cancelLoadingDialog();
                 AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
-                        .setMessage(R.string.dialog_info_success_silent_install)
+                        .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .create();
@@ -817,7 +817,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
                 cancelLoadingDialog();
                 new AlertDialog.Builder(MainActivity.this)
-                        .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
+                        .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
@@ -837,7 +837,8 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
 
                 cancelLoadingDialog();
                 new AlertDialog.Builder(MainActivity.this)
-                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                        .setTitle(getString(R.string.dialog_title_error))
+                        .setMessage(message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();

@@ -41,12 +41,8 @@ import com.saradabar.cpadcustomizetool.view.views.UninstallBlockAppListView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class UninstallBlockActivity extends AppCompatActivity {
-
-    final Object objLock = new Object();
 
     IDhizukuService mDhizukuService;
 
@@ -81,24 +77,29 @@ public class UninstallBlockActivity extends AppCompatActivity {
         listView.setAdapter(appListAdapter);
 
         if (Common.isDhizukuActive(this)) {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                try {
-                    new IDhizukuTask().execute(this, iDhizukuTaskListener());
-                    synchronized (objLock) {
-                        objLock.wait();
+            new IDhizukuTask().execute(this, new IDhizukuTask.Listener() {
+                @Override
+                public void onSuccess(IDhizukuService iDhizukuService) {
+                    mDhizukuService = iDhizukuService;
+
+                    if (mDhizukuService == null) {
+                        new AlertDialog.Builder(UninstallBlockActivity.this)
+                                .setCancelable(false)
+                                .setMessage(R.string.dialog_error_no_dhizuku)
+                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
+                                .show();
                     }
-                } catch (Exception ignored) {
+                    setListener(dataList, listView, unDisableButton, unEnableButton, appListAdapter);
                 }
 
-                if (mDhizukuService == null) {
-                    new AlertDialog.Builder(this)
+                @Override
+                public void onFailure() {
+                    new AlertDialog.Builder(UninstallBlockActivity.this)
                             .setCancelable(false)
-                            .setMessage(R.string.dialog_error_dhizuku_conn_failure)
+                            .setMessage(R.string.dialog_error_no_dhizuku)
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
                             .show();
                 }
-                setListener(dataList, listView, unDisableButton, unEnableButton, appListAdapter);
             });
         } else {
             setListener(dataList, listView, unDisableButton, unEnableButton, appListAdapter);
@@ -193,24 +194,5 @@ public class UninstallBlockActivity extends AppCompatActivity {
             public void onServiceDisconnected(ComponentName name) {
             }
         });
-    }
-
-    IDhizukuTask.Listener iDhizukuTaskListener() {
-        return new IDhizukuTask.Listener() {
-            @Override
-            public void onSuccess(IDhizukuService iDhizukuService) {
-                mDhizukuService = iDhizukuService;
-                synchronized (objLock) {
-                    objLock.notify();
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                synchronized (objLock) {
-                    objLock.notify();
-                }
-            }
-        };
     }
 }

@@ -13,19 +13,16 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
+import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
@@ -43,22 +40,21 @@ public class EmergencyActivity extends Activity {
 
         // 初期設定が完了していない場合は終了
         if (!Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
-            Toast.makeText(this, R.string.toast_not_completed_settings, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.toast_no_setting_app, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
         }
 
         if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-            Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.toast_enable_dcha, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
         }
 
-        if (!bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
-
+        new IDchaTask().execute(this, new IDchaTask.Listener() {
             @Override
-            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                mDchaService = IDchaService.Stub.asInterface(iBinder);
+            public void onSuccess(IDchaService iDchaService) {
+                mDchaService = iDchaService;
 
                 if (mDchaService == null) {
                     Toast.makeText(EmergencyActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
@@ -85,12 +81,11 @@ public class EmergencyActivity extends Activity {
             }
 
             @Override
-            public void onServiceDisconnected(ComponentName componentName) {
+            public void onFailure() {
+                Toast.makeText(EmergencyActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                finishAndRemoveTask();
             }
-        }, Context.BIND_AUTO_CREATE)) {
-            Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
-            finishAndRemoveTask();
-        }
+        });
     }
 
     private boolean run(String packageName, String className) {
@@ -115,7 +110,7 @@ public class EmergencyActivity extends Activity {
             try {
                 startActivity(new Intent().setClassName(packageName, className));
             } catch (Exception ignored) {
-                Toast.makeText(this, R.string.toast_not_course, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.toast_no_course, Toast.LENGTH_SHORT).show();
                 return false;
             }
         }
@@ -136,7 +131,7 @@ public class EmergencyActivity extends Activity {
             if (resolveInfo != null) {
                 if (!new DchaServiceUtil(this, mDchaService).setPreferredHomeApp(resolveInfo.activityInfo.packageName, packageName)) {
                     // 失敗
-                    Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
                     return false;
                 }
             } else {

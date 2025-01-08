@@ -101,11 +101,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     IDchaService mDchaService;
 
-    boolean isObsDchaState = false,
-            isObsNavigation = false,
-            isObsUnkSrc = false,
-            isObsAdb = false;
-
     SwitchPreferenceCompat swDchaState,
             swKeepDchaState,
             swNavigation,
@@ -118,7 +113,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swKeepLauncher,
             swDeviceAdmin;
 
-    public Preference preEnableDchaService,
+    private Preference preEnableDchaService,
             preEmgManual,
             preEmgExecute,
             preEmgShortcut,
@@ -190,23 +185,19 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (isObsDchaState) {
-            isObsDchaState = false;
+        if (dchaStateObserver != null) {
             requireActivity().getContentResolver().unregisterContentObserver(dchaStateObserver);
         }
 
-        if (isObsNavigation) {
-            isObsNavigation = false;
+        if (navigationBarObserver != null) {
             requireActivity().getContentResolver().unregisterContentObserver(navigationBarObserver);
         }
 
-        if (isObsUnkSrc) {
-            isObsUnkSrc = false;
+        if (marketObserver != null) {
             requireActivity().getContentResolver().unregisterContentObserver(marketObserver);
         }
 
-        if (isObsAdb) {
-            isObsAdb = false;
+        if (usbDebugObserver != null) {
             requireActivity().getContentResolver().unregisterContentObserver(usbDebugObserver);
         }
     }
@@ -218,7 +209,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
             TextView textView = view.findViewById(R.id.view_progress_spinner_text);
-            textView.setText("サービスへの接続を待機しています...");
+            textView.setText("サービスへの接続を待機しています。画面を切り替えないでください。");
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
             new IDchaTask().execute(requireActivity(), new IDchaTask.Listener() {
@@ -372,7 +363,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     chgSetting(Constants.FLAG_MARKET_APP_FALSE);
                 }
             } catch (Exception ignored) {
-                Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
             }
             return false;
         });
@@ -383,7 +374,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     chgSetting(Constants.FLAG_MARKET_APP_TRUE);
                 }
             } catch (Exception ignored) {
-                Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
                 return false;
             }
 
@@ -396,7 +387,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         swAdb.setOnPreferenceChangeListener((preference, o) -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (requireActivity().checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
                     return false;
                 }
             }
@@ -421,7 +412,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
                     }
                 } catch (Exception ignored) {
-                    Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
 
                     if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                             Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
@@ -432,7 +423,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 try {
                     chgSetting(Constants.FLAG_USB_DEBUG_FALSE);
                 } catch (Exception ignored) {
-                    Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
                 }
             }
             return false;
@@ -441,7 +432,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         swKeepAdb.setOnPreferenceChangeListener((preference, o) -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (requireActivity().checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
                     return false;
                 }
             }
@@ -466,7 +457,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
                     }
                 } catch (Exception ignored) {
-                    Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
 
                     if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                             Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
@@ -485,7 +476,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         swBypassAdbDisable.setOnPreferenceChangeListener((preference, o) -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (requireActivity().checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
                     return false;
                 }
             }
@@ -509,7 +500,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
                 }
             } catch (Exception ignored) {
-                Toast.makeText(requireActivity(), R.string.toast_not_change, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
 
                 if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                         Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
@@ -551,7 +542,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             new AlertDialog.Builder(requireActivity())
                     .setView(view)
                     .setTitle(R.string.dialog_title_launcher)
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
             return false;
         });
@@ -581,11 +572,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             }
 
             new AlertDialog.Builder(requireActivity())
-                    .setMessage(R.string.dialog_question_dcha_service)
-                    .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                    .setMessage(R.string.dialog_question_dcha)
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         if (!Preferences.load(requireActivity(), "debug_restriction", false) && !tryBindDchaService()) {
                             new AlertDialog.Builder(requireActivity())
-                                    .setMessage(R.string.dialog_error_not_work_dcha)
+                                    .setMessage(R.string.dialog_error_no_dcha)
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         } else {
@@ -595,7 +586,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         }
                     })
-                    .setNegativeButton(R.string.dialog_common_no, null)
+                    .setNegativeButton(R.string.dialog_common_cancel, null)
                     .show();
             return false;
         });
@@ -605,21 +596,21 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             textView.setText(R.string.dialog_emergency_manual_red);
             textView.setTextSize(16);
             textView.setTextColor(Color.RED);
-            textView.setPadding(35, 0, 35, 0);
+            textView.setPadding(32, 0, 32, 0);
             new AlertDialog.Builder(requireActivity())
                     .setTitle(R.string.dialog_title_emergency_manual)
                     .setMessage(R.string.dialog_emergency_manual)
                     .setView(textView)
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
             return false;
         });
 
         preEmgExecute.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
-                    .setMessage("緊急モードを起動してもよろしいですか？\nよろしければ はい を押下してください。")
-                    .setNeutralButton(R.string.dialog_common_yes, (dialogInterface, i) -> startActivity(new Intent(requireActivity(), EmergencyActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
-                    .setPositiveButton(R.string.dialog_common_no, null)
+                    .setMessage("緊急モードを起動してもよろしいですか？よろしければ はい を押下してください。")
+                    .setNeutralButton(R.string.dialog_common_ok, (dialog, which) -> startActivity(new Intent(requireActivity(), EmergencyActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                    .setPositiveButton(R.string.dialog_common_cancel, null)
                     .show();
             return false;
         });
@@ -635,7 +626,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity"))
                         .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.alert))
                         .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_emergency));
-                Toast.makeText(requireActivity(), R.string.toast_common_success, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
             }
             return false;
         });
@@ -666,7 +657,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             new AlertDialog.Builder(requireActivity())
                     .setView(view)
                     .setTitle(R.string.dialog_title_launcher)
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
             return false;
         });
@@ -675,16 +666,16 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             new AlertDialog.Builder(requireActivity())
                     .setTitle(R.string.dialog_title_normal_manual)
                     .setMessage(R.string.dialog_normal_manual)
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
             return false;
         });
 
         preNorExecute.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
-                    .setMessage("通常モードを起動してもよろしいですか？\nよろしければ はい を押下してください。")
-                    .setNeutralButton(R.string.dialog_common_yes, (dialogInterface, i) -> startActivity(new Intent(requireActivity(), NormalActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
-                    .setPositiveButton(R.string.dialog_common_no, null)
+                    .setMessage("通常モードを起動してもよろしいですか？よろしければ はい を押下してください。")
+                    .setNeutralButton(R.string.dialog_common_ok, (dialog, which) -> startActivity(new Intent(requireActivity(), NormalActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                    .setPositiveButton(R.string.dialog_common_cancel, null)
                     .show();
             return false;
         });
@@ -700,7 +691,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.NormalActivity"))
                         .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.reboot))
                         .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_normal));
-                Toast.makeText(requireActivity(), R.string.toast_common_success, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
             }
             return false;
         });
@@ -721,8 +712,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         preRebootShortcut.setOnPreferenceClickListener(preference -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.shortcut_reboot))
-                        .setShortLabel(getString(R.string.shortcut_reboot))
+                requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.reboot))
+                        .setShortLabel(getString(R.string.reboot))
                         .setIcon(Icon.createWithResource(requireActivity(), R.drawable.reboot))
                         .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), "com.saradabar.cpadcustomizetool.view.activity.RebootActivity"))
                         .build(), null);
@@ -751,8 +742,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
                 if (!tryBindDchaUtilService()) {
                     new AlertDialog.Builder(requireActivity())
-                            .setMessage(R.string.dialog_error_not_work_dcha_util)
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                            .setMessage(R.string.dialog_error_no_dcha_util)
+                            .setPositiveButton(R.string.dialog_common_ok, null)
                             .show();
                     return false;
                 }
@@ -777,7 +768,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                 new AlertDialog.Builder(requireActivity())
                                         .setTitle(R.string.dialog_title_error)
                                         .setMessage(R.string.dialog_error_illegal_value)
-                                        .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                                        .setPositiveButton(R.string.dialog_common_ok, null)
                                         .show();
                             } else {
                                 StartActivity startActivity = (StartActivity) requireActivity();
@@ -787,11 +778,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             new AlertDialog.Builder(requireActivity())
                                     .setTitle(R.string.dialog_title_error)
                                     .setMessage(R.string.dialog_error_illegal_value)
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         }
                     })
-                    .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> dialog.dismiss())
+                    .setNegativeButton(R.string.dialog_common_cancel, null)
                     .show();
             return false;
         });
@@ -799,10 +790,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preResetResolution.setOnPreferenceClickListener(preference -> {
             /* DchaUtilServiceが機能しているか */
             if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
-                if (!tryBindDchaService()) {
+                if (!tryBindDchaUtilService()) {
                     new AlertDialog.Builder(requireActivity())
-                            .setMessage(R.string.dialog_error_not_work_dcha_util)
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                            .setMessage(R.string.dialog_error_no_dcha_util)
+                            .setPositiveButton(R.string.dialog_common_ok, null)
                             .show();
                     return false;
                 }
@@ -844,7 +835,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preDhizukuPermissionReq.setOnPreferenceClickListener(preference -> {
             if (!Dhizuku.init(requireActivity())) {
                 new AlertDialog.Builder(requireActivity())
-                        .setMessage(R.string.dialog_error_dhizuku_conn_failure)
+                        .setMessage(R.string.dialog_error_no_dhizuku)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
                 return false;
@@ -857,12 +848,12 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         requireActivity().runOnUiThread(() -> {
                             if (grantResult == PackageManager.PERMISSION_GRANTED) {
                                 new AlertDialog.Builder(requireActivity())
-                                        .setMessage(R.string.dialog_info_dhizuku_grant_permission)
+                                        .setMessage(R.string.dialog_dhizuku_grant_permission)
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                         .show();
                             } else {
                                 new AlertDialog.Builder(requireActivity())
-                                        .setMessage(R.string.dialog_info_dhizuku_deny_permission)
+                                        .setMessage(R.string.dialog_dhizuku_deny_permission)
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                         .show();
                             }
@@ -871,7 +862,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 });
             } else {
                 new AlertDialog.Builder(requireActivity())
-                        .setMessage(R.string.dialog_info_dhizuku_already_grant_permission)
+                        .setMessage(R.string.dialog_dhizuku_already_grant_permission)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                         .show();
             }
@@ -887,13 +878,13 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 swDeviceAdmin.setChecked(true);
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("デバイス管理者を無効にしますか？")
-                        .setMessage(R.string.dialog_question_device_admin)
-                        .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                        .setMessage(R.string.dialog_question_admin)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             ((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).removeActiveAdmin(new ComponentName(requireActivity(), AdministratorReceiver.class));
                             swDeviceAdmin.setChecked(false);
                         })
 
-                        .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
+                        .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> {
                             swDeviceAdmin.setChecked(true);
                             dialog.dismiss();
                         })
@@ -903,7 +894,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         preGetApp.setOnPreferenceClickListener(preference -> {
-            showLoadingDialog("サーバーと通信しています…");
+            showLoadingDialog(getString(R.string.progress_state_connecting));
             new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(requireActivity().getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_APP_CHECK);
             return false;
         });
@@ -922,10 +913,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.RebootActivity"))
                 .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.reboot))
                 .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_reboot));
-        Toast.makeText(requireActivity(), R.string.toast_common_success, Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
     }
 
     /* 初期化 */
+    @SuppressWarnings("deprecation")
     public void initialize() {
         if (getPreferenceScreen() != null) {
             /* DchaServiceを使用するか */
@@ -952,14 +944,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         }
 
         /* オブサーバーを有効化 */
-        isObsDchaState = true;
         requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, dchaStateObserver);
-        isObsNavigation = true;
         requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, navigationBarObserver);
-        isObsUnkSrc = true;
-        //noinspection deprecation
         requireActivity().getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, marketObserver);
-        isObsAdb = true;
         requireActivity().getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED), false, usbDebugObserver);
 
         try {
@@ -1053,7 +1040,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         }
 
         new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(requireActivity().getExternalCacheDir(), "ct-notice.json"), Constants.REQUEST_DOWNLOAD_NOTICE);
-        //new FileDownloadTask().execute(this, Constants.URL_TEST, new File(requireActivity().getExternalCacheDir(), "test.json"), 99);
     }
 
     /* システムUIオブザーバー */
@@ -1151,19 +1137,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     private void cfmDialog() {
         new AlertDialog.Builder(requireActivity())
                 .setCancelable(false)
-                .setTitle(getString(R.string.dialog_question_are_you_sure))
-                .setMessage(getString(R.string.dialog_confirmation))
-                .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> new AlertDialog.Builder(requireActivity())
-                        .setCancelable(false)
-                        .setTitle(getString(R.string.dialog_title_final_confirmation))
-                        .setMessage(getString(R.string.dialog_final_confirmation))
-                        .setPositiveButton(R.string.dialog_common_cancel, (dialog1, which1) -> dialog.dismiss())
-                        .setNeutralButton(R.string.dialog_common_continue, (dialog1, which1) -> {
-                            Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, true);
-                            dialog1.dismiss();
-                        })
-                        .show())
-                .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> dialog.dismiss())
+                .setMessage(getString(R.string.dialog_dcha_warning))
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, true))
+                .setNegativeButton(R.string.dialog_common_cancel, null)
                 .show();
     }
 
@@ -1219,7 +1195,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             public void onSuccess() {
                 cancelLoadingDialog();
                 new AlertDialog.Builder(requireActivity())
-                        .setMessage(R.string.dialog_info_success_silent_install)
+                        .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
@@ -1230,9 +1206,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             public void onFailure() {
                 cancelLoadingDialog();
                 new AlertDialog.Builder(requireActivity())
-                        .setMessage(R.string.dialog_info_failure_silent_install)
+                        .setMessage(R.string.dialog_failure_silent_install)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
         };
@@ -1274,7 +1250,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 new AlertDialog.Builder(requireActivity())
                         .setView(view)
                         .setTitle("アプリを選択")
-                        .setMessage("選択してOKを押下すると詳細な情報が表示されます。")
+                        .setMessage("選択して OK を押下すると詳細な情報が表示されます。")
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             StringBuilder str = new StringBuilder();
 
@@ -1297,7 +1273,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             }
 
                             new AlertDialog.Builder(requireActivity())
-                                    .setMessage(str + "\n" + "よろしければOKを押下してください。")
+                                    .setMessage(str + "\n" + "よろしければ OK を押下してください。")
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                         if (!Objects.equals(downloadFileUrl, "MYURL")) {
                                             startDownload();
@@ -1306,7 +1282,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                             View view1 = getLayoutInflater().inflate(R.layout.view_app_url, null);
                                             EditText editText = view1.findViewById(R.id.edit_app_url);
                                             new AlertDialog.Builder(requireActivity())
-                                                    .setMessage("http://またはhttps://を含むURLを指定してください。")
+                                                    .setMessage("http:// または https:// を含む URL を指定してください。")
                                                     .setView(view1)
                                                     .setCancelable(false)
                                                     .setPositiveButton(R.string.dialog_common_ok, (dialog3, which3) -> {
@@ -1332,8 +1308,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     case 1:
                         new AlertDialog.Builder(requireActivity())
                                 .setCancelable(false)
-                                .setTitle(getString(R.string.dialog_title_common_error))
-                                .setMessage(getString(R.string.dialog_info_update_caution, downloadFileUrl))
+                                .setTitle(getString(R.string.dialog_title_error))
+                                .setMessage(getString(R.string.dialog_no_installer, downloadFileUrl))
                                 .setPositiveButton(R.string.dialog_common_ok, null)
                                 .show();
                         break;
@@ -1346,7 +1322,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(requireActivity())
                                     .setCancelable(false)
-                                    .setMessage(requireActivity().getString(R.string.dialog_error_reset_update_mode))
+                                    .setMessage(requireActivity().getString(R.string.dialog_error_reset_installer))
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                             return;
@@ -1360,7 +1336,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(requireActivity())
                                     .setCancelable(false)
-                                    .setMessage(requireActivity().getString(R.string.dialog_error_reset_update_mode))
+                                    .setMessage(requireActivity().getString(R.string.dialog_error_reset_installer))
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                             return;
@@ -1395,8 +1371,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                  Constants.REQUEST_DOWNLOAD_APP_CHECK -> {
                 cancelLoadingDialog();
                 new AlertDialog.Builder(requireActivity())
-                        .setMessage("ダウンロードに失敗しました。\nネットワークが安定しているか確認してください。")
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setMessage(getString(R.string.dialog_error_download))
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
             case Constants.REQUEST_DOWNLOAD_NOTICE -> preNotice.setVisible(false);
@@ -1410,8 +1386,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                  Constants.REQUEST_DOWNLOAD_APP_CHECK -> {
                 cancelLoadingDialog();
                 new AlertDialog.Builder(requireActivity())
-                        .setMessage("データ取得に失敗しました。\nネットワークを確認してください。")
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setMessage(getString(R.string.dialog_error_connection))
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
             case Constants.REQUEST_DOWNLOAD_NOTICE -> preNotice.setVisible(false);
@@ -1423,7 +1399,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append("%"));
         progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append("/").append(totalByte).append(" MB"));
         dialogProgressBar.setProgress(progress);
-        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています…\n画面を切り替えないでください。"));
+        progressDialog.setMessage(new StringBuilder(getString(R.string.progress_state_download_file)));
     }
 
     @Override
@@ -1465,7 +1441,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                 cancelLoadingDialog();
                 AlertDialog alertDialog = new AlertDialog.Builder(MainFragment.this.requireActivity())
-                        .setMessage(R.string.dialog_info_success_silent_install)
+                        .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .create();
@@ -1490,7 +1466,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                 cancelLoadingDialog();
                 new AlertDialog.Builder(MainFragment.this.requireActivity())
-                        .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
+                        .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
@@ -1510,7 +1486,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                 cancelLoadingDialog();
                 new AlertDialog.Builder(MainFragment.this.requireActivity())
-                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                        .setTitle(getString(R.string.dialog_title_error))
+                        .setMessage(message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
@@ -1532,6 +1509,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         }, Context.BIND_AUTO_CREATE);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean tryBindDchaUtilService() {
         return requireActivity().bindService(Constants.DCHA_UTIL_SERVICE, new ServiceConnection() {
 

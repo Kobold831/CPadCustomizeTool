@@ -17,50 +17,50 @@ public class DchaServiceUtil {
 
     public boolean setSetupStatus(int i) {
         try {
-            if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
-                if (Common.isCfmDialog(mContext)) {
-                    Settings.System.putInt(mContext.getContentResolver(), Constants.DCHA_STATE, i);
-                } else {
-                    return false;
-                }
-            } else {
-                mDchaService.setSetupStatus(i);
+            if (!Common.isCfmDialog(mContext)) {
+                return false;
             }
+
+            if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
+                mDchaService.setSetupStatus(i);
+            } else {
+                Settings.System.putInt(mContext.getContentResolver(), Constants.DCHA_STATE, i);
+            }
+            return true;
         } catch (Exception ignored) {
             return false;
         }
-        return true;
     }
 
     public boolean hideNavigationBar(boolean b) {
         try {
-            if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
-                if (Common.isCfmDialog(mContext)) {
-                    if (b) {
-                        Settings.System.putInt(mContext.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 1);
-                    } else {
-                        Settings.System.putInt(mContext.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
-                    }
-                } else {
-                    return false;
-                }
-            } else {
-                mDchaService.hideNavigationBar(b);
+            if (!Common.isCfmDialog(mContext)) {
+                return false;
             }
+
+            if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
+                mDchaService.hideNavigationBar(b);
+            } else {
+                if (b) {
+                    Settings.System.putInt(mContext.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 1);
+                } else {
+                    Settings.System.putInt(mContext.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
+                }
+            }
+            return true;
         } catch (Exception ignored) {
             return false;
         }
-        return true;
     }
 
     public boolean setPreferredHomeApp(String s, String s1) {
         try {
             mDchaService.clearDefaultPreferredApp(s);
             mDchaService.setDefaultPreferredHomeApp(s1);
+            return true;
         } catch (Exception ignored) {
             return false;
         }
-        return true;
     }
 
     public boolean execSystemUpdate(String s, int i) {

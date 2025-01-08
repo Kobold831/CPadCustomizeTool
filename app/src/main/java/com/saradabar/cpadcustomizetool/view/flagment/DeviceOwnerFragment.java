@@ -193,8 +193,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
         preClrDevOwn.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
-                    .setMessage(R.string.dialog_question_device_owner)
-                    .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                    .setMessage(R.string.dialog_question_owner)
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         if (Common.isDhizukuActive(requireActivity())) {
                             if (tryBindDhizukuService()) {
                                 try {
@@ -211,7 +211,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         requireActivity().overridePendingTransition(0, 0);
                         startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                     })
-                    .setNegativeButton(R.string.dialog_common_no, null)
+                    .setNegativeButton(R.string.dialog_common_cancel, null)
                     .show();
             return false;
         });
@@ -219,7 +219,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         preSessionInstallNotice.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
                     .setView(R.layout.view_owner_session_notice)
-                    .setPositiveButton("OK", null)
+                    .setPositiveButton(getString(R.string.dialog_common_ok), null)
                     .show();
             return false;
         });
@@ -337,7 +337,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     new AlertDialog.Builder(requireActivity())
                             .setCancelable(false)
                             .setMessage("Dhizuku の互換性がありません。バージョン 2.8 の Dhizuku をインストールしてください。")
-                            .setPositiveButton("OK", (dialog, which) -> {
+                            .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> {
                                 requireActivity().finish();
                                 requireActivity().overridePendingTransition(0, 0);
                                 startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
@@ -350,7 +350,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
             TextView textView = view.findViewById(R.id.view_progress_spinner_text);
-            textView.setText("サービスへの接続を待機しています...");
+            textView.setText("サービスへの接続を待機しています。画面を切り替えないでください。");
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
             new IDhizukuTask().execute(requireActivity(), new IDhizukuTask.Listener() {
@@ -365,7 +365,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     if (mDhizukuService == null) {
                         new AlertDialog.Builder(requireActivity())
                                 .setCancelable(false)
-                                .setMessage(R.string.dialog_error_dhizuku_conn_failure)
+                                .setMessage(R.string.dialog_error_no_dhizuku)
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                                     requireActivity().finish();
                                     requireActivity().overridePendingTransition(0, 0);
@@ -384,7 +384,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
                     new AlertDialog.Builder(requireActivity())
                             .setCancelable(false)
-                            .setMessage(R.string.dialog_error_dhizuku_conn_failure)
+                            .setMessage(R.string.dialog_error_no_dhizuku)
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                                 requireActivity().finish();
                                 requireActivity().overridePendingTransition(0, 0);
@@ -493,7 +493,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
                 cancelLoadingDialog();
                 AlertDialog alertDialog = new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
-                        .setMessage(R.string.dialog_info_success_silent_install)
+                        .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .create();
@@ -518,7 +518,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
                 cancelLoadingDialog();
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
-                        .setMessage(getString(R.string.dialog_info_failure_silent_install) + "\n" + message)
+                        .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
@@ -538,7 +538,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
                 cancelLoadingDialog();
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
-                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                        .setTitle(getString(R.string.dialog_title_error))
+                        .setMessage(message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
@@ -600,9 +601,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 }
 
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
-                        .setMessage(getString(R.string.dialog_info_failure))
+                        .setTitle(getString(R.string.dialog_title_error))
+                        .setMessage(getString(R.string.dialog_failure))
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
 
@@ -620,9 +622,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 }
 
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
-                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                        .setTitle(getString(R.string.dialog_title_error))
+                        .setMessage(message)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
 
@@ -687,9 +690,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 }
 
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
-                        .setMessage(getString(R.string.dialog_info_failure))
+                        .setTitle(getString(R.string.dialog_title_error))
+                        .setMessage(getString(R.string.dialog_failure))
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
 
@@ -707,9 +711,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 }
 
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
-                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
+                        .setTitle(getString(R.string.dialog_title_error))
+                        .setMessage(message)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
 

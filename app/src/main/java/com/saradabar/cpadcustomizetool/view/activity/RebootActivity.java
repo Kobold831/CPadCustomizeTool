@@ -34,7 +34,7 @@ public class RebootActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-            Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.toast_enable_dcha, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
         }

@@ -49,7 +49,7 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
                 if (jsonArray.length() == 0) {
                     new AlertDialog.Builder(this)
                             .setMessage("アプリのお知らせはありません。")
-                            .setPositiveButton("OK", null)
+                            .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> finish())
                             .show();
                     return;
                 }

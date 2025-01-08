@@ -14,17 +14,14 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
@@ -41,22 +38,21 @@ public class NormalActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         if (!Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
-            Toast.makeText(this, R.string.toast_not_completed_settings, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.toast_no_setting_app, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
         }
 
         if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-            Toast.makeText(this, R.string.toast_use_not_dcha, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.toast_enable_dcha, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
         }
 
-        if (!bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
-
+        new IDchaTask().execute(this, new IDchaTask.Listener() {
             @Override
-            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                mDchaService = IDchaService.Stub.asInterface(iBinder);
+            public void onSuccess(IDchaService iDchaService) {
+                mDchaService = iDchaService;
 
                 if (mDchaService == null) {
                     Toast.makeText(NormalActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
@@ -85,12 +81,11 @@ public class NormalActivity extends Activity {
             }
 
             @Override
-            public void onServiceDisconnected(ComponentName componentName) {
+            public void onFailure() {
+                Toast.makeText(NormalActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                finishAndRemoveTask();
             }
-        }, Context.BIND_AUTO_CREATE)) {
-            Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
-            finishAndRemoveTask();
-        }
+        });
     }
 
     private boolean run() {
@@ -98,14 +93,14 @@ public class NormalActivity extends Activity {
         if (Preferences.loadMultiList(this, Constants.KEY_NORMAL_SETTINGS, 4)) {
             // 変更するホームが設定されているかチェック
             if (Preferences.load(this, Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, "").isEmpty()) {
-                Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
                 return false;
             }
 
             try {
                 startActivity(getPackageManager().getLaunchIntentForPackage(Preferences.load(this, Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, "")));
             } catch (Exception ignored) {
-                Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
                 return false;
             }
         }
@@ -127,7 +122,7 @@ public class NormalActivity extends Activity {
                 if (!new DchaServiceUtil(this, mDchaService).setPreferredHomeApp(resolveInfo.activityInfo.packageName,
                         Preferences.load(this, Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, ""))) {
                     // 失敗
-                    Toast.makeText(this, R.string.toast_not_install_launcher, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
                     return false;
                 }
             } else {

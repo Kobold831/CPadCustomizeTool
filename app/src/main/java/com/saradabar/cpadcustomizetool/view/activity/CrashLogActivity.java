@@ -42,7 +42,7 @@ public class CrashLogActivity extends AppCompatActivity {
         if (!Preferences.load(this, Constants.KEY_STRINGS_CRASH_LOG, "").isEmpty()) {
             addText(Preferences.load(this, Constants.KEY_STRINGS_CRASH_LOG, ""));
         } else {
-            addText(getString(R.string.logger_empty));
+            addText(getString(R.string.no_log));
         }
     }
 

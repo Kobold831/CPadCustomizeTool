@@ -94,7 +94,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                 } catch (ActivityNotFoundException ignored) {
                 }
             } else {
-                Toast.makeText(requireActivity(), R.string.toast_no_development_option, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireActivity(), R.string.toast_no_debug_option, Toast.LENGTH_SHORT).show();
             }
             return false;
         });
@@ -110,7 +110,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
         preScreenOffTimeOut.setOnPreferenceClickListener(preference -> {
             View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
             EditText editText = view.findViewById(R.id.time_out_edit);
-            editText.setHint(getString(R.string.layout_time_out_hint, String.valueOf(Integer.MAX_VALUE)));
+            editText.setHint(getString(R.string.time_out_hint, String.valueOf(Integer.MAX_VALUE)));
             setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
             new AlertDialog.Builder(requireActivity())
                     .setView(view)
@@ -122,9 +122,9 @@ public class OtherFragment extends PreferenceFragmentCompat {
                             setSummaryScreenOffTimeConvert();
                         } catch (Exception e) {
                             new AlertDialog.Builder(requireActivity())
-                                    .setTitle(R.string.dialog_error)
+                                    .setTitle(R.string.dialog_title_error)
                                     .setMessage(e.getMessage())
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         }
                     })
@@ -138,9 +138,9 @@ public class OtherFragment extends PreferenceFragmentCompat {
                     setSummaryScreenOffTimeConvert();
                 } catch (Exception e) {
                     new AlertDialog.Builder(requireActivity())
-                            .setTitle(R.string.dialog_error)
+                            .setTitle(R.string.dialog_title_error)
                             .setMessage(e.getMessage())
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                            .setPositiveButton(R.string.dialog_common_ok, null)
                             .show();
                 }
             });
@@ -150,7 +150,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
         preSleepTimeout.setOnPreferenceClickListener(preference -> {
             View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
             EditText editText = view.findViewById(R.id.time_out_edit);
-            editText.setHint(getString(R.string.layout_time_out_hint, String.valueOf(Integer.MAX_VALUE)));
+            editText.setHint(getString(R.string.time_out_hint, String.valueOf(Integer.MAX_VALUE)));
             setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
             new AlertDialog.Builder(requireActivity())
                     .setView(view)
@@ -161,9 +161,9 @@ public class OtherFragment extends PreferenceFragmentCompat {
                             Settings.Secure.putInt(requireActivity().getContentResolver(), "sleep_timeout", Integer.parseInt(editText.getText().toString()));
                         } catch (Exception e) {
                             new AlertDialog.Builder(requireActivity())
-                                    .setTitle(R.string.dialog_error)
+                                    .setTitle(R.string.dialog_title_error)
                                     .setMessage(e.getMessage())
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         }
                     })
@@ -176,9 +176,9 @@ public class OtherFragment extends PreferenceFragmentCompat {
                     setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
                 } catch (Exception e) {
                     new AlertDialog.Builder(requireActivity())
-                            .setTitle(R.string.dialog_error)
+                            .setTitle(R.string.dialog_title_error)
                             .setMessage(e.getMessage())
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> dialog1.dismiss())
+                            .setPositiveButton(R.string.dialog_common_ok, null)
                             .show();
                 }
             });
@@ -213,17 +213,17 @@ public class OtherFragment extends PreferenceFragmentCompat {
                     startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(dataList.get(position).packName));
                 } catch (Exception e) {
                     new AlertDialog.Builder(requireActivity())
-                            .setTitle("エラーが発生しました")
+                            .setTitle(R.string.dialog_title_error)
                             .setMessage(e.getMessage())
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                            .setPositiveButton(R.string.dialog_common_ok, null)
                             .show();
                 }
             });
 
             new AlertDialog.Builder(requireActivity())
                     .setView(view)
-                    .setTitle("アプリを選択してください")
-                    .setPositiveButton(R.string.dialog_common_cancel, (dialog, which) -> dialog.dismiss())
+                    .setTitle("アプリを選択")
+                    .setPositiveButton(R.string.dialog_common_cancel, null)
                     .show();
             return false;
         });
@@ -259,7 +259,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
         date = calendar.getTime();
         DateFormat df = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss", Locale.JAPAN);
 
-        textView.setText(getString(R.string.layout_time_out_label, Settings.System.getInt(requireActivity().getContentResolver(), "screen_off_timeout", 60) + "（" + time + "）", day + "日" + hour + "時間" + min + "分" + sec + "秒", df.format(date)));
+        textView.setText(getString(R.string.time_out_label, Settings.System.getInt(requireActivity().getContentResolver(), "screen_off_timeout", 60) + "（" + time + "）", day + "日" + hour + "時間" + min + "分" + sec + "秒", df.format(date)));
     }
 
     private void setSummaryScreenOffTimeConvert() {

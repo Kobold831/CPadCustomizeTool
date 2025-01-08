@@ -37,6 +37,7 @@ public class ProgressHandler extends Handler {
         }
 
         if (fileDownloadTask.isFinish()) {
+            fileDownloadTask.onProgressUpdate(100);
             return;
         }
 

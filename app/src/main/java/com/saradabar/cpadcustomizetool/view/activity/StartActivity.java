@@ -204,8 +204,8 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
                     new AlertDialog.Builder(this)
                             .setMessage("新しいバージョンが利用可能です。")
-                            .setPositiveButton("更新", (dialog, which) -> startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
-                            .setNegativeButton("キャンセル", null)
+                            .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                            .setNegativeButton(getString(R.string.dialog_common_cancel), null)
                             .show();
                 }
             } catch (Exception ignored) {
@@ -286,11 +286,11 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                         .setTitle("解像度の変更を適用しますか？")
                         .setCancelable(false)
                         .setMessage("")
-                        .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             dialog.dismiss();
                             mHandler.removeCallbacks(mRunnable);
                         })
-                        .setNegativeButton(R.string.dialog_common_no, (dialog, which) -> {
+                        .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> {
                             dialog.dismiss();
                             mHandler.removeCallbacks(mRunnable);
                             resetResolution();
@@ -329,16 +329,17 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
             @Override
             public void onFailure() {
                 new AlertDialog.Builder(StartActivity.this)
-                        .setMessage(getString(R.string.dialog_info_failure))
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setMessage(getString(R.string.dialog_error))
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
 
             @Override
             public void onError(String message) {
                 new AlertDialog.Builder(StartActivity.this)
-                        .setMessage(getString(R.string.dialog_error) + "\n" + message)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setTitle(getString(R.string.dialog_title_error))
+                        .setMessage(message)
+                        .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
         };
@@ -366,7 +367,8 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 Class.forName("android.view.IWindowManager").getMethod(method, int.class, int.class, int.class).invoke(IWindowManager.Stub.asInterface(ServiceManager.getService("window")), Display.DEFAULT_DISPLAY, width, height);
             } catch (InvocationTargetException e) {
                 new AlertDialog.Builder(this)
-                        .setMessage(getString(R.string.dialog_error) + "\n" + e.getTargetException())
+                        .setTitle(getString(R.string.dialog_title_error))
+                        .setMessage(e.getTargetException().toString())
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             } catch (Exception ignored) {

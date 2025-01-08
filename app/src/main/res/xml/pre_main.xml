@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
-        android:key="pre_notice" />
+        android:key="pre_notice"
+        android:title="notice" />
 
     <PreferenceCategory
         android:title="@string/pre_main_category_system_ui"
@@ -74,7 +75,7 @@
             android:key="emergency_mode"
             android:title="@string/pre_main_title_select_course"
             android:summary="緊急モードを使用するときは、受講中の講座に設定されていることを確認してください。"
-            android:dialogTitle="@string/dialog_emergency_select_course"
+            android:dialogTitle="@string/pre_main_title_select_course"
             android:defaultValue="1"
             android:entries="@array/mode_text"
             android:entryValues="@array/mode_value" />

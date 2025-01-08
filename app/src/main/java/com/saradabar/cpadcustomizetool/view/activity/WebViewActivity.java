@@ -50,7 +50,7 @@ public class WebViewActivity extends AppCompatActivity {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 if (getSupportActionBar() != null) {
-                    getSupportActionBar().setTitle("読み込み中");
+                    getSupportActionBar().setTitle("読み込みしています");
                     getSupportActionBar().setSubtitle(url);
                 }
             }

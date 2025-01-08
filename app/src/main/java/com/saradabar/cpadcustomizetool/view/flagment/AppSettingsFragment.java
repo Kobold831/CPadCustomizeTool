@@ -94,14 +94,14 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         preDelCrashLog.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
                     .setMessage("消去しますか？")
-                    .setPositiveButton(R.string.dialog_common_yes, (dialog, which) -> {
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         Preferences.delete(requireActivity(), Constants.KEY_STRINGS_CRASH_LOG);
                         new AlertDialog.Builder(requireActivity())
                                 .setMessage("消去しました。")
                                 .setPositiveButton(R.string.dialog_common_ok, null)
                                 .show();
                     })
-                    .setNegativeButton(R.string.dialog_common_no, null)
+                    .setNegativeButton(R.string.dialog_common_cancel, null)
                     .show();
             return false;
         });
@@ -125,13 +125,14 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             listView.setOnItemClickListener((parent, mView, position, id) -> {
                 switch (position) {
                     case 0:
-                        if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2 ||
+                                Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
                             Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
                             new AlertDialog.Builder(requireActivity())
-                                    .setMessage(getString(R.string.dialog_error_not_work_mode))
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                    .setMessage(getString(R.string.dialog_error_no_mode))
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         }
                         break;
@@ -146,14 +147,14 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                                 listView.invalidateViews();
                             } else {
                                 new AlertDialog.Builder(requireActivity())
-                                        .setMessage(getString(R.string.dialog_error_not_work_mode))
-                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                        .setMessage(getString(R.string.dialog_error_no_mode))
+                                        .setPositiveButton(R.string.dialog_common_ok, null)
                                         .show();
                             }
                         } else {
                             new AlertDialog.Builder(requireActivity())
                                     .setMessage(getString(R.string.pre_app_sum_confirmation_dcha))
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         }
                         break;
@@ -163,8 +164,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                             listView.invalidateViews();
                         } else {
                             new AlertDialog.Builder(requireActivity())
-                                    .setMessage(getString(R.string.dialog_error_not_work_mode))
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                    .setMessage(getString(R.string.dialog_error_no_mode))
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         }
                         break;
@@ -175,7 +176,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                                     new AlertDialog.Builder(requireActivity())
                                             .setCancelable(false)
                                             .setMessage("Dhizuku の互換性がありません。バージョン 2.8 の Dhizuku をインストールしてください。")
-                                            .setPositiveButton("OK", null)
+                                            .setPositiveButton(getString(R.string.dialog_common_ok), null)
                                             .show();
                                     return;
                                 } else {
@@ -186,8 +187,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                             }
                         } else {
                             new AlertDialog.Builder(requireActivity())
-                                    .setMessage(getString(R.string.dialog_error_not_work_mode))
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                    .setMessage(getString(R.string.dialog_error_no_mode))
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         }
                         break;
@@ -197,7 +198,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             new AlertDialog.Builder(requireActivity())
                     .setView(v)
                     .setTitle(getString(R.string.dialog_title_select_mode))
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                    .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
             return false;
         });
@@ -210,7 +211,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         preClearCache.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
                     .setMessage("消去しますか？")
-                    .setPositiveButton("OK", (dialog, which) -> {
+                    .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> {
                         if (requireActivity().getCacheDir().delete()) {
                             if (Common.deleteDirectory(requireActivity().getExternalCacheDir())) {
                                 new AlertDialog.Builder(requireActivity())
@@ -225,19 +226,19 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                                     .show();
                         }
                     })
-                    .setNegativeButton("キャンセル", null)
+                    .setNegativeButton(getString(R.string.dialog_common_cancel), null)
                     .show();
             return false;
         });
 
         preClearData.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
-                    .setMessage("消去しますか？\nOK を押下すると、アプリは終了します。")
-                    .setPositiveButton("OK", (dialog, which) -> {
+                    .setMessage("消去しますか？ OK を押下すると、アプリは終了します。")
+                    .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> {
                         ActivityManager activityManager = (ActivityManager) requireActivity().getSystemService(Service.ACTIVITY_SERVICE);
                         activityManager.clearApplicationUserData();
                     })
-                    .setNegativeButton("キャンセル", null)
+                    .setNegativeButton(getString(R.string.dialog_common_cancel), null)
                     .show();
             return false;
         });

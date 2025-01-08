@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
-        android:text="@string/layout_update_info" />
+        android:text="@string/view_update_text_info" />
 
     <TextView
         android:textColor="@android:color/black"
@@ -29,5 +29,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
-        android:text="@string/layout_update_detail_info" />
+        android:text="@string/view_update_button_detail_info" />
 </LinearLayout>

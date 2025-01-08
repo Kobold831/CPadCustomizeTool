@@ -13,13 +13,13 @@
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/layout_resolution_width"
+        android:hint="@string/view_resolution_text_width"
         android:inputType="number" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/layout_resolution_x" />
+        android:text="@string/view_resolution_text_x" />
 
     <EditText
         android:id="@+id/edit_text_2"
@@ -28,6 +28,6 @@
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/layout_resolution_height"
+        android:hint="@string/view_resolution_text_height"
         android:inputType="number" />
 </LinearLayout>

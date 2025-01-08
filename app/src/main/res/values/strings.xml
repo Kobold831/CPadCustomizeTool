@@ -10,7 +10,7 @@
      *
      * -->
 <resources>
-    <!-- アプリ・アクティビティ -->
+    <!-- アプリ、アクティビティの名前 -->
     <string name="app_name">CPad Customize Tool</string>
     <string name="activity_main">カスタマイズツール</string>
     <string name="activity_start">設定</string>
@@ -114,89 +114,74 @@
     <string name="pre_other_title_adjustment">システム UI 調整ツールを開く</string>
     <string name="pre_other_title_screen_off_time">スリープ</string>
 
-    <!-- その他の設定 -->
-    <string name="un_text_1">すべて無効</string>
-    <string name="un_text_2">すべて有効</string>
-
     <!-- メニュー -->
     <string name="menu_app_info">アプリ情報</string>
     <string name="menu_app_settings">アプリ設定</string>
     <string name="menu_app_update">アップデート</string>
 
-    <!-- ダイアログ -->
-    <!-- ダイアログ共通 -->
+    <!-- ダイアログボタン -->
     <string name="dialog_common_ok">OK</string>
-    <string name="dialog_common_yes">はい</string>
-    <string name="dialog_common_no">いいえ</string>
-    <string name="dialog_common_settings">設定</string>
-    <string name="dialog_common_exit">終了</string>
     <string name="dialog_common_cancel">キャンセル</string>
-    <string name="dialog_common_continue">続行</string>
-    <string name="dialog_common_check">確認</string>
+
     <!-- ダイアログタイトル -->
     <string name="dialog_title_update">アプリの更新</string>
-    <string name="dialog_title_common_error">エラーの発生</string>
     <string name="dialog_title_error">エラーの発生</string>
     <string name="dialog_title_notice_start">はじめに</string>
     <string name="dialog_title_grant_permission">権限設定</string>
-    <string name="dialog_title_dcha_service">以下の内容を確認</string>
     <string name="dialog_title_emergency_manual">緊急モード</string>
     <string name="dialog_title_normal_manual">通常モード</string>
     <string name="dialog_title_resolution">値を入力</string>
     <string name="dialog_title_launcher">ランチャーを選択</string>
-    <string name="dialog_title_final_confirmation">最終確認</string>
     <string name="dialog_title_select_mode">モードを選択</string>
+
     <!-- ダイアログメッセージ -->
-    <string name="dialog_notice_start">ウイルス対策アプリなどに脅威として検知される場合があります。検知された場合は、除外設定してください。このダイアログは以降表示されません。</string>
+    <string name="dialog_app_start_message">ウイルス対策アプリなどに脅威として検知される場合があります。検知された場合は、除外設定してください。このダイアログは以降表示されません。</string>
     <string name="dialog_emergency_select_course">受講中の講座を選択してください。</string>
     <string name="dialog_mode_select_settings">変更する設定を選択してください。\n設定後は OK を押してください。</string>
     <string name="dialog_emergency_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.EmergencyActivity を追加して起動してください。\n</string>
     <string name="dialog_emergency_manual_red">システムUIを変更するためアクティビティや他のアプリを起動させるアプリをインストールしておかないと初期化以外に勉強ホームから抜け出すことができなくなります。\nアプリ履歴を全消去はナビゲーションバーの□ボタンを押すと表示されるアプリ履歴のアプリを終了します。</string>
     <string name="dialog_normal_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.NormalActivity を追加して起動してください。</string>
-    <string name="dialog_confirmation">このデバイスのシステム領域を DchaService が変更していないことを検知しました。続行すると一部の動作がシステムで制限される可能性があります。</string>
-    <string name="dialog_final_confirmation">続行するとこの操作は取り消せません。警告は無効になります。</string>
-    <!-- 情報 -->
-    <string name="dialog_info_failure">失敗しました。</string>
-    <string name="dialog_info_no_update">アップデートはありません。</string>
-    <string name="dialog_info_failure_silent_install">サイレントインストールに失敗しました。</string>
-    <string name="dialog_info_success_silent_install">サイレントインストールに成功しました。</string>
-    <string name="dialog_info_update_caution">インストーラーが設定されていません。インストーラーを選択して設定してください。 ADB でインストールするには、次の URL から PC でダウンロードしてください。\n%1$s</string>
-    <string name="dialog_info_dhizuku_grant_permission">Dhizuku へのアクセス権限は付与されました。</string>
-    <string name="dialog_info_dhizuku_deny_permission">Dhizuku へのアクセス権限は拒否されました。</string>
-    <string name="dialog_info_dhizuku_already_grant_permission">Dhizuku へのアクセス権限は付与されています。</string>
+    <string name="dialog_dcha_warning">このデバイスのシステム領域を DchaService が変更していないことを検知しました。続行すると一部の動作がシステムで制限される可能性があります。</string>
+    <string name="dialog_failure">失敗しました。</string>
+    <string name="dialog_no_update">アップデートはありません。</string>
+    <string name="dialog_failure_silent_install">サイレントインストールに失敗しました。</string>
+    <string name="dialog_success_silent_install">サイレントインストールに成功しました。</string>
+    <string name="dialog_no_installer">インストーラーが設定されていません。インストーラーを選択して設定してください。 ADB でインストールするには、次の URL から PC でダウンロードしてください。\n%1$s</string>
+    <string name="dialog_dhizuku_grant_permission">Dhizuku へのアクセス権限は付与されました。</string>
+    <string name="dialog_dhizuku_deny_permission">Dhizuku へのアクセス権限は拒否されました。</string>
+    <string name="dialog_dhizuku_already_grant_permission">Dhizuku へのアクセス権限は付与されています。</string>
+    <string name="dialog_question_reboot">デバイスを再起動しますか？</string>
+    <string name="dialog_question_dcha">DchaService の機能を使用しますか？</string>
+    <string name="dialog_question_owner">デバイスオーナーを解除しますか？</string>
+    <string name="dialog_question_admin">この操作を行うと学習環境のときに、アプリがアンインストールされる可能性があります。</string>
+
     <!-- ダイアログエラー -->
-    <string name="dialog_error_crash">致命的なエラーが発生しました。続行を押すと、メイン画面に戻ります。\n\n繰り返し発生する場合は 報告 を押してクラッシュログを開発者に報告できます。クラッシュログは 報告 を押すと自動でコピーされますので、表示されるフォームの入力欄に貼り付けてください。\n報告手順\n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します。\n・最新バージョンであれば「はい」を押して「次へ」を押します。\n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します。\n\nクラッシュログを確認、またはコピーしたいときは「確認」を押してください。</string>
+    <string name="dialog_error_crash">致命的なエラーが発生しました。 OK を押すと、メイン画面に戻ります。\n\n繰り返し発生する場合は 報告 を押してクラッシュログを開発者に報告できます。クラッシュログは 報告 を押すと自動でコピーされますので、表示されるフォームの入力欄に貼り付けてください。\n報告手順\n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します。\n・最新バージョンであれば「はい」を押して「次へ」を押します。\n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します。\n\nクラッシュログを確認、またはコピーしたいときは 確認 を押してください。</string>
     <string name="dialog_error">エラーが発生しました。</string>
-    <string name="dialog_error_start_connection">サーバーと接続できませんでした。通信状態を確認してください。</string>
-    <string name="dialog_error_start_wifi">通信エラーが発生しました。ネットワークに接続してください。</string>
-    <string name="dialog_error_start_dcha_service">DchaService が動作していません。続行を押すと、メイン画面に戻ります。</string>
-    <string name="dialog_error_start_cpad">この端末はサポートされていません。このアプリは使用できません。</string>
-    <string name="dialog_error_start_permission">システム設定の変更が許可されていません。設定を押すと表示されるスイッチを有効にしてください。</string>
-    <string name="dialog_error_not_work_dcha">DchaService が動作していないため、この機能は使用できません。</string>
-    <string name="dialog_error_not_work_dcha_util">DchaUtilService が動作していないため、この機能は使用できません。</string>
+    <string name="dialog_error_connection">"データ取得に失敗しました。ネットワークを確認してください。"</string>
+    <string name="dialog_error_download">"ダウンロードに失敗しました。ネットワークを確認してください。"</string>
+    <string name="dialog_error_check_dcha">DchaService が動作していません。 OK を押すと、メイン画面に戻ります。</string>
+    <string name="dialog_error_check_device">この端末はサポートされていません。このアプリは使用できません。</string>
+    <string name="dialog_error_check_permission">システム設定権限を付与してください。権限を付与される場合は OK を押下してください。</string>
+    <string name="dialog_error_no_dcha">DchaService が動作していないため、この機能は使用できません。</string>
+    <string name="dialog_error_no_dcha_util">DchaUtilService が動作していないため、この機能は使用できません。</string>
     <string name="dialog_error_illegal_value">値が不正なため変更できません。入力した値が極端ではないことを確認してください。</string>
     <string name="dialog_error_no_file_browse">ファイルブラウザがインストールされていません。</string>
     <string name="dialog_error_no_file_data">ファイルデータを取得できませんでした。</string>
-    <string name="dialog_error_not_work_mode">選択されたモードは機能していません。</string>
-    <string name="dialog_error_reset_update_mode">エラーが発生したため、インストールモードをリセットしました。</string>
-    <string name="dialog_error_dhizuku_conn_failure">Dhizuku との通信に失敗しました。</string>
-    <!-- ダイアログ操作許可 -->
-    <string name="dialog_question_reboot">デバイスを再起動しますか？</string>
-    <string name="dialog_question_dcha_service">DchaService の機能を使用しますか？</string>
-    <string name="dialog_question_device_owner">デバイスオーナーを解除しますか？</string>
-    <string name="dialog_question_device_admin">この操作を行うと学習環境のときに、アプリがアンインストールされる可能性があります。</string>
-    <string name="dialog_question_are_you_sure">本当によろしいですか？</string>
+    <string name="dialog_error_no_mode">選択されたモードは機能していません。</string>
+    <string name="dialog_error_reset_installer">エラーが発生しました。インストールモードをリセットしました。</string>
+    <string name="dialog_error_no_dhizuku">Dhizuku との通信に失敗しました。</string>
     
     <!-- トースト -->
-    <string name="toast_common_success">成功しました</string>
+    <string name="toast_success">成功しました</string>
     <string name="toast_execution">実行しました</string>
-    <string name="toast_not_course">講座が存在しません</string>
-    <string name="toast_not_install_launcher">ホームが存在しません</string>
-    <string name="toast_use_not_dcha">DchaService 機能を有効にしてください</string>
-    <string name="toast_not_completed_settings">初期設定をしてください</string>
-    <string name="toast_not_change">権限を付与してください</string>
-    <string name="toast_unknown_activity">ブラウザを開けませんでした</string>
-    <string name="toast_no_development_option">開発者向けオプションを有効にしてください</string>
+    <string name="toast_no_course">講座が存在しません</string>
+    <string name="toast_no_home">ホームが存在しません</string>
+    <string name="toast_enable_dcha">DchaService 機能を有効にしてください</string>
+    <string name="toast_no_setting_app">初期設定をしてください</string>
+    <string name="toast_no_permission">権限を付与してください</string>
+    <string name="toast_no_browser">ブラウザを開けませんでした</string>
+    <string name="toast_no_debug_option">開発者向けオプションを有効にしてください</string>
 
     <!-- アプリ情報 -->
     <string name="info_app_info">アプリの情報</string>
@@ -211,34 +196,37 @@
     <string name="info_library_awayume_label">・粟夢 (Awayume)\n不具合修正のご協力</string>
     <string name="info_library_syuugo_label">・しゅーご (Syuugo)\n不具合修正\nアプリの最適化\n機能修正のご協力</string>
     <string name="info_library_naniwara_label">・なにわらマサト\ncpad_grid_icon_v2.webp</string>
-    <string name="info_library_other_label">敬称略・順不同で記載しています。\n著作物はその著作権者に帰属されます。</string>
+    <string name="info_library_other_label">敬称略・順不同で記載しています。著作物はその著作権者に帰属されます。</string>
     <string name="info_github">GitHub</string>
-    <string name="info_github_label">このアプリのソースコードを取得できます。\nバグ報告もここから行えます。</string>
+    <string name="info_github_label">このアプリのソースコードを取得できます。</string>
     <string name="info_github_button">取得</string>
     
     <!-- レイアウト -->
-    <string name="layout_img_content_description">icon</string>
-    <string name="layout_update_info">アップデートがあります。アップデートしますか？\n\n更新情報：\n</string>
-    <string name="layout_update_detail_info">詳細な更新情報</string>
-    <string name="layout_resolution_width">横の解像度</string>
-    <string name="layout_resolution_x">x</string>
-    <string name="layout_resolution_height">縦の解像度</string>
-    <string name="layout_time_out_hint">最大値：%1$s</string>
-    <string name="layout_time_out_label">単位：ミリ秒（1秒1000ミリ秒）\n設定値：%1$s\n推定時間：%2$s\n推定時刻：%3$s</string>
-    <string name="layout_time_out_button">最大値</string>
+    <string name="img_content_description">icon</string>
+    <string name="layout_un_list_button_1">すべて無効</string>
+    <string name="layout_un_list_button_2">すべて有効</string>
+    <string name="view_update_text_info">アップデートがあります。アップデートしますか？\n更新情報：\n</string>
+    <string name="view_update_button_detail_info">詳細な更新情報</string>
+    <string name="view_resolution_text_width">横の解像度</string>
+    <string name="view_resolution_text_x">x</string>
+    <string name="view_resolution_text_height">縦の解像度</string>
 
-    <!-- クラス -->
+    <!-- その他 -->
     <string name="percent">%</string>
-    <string name="shortcut_reboot">再起動</string>
-    <string name="logger_empty">ログはありません。</string>
-    <string name="progress_state_connecting">通信しています…\n画面を切り替えないでください。</string>
-    <string name="progress_state_downloading_update_file">アップデートファイルをサーバーからダウンロードしています…\n画面を切り替えないでください。</string>
-    <string name="progress_state_update_check">アプリの更新を確認しています…\n画面を切り替えないでください。</string>
-    <string name="progress_state_rename">拡張子を変更しています…\n画面を切り替えないでください。</string>
-    <string name="progress_state_unpack">圧縮ファイルを展開しています…\n画面を切り替えないでください。</string>
-    <string name="progress_state_copy_file">データをコピーしています…\n画面を切り替えないでください。</string>
-    <string name="progress_state_check_file">データを確認しています…\n画面を切り替えないでください。</string>
-    <string name="progress_state_installing">インストールしています…\n画面を切り替えないでください。</string>
+    <string name="reboot">再起動</string>
+    <string name="no_log">ログはありません。</string>
+    <string name="time_out_hint">最大値：%1$s</string>
+    <string name="time_out_label">単位：ミリ秒（1秒1000ミリ秒）\n設定値：%1$s\n推定時間：%2$s\n推定時刻：%3$s</string>
+    <string name="time_out_button">最大値</string>
+
+    <!-- 進行バー -->
+    <string name="progress_state_connecting">サーバーと通信しています。画面を切り替えないでください。</string>
+    <string name="progress_state_download_file">ファイルをサーバーからダウンロードしています。画面を切り替えないでください。</string>
+    <string name="progress_state_rename">拡張子を変更しています。画面を切り替えないでください。</string>
+    <string name="progress_state_unpack">圧縮ファイルを展開しています。画面を切り替えないでください。</string>
+    <string name="progress_state_copy_file">データをコピーしています。画面を切り替えないでください。</string>
+    <string name="progress_state_check_file">データを確認しています。画面を切り替えないでください。</string>
+    <string name="progress_state_installing">インストールしています。画面を切り替えないでください。</string>
 
     <!-- インストーラー -->
     <string name="installer_status_user_action">ユーザの確認が必要です。</string>
