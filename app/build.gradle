@@ -3,18 +3,18 @@ plugins {
 }
 
 android {
-    namespace 'com.saradabar.cpadcustomizetool'
-    compileSdk 34
+    namespace = 'com.saradabar.cpadcustomizetool'
+    compileSdk = 35
 
     defaultConfig {
-        minSdk 22
+        minSdk = 22
         //noinspection ExpiredTargetSdkVersion
-        targetSdk 22
-        versionCode 57
-        versionName "2.5.0"
+        targetSdk = 22
+        versionCode = 57
+        versionName = "2.5.0"
         proguardFiles += "proguard-rules.pro"
         resourceConfigurations += "ja"
-        multiDexEnabled true
+        multiDexEnabled = true
     }
 
     signingConfigs {
@@ -24,24 +24,15 @@ android {
             keyAlias 'android'
             keyPassword 'android'
         }
-        release {
-            storeFile file('release.jks')
-            storePassword System.getenv('STORE_PASSWORD')
-            keyAlias System.getenv('KEY_ALIAS')
-            keyPassword System.getenv('KEY_PASSWORD')
-        }
     }
 
     buildTypes {
         configureEach {
-            minifyEnabled true
-            shrinkResources true
-            signingConfig signingConfigs.android
+            signingConfig = signingConfigs.android
         }
         release {
-            if (file('release.jks').exists()) {
-                signingConfig signingConfigs.release
-            }
+            minifyEnabled = true
+            shrinkResources = true
             ndk {
                 //noinspection ChromeOsAbiSupport
                 abiFilters += "arm64-v8a"
@@ -50,17 +41,17 @@ android {
     }
 
     buildFeatures {
-        aidl true
-        buildConfig true
+        aidl = true
+        buildConfig = true
     }
 
     lint {
-        checkReleaseBuilds false
+        checkReleaseBuilds = false
     }
     
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 }
 

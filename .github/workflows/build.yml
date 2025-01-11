@@ -2,12 +2,6 @@ name: Build
 
 on:
   push:
-    paths:
-      - '.github/workflows/build.yml'
-      - 'app/**'
-      - 'gradle/**'
-      - '*.gradle'
-      - '*.properties'
   pull_request:
   workflow_dispatch:
 
@@ -28,28 +22,28 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: 21
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Set environments
         run: |
           {
-            echo "version=Ver.$(grep versionName app/build.gradle | awk '{print $2}' | tr -d \")"
+            echo "version=Ver.$(grep versionName app/build.gradle | awk -F\" '{print $2}')"
             echo "commit=$(echo ${{ github.sha }} | cut -c-7)"
             echo "repo=$(echo ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/})"
           } >> $GITHUB_ENV
 
-      - name: Build with Gradle
-        run: ./gradlew assembleDebug --no-daemon
+      - name: Build
+        run: ./gradlew assembleDebug --no-daemon --stacktrace --warning-mode=all
 
       - name: Attest
         uses: actions/attest-build-provenance@v1
         with:
           subject-path: app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Upload APK
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.repo }}(${{ env.version }}@${{ env.commit }})
