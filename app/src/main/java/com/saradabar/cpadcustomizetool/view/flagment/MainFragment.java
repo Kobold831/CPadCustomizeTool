@@ -1250,7 +1250,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 new AlertDialog.Builder(requireActivity())
                         .setView(view)
                         .setTitle("アプリを選択")
-                        .setMessage("選択して OK を押下すると詳細な情報が表示されます。")
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             StringBuilder str = new StringBuilder();
 
@@ -1261,10 +1260,12 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                         JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), "Check.json"));
                                         JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                                         JSONArray jsonArray = jsonObj2.getJSONArray("appList");
-                                        str.append("アプリ名：").append(jsonArray.getJSONObject(i).getString("name")).append("\n\n").append("説明：").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
+                                        str.append("アプリ名：").append("\n").append(jsonArray.getJSONObject(i).getString("name")).append("\n\n").append("説明：").append("\n").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
                                         downloadFileUrl = jsonArray.getJSONObject(i).getString("url");
                                     } catch (Exception ignored) {
                                     }
+                                    // 選択されていればそこで終了
+                                    break;
                                 }
                             }
 
