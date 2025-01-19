@@ -47,7 +47,6 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -1243,7 +1242,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
                 listView.setAdapter(new GetAppListView.AppListAdapter(requireActivity(), appDataArrayList));
                 listView.setOnItemClickListener((parent, view1, position, id) -> {
-                    Preferences.save(requireActivity(), Constants.KEY_INT_GET_APP_TMP, (int) id);
+                    // 選択位置を保存
+                    Preferences.save(requireActivity(), Constants.KEY_INT_GET_APP_TMP, position);
                     listView.invalidateViews();
                 });
 
@@ -1252,21 +1252,24 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         .setTitle("アプリを選択")
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             StringBuilder str = new StringBuilder();
+                            // 選択位置参照
+                            int i = Preferences.load(requireActivity(), Constants.KEY_INT_GET_APP_TMP, 0);
 
-                            for (int i = 0; i < listView.getCount(); i++) {
-                                RadioButton radioButton = listView.getChildAt(i).findViewById(R.id.v_app_list_radio);
-                                if (radioButton.isChecked()) {
-                                    try {
-                                        JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), "Check.json"));
-                                        JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-                                        JSONArray jsonArray = jsonObj2.getJSONArray("appList");
-                                        str.append("アプリ名：").append("\n").append(jsonArray.getJSONObject(i).getString("name")).append("\n\n").append("説明：").append("\n").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
-                                        downloadFileUrl = jsonArray.getJSONObject(i).getString("url");
-                                    } catch (Exception ignored) {
-                                    }
-                                    // 選択されていればそこで終了
-                                    break;
-                                }
+                            try {
+                                JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), "Check.json"));
+                                JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
+                                JSONArray jsonArray = jsonObj2.getJSONArray("appList");
+                                str.append("アプリ名：")
+                                        .append("\n")
+                                        .append(jsonArray.getJSONObject(i).getString("name"))
+                                        .append("\n\n")
+                                        .append("説明：")
+                                        .append("\n")
+                                        .append(jsonArray.getJSONObject(i).getString("description"))
+                                        .append("\n");
+                                downloadFileUrl = jsonArray.getJSONObject(i).getString("url");
+                            } catch (Exception ignored) {
+                                return;
                             }
 
                             if (str.toString().isEmpty()) {
