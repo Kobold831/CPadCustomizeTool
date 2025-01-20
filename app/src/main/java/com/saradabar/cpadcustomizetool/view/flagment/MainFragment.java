@@ -1229,10 +1229,26 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONArray jsonArray = jsonObj2.getJSONArray("appList");
 
+                    String model = "";
+
+                    switch (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, 0)) {
+                        case Constants.MODEL_CT2 -> model = "CT2";
+                        case Constants.MODEL_CT3 -> model = "CT3";
+                        case Constants.MODEL_CTX -> model = "CTX";
+                        case Constants.MODEL_CTZ -> model = "CTZ";
+                    }
+
                     for (int i = 0; i < jsonArray.length(); i++) {
-                        GetAppListView.AppData data = new GetAppListView.AppData();
-                        data.str = jsonArray.getJSONObject(i).getString("name");
-                        appDataArrayList.add(data);
+                        JSONArray jsonArray1 = jsonArray.getJSONObject(i).getJSONArray("targetModel");
+                        for (int s = 0; s < jsonArray1.length(); s++) {
+                            if (Objects.equals(jsonArray1.getString(s), model)) {
+                                GetAppListView.AppData data = new GetAppListView.AppData();
+                                data.name = jsonArray.getJSONObject(i).getString("name");
+                                data.description = jsonArray.getJSONObject(i).getString("description");
+                                data.url = jsonArray.getJSONObject(i).getString("url");
+                                appDataArrayList.add(data);
+                            }
+                        }
                     }
                 } catch (Exception ignored) {
                 }
@@ -1255,22 +1271,16 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             // 選択位置参照
                             int i = Preferences.load(requireActivity(), Constants.KEY_INT_GET_APP_TMP, 0);
 
-                            try {
-                                JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), "Check.json"));
-                                JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-                                JSONArray jsonArray = jsonObj2.getJSONArray("appList");
-                                str.append("アプリ名：")
-                                        .append("\n")
-                                        .append(jsonArray.getJSONObject(i).getString("name"))
-                                        .append("\n\n")
-                                        .append("説明：")
-                                        .append("\n")
-                                        .append(jsonArray.getJSONObject(i).getString("description"))
-                                        .append("\n");
-                                downloadFileUrl = jsonArray.getJSONObject(i).getString("url");
-                            } catch (Exception ignored) {
-                                return;
-                            }
+                            str.append("アプリ名：")
+                                    .append("\n")
+                                    .append(appDataArrayList.get(i).name)
+                                    .append("\n\n")
+                                    .append("説明：")
+                                    .append("\n")
+                                    .append(appDataArrayList.get(i).description)
+                                    .append("\n");
+
+                            downloadFileUrl = appDataArrayList.get(i).url;
 
                             if (str.toString().isEmpty()) {
                                 return;

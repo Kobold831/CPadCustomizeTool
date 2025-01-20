@@ -30,7 +30,9 @@ import java.util.List;
 public class GetAppListView {
 
     public static class AppData {
-        public String str;
+        public String name;
+        public String description;
+        public String url;
     }
 
     public static class AppListAdapter extends ArrayAdapter<GetAppListView.AppData> {
@@ -60,7 +62,7 @@ public class GetAppListView {
             final GetAppListView.AppData data = getItem(position);
 
             if (data != null) {
-                holder.tv.setText(data.str);
+                holder.tv.setText(data.name);
             }
 
             /* RadioButtonの更新 */
