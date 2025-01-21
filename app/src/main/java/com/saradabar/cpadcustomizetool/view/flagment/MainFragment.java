@@ -1142,9 +1142,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 .show();
     }
 
-    private void startDownload() {
+    private void startDownload(String str) {
         FileDownloadTask fileDownloadTask = new FileDownloadTask();
-        fileDownloadTask.execute(this, downloadFileUrl, new File(requireActivity().getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
+        fileDownloadTask.execute(this, str, new File(requireActivity().getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
         ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
         progressHandler.fileDownloadTask = fileDownloadTask;
         progressHandler.sendEmptyMessage(0);
@@ -1229,19 +1229,19 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONArray jsonArray = jsonObj2.getJSONArray("appList");
 
-                    String model = "";
+                    String model;
 
                     switch (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, 0)) {
-                        case Constants.MODEL_CT2 -> model = "CT2";
                         case Constants.MODEL_CT3 -> model = "CT3";
                         case Constants.MODEL_CTX -> model = "CTX";
                         case Constants.MODEL_CTZ -> model = "CTZ";
+                        default -> model = "CT2";
                     }
 
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONArray jsonArray1 = jsonArray.getJSONObject(i).getJSONArray("targetModel");
                         for (int s = 0; s < jsonArray1.length(); s++) {
-                            if (Objects.equals(jsonArray1.getString(s), model)) {
+                            if (Objects.equals(jsonArray1.getString(s), model) || jsonArray1.getString(s).isEmpty()) {
                                 GetAppListView.AppData data = new GetAppListView.AppData();
                                 data.name = jsonArray.getJSONObject(i).getString("name");
                                 data.description = jsonArray.getJSONObject(i).getString("description");
@@ -1289,8 +1289,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             new AlertDialog.Builder(requireActivity())
                                     .setMessage(str + "\n" + "よろしければ OK を押下してください。")
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
-                                        if (!Objects.equals(downloadFileUrl, "MYURL")) {
-                                            startDownload();
+                                        if (!Objects.equals(appDataArrayList.get(i).url, "MYURL")) {
+                                            startDownload(appDataArrayList.get(i).url);
                                             dialog.dismiss();
                                         } else {
                                             View view1 = getLayoutInflater().inflate(R.layout.view_app_url, null);
@@ -1301,8 +1301,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                                     .setCancelable(false)
                                                     .setPositiveButton(R.string.dialog_common_ok, (dialog3, which3) -> {
                                                         ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editText.getWindowToken(), 0);
-                                                        downloadFileUrl = editText.getText().toString();
-                                                        startDownload();
+                                                        startDownload(editText.getText().toString());
                                                     })
                                                     .setNegativeButton(R.string.dialog_common_cancel, null)
                                                     .show();
