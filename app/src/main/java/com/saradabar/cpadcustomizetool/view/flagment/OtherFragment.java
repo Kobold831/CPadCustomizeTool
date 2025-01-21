@@ -191,7 +191,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
         });
 
         preLaunchApp.setOnPreferenceClickListener(preference -> {
-            View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_app_list, null);
+            View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_launch_app_list, null);
             List<ApplicationInfo> installedAppList = requireActivity().getPackageManager().getInstalledApplications(0);
             List<LaunchAppListView.AppData> dataList = new ArrayList<>();
 
@@ -205,7 +205,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                 }
             }
 
-            ListView listView = view.findViewById(R.id.app_list);
+            ListView listView = view.findViewById(R.id.launch_app_list);
             listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             listView.setAdapter(new LaunchAppListView.LaunchAppAdapter(requireActivity(), dataList));
             listView.setOnItemClickListener((parent, mView, position, id) -> {
