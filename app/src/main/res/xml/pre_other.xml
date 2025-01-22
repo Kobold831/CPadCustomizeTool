@@ -40,5 +40,9 @@
             android:key="pre_other_launch_app"
             android:title="アプリランチャー"
             android:summary="インストールされている任意のアプリを起動します。" />
+
+        <Preference
+            android:key="pre_other_start_device_info"
+            android:title="デバイス情報" />
     </PreferenceCategory>
 </PreferenceScreen>

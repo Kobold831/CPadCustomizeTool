@@ -31,6 +31,7 @@ import android.widget.Toast;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
+import com.saradabar.cpadcustomizetool.view.activity.DeviceInfoActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
 import com.saradabar.cpadcustomizetool.view.views.LaunchAppListView;
 
@@ -50,7 +51,8 @@ public class OtherFragment extends PreferenceFragmentCompat {
             preScreenOffTimeOut,
             preSleepTimeout,
             preWebView,
-            preLaunchApp;
+            preLaunchApp,
+            preDeviceInfo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,6 +70,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
         preSleepTimeout = findPreference("pre_other_sleep_timeout");
         preWebView = findPreference("pre_other_web_view");
         preLaunchApp = findPreference("pre_other_launch_app");
+        preDeviceInfo = findPreference("pre_other_start_device_info");
 
         preOtherStartSettings.setOnPreferenceClickListener(preference -> {
             try {
@@ -225,6 +228,11 @@ public class OtherFragment extends PreferenceFragmentCompat {
                     .setTitle("アプリを選択")
                     .setPositiveButton(R.string.dialog_common_cancel, null)
                     .show();
+            return false;
+        });
+
+        preDeviceInfo.setOnPreferenceClickListener(preference -> {
+            startActivity(new Intent(requireActivity(), DeviceInfoActivity.class));
             return false;
         });
 

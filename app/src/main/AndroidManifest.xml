@@ -135,6 +135,10 @@
             android:theme="@style/ActionBarTheme"
             android:label="アプリのお知らせ" />
 
+        <activity
+            android:name=".view.activity.DeviceInfoActivity"
+            android:theme="@style/ActionBarTheme" />
+
         <service
             android:name=".data.service.KeepService"
             android:label="@string/service_keep"
