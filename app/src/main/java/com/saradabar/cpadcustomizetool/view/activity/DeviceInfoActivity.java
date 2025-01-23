@@ -1,12 +1,15 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 
 import com.saradabar.cpadcustomizetool.R;
 
@@ -14,21 +17,57 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
 
-public class DeviceInfoActivity extends Activity {
+public class DeviceInfoActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView();
+        setContentView(R.layout.activity_device_info);
 
-        new AlertDialog.Builder(this)
-                .setCancelable(false)
-                .setMessage(getSystemProperties() + System.lineSeparator() + exec() + System.lineSeparator() + getBatteryInfo())
-                .setPositiveButton(getString(R.string.dialog_common_ok), (dialogInterface, i) -> finish())
-                .show();
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        Button button1 = findViewById(R.id.act_device_info_button_1);
+        Button button2 = findViewById(R.id.act_device_info_button_2);
+        Button button3 = findViewById(R.id.act_device_info_button_3);
+
+        button1.setOnClickListener(view -> {
+            ArrayList<String> stringArrayList = new ArrayList<>();
+            stringArrayList.add(getSystemProperties());
+            ListView listView = findViewById(R.id.act_device_info_list);
+            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, stringArrayList));
+            listView.invalidateViews();
+        });
+
+        button2.setOnClickListener(view -> {
+            ArrayList<String> stringArrayList = new ArrayList<>();
+            stringArrayList.add(exec());
+            ListView listView = findViewById(R.id.act_device_info_list);
+            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, stringArrayList));
+            listView.invalidateViews();
+        });
+
+        button3.setOnClickListener(view -> {
+            ArrayList<String> stringArrayList = new ArrayList<>();
+            stringArrayList.add(getBatteryInfo());
+            ListView listView = findViewById(R.id.act_device_info_list);
+            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, stringArrayList));
+            listView.invalidateViews();
+        });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private String getSystemProperties() {
@@ -43,10 +82,10 @@ public class DeviceInfoActivity extends Activity {
                 stringBuilder.append(nextElement).append("=").append(properties.getProperty(nextElement)).append(System.lineSeparator());
             }
         }
-        return stringBuilder.toString();
+        return stringBuilder.toString().trim();
     }
 
-    private StringBuilder exec() {
+    private String exec() {
         Process process;
         BufferedWriter bufferedWriter;
         BufferedReader bufferedReader;
@@ -61,13 +100,14 @@ public class DeviceInfoActivity extends Activity {
             process.waitFor();
 
             String data;
-            while ((data = bufferedReader.readLine()) != null) stringBuilder.append(data).append(System.lineSeparator());
+            while ((data = bufferedReader.readLine()) != null)
+                stringBuilder.append(data).append(System.lineSeparator());
             bufferedReader.close();
             bufferedWriter.close();
             process.destroy();
         } catch (Exception ignored) {
         }
-        return stringBuilder;
+        return stringBuilder.toString().trim();
     }
 
     private String getBatteryInfo() {
@@ -94,6 +134,6 @@ public class DeviceInfoActivity extends Activity {
                 .append("BatteryEnergyCounter=").append(batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_ENERGY_COUNTER)).append(System.lineSeparator())
                 .append("BatteryCurrentNow=").append(batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)).append(System.lineSeparator());
 
-        return stringBuilder.toString();
+        return stringBuilder.toString().trim();
     }
 }
