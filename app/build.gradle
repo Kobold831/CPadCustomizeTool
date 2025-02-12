@@ -35,6 +35,18 @@ android {
         }
     }
 
+    bundle {
+        language {
+            enableSplit = true
+        }
+        density {
+            enableSplit = true
+        }
+        abi {
+            enableSplit = true
+        }
+    }
+
     buildFeatures {
         aidl = true
         buildConfig = true
@@ -52,25 +64,25 @@ android {
 
 dependencies {
 
-    //Lib
+    // Custom Libraries
     compileOnly files('libs/BenesseExtensionLibrary.jar')
     implementation fileTree(dir: 'libs', include: ['IDcha*.jar'])
 
-    //SupportLibrary
+    // Support Library
     implementation 'com.android.support:support-annotations:28.0.0'
     implementation 'com.android.support:support-fragment:28.0.0'
     implementation 'com.android.support:preference-v7:28.0.0'
 
-    //WalkThrough
+    // WalkThrough
     implementation files('libs/welcome-android.aar')
     //implementation 'com.stephentuso:welcome:1.4.1'
 
-    //ZipLib
+    // ZipLib
     implementation 'org.zeroturnaround:zt-zip:1.12'
 
-    //Dhizuku
+    // Dhizuku
     implementation 'io.github.iamr0s:Dhizuku-API:2.4'
 
-    //HiddenApiBypass
+    // HiddenApiBypass
     compileOnly 'dev.rikka.hidden:stub:4.3.2'
 }
