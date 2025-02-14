@@ -70,8 +70,7 @@ public class ApkSCopyTask {
     protected Object doInBackground(Context context, Listener listener, ArrayList<String> splitInstallData) {
         //noinspection SequencedCollectionMethodCanBeUsed
         String zipFile = splitInstallData.get(0);
-        // .apks を展開した splits の中が .apk 群
-        File tmpFile = new File(Common.getTemporaryPath(context) + "/splits");
+        File tmpFile = new File(Common.getTemporaryPath(context));
         totalByte = new File(zipFile).length();
 
         // apksのファイルパスを削除
@@ -83,6 +82,8 @@ public class ApkSCopyTask {
 
         try {
             ZipUtil.unpack(new File(zipFile), tmpFile);
+            // .apks を展開した splits の中が .apk 群
+            tmpFile = new File(Common.getTemporaryPath(context) + "/splits");
         } catch (Exception e) {
             return e.getMessage();
         }
@@ -101,7 +102,6 @@ public class ApkSCopyTask {
                     zipFile = zipListFiles[i].getName();
 
                     /* apkファイルならパスをインストールデータへ */
-                    // TODO: master_2.apk は無視
                     if (zipFile.substring(zipFile.lastIndexOf(".")).equalsIgnoreCase(".apk")
                             && !zipFile.endsWith("master_2.apk")) {
                         splitInstallData.add(i - c, zipListFiles[i].getPath());

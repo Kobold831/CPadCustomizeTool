@@ -68,6 +68,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
     XApkCopyTask xApkCopyTask;
     ApkMCopyTask apkMCopyTask;
+    ApkSCopyTask apkSCopyTask;
 
     public Preference preUninstallBlock,
             preSessionInstall,
@@ -423,6 +424,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
                         apkMCopyTask = new ApkMCopyTask();
                         apkMCopyTask.execute(requireActivity(), apkMListener(), installFileArrayList);
+                    } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apks")) {
+                        apkSCopyTask = new ApkSCopyTask();
+                        apkSCopyTask.execute(requireActivity(), apkSListener(), installFileArrayList);
                     }
                 } else {
                     new AlertDialog.Builder(requireActivity())
@@ -456,7 +460,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
                 /* ファイルの拡張子 */
                 /* 未対応またはインストールファイルでないなら終了 */
-                return installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk") || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".xapk") || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apkm");
+                return installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk")
+                        || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".xapk")
+                        || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apkm")
+                        || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apks");
             } else {
                 /* マルチApk */
                 for (int i = 0; i < clipData.getItemCount(); i++) {
