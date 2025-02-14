@@ -75,10 +75,10 @@
     <string name="pre_main_sum_change_to_normal_mode_settings">デフォルトはすべて変更されます。</string>
     <string name="pre_main_sum_use_dcha">有効にするには、タップしてください。</string>
     <string name="pre_main_sum_device_admin">このアプリがアンインストールされないようにします。</string>
-    <string name="pre_main_sum_silent_install">apk のインストールに対応しています。 split apk は、デバイスオーナーの機能 -> サイレントインストールからインストールできます。</string>
+    <string name="pre_main_sum_silent_install">単一APK のインストールに対応しています。\n分割APK は [デバイスオーナーの機能] -> [サイレントインストール] からインストールできます。</string>
     <string name="pre_main_sum_already_device_owner">デバイスオーナーのため変更できません。</string>
     <string name="pre_main_sum_no_setting_launcher">ホームは設定されていません。</string>
-    <string name="pre_main_sum_get_app">表示されるダイアログからアプリを選択してください。インストーラーは、アプリ設定 -> インストールモードから変更できます。</string>
+    <string name="pre_main_sum_get_app">表示されるダイアログからアプリを選択してください。インストーラーは、[アプリ設定] -> [インストールモード] から変更できます。</string>
 
     <!-- アプリ設定 -->
     <string name="pre_app_category_start_settings">起動設定</string>
@@ -100,11 +100,11 @@
     <string name="pre_owner_title_permission">ランタイム権限の強制付与</string>
     <string name="pre_owner_title_silent_install">サイレントインストール</string>
     <string name="pre_owner_title_device_owner">デバイスオーナーの解除</string>
-    <string name="pre_owner_sum_message_1">デバイスオーナーは %1$s に設定されています。</string>
+    <string name="pre_owner_sum_message_1">デバイスオーナーは <b>%1$s</b> に設定されています。</string>
     <string name="pre_owner_sum_no_device_owner">デバイスオーナーは設定されていません。</string>
     <string name="pre_owner_sum_not_use_function">デバイスオーナーが設定されていないため、この機能は使用できません。</string>
     <string name="pre_owner_sum_uninstall_block">ユーザーアプリのアンインストールをブロックします。</string>
-    <string name="pre_owner_sum_silent_install">apk, xapk, apkm, split apk をインストールできます。 split apk のインストールは、ファイルを長押しして選択してください。</string>
+    <string name="pre_owner_sum_silent_install">単一APK 及び 分割APK(xapk, apkm, apks) をインストールできます。\n分割APK のインストールは、ファイルを<b>長押し</b>して選択してください。</string>
     <string name="pre_owner_sum_permission_forced">デバイスポリシーでユーザーアプリのランタイム権限は強制付与されます。</string>
     <string name="pre_owner_sum_permission_default">デバイスポリシーはデフォルトです。</string>
 
@@ -156,7 +156,7 @@
     <string name="dialog_question_admin">この操作を行うと学習環境のときに、アプリがアンインストールされる可能性があります。</string>
 
     <!-- ダイアログエラー -->
-    <string name="dialog_error_crash">致命的なエラーが発生しました。 OK を押すと、メイン画面に戻ります。\n\n繰り返し発生する場合は 報告 を押してクラッシュログを開発者に報告できます。クラッシュログは 報告 を押すと自動でコピーされますので、表示されるフォームの入力欄に貼り付けてください。\n報告手順\n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します。\n・最新バージョンであれば「はい」を押して「次へ」を押します。\n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します。\n\nクラッシュログを確認、またはコピーしたいときは 確認 を押してください。</string>
+    <string name="dialog_error_crash">致命的なエラーが発生しました。\nOK を押すと、メイン画面に戻ります。\n\n繰り返し発生する場合は [報告] を押してクラッシュログを開発者に報告できます。クラッシュログは [報告] を押すと自動でコピーされますので、表示されるフォームの入力欄に貼り付けてください。\n報告手順\n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します。\n・最新バージョンであれば「はい」を押して「次へ」を押します。\n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します。\n\nクラッシュログを確認、またはコピーしたいときは 確認 を押してください。</string>
     <string name="dialog_error">エラーが発生しました。</string>
     <string name="dialog_error_connection">"データ取得に失敗しました。ネットワークを確認してください。"</string>
     <string name="dialog_error_download">"ダウンロードに失敗しました。ネットワークを確認してください。"</string>
@@ -231,7 +231,7 @@
     <!-- インストーラー -->
     <string name="installer_status_user_action">ユーザの確認が必要です。</string>
     <string name="installer_status_failure_storage">ストレージの空き領域が不足しています。</string>
-    <string name="installer_status_failure_invalid">apk が無効か破損しています。</string>
+    <string name="installer_status_failure_invalid">APK ファイルが無効か破損しています。</string>
     <string name="installer_status_failure_incompatible">非対応アプリです。</string>
     <string name="installer_status_failure_conflict">衝突するアプリが存在します。</string>
     <string name="installer_status_failure_blocked">インストールがブロックされました。</string>

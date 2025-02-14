@@ -60,7 +60,7 @@ public class AppInfoActivity extends AppCompatActivity {
 
         text1.setText(new StringBuilder("アプリ名：").append(getApplicationInfo().loadLabel(getPackageManager())));
         text2.setText(new StringBuilder("パッケージ名：").append(BuildConfig.APPLICATION_ID));
-        text3.setText(new StringBuilder("バージョン：").append(BuildConfig.VERSION_NAME));
+        text3.setText(new StringBuilder("バージョン：Ver.").append(BuildConfig.VERSION_NAME));
         text4.setText(new StringBuilder("バージョンコード：").append(BuildConfig.VERSION_CODE));
         text5.setText(getString(R.string.info_app_state, BuildConfig.BUILD_TYPE));
     }
