@@ -46,6 +46,7 @@ import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
 import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
 import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 import com.saradabar.cpadcustomizetool.data.task.ApkInstallTask;
+import com.saradabar.cpadcustomizetool.data.task.ApkSCopyTask;
 import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
 import com.saradabar.cpadcustomizetool.data.task.IDhizukuTask;
 import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
@@ -638,6 +639,95 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
     public ApkMCopyTask.Listener apkMListener() {
         return new ApkMCopyTask.Listener() {
+
+            AlertDialog alertDialog;
+            ByteProgressHandler progressHandler;
+
+            @Override
+            public void onShow() {
+                View view = getLayoutInflater().inflate(R.layout.view_progress, null);
+                ProgressBar progressBar = view.findViewById(R.id.progress);
+                TextView textPercent = view.findViewById(R.id.progress_percent);
+                TextView textByte = view.findViewById(R.id.progress_byte);
+
+                progressBar.setProgress(0);
+                textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
+
+                alertDialog = new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
+                        .setView(view)
+                        .setMessage("")
+                        .setCancelable(false)
+                        .create();
+
+                if (!alertDialog.isShowing()) {
+                    alertDialog.show();
+                }
+
+                progressHandler = new ByteProgressHandler(Looper.getMainLooper());
+                progressHandler.progressBar = progressBar;
+                progressHandler.textPercent = textPercent;
+                progressHandler.textByte = textByte;
+                progressHandler.apkMCopyTask = apkMCopyTask;
+                progressHandler.sendEmptyMessage(0);
+            }
+
+            @Override
+            public void onSuccess(ArrayList<String> stringArrayList) {
+                alertDialog.dismiss();
+                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFragment.this);
+            }
+
+            @Override
+            public void onFailure() {
+                alertDialog.dismiss();
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = requireActivity().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (IOException ignored) {
+                }
+
+                new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
+                        .setTitle(getString(R.string.dialog_title_error))
+                        .setMessage(getString(R.string.dialog_failure))
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            }
+
+            @Override
+            public void onError(String message) {
+                alertDialog.dismiss();
+                try {
+                    /* 一時ファイルを消去 */
+                    File tmpFile = requireActivity().getExternalCacheDir();
+
+                    if (tmpFile != null) {
+                        FileUtils.deleteDirectory(tmpFile);
+                    }
+                } catch (IOException ignored) {
+                }
+
+                new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
+                        .setTitle(getString(R.string.dialog_title_error))
+                        .setMessage(message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            }
+
+            @Override
+            public void onProgressUpdate(String message) {
+                alertDialog.setMessage(message);
+            }
+        };
+    }
+
+        public ApkSCopyTask.Listener apkSListener() {
+        return new ApkSCopyTask.Listener() {
 
             AlertDialog alertDialog;
             ByteProgressHandler progressHandler;

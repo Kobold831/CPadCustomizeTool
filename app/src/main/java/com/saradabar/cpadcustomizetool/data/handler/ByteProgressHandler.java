@@ -22,12 +22,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
+import com.saradabar.cpadcustomizetool.data.task.ApkSCopyTask;
 import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
 
 public class ByteProgressHandler extends Handler {
 
     public XApkCopyTask xApkCopyTask;
     public ApkMCopyTask apkMCopyTask;
+    public ApkSCopyTask apkSCopyTask;
     public ProgressBar progressBar;
     public TextView textPercent, textByte;
 
@@ -62,6 +64,19 @@ public class ByteProgressHandler extends Handler {
             progressBar.setProgress(apkMCopyTask.getLoadedBytePercent(progressBar.getContext()));
             textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append("%"));
             textByte.setText(new StringBuilder(String.valueOf(apkMCopyTask.getLoadedCurrentByte(textByte.getContext()))).append(" / ").append(apkMCopyTask.getLoadedTotalByte()).append(" MB"));
+
+            sendEmptyMessageDelayed(0, 100);
+        }
+
+        if (apkSCopyTask != null) {
+            if (apkSCopyTask.isFinish()) {
+                progressBar.setProgress(0);
+                return;
+            }
+
+            progressBar.setProgress(apkSCopyTask.getLoadedBytePercent(progressBar.getContext()));
+            textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append("%"));
+            textByte.setText(new StringBuilder(String.valueOf(apkSCopyTask.getLoadedCurrentByte(textByte.getContext()))).append(" / ").append(apkSCopyTask.getLoadedTotalByte()).append(" MB"));
 
             sendEmptyMessageDelayed(0, 100);
         }

@@ -104,7 +104,7 @@
     <string name="pre_owner_sum_no_device_owner">デバイスオーナーは設定されていません。</string>
     <string name="pre_owner_sum_not_use_function">デバイスオーナーが設定されていないため、この機能は使用できません。</string>
     <string name="pre_owner_sum_uninstall_block">ユーザーアプリのアンインストールをブロックします。</string>
-    <string name="pre_owner_sum_silent_install">apk, xapk, apkm, split apk をインストールできます。 split apk のインストールは、ファイルを長押しして選択してください。</string>
+    <string name="pre_owner_sum_silent_install">apk, 分割APK(xapk, apkm, apks) をインストールできます。 分割APK のインストールは、ファイルを長押しして選択してください。</string>
     <string name="pre_owner_sum_permission_forced">デバイスポリシーでユーザーアプリのランタイム権限は強制付与されます。</string>
     <string name="pre_owner_sum_permission_default">デバイスポリシーはデフォルトです。</string>
 
