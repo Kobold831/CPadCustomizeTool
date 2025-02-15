@@ -141,7 +141,7 @@
     <string name="dialog_emergency_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.EmergencyActivity を追加して起動してください。\n</string>
     <string name="dialog_emergency_manual_red">システムUIを変更するためアクティビティや他のアプリを起動させるアプリをインストールしておかないと初期化以外に勉強ホームから抜け出すことができなくなります。\nアプリ履歴を全消去はナビゲーションバーの□ボタンを押すと表示されるアプリ履歴のアプリを終了します。</string>
     <string name="dialog_normal_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.NormalActivity を追加して起動してください。</string>
-    <string name="dialog_dcha_warning">このデバイスのシステム領域を DchaService が変更していないことを検知しました。続行すると一部の動作がシステムで制限される可能性があります。</string>
+    <string name="dialog_dcha_warning">このデバイスのシステム領域を DchaService が変更していないことを検知しました。\n続行すると一部の動作がシステムで制限される可能性があります。</string>
     <string name="dialog_failure">失敗しました。</string>
     <string name="dialog_no_update">アップデートはありません。</string>
     <string name="dialog_failure_silent_install">サイレントインストールに失敗しました。</string>

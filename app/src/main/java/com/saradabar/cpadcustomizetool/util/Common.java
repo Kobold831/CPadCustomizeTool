@@ -14,10 +14,13 @@ package com.saradabar.cpadcustomizetool.util;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Environment;
+import android.os.UserManager;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 
@@ -120,16 +123,27 @@ public class Common {
         return false;
     }
 
+    public static boolean getDchaCompletedPast(Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        try {
+            //return mDchaService.copyUpdateImage(BenesseExtension.COUNT_DCHA_COMPLETED_FILE.toString(), "/cache/.." + BenesseExtension.IGNORE_DCHA_COMPLETED_FILE.toString());
+            return ((UserManager) context.getSystemService(Context.USER_SERVICE)).hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)
+                    && packageManager.getApplicationEnabledSetting("com.android.quicksearchbox") == PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                    && packageManager.getApplicationEnabledSetting("com.android.browser") == PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
     public static boolean isCfmDialog(Context context) {
-        if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, 0) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, 0) == Constants.MODEL_CTZ) {
-            /* チャレパNEO・NEXTは対象 */
-            if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
+        try {
+            BenesseExtension.getDchaState();
+            if (!getDchaCompletedPast(context)) {
                 return Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, false);
             } else {
                 return true;
             }
-        } else {
-            /* チャレパ２・３は対象外 */
+        } catch (Exception ignored) {
             return true;
         }
     }

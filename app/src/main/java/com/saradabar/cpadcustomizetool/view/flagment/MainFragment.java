@@ -31,6 +31,7 @@ import android.database.ContentObserver;
 import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -52,6 +53,7 @@ import android.widget.Toast;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
+
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
@@ -1030,12 +1032,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         swBypassAdbDisable.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_AUTO_USB_DEBUG, false));
 
-        switch (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
-            case Constants.MODEL_CT2:
-            case Constants.MODEL_CT3:
-                swBypassAdbDisable.setEnabled(false);
-                swBypassAdbDisable.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                break;
+        try {
+            BenesseExtension.getDchaState();
+        } catch (Exception e) {
+            swBypassAdbDisable.setEnabled(false);
+            swBypassAdbDisable.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
         }
 
         new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(requireActivity().getExternalCacheDir(), "ct-notice.json"), Constants.REQUEST_DOWNLOAD_NOTICE);
@@ -1366,7 +1367,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONArray jsonArray = jsonObj2.getJSONArray("noticeList");
                     if (jsonArray.length() == 0) {
-                        preNotice.setTitle("＊＊アプリのお知らせはありません＊＊");
+                        // 表示しない
+                        preNotice.setVisible(false);
                     } else {
                         preNotice.setTitle("＊＊アプリのお知らせが " + jsonArray.length() + " 件あります＊＊");
                         preNotice.setSummary("タップして確認してください。");
