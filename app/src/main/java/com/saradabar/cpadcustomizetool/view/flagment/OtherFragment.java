@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.DeviceInfoActivity;
@@ -83,10 +84,10 @@ public class OtherFragment extends PreferenceFragmentCompat {
         preStartDevSettings.setOnPreferenceClickListener(preference -> {
             if (Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) == 1) {
                 try {
-                    if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists()) {
+                    if (!Common.getDchaCompletedPast(requireActivity().getApplicationContext())) {
                         startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         return false;
-                    } else if (Constants.COUNT_DCHA_COMPLETED_FILE.exists()) {
+                    } else {
                         if (Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0) != 0) {
                             startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         } else {

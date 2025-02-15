@@ -1,6 +1,7 @@
 package com.saradabar.cpadcustomizetool.util;
 
 import android.content.Context;
+import android.os.BenesseExtension;
 import android.provider.Settings;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
@@ -21,12 +22,17 @@ public class DchaServiceUtil {
                 return false;
             }
 
-            if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
-                mDchaService.setSetupStatus(i);
-            } else {
-                Settings.System.putInt(mContext.getContentResolver(), Constants.DCHA_STATE, i);
+            try {
+                BenesseExtension.setDchaState(i);
+                return true;
+            } catch (Exception ignored) {
+                if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
+                    mDchaService.setSetupStatus(i);
+                } else {
+                    Settings.System.putInt(mContext.getContentResolver(), Constants.DCHA_STATE, i);
+                }
+                return true;
             }
-            return true;
         } catch (Exception ignored) {
             return false;
         }

@@ -90,9 +90,6 @@ public class Constants {
     public static final Intent DCHA_SERVICE = new Intent(DCHA_SERVICE_PACKAGE + ".DchaService").setPackage(DCHA_SERVICE_PACKAGE);
     public static final Intent DCHA_UTIL_SERVICE = new Intent("jp.co.benesse.dcha.dchautilservice.DchaUtilService").setPackage("jp.co.benesse.dcha.dchautilservice");
 
-    public static final File IGNORE_DCHA_COMPLETED_FILE = new File("/factory/ignore_dcha_completed");
-    public static final File COUNT_DCHA_COMPLETED_FILE = new File("/factory/count_dcha_completed");
-
     public static final List<String> LIST_UPDATE_MODE = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー", "Dhizuku");
 
     public static final String[] LIST_MODEL = {"TAB-A03-BS", "TAB-A03-BR", "TAB-A03-BR2", "TAB-A03-BR3", "TAB-A05-BD", "TAB-A05-BA1"};
