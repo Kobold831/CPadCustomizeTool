@@ -15,14 +15,15 @@ package com.saradabar.cpadcustomizetool.view.views;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatRadioButton;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.saradabar.cpadcustomizetool.R;
 
@@ -69,7 +70,7 @@ public class HomeAppListView {
                 holder.imageIcon.setImageDrawable(data.icon);
 
                 /* RadioButtonの更新 */
-                RadioButton button = convertView.findViewById(R.id.launcher_button);
+                AppCompatRadioButton button = convertView.findViewById(R.id.launcher_button);
                 button.setChecked(isLauncher(data.packName));
             }
 
@@ -83,7 +84,7 @@ public class HomeAppListView {
     }
 
     public static class ViewHolder {
-        TextView textLabel;
-        ImageView imageIcon;
+        AppCompatTextView textLabel;
+        AppCompatImageView imageIcon;
     }
 }

@@ -19,14 +19,16 @@ import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.appcompat.widget.AppCompatEditText;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -84,17 +86,11 @@ public class OtherFragment extends PreferenceFragmentCompat {
         preStartDevSettings.setOnPreferenceClickListener(preference -> {
             if (Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) == 1) {
                 try {
-                    if (!Common.getDchaCompletedPast(requireActivity().getApplicationContext())) {
-                        startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                        return false;
-                    } else {
-                        if (Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0) != 0) {
-                            startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                        } else {
-                            Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
-                            startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                        }
+                    // DchaCompletedPast && DchaState != 3
+                    if (Common.getDchaCompletedPast(requireActivity().getApplicationContext()) && Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0) != 3) {
+                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
                     }
+                    startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 } catch (ActivityNotFoundException ignored) {
                 }
             } else {
@@ -113,7 +109,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
 
         preScreenOffTimeOut.setOnPreferenceClickListener(preference -> {
             View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
-            EditText editText = view.findViewById(R.id.time_out_edit);
+            AppCompatEditText editText = view.findViewById(R.id.time_out_edit);
             editText.setHint(getString(R.string.time_out_hint, String.valueOf(Integer.MAX_VALUE)));
             setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
             new AlertDialog.Builder(requireActivity())
@@ -153,7 +149,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
 
         preSleepTimeout.setOnPreferenceClickListener(preference -> {
             View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
-            EditText editText = view.findViewById(R.id.time_out_edit);
+            AppCompatEditText editText = view.findViewById(R.id.time_out_edit);
             editText.setHint(getString(R.string.time_out_hint, String.valueOf(Integer.MAX_VALUE)));
             setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
             new AlertDialog.Builder(requireActivity())
@@ -251,7 +247,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
         setSummaryScreenOffTimeConvert();
     }
 
-    private void setTextScreenOffTimeConvert(TextView textView) {
+    private void setTextScreenOffTimeConvert(@NonNull AppCompatTextView textView) {
         long time, sec, min, hour, day;
 
         time = Settings.System.getInt(requireActivity().getContentResolver(), "screen_off_timeout", 60) / 1000;

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="mode_text" >
+    <string-array name="mode_text">
         <item>小学講座</item>
         <item>中学講座・その他</item>
     </string-array>
 
-    <string-array name="mode_value" >
+    <string-array name="mode_value">
         <item>1</item>
         <item>2</item>
     </string-array>
 
-    <string-array name="emergency_settings_text" >
+    <string-array name="emergency_settings_text">
         <item>システム UI の学習モード</item>
         <item>ナビゲーションバーの非表示</item>
         <item>ランチャーを勉強ホーム</item>
@@ -18,7 +18,7 @@
         <item>勉強ホームの起動</item>
     </string-array>
 
-    <string-array name="emergency_settings_value" >
+    <string-array name="emergency_settings_value">
         <item>1</item>
         <item>2</item>
         <item>3</item>
@@ -34,14 +34,14 @@
         <item>5</item>
     </string-array>
 
-    <string-array name="normal_mode_text" >
+    <string-array name="normal_mode_text">
         <item>システム UI の通常モード</item>
         <item>ナビゲーションバーの表示</item>
         <item>ランチャーを通常ホーム</item>
         <item>通常ホームの起動</item>
     </string-array>
 
-    <string-array name="normal_mode_value" >
+    <string-array name="normal_mode_value">
         <item>1</item>
         <item>2</item>
         <item>3</item>

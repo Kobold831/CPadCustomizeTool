@@ -6,17 +6,19 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.Switch;
-import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
+
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
@@ -73,7 +75,7 @@ public class UninstallBlockAppListView {
                         public void onServiceConnected(ComponentName name, IBinder iBinder) {
                             IDhizukuService iDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
                             try {
-                                ((Switch) view.findViewById(R.id.un_switch)).setChecked(iDhizukuService.isUninstallBlocked(data.packName));
+                                ((SwitchCompat) view.findViewById(R.id.un_switch)).setChecked(iDhizukuService.isUninstallBlocked(data.packName));
                             } catch (Exception ignored) {
                             }
                         }
@@ -83,7 +85,7 @@ public class UninstallBlockAppListView {
                         }
                     });
                 } else {
-                    ((Switch) view.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), AdministratorReceiver.class), data.packName));
+                    ((SwitchCompat) view.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), AdministratorReceiver.class), data.packName));
                 }
             }
 
@@ -92,7 +94,7 @@ public class UninstallBlockAppListView {
     }
 
     private static class ViewHolder {
-        TextView textLabel;
-        ImageView imageIcon;
+        AppCompatTextView textLabel;
+        AppCompatImageView imageIcon;
     }
 }

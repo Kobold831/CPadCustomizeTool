@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 
 import com.saradabar.cpadcustomizetool.R;
 
@@ -32,9 +34,9 @@ public class DeviceInfoActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        Button button1 = findViewById(R.id.act_device_info_button_1);
-        Button button2 = findViewById(R.id.act_device_info_button_2);
-        Button button3 = findViewById(R.id.act_device_info_button_3);
+        AppCompatButton button1 = findViewById(R.id.act_device_info_button_1);
+        AppCompatButton button2 = findViewById(R.id.act_device_info_button_2);
+        AppCompatButton button3 = findViewById(R.id.act_device_info_button_3);
 
         button1.setOnClickListener(view -> {
             ArrayList<String> stringArrayList = new ArrayList<>();
@@ -62,7 +64,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
@@ -70,6 +72,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @NonNull
     private String getSystemProperties() {
         StringBuilder stringBuilder = new StringBuilder();
         Properties properties = System.getProperties();
@@ -85,6 +88,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         return stringBuilder.toString().trim();
     }
 
+    @NonNull
     private String exec() {
         Process process;
         BufferedWriter bufferedWriter;
@@ -110,6 +114,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         return stringBuilder.toString().trim();
     }
 
+    @NonNull
     private String getBatteryInfo() {
         StringBuilder stringBuilder = new StringBuilder();
         Intent batteryStatus = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));

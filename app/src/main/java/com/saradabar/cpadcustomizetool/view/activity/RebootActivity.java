@@ -12,7 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -21,13 +20,15 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
-public class RebootActivity extends Activity {
+public class RebootActivity extends AppCompatActivity {
 
     @Override
     public final void onCreate(Bundle savedInstanceState) {

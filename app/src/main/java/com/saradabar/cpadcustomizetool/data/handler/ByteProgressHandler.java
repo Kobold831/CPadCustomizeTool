@@ -12,14 +12,15 @@
 
 package com.saradabar.cpadcustomizetool.data.handler;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.NonNull;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
 import com.saradabar.cpadcustomizetool.data.task.ApkSCopyTask;
@@ -37,7 +38,7 @@ public class ByteProgressHandler extends Handler {
         super(looper);
     }
 
-    @TargetApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.O)
     @Override
     public void handleMessage(@NonNull Message msg) {
         super.handleMessage(msg);

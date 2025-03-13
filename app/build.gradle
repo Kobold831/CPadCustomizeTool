@@ -10,8 +10,8 @@ android {
         minSdk = 22
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 22
-        versionCode = 59
-        versionName = "2.5.2"
+        versionCode = 60
+        versionName = "2.6.0"
         proguardFiles += "proguard-rules.pro"
         multiDexEnabled = true
     }
@@ -36,13 +36,7 @@ android {
     }
 
     bundle {
-        language {
-            enableSplit = true
-        }
         density {
-            enableSplit = true
-        }
-        abi {
             enableSplit = true
         }
     }
@@ -54,6 +48,7 @@ android {
 
     lint {
         checkReleaseBuilds = false
+        disable 'ProtectedPermissions', 'ExportedService', 'UnusedAttribute'
     }
     
     compileOptions {
@@ -63,21 +58,24 @@ android {
 }
 
 dependencies {
-
     // Custom Libraries
     compileOnly files('libs/BenesseExtensionLibrary.jar')
     implementation fileTree(dir: 'libs', include: ['IDcha*.jar'])
 
-    // Support Library
-    implementation 'com.android.support:support-annotations:28.0.0'
-    implementation 'com.android.support:support-fragment:28.0.0'
-    implementation 'com.android.support:preference-v7:28.0.0'
+    // AndroidX
+    implementation 'androidx.preference:preference:1.2.1'
 
-    // WalkThrough
+    // Google Material You
+    implementation 'com.google.android.material:material:1.12.0'
+
+    // Welcome
+    // https://jitpack.io/com/github/stephentuso/welcome-android/v1.4.1/welcome-android-v1.4.1-release.aar
     implementation files('libs/welcome-android.aar')
-    //implementation 'com.stephentuso:welcome:1.4.1'
+    // https://jitpack.io/#stephentuso/welcome-android/v1.4.1
+    // タグ(v1.4.1)とアーティファクト名(v1.4.1-release)が異なるため使用不可
+    //implementation 'com.github.stephentuso:welcome-android:v1.4.1'
 
-    // ZipLib
+    // ZIP
     implementation 'org.zeroturnaround:zt-zip:1.17'
 
     // Dhizuku

@@ -13,13 +13,14 @@
 package com.saradabar.cpadcustomizetool.view.views;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.RadioButton;
-import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatRadioButton;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -65,7 +66,7 @@ public class UpdateModeListView {
                 holder.textLabel.setText(data.label);
 
                 /* RadioButtonの更新 */
-                RadioButton button = convertView.findViewById(R.id.update_button);
+                AppCompatRadioButton button = convertView.findViewById(R.id.update_button);
                 button.setChecked(isUpdater(data.updateMode));
             }
 
@@ -83,6 +84,6 @@ public class UpdateModeListView {
     }
 
     private static class ViewHolder {
-        TextView textLabel;
+        AppCompatTextView textLabel;
     }
 }

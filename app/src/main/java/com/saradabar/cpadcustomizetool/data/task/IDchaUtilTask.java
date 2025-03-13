@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+
 import com.saradabar.cpadcustomizetool.util.Constants;
 
 import java.util.concurrent.ExecutorService;
@@ -36,7 +38,7 @@ public class IDchaUtilTask {
         void onFailure();
     }
 
-    public boolean tryBindDchaUtilService(Context context, Listener listener) {
+    public boolean tryBindDchaUtilService(@NonNull Context context, Listener listener) {
         return context.bindService(Constants.DCHA_UTIL_SERVICE, new ServiceConnection() {
 
             @Override

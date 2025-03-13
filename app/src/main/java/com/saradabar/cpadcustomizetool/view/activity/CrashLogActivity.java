@@ -13,10 +13,12 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.ScrollView;
-import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -24,7 +26,7 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 
 public class CrashLogActivity extends AppCompatActivity {
 
-    TextView textView;
+    AppCompatTextView textView;
     ScrollView scrollView;
 
     @Override
@@ -58,7 +60,7 @@ public class CrashLogActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;

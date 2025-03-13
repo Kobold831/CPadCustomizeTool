@@ -14,10 +14,11 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
@@ -52,7 +53,7 @@ public class AppInfoActivity extends AppCompatActivity {
     }
 
     private void initialize() {
-        TextView text1 = findViewById(R.id.menu_text_1),
+        AppCompatTextView text1 = findViewById(R.id.menu_text_1),
                 text2 = findViewById(R.id.menu_text_2),
                 text3 = findViewById(R.id.menu_text_3),
                 text4 = findViewById(R.id.menu_text_4),

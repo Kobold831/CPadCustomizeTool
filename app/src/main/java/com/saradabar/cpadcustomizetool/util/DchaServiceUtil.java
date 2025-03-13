@@ -6,6 +6,7 @@ import android.provider.Settings;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
+/** @noinspection unused*/
 public class DchaServiceUtil {
 
     Context mContext;
@@ -16,48 +17,196 @@ public class DchaServiceUtil {
         mDchaService = iDchaService;
     }
 
-    public boolean setSetupStatus(int i) {
+    public void cancelSetup() {
         try {
-            if (!Common.isCfmDialog(mContext)) {
-                return false;
-            }
+            mDchaService.cancelSetup();
+        } catch (Exception ignored) {
+        }
+    }
 
+    public boolean checkPadRooted() {
+        try {
+            return mDchaService.checkPadRooted();
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    public void clearDefaultPreferredApp(String packageName) {
+        try {
+            mDchaService.clearDefaultPreferredApp(packageName);
+        } catch (Exception ignored) {
+        }
+    }
+
+    public boolean copyFile(String srcFilePath, String dstFilePath) {
+        try {
+            return mDchaService.copyFile(srcFilePath, dstFilePath);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    public boolean copyUpdateImage(String srcFilePath, String dstFilePath) {
+        try {
+            return mDchaService.copyFile(srcFilePath, dstFilePath.startsWith("/cache") ? dstFilePath : "/cache/../" + dstFilePath);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    public boolean deleteFile(String path) {
+        try {
+            return mDchaService.deleteFile(path);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    public void disableADB() {
+        try {
+            mDchaService.disableADB();
+        } catch (Exception ignored) {
+            Settings.Secure.putInt(mContext.getContentResolver(), "adb_enabled", 0);
+        }
+    }
+
+    public String getForegroundPackageName() {
+        try {
+            return mDchaService.getForegroundPackageName();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    public int getSetupStatus() {
+        try {
+            return BenesseExtension.getDchaState();
+        } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
             try {
-                BenesseExtension.setDchaState(i);
-                return true;
-            } catch (Exception ignored) {
-                if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
-                    mDchaService.setSetupStatus(i);
-                } else {
-                    Settings.System.putInt(mContext.getContentResolver(), Constants.DCHA_STATE, i);
-                }
-                return true;
+                return mDchaService.getSetupStatus();
+            } catch (Exception unused) {
+                return -1;
             }
-        } catch (Exception ignored) {
-            return false;
         }
     }
 
-    public boolean hideNavigationBar(boolean b) {
+    public int getUserCount() {
         try {
-            if (!Common.isCfmDialog(mContext)) {
-                return false;
-            }
+            return mDchaService.getUserCount();
+        } catch (Exception ignored) {
+            return -1;
+        }
+    }
 
+    public void hideNavigationBar(boolean hide) {
+        try {
             if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
-                mDchaService.hideNavigationBar(b);
+                mDchaService.hideNavigationBar(hide);
             } else {
-                if (b) {
-                    Settings.System.putInt(mContext.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 1);
-                } else {
-                    Settings.System.putInt(mContext.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
-                }
+                Settings.System.putInt(mContext.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, hide ? 1 : 0);
             }
-            return true;
+        } catch (Exception ignored) {
+        }
+    }
+
+    public boolean installApp(String path, int installFlag) {
+        try {
+            return mDchaService.installApp(path, installFlag);
         } catch (Exception ignored) {
             return false;
         }
     }
+
+    public boolean isDeviceEncryptionEnabled() {
+        try {
+            return mDchaService.isDeviceEncryptionEnabled();
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    public void rebootPad(int rebootMode, String srcFile) {
+        try {
+            mDchaService.rebootPad(rebootMode, srcFile);
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void removeTask(String packageName) {
+        try {
+            mDchaService.removeTask(packageName);
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void sdUnmount() {
+        try {
+            mDchaService.sdUnmount();
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void setDefaultParam() {
+        try {
+            mDchaService.setDefaultParam();
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void setDefaultPreferredApp(String packageName) {
+        try {
+            mDchaService.setDefaultPreferredHomeApp(packageName);
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void setPermissionEnforced(boolean enforced) {
+        try {
+            mDchaService.setPermissionEnforced(enforced);
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void setSetupStatus(int status) {
+        try {
+            try {
+                BenesseExtension.setDchaState(status);
+            } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
+                if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
+                    mDchaService.setSetupStatus(status);
+                } else {
+                    Settings.System.putInt(mContext.getContentResolver(), Constants.DCHA_STATE, status);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void setSystemTime(String time, String timeFormat) {
+        try {
+            mDchaService.setSystemTime(time, timeFormat);
+        } catch (Exception ignored) {
+        }
+    }
+
+    public boolean uninstallApp(String packageName, int uninstallFlag) {
+        try {
+            return mDchaService.uninstallApp(packageName, uninstallFlag);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    public boolean verifyUpdateImage(String updateFile) {
+        try {
+            return mDchaService.verifyUpdateImage(updateFile);
+        } catch (Exception ignored) {
+            return true;
+        }
+    }
+
+    /// ---
 
     public boolean setPreferredHomeApp(String s, String s1) {
         try {

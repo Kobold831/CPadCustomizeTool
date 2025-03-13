@@ -9,8 +9,11 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
+
 import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
@@ -41,7 +44,7 @@ public class ApkInstallTask {
         });
     }
 
-    void onPreExecute(Listener listener) {
+    void onPreExecute(@NonNull Listener listener) {
         listener.onShow();
     }
 
@@ -143,6 +146,7 @@ public class ApkInstallTask {
         });
     }
 
+    @NonNull
     private IDhizukuTask.Listener iDhizukuTaskListener() {
         return new IDhizukuTask.Listener() {
             @Override

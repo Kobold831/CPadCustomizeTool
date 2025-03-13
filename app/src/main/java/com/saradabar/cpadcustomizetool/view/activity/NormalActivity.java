@@ -12,27 +12,32 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.os.BenesseExtension;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
+import com.saradabar.cpadcustomizetool.data.task.IDchaUtilTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
+import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
+import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
 
-public class NormalActivity extends Activity {
+public class NormalActivity extends AppCompatActivity {
 
     IDchaService mDchaService;
+    IDchaUtilService mUtilService;
 
-    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +91,24 @@ public class NormalActivity extends Activity {
                 finishAndRemoveTask();
             }
         });
+
+        new IDchaUtilTask().execute(this, new IDchaUtilTask.Listener() {
+            @Override
+            public void onSuccess(IDchaUtilService mDchaUtilService) {
+                mUtilService = mDchaUtilService;
+
+                if (mUtilService == null) {
+                    Toast.makeText(NormalActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                    finishAndRemoveTask();
+                }
+            }
+
+            @Override
+            public void onFailure() {
+                Toast.makeText(NormalActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                finishAndRemoveTask();
+            }
+        });
     }
 
     private boolean run() {
@@ -105,13 +128,26 @@ public class NormalActivity extends Activity {
             }
         }
 
-        // 設定変更
+        // DchaState 変更
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 1)) {
-            new DchaServiceUtil(this, mDchaService).setSetupStatus(0);
+            try {
+                BenesseExtension.setDchaState(0);
+            } catch (Exception ignored) {
+                new DchaServiceUtil(this, mDchaService).setSetupStatus(0);
+            }
         }
 
+        // ナビバー表示設定
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 2)) {
             new DchaServiceUtil(this, mDchaService).hideNavigationBar(false);
+        }
+
+        // 解像度の修正
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            BenesseExtension.putInt(Constants.BC_COMPATSCREEN, 0);
+        } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
+            new DchaUtilServiceUtil(mUtilService).setForcedDisplaySize(1280, 800);
         }
 
         // ホームを変更

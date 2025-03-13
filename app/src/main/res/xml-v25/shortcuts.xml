@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@android:drawable/stat_sys_warning"
+        android:shortcutId="emergency"
+        android:shortcutShortLabel="@string/activity_emergency">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity"
+            android:targetPackage="com.saradabar.cpadcustomizetool" />
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/reboot"
+        android:shortcutId="reboot"
+        android:shortcutShortLabel="@string/activity_reboot">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.saradabar.cpadcustomizetool.view.activity.RebootActivity"
+            android:targetPackage="com.saradabar.cpadcustomizetool" />
+    </shortcut>
+
+</shortcuts>

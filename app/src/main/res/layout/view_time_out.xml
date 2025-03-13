@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center_vertical|center_horizontal"
     android:gravity="center"
-    android:layout_gravity="center_vertical|center_horizontal">
+    android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_marginHorizontal="20dp"
-        android:orientation="horizontal"
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:layout_marginHorizontal="20dp"
         android:gravity="center"
-        android:layout_gravity="center_vertical|center_horizontal">
+        android:orientation="horizontal">
 
-        <EditText
-            android:layout_weight="4"
+        <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/time_out_edit"
-            android:maxLength="10"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
             android:gravity="center"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:hint="@string/time_out_hint"
-            android:inputType="number" />
+            android:inputType="number"
+            android:maxLength="10" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/time_out_button"
-            android:layout_weight="1"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/time_out_button"
-            style="?android:attr/buttonBarButtonStyle" />
-    </LinearLayout>
+            android:layout_weight="1"
+            android:text="@string/time_out_button" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/time_out_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
         android:gravity="start"
         android:text="@string/time_out_label" />
-</LinearLayout>
+</androidx.appcompat.widget.LinearLayoutCompat>

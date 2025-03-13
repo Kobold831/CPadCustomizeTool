@@ -19,7 +19,9 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -115,13 +117,13 @@ public class DhizukuService extends IDhizukuService.Stub {
         dpm.clearDeviceOwnerApp(packageName);
     }
 
-    private int createSession(PackageInstaller packageInstaller) throws IOException {
+    private int createSession(@NonNull PackageInstaller packageInstaller) throws IOException {
         PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
         params.setInstallLocation(PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
         return packageInstaller.createSession(params);
     }
 
-    private boolean writeSession(PackageInstaller packageInstaller, int sessionId, File apkFile) throws IOException {
+    private boolean writeSession(PackageInstaller packageInstaller, int sessionId, @NonNull File apkFile) throws IOException {
         long sizeBytes = -1;
         String apkPath = apkFile.getAbsolutePath();
         File file = new File(apkPath);

@@ -13,7 +13,6 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -23,14 +22,18 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Switch;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
+
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
@@ -58,8 +61,8 @@ public class UninstallBlockActivity extends AppCompatActivity {
 
         List<UninstallBlockAppListView.AppData> dataList = new ArrayList<>();
         ListView listView = findViewById(R.id.un_list);
-        Button unDisableButton = findViewById(R.id.un_button_disable);
-        Button unEnableButton = findViewById(R.id.un_button_enable);
+        AppCompatButton unDisableButton = findViewById(R.id.un_button_disable);
+        AppCompatButton unEnableButton = findViewById(R.id.un_button_enable);
 
         for (ApplicationInfo app : getPackageManager().getInstalledApplications(0)) {
             /* ユーザーアプリか確認 */
@@ -106,7 +109,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
         }
     }
 
-    private void setListener(List<UninstallBlockAppListView.AppData> dataList, ListView listView, Button unDisableButton, Button unEnableButton, UninstallBlockAppListView.AppListAdapter appListAdapter) {
+    private void setListener(List<UninstallBlockAppListView.AppData> dataList, @NonNull ListView listView, @NonNull AppCompatButton unDisableButton, @NonNull AppCompatButton unEnableButton, UninstallBlockAppListView.AppListAdapter appListAdapter) {
         listView.setOnItemClickListener((parent, view, position, id) -> {
             UninstallBlockAppListView.AppData item = dataList.get(position);
             String selectPackage = Uri.fromParts("package", item.packName, null).toString();
@@ -134,7 +137,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                         for (UninstallBlockAppListView.AppData appData : dataList) {
                             mDhizukuService.setUninstallBlocked(appData.packName, false);
                         }
-                        ((Switch) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
+                        ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
                     } catch (Exception ignored) {
                     }
                 }
@@ -143,7 +146,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 for (UninstallBlockAppListView.AppData appData : dataList) {
                     dpm.setUninstallBlocked(new ComponentName(UninstallBlockActivity.this, AdministratorReceiver.class), appData.packName, false);
                 }
-                ((Switch) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
+                ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
             }
             /* listviewの更新 */
             listView.invalidateViews();
@@ -157,7 +160,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                         for (UninstallBlockAppListView.AppData appData : dataList) {
                             mDhizukuService.setUninstallBlocked(appData.packName, true);
                         }
-                        ((Switch) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
+                        ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
                     } catch (Exception ignored) {
                     }
                 }
@@ -166,7 +169,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 for (UninstallBlockAppListView.AppData appData : dataList) {
                     dpm.setUninstallBlocked(new ComponentName(UninstallBlockActivity.this, AdministratorReceiver.class), appData.packName, true);
                 }
-                ((Switch) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
+                ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
             }
             /* listviewの更新 */
             listView.invalidateViews();

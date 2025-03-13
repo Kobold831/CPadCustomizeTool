@@ -24,7 +24,9 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
@@ -40,7 +42,6 @@ public class KeepService extends Service {
         return binder;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         /* オブザーバーを有効化 */
@@ -57,6 +58,7 @@ public class KeepService extends Service {
         }
 
         if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false)) {
+            //noinspection deprecation
             getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, marketObserver);
         } else {
             getContentResolver().unregisterContentObserver(marketObserver);
@@ -140,6 +142,7 @@ public class KeepService extends Service {
         }
     }
 
+    @Nullable
     private String getDefaultLauncherPackageName() {
         ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
 

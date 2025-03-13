@@ -14,7 +14,6 @@ package com.saradabar.cpadcustomizetool.util;
 
 import android.content.Intent;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,6 +60,7 @@ public class Constants {
     public static final String DCHA_STATE = "dcha_state";
     public static final String HIDE_NAVIGATION_BAR = "hide_navigation_bar";
     public static final String BC_PASSWORD_HIT_FLAG = "bc_password_hit";
+    public static final String BC_COMPATSCREEN = "bc:compatscreen";
 
     // 設定キー
     public static final String KEY_FLAG_APP_SETTINGS_COMPLETE = "settings";

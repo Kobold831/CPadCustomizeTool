@@ -12,28 +12,32 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
+import com.saradabar.cpadcustomizetool.data.task.IDchaUtilTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
+import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
+import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
 
-public class EmergencyActivity extends Activity {
+public class EmergencyActivity extends AppCompatActivity {
 
     IDchaService mDchaService;
+    IDchaUtilService mUtilService;
 
-    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +90,24 @@ public class EmergencyActivity extends Activity {
                 finishAndRemoveTask();
             }
         });
+
+        new IDchaUtilTask().execute(this, new IDchaUtilTask.Listener() {
+            @Override
+            public void onSuccess(IDchaUtilService mDchaUtilService) {
+                mUtilService = mDchaUtilService;
+
+                if (mUtilService == null) {
+                    Toast.makeText(EmergencyActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                    finishAndRemoveTask();
+                }
+            }
+
+            @Override
+            public void onFailure() {
+                Toast.makeText(EmergencyActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                finishAndRemoveTask();
+            }
+        });
     }
 
     private boolean run(String packageName, String className) {
@@ -115,14 +137,19 @@ public class EmergencyActivity extends Activity {
             }
         }
 
-        // 設定変更
+        // DchaState 変更
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 1)) {
             new DchaServiceUtil(this, mDchaService).setSetupStatus(3);
         }
 
+        // ナビバー表示設定
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 2)) {
             new DchaServiceUtil(this, mDchaService).hideNavigationBar(true);
         }
+
+        // 解像度修正
+        int[] lcdSize = new DchaUtilServiceUtil(mUtilService).getLcdSize();
+        new DchaUtilServiceUtil(mUtilService).setForcedDisplaySize(lcdSize[0], lcdSize[1]);
 
         // ホームを変更
         ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);

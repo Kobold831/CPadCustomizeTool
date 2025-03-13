@@ -19,6 +19,8 @@ import android.content.pm.PackageInstaller;
 import android.os.Binder;
 import android.os.IBinder;
 
+import androidx.annotation.NonNull;
+
 import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListenerList;
@@ -33,7 +35,7 @@ public class InstallService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(@NonNull Intent intent, int flags, int startId) {
         postStatus(intent.getIntExtra("REQUEST_SESSION", -1),
                 intent.getIntExtra("REQUEST_CODE", 0),
                 intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1),
@@ -72,6 +74,7 @@ public class InstallService extends Service {
         }
     }
 
+    @NonNull
     private String getErrorMessage(Context context, int status) {
         return switch (status) {
             case PackageInstaller.STATUS_FAILURE_ABORTED ->
