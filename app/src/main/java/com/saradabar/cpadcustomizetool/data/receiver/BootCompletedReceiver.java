@@ -20,6 +20,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
 
+import androidx.annotation.NonNull;
+
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -29,7 +31,7 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 public class BootCompletedReceiver extends BroadcastReceiver {
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(Context context, @NonNull Intent intent) {
         if (!Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             return;
         }

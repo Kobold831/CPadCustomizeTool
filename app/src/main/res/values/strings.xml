@@ -87,12 +87,12 @@
     <string name="pre_app_category_log">アプリログ</string>
     <string name="pre_app_title_update_check">アップデートチェックを無効</string>
     <string name="pre_app_title_dcha">内部設定の変更に DchaService を使用</string>
-    <string name="pre_app_title_usb">デバイス起動後の USB デバッグ</string>
+    <string name="pre_app_title_usb">デバイス起動時の USB デバッグ</string>
     <string name="pre_app_title_update">インストールモード</string>
     <string name="pre_app_title_crash_history">クラッシュ履歴</string>
     <string name="pre_app_title_delete_crash_history">クラッシュ履歴の消去</string>
     <string name="pre_app_sum_dcha">デフォルトは DchaService を使用しません。</string>
-    <string name="pre_app_sum_usb">有効にすると、デバイス起動後にUSBデバッグの無効を阻止します。</string>
+    <string name="pre_app_sum_usb">デバイス起動時に USBデバッグ の無効を阻止します。</string>
     <string name="pre_app_sum_confirmation_dcha">この機能を使用するには、 DchaService 機能を有効 から内容を確認してください。</string>
     
     <!-- デバイスオーナー設定 -->
@@ -141,7 +141,7 @@
     <string name="dialog_emergency_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.EmergencyActivity を追加して起動してください。\n</string>
     <string name="dialog_emergency_manual_red">システムUIを変更するためアクティビティや他のアプリを起動させるアプリをインストールしておかないと初期化以外に勉強ホームから抜け出すことができなくなります。\nアプリ履歴を全消去はナビゲーションバーの□ボタンを押すと表示されるアプリ履歴のアプリを終了します。</string>
     <string name="dialog_normal_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.NormalActivity を追加して起動してください。</string>
-    <string name="dialog_dcha_warning">このデバイスのシステム領域を DchaService が変更していないことを検知しました。続行すると一部の動作がシステムで制限される可能性があります。</string>
+    <string name="dialog_dcha_warning">このデバイスのシステム領域を DchaService が変更していないことを検知しました。\n続行すると一部の動作がシステムで制限される可能性があります。</string>
     <string name="dialog_failure">失敗しました。</string>
     <string name="dialog_no_update">アップデートはありません。</string>
     <string name="dialog_failure_silent_install">サイレントインストールに失敗しました。</string>
@@ -171,6 +171,10 @@
     <string name="dialog_error_no_mode">選択されたモードは機能していません。</string>
     <string name="dialog_error_reset_installer">エラーが発生しました。インストールモードをリセットしました。</string>
     <string name="dialog_error_no_dhizuku">Dhizuku との通信に失敗しました。</string>
+
+    <!-- サービス -->
+    <string name="service_activity">ホームアプリ 切り替えサービス</string>
+    <string name="accessibility_description">[ホームボタン]と[音量－ボタン]を同時に押すと、既定のランチャーを起動できます\nまた、[ホームボタン]と[音量＋ボタン]を同時に押すと、学習環境を起動できます</string>
     
     <!-- トースト -->
     <string name="toast_success">成功しました</string>

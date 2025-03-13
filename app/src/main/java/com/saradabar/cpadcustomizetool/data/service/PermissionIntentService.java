@@ -1,6 +1,5 @@
 package com.saradabar.cpadcustomizetool.data.service;
 
-import android.annotation.TargetApi;
 import android.app.IntentService;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
@@ -11,6 +10,9 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.IBinder;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
@@ -40,6 +42,7 @@ public class PermissionIntentService extends IntentService {
 
         try {
             PackageInfo packageInfo = getBaseContext().getPackageManager().getPackageInfo(Objects.requireNonNull(intent.getStringExtra("packageName")), 0);
+            assert packageInfo.applicationInfo != null;
             /* ユーザーアプリか確認 */
             if (packageInfo.applicationInfo.sourceDir.startsWith("/data/app/")) {
                 setPermissionGrantState(getBaseContext(), packageInfo.packageName);
@@ -48,7 +51,7 @@ public class PermissionIntentService extends IntentService {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
+    @RequiresApi(Build.VERSION_CODES.M)
     private void setPermissionGrantState(Context context, String packageName) {
         if (Common.isDhizukuActive(context)) {
             Dhizuku.bindUserService(new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class)), new ServiceConnection() {
@@ -75,11 +78,13 @@ public class PermissionIntentService extends IntentService {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
+    @NonNull
+    @RequiresApi(Build.VERSION_CODES.M)
     private String[] getRuntimePermissions(Context context, String packageName) {
         return new ArrayList<>(Arrays.asList(getRequiredPermissions(context, packageName))).toArray(new String[0]);
     }
 
+    @NonNull
     private String[] getRequiredPermissions(Context context, String packageName) {
         try {
             String[] str = context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS).requestedPermissions;

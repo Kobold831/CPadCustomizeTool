@@ -15,7 +15,6 @@ package com.saradabar.cpadcustomizetool.view.flagment;
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
 import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.app.Service;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
@@ -24,13 +23,15 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceCategory;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
@@ -66,13 +67,13 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.pre_app);
 
-        swUpdateCheck = (SwitchPreferenceCompat) findPreference("pre_app_update_check");
-        swUseDcha = (SwitchPreferenceCompat) findPreference("pre_app_use_dcha");
+        swUpdateCheck = findPreference("pre_app_update_check");
+        swUseDcha = findPreference("pre_app_use_dcha");
         preCrashLog = findPreference("pre_app_crash_log");
         preDelCrashLog = findPreference("pre_app_del_crash_log");
         preUpdateMode = findPreference("pre_app_update_mode");
-        catDebugRestriction = (PreferenceCategory) findPreference("pre_app_category_debug");
-        swDebugRestriction = (SwitchPreferenceCompat) findPreference("pre_app_debug_restriction");
+        catDebugRestriction = findPreference("pre_app_category_debug");
+        swDebugRestriction = findPreference("pre_app_debug_restriction");
         preClearCache = findPreference("pre_app_clear_cache");
         preClearData = findPreference("pre_app_clear_data");
 

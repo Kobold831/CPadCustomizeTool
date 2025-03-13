@@ -18,6 +18,8 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
 
+import androidx.annotation.NonNull;
+
 import com.saradabar.cpadcustomizetool.data.service.InstallService;
 import com.saradabar.cpadcustomizetool.util.Common;
 
@@ -29,7 +31,7 @@ import java.io.OutputStream;
 
 public class SessionInstaller {
 
-    public int splitCreateSession(Context context) throws Exception {
+    public int splitCreateSession(@NonNull Context context) throws Exception {
         int sessionId = createSession(context.getPackageManager().getPackageInstaller());
 
         if (sessionId < 0) {
@@ -38,7 +40,7 @@ public class SessionInstaller {
         return sessionId;
     }
 
-    public boolean splitWriteSession(Context context, File apkFile, int sessionId) throws Exception {
+    public boolean splitWriteSession(@NonNull Context context, File apkFile, int sessionId) throws Exception {
         return writeSession(context.getPackageManager().getPackageInstaller(), sessionId, apkFile);
     }
 
@@ -46,13 +48,13 @@ public class SessionInstaller {
         return commitSession(context.getPackageManager().getPackageInstaller(), sessionId, context, code);
     }
 
-    private int createSession(PackageInstaller packageInstaller) throws IOException {
+    private int createSession(@NonNull PackageInstaller packageInstaller) throws IOException {
         PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
         params.setInstallLocation(PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
         return packageInstaller.createSession(params);
     }
 
-    private boolean writeSession(PackageInstaller packageInstaller, int sessionId, File apkFile) throws IOException {
+    private boolean writeSession(PackageInstaller packageInstaller, int sessionId, @NonNull File apkFile) throws IOException {
         long sizeBytes = -1;
         String apkPath = apkFile.getAbsolutePath();
         File file = new File(apkPath);

@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:focusableInTouchMode="false">
+    android:focusableInTouchMode="false"
+    android:orientation="horizontal">
 
-    <RadioButton
-        android:focusable="false"
-        android:clickable="false"
+    <androidx.appcompat.widget.AppCompatRadioButton
         android:id="@+id/launcher_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginStart="20dp"
+        android:clickable="false"
+        android:focusable="false"
         android:paddingTop="20dp" />
 
-    <ImageView
-        android:layout_gravity="center"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/launcher_image"
-        android:layout_marginStart="8dp"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:contentDescription="@string/img_content_description" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/launcher_text"
-        android:layout_marginStart="20dp"
-        android:textSize="20sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center" />
-</LinearLayout>
+        android:layout_gravity="center"
+        android:layout_marginStart="20dp"
+        android:textSize="20sp" />
+</androidx.appcompat.widget.LinearLayoutCompat>

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,7 +29,7 @@ public class DchaInstallTask {
         });
     }
 
-    void onPreExecute(Listener listener) {
+    void onPreExecute(@NonNull Listener listener) {
         listener.onShow();
     }
 
@@ -46,7 +48,7 @@ public class DchaInstallTask {
                 objLock.wait();
             }
             if (mDchaService == null) return false;
-            return mDchaService.installApp(installData, 0);
+            return mDchaService.installApp(installData, 2);
         } catch (Exception ignored) {
             return false;
         }
@@ -60,6 +62,7 @@ public class DchaInstallTask {
         void onFailure();
     }
 
+    @NonNull
     private IDchaTask.Listener iDchaTaskListener() {
         return new IDchaTask.Listener() {
             @Override

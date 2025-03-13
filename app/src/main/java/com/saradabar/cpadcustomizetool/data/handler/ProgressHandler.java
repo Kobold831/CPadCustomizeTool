@@ -15,7 +15,8 @@ package com.saradabar.cpadcustomizetool.data.handler;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 

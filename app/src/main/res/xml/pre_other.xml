@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory>
+    <androidx.preference.PreferenceCategory>
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_other_start_settings"
             android:title="@string/pre_other_title_settings" />
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_other_start_dev_settings"
             android:title="@string/pre_other_title_development" />
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_other_start_ui_adjustment"
             android:title="@string/pre_other_title_adjustment" />
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_other_screen_off_time"
-            android:title="@string/pre_other_title_screen_off_time"
-            android:summary="スクリーンがタイムアウトするまでの時間を変更します。" />
+            android:summary="スクリーンがタイムアウトするまでの時間を変更します。"
+            android:title="@string/pre_other_title_screen_off_time" />
 
-        <Preference
-            app:isPreferenceVisible="false"
+        <androidx.preference.Preference
             android:key="pre_other_sleep_timeout"
-            android:title="sleep_timeout" />
+            android:title="sleep_timeout"
+            app:isPreferenceVisible="false" />
 
-        <Preference
-            app:isPreferenceVisible="false"
+        <androidx.preference.Preference
+            android:summary="通常では変更できない設定を変更します\n設定、値の入力が必須です"
             android:title="内部設定変更"
-            android:summary="通常では変更できない設定を変更します\n設定、値の入力が必須です" />
+            app:isPreferenceVisible="false" />
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_other_web_view"
-            android:title="アプリ内ブラウザを起動"
-            android:summary="セキュリティのため HTTP 接続、ファイルアクセス機能は使用できません。" />
+            android:summary="セキュリティのため HTTP 接続、ファイルアクセス機能は使用できません。"
+            android:title="アプリ内ブラウザを起動" />
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_other_launch_app"
-            android:title="アプリランチャー"
-            android:summary="インストールされている任意のアプリを起動します。" />
+            android:summary="インストールされている任意のアプリを起動します。"
+            android:title="アプリランチャー" />
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_other_start_device_info"
             android:title="デバイス情報" />
-    </PreferenceCategory>
-</PreferenceScreen>
+    </androidx.preference.PreferenceCategory>
+</androidx.preference.PreferenceScreen>

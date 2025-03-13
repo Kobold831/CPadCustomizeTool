@@ -1,11 +1,14 @@
 package com.saradabar.cpadcustomizetool.data.task;
 
 import android.content.Context;
+import android.os.BenesseExtension;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ServiceManager;
 import android.view.Display;
 import android.view.IWindowManager;
+
+import androidx.annotation.NonNull;
 
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
@@ -64,7 +67,11 @@ public class ResolutionTask {
                 if (mDchaUtilService == null) {
                     return false;
                 }
-                return new DchaUtilServiceUtil(mDchaUtilService).setForcedDisplaySize(i, i1);
+                try {
+                    return BenesseExtension.setForcedDisplaySize(i, i1);
+                } catch (Exception e) {
+                    return new DchaUtilServiceUtil(mDchaUtilService).setForcedDisplaySize(i, i1);
+                }
             }
         } catch (InvocationTargetException e) {
             return e.getTargetException();
@@ -81,6 +88,7 @@ public class ResolutionTask {
         void onError(String message);
     }
 
+    @NonNull
     private IDchaUtilTask.Listener iDchaUtilTaskListener() {
         return new IDchaUtilTask.Listener() {
             @Override

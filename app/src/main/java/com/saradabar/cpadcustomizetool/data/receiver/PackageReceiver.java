@@ -18,6 +18,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
 
+import androidx.annotation.NonNull;
+
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.PermissionIntentService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
@@ -29,7 +31,7 @@ import java.util.Objects;
 public class PackageReceiver extends BroadcastReceiver {
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(Context context, @NonNull Intent intent) {
         if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction()) && !Objects.requireNonNull(intent.getExtras()).getBoolean(Intent.EXTRA_REPLACING)) {
             run(context, intent);
         }
@@ -49,7 +51,7 @@ public class PackageReceiver extends BroadcastReceiver {
         }
     }
 
-    private void run(Context context, Intent intent) {
+    private void run(Context context, @NonNull Intent intent) {
         if (intent.getData() == null) {
             return;
         }

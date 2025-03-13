@@ -14,14 +14,17 @@ package com.saradabar.cpadcustomizetool.view.views;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatRadioButton;
+import androidx.appcompat.widget.AppCompatTextView;
+
+import androidx.annotation.NonNull;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -50,7 +53,7 @@ public class NormalModeHomeAppListView {
 
         @NonNull
         @Override
-        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
             ViewHolder holder = new ViewHolder();
 
@@ -70,7 +73,7 @@ public class NormalModeHomeAppListView {
                 holder.imageIcon.setImageDrawable(data.icon);
 
                 /* RadioButtonの更新 */
-                RadioButton button = convertView.findViewById(R.id.launcher_button);
+                AppCompatRadioButton button = convertView.findViewById(R.id.launcher_button);
                 button.setChecked(isLauncher(data.packName));
             }
 
@@ -88,7 +91,7 @@ public class NormalModeHomeAppListView {
     }
 
     private static class ViewHolder {
-        TextView textLabel;
-        ImageView imageIcon;
+        AppCompatTextView textLabel;
+        AppCompatImageView imageIcon;
     }
 }

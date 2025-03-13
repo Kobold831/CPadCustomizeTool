@@ -12,8 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
-import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -29,16 +27,22 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 import com.rosan.dhizuku.shared.DhizukuVariables;
+
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
@@ -62,6 +66,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/** @noinspection SequencedCollectionMethodCanBeUsed*/
 public class DeviceOwnerFragment extends PreferenceFragmentCompat implements InstallEventListener {
 
     AlertDialog progressDialog;
@@ -91,7 +96,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         addPreferencesFromResource(R.xml.pre_owner);
 
         preUninstallBlock = findPreference("pre_owner_uninstall_block");
-        swPrePermissionFrc = (SwitchPreferenceCompat) findPreference("pre_owner_permission_frc");
+        swPrePermissionFrc = findPreference("pre_owner_permission_frc");
         preSessionInstall = findPreference("pre_owner_session_install");
         preAbandonSession = findPreference("pre_owner_abandon_session");
         preClrDevOwn = findPreference("pre_owner_clr_dev_own");
@@ -351,7 +356,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             }
 
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
-            TextView textView = view.findViewById(R.id.view_progress_spinner_text);
+            AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
             textView.setText("サービスへの接続を待機しています。画面を切り替えないでください。");
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
@@ -401,7 +406,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ArrayList<String> installFileArrayList = new ArrayList<>();
 
@@ -565,8 +570,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onShow() {
                 View view = getLayoutInflater().inflate(R.layout.view_progress, null);
                 ProgressBar progressBar = view.findViewById(R.id.progress);
-                TextView textPercent = view.findViewById(R.id.progress_percent);
-                TextView textByte = view.findViewById(R.id.progress_byte);
+                AppCompatTextView textPercent = view.findViewById(R.id.progress_percent);
+                AppCompatTextView textByte = view.findViewById(R.id.progress_byte);
 
                 progressBar.setProgress(0);
                 textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
@@ -654,8 +659,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onShow() {
                 View view = getLayoutInflater().inflate(R.layout.view_progress, null);
                 ProgressBar progressBar = view.findViewById(R.id.progress);
-                TextView textPercent = view.findViewById(R.id.progress_percent);
-                TextView textByte = view.findViewById(R.id.progress_byte);
+                AppCompatTextView textPercent = view.findViewById(R.id.progress_percent);
+                AppCompatTextView textByte = view.findViewById(R.id.progress_byte);
 
                 progressBar.setProgress(0);
                 textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
@@ -743,8 +748,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onShow() {
                 View view = getLayoutInflater().inflate(R.layout.view_progress, null);
                 ProgressBar progressBar = view.findViewById(R.id.progress);
-                TextView textPercent = view.findViewById(R.id.progress_percent);
-                TextView textByte = view.findViewById(R.id.progress_byte);
+                AppCompatTextView textPercent = view.findViewById(R.id.progress_percent);
+                AppCompatTextView textByte = view.findViewById(R.id.progress_byte);
 
                 progressBar.setProgress(0);
                 textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
@@ -856,7 +861,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         });
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
+    @RequiresApi(Build.VERSION_CODES.M)
     private void setPermissionGrantState(String packageName, int grantState) {
         if (Common.isDhizukuActive(requireActivity())) {
             if (tryBindDhizukuService()) {
@@ -875,11 +880,13 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
+    @NonNull
+    @RequiresApi(Build.VERSION_CODES.M)
     private String[] getRuntimePermissions(String packageName) {
         return new ArrayList<>(Arrays.asList(getRequiredPermissions(packageName))).toArray(new String[0]);
     }
 
+    @NonNull
     private String[] getRequiredPermissions(String packageName) {
         try {
             String[] str = requireActivity().getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS).requestedPermissions;
@@ -896,7 +903,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     /* ローディングダイアログを表示する */
     private void showLoadingDialog(String message) {
         View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
-        TextView textView = view.findViewById(R.id.view_progress_spinner_text);
+        AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
         textView.setText(message);
         progressDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
         progressDialog.show();

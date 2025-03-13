@@ -1,211 +1,211 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <Preference
+    <androidx.preference.Preference
         android:key="pre_notice"
         android:title="notice" />
 
-    <PreferenceCategory
-        android:title="@string/pre_main_category_system_ui"
-        android:key="1">
+    <androidx.preference.PreferenceCategory
+        android:key="1"
+        android:title="@string/pre_main_category_system_ui">
 
-        <SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="pre_dcha_state"
             android:title="@string/pre_main_title_system_ui" />
 
-        <SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="pre_keep_dcha_state"
             android:title="@string/pre_main_title_keep_system_ui" />
 
-        <SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="pre_navigation"
             android:title="@string/pre_main_title_navigation_bar" />
 
-        <SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="pre_keep_navigation"
             android:title="@string/pre_main_title_keep_navigation_bar" />
-    </PreferenceCategory>
+    </androidx.preference.PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/pre_main_category_system"
-        android:key="2">
+    <androidx.preference.PreferenceCategory
+        android:key="2"
+        android:title="@string/pre_main_category_system">
 
-        <SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="pre_unk_src"
             android:title="@string/pre_main_title_non_market" />
 
-        <SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="pre_keep_unk_src"
             android:title="@string/pre_main_title_keep_non_market" />
 
-        <SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="pre_adb"
             android:title="@string/pre_main_title_usb_debug" />
 
-        <SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="pre_keep_adb"
             android:title="@string/pre_main_title_keep_usb_debug" />
 
-        <SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="pre_app_adb"
-            android:title="@string/pre_app_title_usb"
-            android:summary="@string/pre_app_sum_usb" />
-    </PreferenceCategory>
+            android:summary="@string/pre_app_sum_usb"
+            android:title="@string/pre_app_title_usb" />
+    </androidx.preference.PreferenceCategory>
 
-    <Preference
+    <androidx.preference.Preference
         android:key="pre_launcher"
         android:title="@string/pre_main_title_change_home" />
 
-    <SwitchPreferenceCompat
+    <androidx.preference.SwitchPreferenceCompat
         android:key="pre_keep_launcher"
-        android:title="@string/pre_main_title_keep_home"
-        android:summary="@string/pre_main_sum_keep_home" />
+        android:summary="@string/pre_main_sum_keep_home"
+        android:title="@string/pre_main_title_keep_home" />
 
-    <Preference
+    <androidx.preference.Preference
         android:key="pre_other_settings"
-        android:title="@string/pre_main_title_other_settings"
-        android:summary="システム設定、ブラウザ、アプリ起動" />
+        android:summary="システム設定、ブラウザ、アプリ起動"
+        android:title="@string/pre_main_title_other_settings" />
 
-    <PreferenceCategory
-        android:title="@string/pre_main_category_emergency_mode"
-        android:key="category_emergency">
+    <androidx.preference.PreferenceCategory
+        android:key="category_emergency"
+        android:title="@string/pre_main_category_emergency_mode">
 
-        <ListPreference
-            android:key="emergency_mode"
-            android:title="@string/pre_main_title_select_course"
-            android:summary="緊急モードを使用するときは、受講中の講座に設定されていることを確認してください。"
-            android:dialogTitle="@string/pre_main_title_select_course"
+        <androidx.preference.ListPreference
             android:defaultValue="1"
+            android:dialogTitle="@string/pre_main_title_select_course"
             android:entries="@array/mode_text"
-            android:entryValues="@array/mode_value" />
+            android:entryValues="@array/mode_value"
+            android:key="emergency_mode"
+            android:summary="緊急モードを使用するときは、受講中の講座に設定されていることを確認してください。"
+            android:title="@string/pre_main_title_select_course" />
 
-        <MultiSelectListPreference
-            android:key="emergency_settings"
+        <androidx.preference.MultiSelectListPreference
+            android:defaultValue="@array/emergency_def_value"
             android:dialogTitle="@string/dialog_mode_select_settings"
             android:entries="@array/emergency_settings_text"
             android:entryValues="@array/emergency_settings_value"
-            android:defaultValue="@array/emergency_def_value"
-            android:title="@string/pre_main_title_change_settings"
-            android:summary="@string/pre_main_sum_change_settings" />
+            android:key="emergency_settings"
+            android:summary="@string/pre_main_sum_change_settings"
+            android:title="@string/pre_main_title_change_settings" />
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_emg_manual"
             android:title="@string/pre_main_title_manual" />
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_emg_execute"
-            android:title="緊急モードを起動"
-            android:summary="起動すると、学習環境に変更します。" />
+            android:summary="起動すると、学習環境に変更します。"
+            android:title="緊急モードを起動" />
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_emg_shortcut"
             android:title="緊急モードのショートカットをホームに追加" />
-    </PreferenceCategory>
+    </androidx.preference.PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/pre_main_category_change_to_normal_mode"
-        android:key="category_normal">
+    <androidx.preference.PreferenceCategory
+        android:key="category_normal"
+        android:title="@string/pre_main_category_change_to_normal_mode">
 
-        <MultiSelectListPreference
-            android:key="normal_settings"
+        <androidx.preference.MultiSelectListPreference
+            android:defaultValue="@array/normal_def_value"
             android:dialogTitle="@string/dialog_mode_select_settings"
             android:entries="@array/normal_mode_text"
             android:entryValues="@array/normal_mode_value"
-            android:defaultValue="@array/normal_def_value"
-            android:title="@string/pre_main_title_change_to_normal_mode_settings"
-            android:summary="@string/pre_main_sum_change_to_normal_mode_settings" />
+            android:key="normal_settings"
+            android:summary="@string/pre_main_sum_change_to_normal_mode_settings"
+            android:title="@string/pre_main_title_change_to_normal_mode_settings" />
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_sel_nor_launcher"
             android:title="@string/pre_main_title_launcher" />
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_nor_manual"
             android:title="@string/pre_main_title_normal_mode_manual" />
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_nor_execute"
-            android:title="通常モードを起動"
-            android:summary="起動すると、通常環境に変更します。" />
+            android:summary="起動すると、通常環境に変更します。"
+            android:title="通常モードを起動" />
 
-        <Preference
+        <androidx.preference.Preference
             android:key="pre_nor_shortcut"
             android:title="通常モードのショートカットをホームに追加" />
-    </PreferenceCategory>
+    </androidx.preference.PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/pre_main_category_other_settings"
-        android:key="category_other" />
+    <androidx.preference.PreferenceCategory
+        android:key="category_other"
+        android:title="@string/pre_main_category_other_settings" />
 
-    <Preference
+    <androidx.preference.Preference
         android:key="pre_enable_dcha_service"
-        android:title="@string/pre_main_title_use_dcha"
-        android:summary="@string/pre_main_sum_use_dcha" />
+        android:summary="@string/pre_main_sum_use_dcha"
+        android:title="@string/pre_main_title_use_dcha" />
 
-    <Preference
+    <androidx.preference.Preference
         android:key="pre_reboot"
-        android:title="@string/pre_main_title_reboot"
-        android:summary="デバイスを再起動します。" />
+        android:summary="デバイスを再起動します。"
+        android:title="@string/pre_main_title_reboot" />
 
-    <Preference
+    <androidx.preference.Preference
         android:key="pre_reboot_shortcut"
         android:title="@string/pre_main_title_reboot_shortcut" />
 
-    <Preference
+    <androidx.preference.Preference
         android:key="pre_silent_install"
-        android:title="@string/pre_main_title_silent_install"
-        android:summary="@string/pre_main_sum_silent_install" />
+        android:summary="@string/pre_main_sum_silent_install"
+        android:title="@string/pre_main_title_silent_install" />
 
-    <Preference
+    <androidx.preference.Preference
         android:key="pre_resolution"
-        android:title="@string/pre_main_title_resolution"
-        android:summary="画面解像度を任意の値に変更できます。" />
+        android:summary="画面解像度を任意の値に変更できます。"
+        android:title="@string/pre_main_title_resolution" />
 
-    <Preference
+    <androidx.preference.Preference
         android:key="pre_reset_resolution"
-        android:title="@string/pre_main_title_resolution_reset"
-        android:summary="画面解像度をデフォルト値に変更します。" />
+        android:summary="画面解像度をデフォルト値に変更します。"
+        android:title="@string/pre_main_title_resolution_reset" />
 
-    <Preference
+    <androidx.preference.Preference
         android:key="pre_system_update"
-        android:title="@string/pre_main_title_system_update"
-        android:summary="デバイスのシステムをアップデートします。" />
+        android:summary="デバイスのシステムをアップデートします。"
+        android:title="@string/pre_main_title_system_update" />
 
-    <PreferenceCategory
+    <androidx.preference.PreferenceCategory
         android:title="デバイス管理者設定" />
 
-    <Preference
+    <androidx.preference.Preference
         android:key="pre_device_owner_fn"
-        android:title="@string/pre_main_title_device_owner"
-        android:summary="アンインストールブロック、サイレントインストール" />
+        android:summary="アンインストールブロック、サイレントインストール"
+        android:title="@string/pre_main_title_device_owner" />
 
-    <Preference
-        app:isPreferenceVisible="false"
+    <androidx.preference.Preference
         android:key="pre_edit_admin"
-        android:title="デバイス管理者の編集" />
+        android:title="デバイス管理者の編集"
+        app:isPreferenceVisible="false" />
 
-    <Preference
+    <androidx.preference.Preference
         android:key="pre_dhizuku_permission_req"
-        android:title="@string/pre_main_title_dhizuku_permission_req"
-        android:summary="Dhizuku のバージョンが v2.8 であることを確認してください！デバイスオーナーが Dhizuku の場合はタップして権限をリクエストしてください。\n権限が付与されるとデバイスオーナーの機能を使用できます。"/>
+        android:summary="Dhizuku のバージョンが v2.8 であることを確認してください！デバイスオーナーが Dhizuku の場合はタップして権限をリクエストしてください。\n権限が付与されるとデバイスオーナーの機能を使用できます。"
+        android:title="@string/pre_main_title_dhizuku_permission_req" />
 
-    <SwitchPreferenceCompat
+    <androidx.preference.SwitchPreferenceCompat
         android:key="pre_device_admin"
-        android:title="@string/pre_main_title_device_admin"
-        android:summary="@string/pre_main_sum_device_admin" />
+        android:summary="@string/pre_main_sum_device_admin"
+        android:title="@string/pre_main_title_device_admin" />
 
-    <PreferenceCategory
+    <androidx.preference.PreferenceCategory
         android:key="pre_cat_assist"
         android:title="アシスト機能" />
 
-    <Preference
+    <androidx.preference.Preference
         android:key="pre_get_app"
-        android:title="アプリを取得"
-        android:summary="@string/pre_main_sum_get_app" />
+        android:summary="@string/pre_main_sum_get_app"
+        android:title="アプリを取得" />
 
-    <Preference
-        app:isPreferenceVisible="false"
+    <androidx.preference.Preference
+        android:summary="この機能は単体で可能な限り、Googleを利用可能にします"
         android:title="EnableGPlay"
-        android:summary="この機能は単体で可能な限り、Googleを利用可能にします" />
-</PreferenceScreen>
+        app:isPreferenceVisible="false" />
+</androidx.preference.PreferenceScreen>

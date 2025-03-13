@@ -16,7 +16,6 @@ import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -31,6 +30,7 @@ import android.database.ContentObserver;
 import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,20 +38,25 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.UserManager;
 import android.provider.Settings;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatEditText;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
+
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
@@ -79,6 +84,7 @@ import com.saradabar.cpadcustomizetool.view.views.NormalModeHomeAppListView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.File;
@@ -91,9 +97,11 @@ import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class MainFragment extends PreferenceFragmentCompat implements DownloadEventListener, InstallEventListener {
 
+    ActivityResultLauncher<Intent> activityResultLauncher;
+
     AlertDialog progressDialog;
-    TextView progressPercentText;
-    TextView progressByteText;
+    AppCompatTextView progressPercentText;
+    AppCompatTextView progressByteText;
     ProgressBar dialogProgressBar;
 
     String downloadFileUrl;
@@ -143,17 +151,17 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.pre_main);
 
-        swDchaState = (SwitchPreferenceCompat) findPreference("pre_dcha_state");
-        swKeepDchaState = (SwitchPreferenceCompat) findPreference("pre_keep_dcha_state");
-        swNavigation = (SwitchPreferenceCompat) findPreference("pre_navigation");
-        swKeepNavigation = (SwitchPreferenceCompat) findPreference("pre_keep_navigation");
-        swUnkSrc = (SwitchPreferenceCompat) findPreference("pre_unk_src");
-        swKeepUnkSrc = (SwitchPreferenceCompat) findPreference("pre_keep_unk_src");
-        swAdb = (SwitchPreferenceCompat) findPreference("pre_adb");
-        swKeepAdb = (SwitchPreferenceCompat) findPreference("pre_keep_adb");
-        swBypassAdbDisable = (SwitchPreferenceCompat) findPreference("pre_app_adb");
+        swDchaState = findPreference("pre_dcha_state");
+        swKeepDchaState = findPreference("pre_keep_dcha_state");
+        swNavigation = findPreference("pre_navigation");
+        swKeepNavigation = findPreference("pre_keep_navigation");
+        swUnkSrc = findPreference("pre_unk_src");
+        swKeepUnkSrc = findPreference("pre_keep_unk_src");
+        swAdb = findPreference("pre_adb");
+        swKeepAdb = findPreference("pre_keep_adb");
+        swBypassAdbDisable = findPreference("pre_app_adb");
         preLauncher = findPreference("pre_launcher");
-        swKeepLauncher = (SwitchPreferenceCompat) findPreference("pre_keep_launcher");
+        swKeepLauncher = findPreference("pre_keep_launcher");
         preOtherSettings = findPreference("pre_other_settings");
         preEnableDchaService = findPreference("pre_enable_dcha_service");
         preEmgManual = findPreference("pre_emg_manual");
@@ -172,7 +180,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preDeviceOwnerFn = findPreference("pre_device_owner_fn");
         preEditAdmin = findPreference("pre_edit_admin");
         preDhizukuPermissionReq = findPreference("pre_dhizuku_permission_req");
-        swDeviceAdmin = (SwitchPreferenceCompat) findPreference("pre_device_admin");
+        swDeviceAdmin = findPreference("pre_device_admin");
         preGetApp = findPreference("pre_get_app");
         preNotice = findPreference("pre_notice");
 
@@ -207,7 +215,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         super.onResume();
         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
-            TextView textView = view.findViewById(R.id.view_progress_spinner_text);
+            AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
             textView.setText("サービスへの接続を待機しています。画面を切り替えないでください。");
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
@@ -257,7 +265,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case Constants.REQUEST_ACTIVITY_INSTALL:
@@ -356,11 +364,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         swUnkSrc.setOnPreferenceChangeListener((preference, o) -> {
             try {
-                if ((boolean) o) {
-                    chgSetting(Constants.FLAG_MARKET_APP_TRUE);
-                } else {
-                    chgSetting(Constants.FLAG_MARKET_APP_FALSE);
-                }
+                chgSetting((Boolean) o ? Constants.FLAG_MARKET_APP_TRUE : Constants.FLAG_MARKET_APP_FALSE);
             } catch (Exception ignored) {
                 Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
             }
@@ -591,7 +595,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         preEmgManual.setOnPreferenceClickListener(preference -> {
-            TextView textView = new TextView(requireActivity());
+            AppCompatTextView textView = new AppCompatTextView(requireActivity());
             textView.setText(R.string.dialog_emergency_manual_red);
             textView.setTextSize(16);
             textView.setTextColor(Color.RED);
@@ -756,8 +760,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     .setTitle(R.string.dialog_title_resolution)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(view.getWindowToken(), 0);
-                        EditText editTextWidth = view.findViewById(R.id.edit_text_1);
-                        EditText editTextHeight = view.findViewById(R.id.edit_text_2);
+                        AppCompatEditText editTextWidth = view.findViewById(R.id.edit_text_1);
+                        AppCompatEditText editTextHeight = view.findViewById(R.id.edit_text_2);
 
                         try {
                             int width = Integer.parseInt(editTextWidth.getText().toString());
@@ -921,7 +925,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         if (getPreferenceScreen() != null) {
             /* DchaServiceを使用するか */
             if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-                for (Preference preference : Arrays.asList(
+                for (Object preference : Arrays.asList(
                         findPreference("pre_silent_install"),
                         findPreference("pre_launcher"),
                         findPreference("pre_keep_launcher"),
@@ -934,7 +938,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         findPreference("pre_system_update")
                 )) {
                     if (preference != null) {
-                        getPreferenceScreen().removePreference(preference);
+                        getPreferenceScreen().removePreference((Preference) preference);
                     }
                 }
             } else {
@@ -1006,19 +1010,26 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 }
                 break;
             case Constants.MODEL_CT3:
-                swDeviceAdmin.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                swDeviceAdmin.setEnabled(false);
                 break;
             case Constants.MODEL_CTX:
             case Constants.MODEL_CTZ:
+                swKeepUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swKeepUnkSrc.setEnabled(false);
+                swUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                swUnkSrc.setEnabled(false);
                 break;
         }
 
+        if (!requireActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN)) {
+            preDeviceOwnerFn.setEnabled(false);
+            preDeviceOwnerFn.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            preDhizukuPermissionReq.setVisible(false);
+            swDeviceAdmin.setVisible(false);
+        }
+
         if (((UserManager) requireActivity().getSystemService(Context.USER_SERVICE)).hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
-            swKeepUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-            swKeepUnkSrc.setEnabled(false);
-            swUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-            swUnkSrc.setEnabled(false);
+            swKeepUnkSrc.setVisible(false);
+            swUnkSrc.setVisible(false);
         }
 
         if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName())) {
@@ -1030,12 +1041,12 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         swBypassAdbDisable.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_AUTO_USB_DEBUG, false));
 
-        switch (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
-            case Constants.MODEL_CT2:
-            case Constants.MODEL_CT3:
-                swBypassAdbDisable.setEnabled(false);
-                swBypassAdbDisable.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                break;
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            BenesseExtension.getDchaState();
+        } catch (NoSuchMethodError | NoClassDefFoundError | Exception e) {
+            swBypassAdbDisable.setEnabled(false);
+            swBypassAdbDisable.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
         }
 
         new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(requireActivity().getExternalCacheDir(), "ct-notice.json"), Constants.REQUEST_DOWNLOAD_NOTICE);
@@ -1117,7 +1128,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     public void showLoadingDialog(String message) {
         View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
-        TextView textView = view.findViewById(R.id.view_progress_spinner_text);
+        AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
         textView.setText(message);
         progressDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
         progressDialog.show();
@@ -1213,6 +1224,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         };
     }
 
+    /** @noinspection SequencedCollectionMethodCanBeUsed*/
     @SuppressLint("InflateParams")
     @Override
     public void onDownloadComplete(int reqCode) {
@@ -1294,7 +1306,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                             dialog.dismiss();
                                         } else {
                                             View view1 = getLayoutInflater().inflate(R.layout.view_app_url, null);
-                                            EditText editText = view1.findViewById(R.id.edit_app_url);
+                                            AppCompatEditText editText = view1.findViewById(R.id.edit_app_url);
                                             new AlertDialog.Builder(requireActivity())
                                                     .setMessage("http:// または https:// を含む URL を指定してください。")
                                                     .setView(view1)
@@ -1366,7 +1378,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONArray jsonArray = jsonObj2.getJSONArray("noticeList");
                     if (jsonArray.length() == 0) {
-                        preNotice.setTitle("＊＊アプリのお知らせはありません＊＊");
+                        // 表示しない
+                        preNotice.setVisible(false);
                     } else {
                         preNotice.setTitle("＊＊アプリのお知らせが " + jsonArray.length() + " 件あります＊＊");
                         preNotice.setSummary("タップして確認してください。");

@@ -14,26 +14,26 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 
-import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.ServiceManager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.view.Display;
-import android.view.IWindowManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceFragmentCompat;
 
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.MainActivity;
@@ -50,7 +50,6 @@ import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
 import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
@@ -226,7 +225,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (supportModelCheck()) {
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -347,30 +346,11 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
 
     /* 解像度のリセット */
     public void resetResolution() {
-        int width = 0, height = 0;
-
-        switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
-            case Constants.MODEL_CT2, Constants.MODEL_CT3 -> {
-                width = 1280;
-                height = 800;
-            }
-            case Constants.MODEL_CTX, Constants.MODEL_CTZ -> {
-                width = 1920;
-                height = 1200;
-            }
-        }
-
         if (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                 Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
             try {
-                String method = "setForcedDisplaySize";
-                Class.forName("android.view.IWindowManager").getMethod(method, int.class, int.class, int.class).invoke(IWindowManager.Stub.asInterface(ServiceManager.getService("window")), Display.DEFAULT_DISPLAY, width, height);
-            } catch (InvocationTargetException e) {
-                new AlertDialog.Builder(this)
-                        .setTitle(getString(R.string.dialog_title_error))
-                        .setMessage(e.getTargetException().toString())
-                        .setPositiveButton(R.string.dialog_common_ok, null)
-                        .show();
+                //noinspection ResultOfMethodCallIgnored
+                BenesseExtension.putInt(Constants.BC_COMPATSCREEN, 0);
             } catch (Exception ignored) {
                 new AlertDialog.Builder(this)
                         .setMessage(getString(R.string.dialog_error))
@@ -378,15 +358,11 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                         .show();
             }
         } else {
-            int finalWidth = width;
-            int finalHeight = height;
-
             bindService(Constants.DCHA_UTIL_SERVICE, new ServiceConnection() {
-
                 @Override
                 public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                     IDchaUtilService iDchaUtilService = IDchaUtilService.Stub.asInterface(iBinder);
-                    if (!new DchaUtilServiceUtil(iDchaUtilService).setForcedDisplaySize(finalWidth, finalHeight)) {
+                    if (!new DchaUtilServiceUtil(iDchaUtilService).setForcedDisplaySize(1280, 800)) {
                         new AlertDialog.Builder(StartActivity.this)
                                 .setMessage(R.string.dialog_error)
                                 .setPositiveButton(R.string.dialog_common_ok, null)

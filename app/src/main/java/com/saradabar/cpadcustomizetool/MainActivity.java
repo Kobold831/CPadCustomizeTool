@@ -14,8 +14,6 @@ package com.saradabar.cpadcustomizetool;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -30,7 +28,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
@@ -38,8 +35,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
+
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
@@ -68,7 +70,7 @@ import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
-public class MainActivity extends Activity implements DownloadEventListener, InstallEventListener {
+public class MainActivity extends AppCompatActivity implements DownloadEventListener, InstallEventListener {
 
     AlertDialog progressDialog;
     TextView progressPercentText;
@@ -138,7 +140,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Ins
         new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
     }
 
-    /* ダウンロード完了 */
+    /** @noinspection SequencedCollectionMethodCanBeUsed*/ /* ダウンロード完了 */
     @Override
     public void onDownloadComplete(int reqCode) {
         ArrayList<String> installFileArrayList = new ArrayList<>();

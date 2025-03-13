@@ -14,14 +14,21 @@ package com.saradabar.cpadcustomizetool.util;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Environment;
+import android.os.UserManager;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.rosan.dhizuku.api.Dhizuku;
+
 import com.saradabar.cpadcustomizetool.BuildConfig;
 
 import org.json.JSONException;
@@ -47,7 +54,7 @@ public class Common {
         return df.format(System.currentTimeMillis());
     }
 
-    public static void LogOverWrite(Context context, Throwable throwable) {
+    public static void LogOverWrite(Context context, @NonNull Throwable throwable) {
         StringWriter stringWriter = new StringWriter();
         throwable.printStackTrace(new PrintWriter(stringWriter));
         String message = getNowDate() + System.lineSeparator() +
@@ -66,6 +73,7 @@ public class Common {
     }
 
     /* 選択したファイルデータを取得 */
+    @Nullable
     public static String getFilePath(Context context, Uri uri) {
         if (DocumentsContract.isDocumentUri(context, uri)) {
             switch (Objects.requireNonNull(uri.getAuthority())) {
@@ -93,7 +101,8 @@ public class Common {
         return null;
     }
 
-    public static JSONObject parseJson(File json) throws JSONException, IOException {
+    @NonNull
+    public static JSONObject parseJson(@NonNull File json) throws JSONException, IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(json.getPath()));
         JSONObject jsonObject;
         StringBuilder data = new StringBuilder();
@@ -110,7 +119,7 @@ public class Common {
         return jsonObject;
     }
 
-    public static boolean isDhizukuActive(Context context) {
+    public static boolean isDhizukuActive(@NonNull Context context) {
         DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
         if (dpm.isDeviceOwnerApp("com.rosan.dhizuku")) {
             if (Dhizuku.init(context)) {
@@ -120,16 +129,28 @@ public class Common {
         return false;
     }
 
+    public static boolean getDchaCompletedPast(@NonNull Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        try {
+            return ((UserManager) context.getSystemService(Context.USER_SERVICE)).hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)
+                    && packageManager.getApplicationEnabledSetting("com.android.quicksearchbox") == PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                    && packageManager.getApplicationEnabledSetting("com.android.browser") == PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+        } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
+            return false;
+        }
+    }
+
+    /** @noinspection BooleanMethodIsAlwaysInverted*/
     public static boolean isCfmDialog(Context context) {
-        if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, 0) == Constants.MODEL_CTX || Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, 0) == Constants.MODEL_CTZ) {
-            /* チャレパNEO・NEXTは対象 */
-            if (!Constants.COUNT_DCHA_COMPLETED_FILE.exists() && Constants.IGNORE_DCHA_COMPLETED_FILE.exists() || !Constants.COUNT_DCHA_COMPLETED_FILE.exists() || Constants.IGNORE_DCHA_COMPLETED_FILE.exists()) {
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            BenesseExtension.getDchaState();
+            if (!getDchaCompletedPast(context)) {
                 return Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, false);
             } else {
                 return true;
             }
-        } else {
-            /* チャレパ２・３は対象外 */
+        } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
             return true;
         }
     }
@@ -148,6 +169,7 @@ public class Common {
         long result = 0;
 
         while (!dirs.isEmpty()) {
+            //noinspection SequencedCollectionMethodCanBeUsed
             final File dir = dirs.remove(0);
 
             if (!dir.exists()) {

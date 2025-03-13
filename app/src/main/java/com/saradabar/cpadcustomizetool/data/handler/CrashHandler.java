@@ -13,7 +13,8 @@
 package com.saradabar.cpadcustomizetool.data.handler;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;

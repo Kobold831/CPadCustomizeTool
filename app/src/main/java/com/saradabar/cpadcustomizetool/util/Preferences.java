@@ -12,40 +12,42 @@
 
 package com.saradabar.cpadcustomizetool.util;
 
-import static android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences;
+import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 
 import android.content.Context;
+
+import androidx.annotation.NonNull;
 
 import java.util.Set;
 
 public class Preferences {
 
     /* データ管理 */
-    public static void save(Context context, String key, int value) {
+    public static void save(@NonNull Context context, String key, int value) {
         context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putInt(key, value).apply();
     }
 
-    public static void save(Context context, String key, boolean value) {
+    public static void save(@NonNull Context context, String key, boolean value) {
         context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putBoolean(key, value).apply();
     }
 
-    public static void save(Context context, String key, String value) {
+    public static void save(@NonNull Context context, String key, String value) {
         context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putString(key, value).apply();
     }
 
-    public static int load(Context context, String key, int value) {
+    public static int load(@NonNull Context context, String key, int value) {
         return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getInt(key, value);
     }
 
-    public static boolean load(Context context, String key, boolean value) {
+    public static boolean load(@NonNull Context context, String key, boolean value) {
         return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getBoolean(key, value);
     }
 
-    public static String load(Context context, String key, String value) {
+    public static String load(@NonNull Context context, String key, String value) {
         return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getString(key, value);
     }
 
-    public static void delete(Context context, String key) {
+    public static void delete(@NonNull Context context, String key) {
         context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().remove(key).apply();
     }
 

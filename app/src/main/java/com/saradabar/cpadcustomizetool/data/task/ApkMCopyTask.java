@@ -1,11 +1,13 @@
 package com.saradabar.cpadcustomizetool.data.task;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -36,7 +38,7 @@ public class ApkMCopyTask {
         });
     }
 
-    void onPreExecute(Listener listener) {
+    void onPreExecute(@NonNull Listener listener) {
         listener.onShow();
     }
 
@@ -69,11 +71,12 @@ public class ApkMCopyTask {
         listener.onError(result.toString());
     }
 
-    public void onProgressUpdate(Listener listener, String message) {
+    public void onProgressUpdate(@NonNull Listener listener, String message) {
         listener.onProgressUpdate(message);
     }
 
-    protected Object doInBackground(Context context, Listener listener, ArrayList<String> splitInstallData) {
+    /** @noinspection SequencedCollectionMethodCanBeUsed*/
+    protected Object doInBackground(Context context, Listener listener, @NonNull ArrayList<String> splitInstallData) {
         String zipFile = splitInstallData.get(0);
         File tmpFile = new File(Common.getTemporaryPath(context));
         totalByte = new File(zipFile).length();
@@ -143,6 +146,7 @@ public class ApkMCopyTask {
         void onProgressUpdate(String message);
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     public int getLoadedBytePercent(Context context) {
         if (totalByte <= 0) {
             return 0;
@@ -154,7 +158,7 @@ public class ApkMCopyTask {
         return (int) totalByte / (1024 * 1024);
     }
 
-    @TargetApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.O)
     public int getLoadedCurrentByte(Context context) {
         if (totalByte <= 0) {
             return 0;

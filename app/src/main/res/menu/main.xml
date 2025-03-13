@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/app_info_3"
-        android:title="@string/menu_app_settings"
-        android:orderInCategory="100" />
+        android:orderInCategory="100"
+        android:title="@string/menu_app_settings" />
     <item
         android:id="@+id/app_info_1"
-        android:title="@string/menu_app_info"
-        android:orderInCategory="200" />
+        android:orderInCategory="200"
+        android:title="@string/menu_app_info" />
     <item
         android:id="@+id/app_info_2"
-        android:title="@string/menu_app_update"
-        android:orderInCategory="300" />
+        android:orderInCategory="300"
+        android:title="@string/menu_app_update" />
 </menu>

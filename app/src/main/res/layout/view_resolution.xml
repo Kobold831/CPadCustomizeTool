@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center_vertical|center_horizontal"
     android:gravity="center"
-    android:layout_gravity="center_vertical|center_horizontal">
+    android:orientation="vertical">
 
-    <EditText
+    <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/edit_text_1"
-        android:maxLength="4"
-        android:layout_marginHorizontal="20dp"
-        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:gravity="center"
         android:hint="@string/view_resolution_text_width"
-        android:inputType="number" />
+        android:inputType="number"
+        android:maxLength="4" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/view_resolution_text_x" />
 
-    <EditText
+    <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/edit_text_2"
-        android:maxLength="4"
-        android:layout_marginHorizontal="20dp"
-        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:gravity="center"
         android:hint="@string/view_resolution_text_height"
-        android:inputType="number" />
-</LinearLayout>
+        android:inputType="number"
+        android:maxLength="4" />
+</androidx.appcompat.widget.LinearLayoutCompat>

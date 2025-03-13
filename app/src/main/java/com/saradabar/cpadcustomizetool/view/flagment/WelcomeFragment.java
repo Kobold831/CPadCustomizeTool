@@ -13,11 +13,12 @@
 package com.saradabar.cpadcustomizetool.view.flagment;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.fragment.app.Fragment;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.stephentuso.welcome.WelcomePage;
@@ -27,7 +28,7 @@ public class WelcomeFragment extends Fragment implements WelcomePage.OnChangeLis
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_welcome, container, false);
-        TextView textView = view.findViewById(R.id.wel_scroll);
+        AppCompatTextView textView = view.findViewById(R.id.wel_scroll);
 
         textView.setText(getString(R.string.wel_terms_of_service));
         view.findViewById(R.id.wel_no).setOnClickListener(v -> requireActivity().finishAffinity());

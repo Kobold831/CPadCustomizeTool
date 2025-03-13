@@ -14,19 +14,20 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
-import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
@@ -49,8 +50,8 @@ import java.util.ArrayList;
 public class SelfUpdateActivity extends AppCompatActivity implements DownloadEventListener, InstallEventListener {
 
     AlertDialog progressDialog;
-    TextView progressPercentText;
-    TextView progressByteText;
+    AppCompatTextView progressPercentText;
+    AppCompatTextView progressByteText;
     ProgressBar dialogProgressBar;
 
     @Override
@@ -64,6 +65,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
     }
 
+    /** @noinspection SequencedCollectionMethodCanBeUsed*/
     @Override
     public void onDownloadComplete(int reqCode) {
         ArrayList<String> installFileArrayList = new ArrayList<>();
@@ -212,7 +214,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
 
     private void showUpdateDialog(String str, String downloadFileUrl) {
         View view = getLayoutInflater().inflate(R.layout.view_update, null);
-        TextView tv = view.findViewById(R.id.update_information);
+        AppCompatTextView tv = view.findViewById(R.id.update_information);
         tv.setText(str);
         view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
             try {
@@ -258,7 +260,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
 
     private void showLoadingDialog(String message) {
         View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
-        TextView textView = view.findViewById(R.id.view_progress_spinner_text);
+        AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
         textView.setText(message);
         progressDialog = new AlertDialog.Builder(this).setCancelable(false).setView(view).create();
         progressDialog.show();
