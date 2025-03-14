@@ -20,7 +20,6 @@ import android.net.Uri;
 import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Environment;
-import android.os.UserManager;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 
@@ -133,7 +132,7 @@ public class Common {
         PackageManager packageManager = context.getPackageManager();
         try {
             return (packageManager.getApplicationEnabledSetting("com.android.quicksearchbox") == PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-                    && packageManager.getApplicationEnabledSetting("com.android.browser") == PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+                    && packageManager.getApplicationEnabledSetting("com.android.browser") == PackageManager.COMPONENT_ENABLED_STATE_DISABLED);
         } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
             return false;
         }
