@@ -173,7 +173,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                     case 4:
                         if (isDhizukuActive(requireActivity())) {
                             try {
-                                if (requireActivity().getPackageManager().getPackageInfo("com.rosan.dhizuku", 0).versionCode > 11) {
+                                if (requireActivity().getPackageManager().getPackageInfo("com.rosan.dhizuku", 0).versionCode != 11) {
                                     new AlertDialog.Builder(requireActivity())
                                             .setCancelable(false)
                                             .setMessage("Dhizuku の互換性がありません。バージョン 2.8 の Dhizuku をインストールしてください。")

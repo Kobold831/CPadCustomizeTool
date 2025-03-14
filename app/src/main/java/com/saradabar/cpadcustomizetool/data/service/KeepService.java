@@ -28,6 +28,7 @@ import android.provider.Settings;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
@@ -184,9 +185,9 @@ public class KeepService extends Service {
     };
 
     /* 提供元不明オブサーバー */
-    @SuppressWarnings("deprecation")
     ContentObserver marketObserver = new ContentObserver(new Handler()) {
 
+        /** @noinspection deprecation*/
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
@@ -207,26 +208,28 @@ public class KeepService extends Service {
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
             try {
+                Settings.Global.putInt(getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 1);
                 if (Settings.Global.getInt(getContentResolver(), Settings.Global.ADB_ENABLED) == 0) {
-                    if (Preferences.load(getBaseContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                            Preferences.load(getBaseContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        Settings.System.putInt(getBaseContext().getContentResolver(), Constants.DCHA_STATE, 3);
+                    if (Common.getDchaCompletedPast(getBaseContext())) {
+                        Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 3);
                         Thread.sleep(100);
                     }
 
+                    Settings.Global.putInt(getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 1);
+                    Settings.Global.putInt(getContentResolver(), Settings.Global.ADB_ENABLED, 1);
                     Settings.System.putInt(getContentResolver(), Constants.BC_PASSWORD_HIT_FLAG, 1);
-                    Settings.Global.putInt(getBaseContext().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
 
-                    if (Preferences.load(getBaseContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                            Preferences.load(getBaseContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        Settings.System.putInt(getBaseContext().getContentResolver(), Constants.DCHA_STATE, 0);
+                    if (Common.getDchaCompletedPast(getBaseContext())) {
+                        Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
                     }
                 }
+                if (Settings.Global.getInt(getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) == 0)
+                    Settings.Global.putInt(getBaseContext().getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 1);
             } catch (Exception ignored) {
                 Preferences.save(getBaseContext(), Constants.KEY_FLAG_AUTO_USB_DEBUG, false);
                 if (Preferences.load(getBaseContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                         Preferences.load(getBaseContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                    Settings.System.putInt(getBaseContext().getContentResolver(), Constants.DCHA_STATE, 0);
+                    Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
                 }
             }
         }

@@ -875,7 +875,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         swDeviceAdmin.setOnPreferenceChangeListener((preference, o) -> {
             if ((boolean) o) {
                 if (!((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
-                    startActivityForResult(new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, new ComponentName(requireActivity(), AdministratorReceiver.class)), Constants.REQUEST_ACTIVITY_ADMIN);
+                    startActivityForResult(
+                            new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+                                    .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, new ComponentName(requireActivity(), AdministratorReceiver.class))
+                                    .putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "｢端末管理アプリ｣を有効にする事で､ DchaService による自動アンインストールをブロックします｡")
+                            , Constants.REQUEST_ACTIVITY_ADMIN);
                 }
             } else {
                 swDeviceAdmin.setChecked(true);
@@ -981,6 +985,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         swKeepLauncher.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_HOME, false));
         preLauncher.setSummary(getLauncherName(requireActivity()));
 
+        //String normalLauncherName = Build.VERSION.SDK_INT == 22 ? "com.android.launcher2" : "com.android.launcher3";
         String normalLauncherName = null;
 
         try {
@@ -988,11 +993,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         } catch (PackageManager.NameNotFoundException ignored) {
         }
 
-        if (normalLauncherName == null) {
-            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_no_setting_launcher));
-        } else {
-            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_message_2, normalLauncherName));
-        }
+        preSelNorLauncher.setSummary(getString(normalLauncherName == null ? R.string.pre_main_sum_no_setting_launcher : R.string.pre_main_sum_message_2, normalLauncherName));
 
         /* 維持スイッチが有効のときサービスが停止していたら起動 */
         requireActivity().startService(new Intent(requireActivity(), KeepService.class));
@@ -1079,13 +1080,13 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     };
 
     /* 提供元オブザーバー */
-    @SuppressWarnings("deprecation")
     ContentObserver marketObserver = new ContentObserver(new Handler()) {
 
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
             try {
+                //noinspection deprecation
                 swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
             } catch (Exception ignored) {
             }
@@ -1110,6 +1111,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     private void chgSetting(int req) {
         switch (req) {
             case Constants.FLAG_USB_DEBUG_TRUE:
+                Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 1);
                 Settings.Global.putInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED, 1);
                 Settings.System.putInt(requireActivity().getContentResolver(), Constants.BC_PASSWORD_HIT_FLAG, 1);
                 break;

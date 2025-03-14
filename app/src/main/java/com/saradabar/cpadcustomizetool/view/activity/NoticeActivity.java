@@ -1,11 +1,12 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.saradabar.cpadcustomizetool.R;
@@ -80,7 +81,7 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
 
     /* メニュー選択 */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;

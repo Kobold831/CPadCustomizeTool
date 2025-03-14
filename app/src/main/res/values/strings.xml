@@ -28,12 +28,21 @@
     <string name="wel_title_page_1">CPad Customize Toolへようこそ！</string>
     <string name="wel_title_page_2">ナビゲーションバー常時表示</string>
     <string name="wel_title_page_3">緊急モード</string>
-    <string name="wel_description_page_2">学習中、それ以外の時でもナビゲーションバーを表示します。</string>
-    <string name="wel_description_page_3">瞬時に学習環境に変更します。</string>
+    <string name="wel_description_page_2">学習中の時も、常にナビゲーションバーを表示します。</string>
+    <string name="wel_description_page_3">瞬時に学習環境に変更します。\n\nホームボタンと音量ボタンのみで\n学習環境との切り替えができます。\n\n詳しくは、ユーザー補助をご覧ください。</string>
     <string name="wel_title">利用規約</string>
     <string name="wel_disagree">同意しない</string>
     <string name="wel_agree">同意する</string>
-    <string name="wel_terms_of_service">このアプリの利用を開始するには、必ずこの利用規約をお読みいただき、同意してください。「同意する」を押した時点で、この規約に同意したことになります。\n・開発者は一切の問題において責任を負わないものとします。</string>
+    <string name="wel_terms_of_service"><![CDATA[本アプリをご利用になる前に、以下の利用規約を必ずお読みください。\n「同意する」を押した時点で、この規約に同意したものとみなされます。\n\n
+        ・免責事項：本アプリの使用によって発生した問題について、開発者は一切の責任を負いません。\n
+        ・学習環境における利用：学習環境で本アプリを利用する際に、進研ゼミの規約違反により会員資格が失効した場合でも、開発者は一切の責任を負いません。\n
+        ・仕様の変更：DchaService、DchaUtilService、BenesseExtension は、予告なく仕様が変更される可能性があります。\n
+        ・動作保証の否認：本アプリは、一切の動作を保証するものではありません。\n
+        ・クラッシュログの収集：本アプリはクラッシュログを収集しますが、お客様の許可なくインターネットにアップロードすることはありません。\n
+        ・システム設定の変更：本アプリは、システムの中核の設定を変更することがあります。その際にシステムが損壊した場合でも、開発者は一切の責任を負いません。\n
+        ・ライセンス：本アプリのライセンスは、「アプリの情報」画面から参照できます。\n
+        ・Dhizuku の利用：本アプリは Dhizuku を使用していますが、Dhizuku の動作を保証するものではありません。\n
+        ・意図しない動作：開発者も意図しない動作が発生する場合があります。予めご了承ください。]]></string>
 
     <!-- メイン設定 -->
     <string name="pre_main_category_system_ui">システム UI 設定</string>
@@ -195,11 +204,11 @@
     <string name="info_library">外部ライブラリーと謝辞</string>
     <string name="info_library_wel_label">・welcome-android\nCopyright 2015\-2017 Stephen Tuso</string>
     <string name="info_library_zip_label">・ZeroTurnaround ZIP Library\nCopyright 2012 ZeroTurnaround LLC.</string>
-    <string name="info_library_yib_label">・よびばいと (YiB)\n画像の提供（cpadmaterial.png / ex.png / navigationbar.png）\nウォークスルーの追加のご協力</string>
+    <string name="info_library_yib_label">・よびばいと (YiB)\n画像の提供（navigationbar.webp / ex.webp）\nウォークスルーの追加のご協力</string>
     <string name="info_library_dhizuku_label">・Dhizuku-API\nCopyright © 2023 R0S</string>
     <string name="info_library_awayume_label">・粟夢 (Awayume)\n不具合修正のご協力</string>
     <string name="info_library_syuugo_label">・しゅーご (Syuugo)\n不具合修正\nアプリの最適化\n機能修正のご協力</string>
-    <string name="info_library_naniwara_label">・なにわらマサト\ncpad_grid_icon_v2.webp</string>
+    <string name="info_library_naniwara_label">・なにわらマサト\nアプリアイコン (cpad_grid_icon_v2.webp) の提供</string>
     <string name="info_library_other_label">敬称略・順不同で記載しています。著作物はその著作権者に帰属されます。</string>
     <string name="info_github">GitHub</string>
     <string name="info_github_label">このアプリのソースコードを取得できます。</string>

@@ -119,9 +119,8 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     }
 
     /* メニュー選択 */
-    @SuppressWarnings("deprecation")
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.app_info_1) {
             startActivity(new Intent(this, AppInfoActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             return true;
@@ -140,6 +139,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
 
         if (item.getItemId() == android.R.id.home) {
             menu.findItem(R.id.app_info_3).setVisible(true);
+            //noinspection deprecation
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             transitionFragment(new MainFragment(), false);
             return true;
