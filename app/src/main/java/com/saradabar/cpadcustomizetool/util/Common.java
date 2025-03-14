@@ -132,8 +132,7 @@ public class Common {
     public static boolean getDchaCompletedPast(@NonNull Context context) {
         PackageManager packageManager = context.getPackageManager();
         try {
-            return ((UserManager) context.getSystemService(Context.USER_SERVICE)).hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)
-                    && packageManager.getApplicationEnabledSetting("com.android.quicksearchbox") == PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+            return (packageManager.getApplicationEnabledSetting("com.android.quicksearchbox") == PackageManager.COMPONENT_ENABLED_STATE_DISABLED
                     && packageManager.getApplicationEnabledSetting("com.android.browser") == PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
         } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
             return false;
