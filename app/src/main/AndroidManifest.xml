@@ -70,7 +70,7 @@
             android:documentLaunchMode="always"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:icon="@android:drawable/stat_sys_warning"
+            android:icon="@android:drawable/ic_dialog_alert"
             android:label="@string/activity_emergency"
             android:launchMode="singleInstance"
             android:theme="@style/DialogNoActionBarTheme">
@@ -85,6 +85,7 @@
             android:documentLaunchMode="always"
             android:excludeFromRecents="true"
             android:exported="true"
+            android:icon="@android:drawable/ic_menu_revert"
             android:label="@string/activity_normal"
             android:launchMode="singleInstance"
             android:theme="@style/DialogNoActionBarTheme">
@@ -99,7 +100,7 @@
             android:configChanges="keyboardHidden|screenSize|orientation"
             android:documentLaunchMode="always"
             android:exported="true"
-            android:icon="@drawable/reboot"
+            android:icon="@android:drawable/ic_popup_sync"
             android:label="@string/activity_reboot"
             android:theme="@style/DialogNoActionBarTheme">
             <intent-filter>

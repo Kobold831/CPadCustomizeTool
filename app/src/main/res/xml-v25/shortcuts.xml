@@ -3,7 +3,7 @@
 
     <shortcut
         android:enabled="true"
-        android:icon="@android:drawable/stat_sys_warning"
+        android:icon="@android:drawable/ic_dialog_alert"
         android:shortcutId="emergency"
         android:shortcutShortLabel="@string/activity_emergency">
 
@@ -15,7 +15,7 @@
 
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/reboot"
+        android:icon="@android:drawable/ic_popup_sync"
         android:shortcutId="reboot"
         android:shortcutShortLabel="@string/activity_reboot">
 

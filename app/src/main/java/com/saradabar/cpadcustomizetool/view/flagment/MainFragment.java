@@ -622,12 +622,12 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.activity_emergency))
                         .setShortLabel(getString(R.string.activity_emergency))
-                        .setIcon(Icon.createWithResource(requireActivity(), R.drawable.alert))
+                        .setIcon(Icon.createWithResource(requireActivity(), android.R.drawable.ic_dialog_alert))
                         .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), "com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity"))
                         .build(), null);
             } else {
                 requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity"))
-                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.alert))
+                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), android.R.drawable.ic_dialog_alert))
                         .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_emergency));
                 Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
             }
@@ -687,12 +687,12 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.activity_normal))
                         .setShortLabel(getString(R.string.activity_normal))
-                        .setIcon(Icon.createWithResource(requireActivity(), R.drawable.reboot))
+                        .setIcon(Icon.createWithResource(requireActivity(), android.R.drawable.ic_menu_revert))
                         .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), "com.saradabar.cpadcustomizetool.view.activity.NormalActivity"))
                         .build(), null);
             } else {
                 requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.NormalActivity"))
-                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.reboot))
+                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), android.R.drawable.ic_menu_revert))
                         .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_normal));
                 Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
             }
@@ -717,7 +717,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.reboot))
                         .setShortLabel(getString(R.string.reboot))
-                        .setIcon(Icon.createWithResource(requireActivity(), R.drawable.reboot))
+                        .setIcon(Icon.createWithResource(requireActivity(), android.R.drawable.ic_popup_sync))
                         .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), "com.saradabar.cpadcustomizetool.view.activity.RebootActivity"))
                         .build(), null);
             } else {
@@ -918,7 +918,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     /* 再起動ショートカットを作成 */
     private void makeRebootShortcut() {
         requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.RebootActivity"))
-                .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.reboot))
+                .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), android.R.drawable.ic_popup_sync))
                 .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_reboot));
         Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
     }
