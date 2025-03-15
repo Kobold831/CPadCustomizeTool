@@ -1,1 +1,8 @@
 blank_issues_enabled: false
+contact_links:
+  - name: 報告されているバグの確認
+    url: https://docs.google.com/document/d/1NcdovWYrOTPrwvzDrYF0hUSg3T7zyQxnef27rTKU_SY/view
+    about: Google ドキュメント が開きます
+  - name: 検討されている機能の確認
+    url: https://docs.google.com/document/d/1MUj-XiwN3tUEG_QJ72O8x1hhz0kEhSfrwp9ehOnOWNM/view
+    about: Google ドキュメント が開きます
