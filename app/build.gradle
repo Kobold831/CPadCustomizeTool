@@ -59,8 +59,8 @@ android {
 
 dependencies {
     // Custom Libraries
-    compileOnly files('libs/BenesseExtensionLibrary.jar')
-    implementation fileTree(dir: 'libs', include: ['IDcha*.jar'])
+    compileOnly files('libs/BenesseExtension.jar')
+    implementation fileTree(dir: 'libs', include: ['Dcha*.jar'])
 
     // AndroidX
     implementation 'androidx.preference:preference:1.2.1'

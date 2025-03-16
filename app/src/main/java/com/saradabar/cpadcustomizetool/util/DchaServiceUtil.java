@@ -71,6 +71,14 @@ public class DchaServiceUtil {
         }
     }
 
+    public String getCanonicalExternalPath(String linkPath) {
+        try {
+            return mDchaService.getCanonicalExternalPath(linkPath);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
     public String getForegroundPackageName() {
         try {
             return mDchaService.getForegroundPackageName();
