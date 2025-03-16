@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="jp.co.benesse.dcha.permission.ACCESS_SYSTEM" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
@@ -12,9 +13,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
 
-    <uses-feature
-        android:name="android.software.device_admin"
-        android:required="false" />
+   <uses-sdk tools:overrideLibrary="rikka.shizuku.api, rikka.shizuku.aidl, rikka.shizuku.shared, rikka.shizuku.provider" />
 
     <application
         android:name=".MyApplication"
@@ -141,7 +140,6 @@
             android:name=".view.activity.DeviceInfoActivity"
             android:theme="@style/ActionBarTheme" />
 
-
         <service
             android:name=".data.service.AccessibilityService"
             android:description="@string/accessibility_description"
@@ -218,6 +216,14 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
+
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
     </application>
 
