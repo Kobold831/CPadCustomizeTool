@@ -37,8 +37,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.LinkedList;
@@ -49,13 +47,11 @@ import java.util.Objects;
 public class Common {
 
     public static String getNowDate() {
-        DateFormat df = new SimpleDateFormat("yyyy/MM/dd (E) HH:mm:ss", Locale.JAPAN);
+        DateFormat df = new SimpleDateFormat("yyyy/MM/dd (E) HH:mm:ss", Locale.US);
         return df.format(System.currentTimeMillis());
     }
 
     public static void LogOverWrite(Context context, @NonNull Throwable throwable) {
-        //StringWriter stringWriter = new StringWriter();
-        //throwable.printStackTrace(new PrintWriter(stringWriter));
         String message =
                 "------" + System.lineSeparator() + System.lineSeparator() +
                 "Date: " + getNowDate() + System.lineSeparator() +
@@ -65,11 +61,11 @@ public class Common {
                 "Exception: " + throwable.getMessage() + System.lineSeparator() +
                 System.lineSeparator() + "------";
 
-        if (Preferences.load(context, Constants.KEY_STRINGS_CRASH_LOG, "").isEmpty()) {
-            Preferences.save(context, Constants.KEY_STRINGS_CRASH_LOG, message);
-        } else {
-            Preferences.save(context, Constants.KEY_STRINGS_CRASH_LOG, String.join(",", Preferences.load(context, Constants.KEY_STRINGS_CRASH_LOG, "")).replace("    ", "") + message);
-        }
+        Preferences.save(context, Constants.KEY_STRINGS_CRASH_LOG,
+                Preferences.load(context, Constants.KEY_STRINGS_CRASH_LOG, "").isEmpty()
+                        ? message
+                        : String.join(",", Preferences.load(context, Constants.KEY_STRINGS_CRASH_LOG, "")).replace("    ", "") + message
+        );
     }
 
     /* 選択したファイルデータを取得 */
