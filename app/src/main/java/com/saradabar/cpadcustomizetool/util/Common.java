@@ -49,20 +49,21 @@ import java.util.Objects;
 public class Common {
 
     public static String getNowDate() {
-        DateFormat df = new SimpleDateFormat("MMM dd HH:mm:ss.SSS z yyyy", Locale.ENGLISH);
+        DateFormat df = new SimpleDateFormat("yyyy/MM/dd (E) HH:mm:ss", Locale.JAPAN);
         return df.format(System.currentTimeMillis());
     }
 
     public static void LogOverWrite(Context context, @NonNull Throwable throwable) {
-        StringWriter stringWriter = new StringWriter();
-        throwable.printStackTrace(new PrintWriter(stringWriter));
-        String message = getNowDate() + System.lineSeparator() +
-                Build.FINGERPRINT + System.lineSeparator() +
-                BuildConfig.VERSION_NAME + System.lineSeparator() +
-                BuildConfig.VERSION_CODE + System.lineSeparator() +
-                BuildConfig.BUILD_TYPE + System.lineSeparator() +
-                throwable.getMessage() + System.lineSeparator() +
-                stringWriter + System.lineSeparator();
+        //StringWriter stringWriter = new StringWriter();
+        //throwable.printStackTrace(new PrintWriter(stringWriter));
+        String message =
+                "------" + System.lineSeparator() + System.lineSeparator() +
+                "Date: " + getNowDate() + System.lineSeparator() +
+                "Version: v" + BuildConfig.VERSION_NAME + System.lineSeparator() +
+                "Device: " + Build.MODEL + System.lineSeparator() +
+                "Build: " + Build.ID + System.lineSeparator() +
+                "Exception: " + throwable.getMessage() + System.lineSeparator() +
+                System.lineSeparator() + "------";
 
         if (Preferences.load(context, Constants.KEY_STRINGS_CRASH_LOG, "").isEmpty()) {
             Preferences.save(context, Constants.KEY_STRINGS_CRASH_LOG, message);

@@ -140,6 +140,17 @@
             android:name=".view.activity.DeviceInfoActivity"
             android:theme="@style/ActionBarTheme" />
 
+        <activity
+            android:name=".view.activity.ForceCrashActivity"
+            android:exported="true"
+            android:label="強制クラッシュ (開発用)"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".data.service.AccessibilityService"
             android:description="@string/accessibility_description"
@@ -207,6 +218,19 @@
 
         <receiver
             android:name=".Receiver.AdministratorReceiver"
+            android:exported="false"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".data.receiver.DeviceAdminReceiver"
+            android:enabled="false"
             android:exported="false"
             android:permission="android.permission.BIND_DEVICE_ADMIN">
             <meta-data
