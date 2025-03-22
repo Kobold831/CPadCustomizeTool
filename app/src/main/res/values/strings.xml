@@ -158,6 +158,7 @@
     <string name="dialog_no_installer">インストーラーが設定されていません。インストーラーを選択して設定してください。 ADB でインストールするには、次の URL から PC でダウンロードしてください。\n%1$s</string>
     <string name="dialog_dhizuku_grant_permission">Dhizuku へのアクセス権限は付与されました。</string>
     <string name="dialog_dhizuku_deny_permission">Dhizuku へのアクセス権限は拒否されました。</string>
+    <string name="dialog_dhizuku_require_11">Dhizuku の互換性がありません。バージョン 2.8 の Dhizuku をインストールしてください。</string>
     <string name="dialog_dhizuku_already_grant_permission">Dhizuku へのアクセス権限は付与されています。</string>
     <string name="dialog_question_reboot">デバイスを再起動しますか？</string>
     <string name="dialog_question_dcha">DchaService の機能を使用しますか？</string>

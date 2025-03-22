@@ -12,12 +12,23 @@
 
 package com.saradabar.cpadcustomizetool.util;
 
+import android.content.ComponentName;
 import android.content.Intent;
+
+import com.rosan.dhizuku.shared.DhizukuVariables;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class Constants {
+
+    // タブレットのモデル
+    public static final String PRODUCT_CT2S = "TAB-A03-BS";
+    public static final String PRODUCT_CT2K = "TAB-A03-BR";
+    public static final String PRODUCT_CT2L = "TAB-A03-BR2";
+    public static final String PRODUCT_CT3 = "TAB-A03-BR3";
+    public static final String PRODUCT_CTX = "TAB-A05-BD";
+    public static final String PRODUCT_CTZ = "TAB-A05-BA1";
 
     // タブレットモデルの番号
     public static final int MODEL_CT2 = 0;
@@ -52,10 +63,10 @@ public class Constants {
     //　アプリで使用しているURL
     // TODO: Check.json 参照先変更機能
     public static final String URL_CHECK = "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json";
-    public static final String URL_UPDATE_INFO = "https://docs.google.com/document/d/1uh-FrHM5o84uh7zXw3W_FRIDuzJo8NcVnUD8Rrw4CMQ/";
     public static final String URL_GITHUB = "https://github.com/Kobold831/CPadCustomizeTool";
+    public static final String URL_UPDATE_INFO = URL_GITHUB + "/releases/latest";
     public static final String URL_FEEDBACK = "https://forms.gle/LnGuEc4GdRmwzf3GA";
-    public static final String URL_NOTICE = "https://raw.githubusercontent.com/Kobold831/Server/refs/heads/main/production/json/ct-notice.json";
+    public static final String URL_NOTICE = "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/ct-notice.json";
 
     public static final String DCHA_STATE = "dcha_state";
     public static final String HIDE_NAVIGATION_BAR = "hide_navigation_bar";
@@ -92,5 +103,9 @@ public class Constants {
 
     public static final List<String> LIST_UPDATE_MODE = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー", "Dhizuku");
 
-    public static final String[] LIST_MODEL = {"TAB-A03-BS", "TAB-A03-BR", "TAB-A03-BR2", "TAB-A03-BR3", "TAB-A05-BD", "TAB-A05-BA1"};
+    public static final String[] LIST_MODEL = {PRODUCT_CT2S, PRODUCT_CT2K, PRODUCT_CT2L, PRODUCT_CT3, PRODUCT_CTX, PRODUCT_CTZ};
+
+    // Don't use Dhizuku.getOwnerComponent()
+    public static final ComponentName DHIZUKU_COMPONENT = new ComponentName(DhizukuVariables.OFFICIAL_PACKAGE_NAME, DhizukuVariables.OFFICIAL_PACKAGE_NAME + ".server.DhizukuDAReceiver");
+
 }

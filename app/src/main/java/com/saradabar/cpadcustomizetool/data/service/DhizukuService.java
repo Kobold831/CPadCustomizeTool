@@ -23,8 +23,8 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.util.Common;
+import com.saradabar.cpadcustomizetool.util.Constants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,25 +44,25 @@ public class DhizukuService extends IDhizukuService.Stub {
     @Override
     public void setUninstallBlocked(String packageName, boolean uninstallBlocked) {
         DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        dpm.setUninstallBlocked(DhizukuVariables.COMPONENT_NAME, packageName, uninstallBlocked);
+        dpm.setUninstallBlocked(Constants.DHIZUKU_COMPONENT, packageName, uninstallBlocked);
     }
 
     @Override
     public boolean isUninstallBlocked(String packageName) {
         DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        return dpm.isUninstallBlocked(DhizukuVariables.COMPONENT_NAME, packageName);
+        return dpm.isUninstallBlocked(Constants.DHIZUKU_COMPONENT, packageName);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void setPermissionPolicy(int policy) {
         DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        dpm.setPermissionPolicy(DhizukuVariables.COMPONENT_NAME, policy);
+        dpm.setPermissionPolicy(Constants.DHIZUKU_COMPONENT, policy);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void setPermissionGrantState(String packageName, String permission, int grantState) {
         DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        dpm.setPermissionGrantState(DhizukuVariables.COMPONENT_NAME, packageName, permission, grantState);
+        dpm.setPermissionGrantState(Constants.DHIZUKU_COMPONENT, packageName, permission, grantState);
     }
 
     @Override

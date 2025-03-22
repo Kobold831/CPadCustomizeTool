@@ -36,7 +36,6 @@ public class IDhizukuTask {
 
     public interface Listener {
         void onSuccess(IDhizukuService iDhizukuService);
-
         void onFailure();
     }
 
@@ -48,7 +47,6 @@ public class IDhizukuTask {
                 iDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
                 listener.onSuccess(iDhizukuService);
             }
-
             @Override
             public void onServiceDisconnected(ComponentName name) {
             }

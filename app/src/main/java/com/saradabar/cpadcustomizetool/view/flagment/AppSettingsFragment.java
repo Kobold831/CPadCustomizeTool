@@ -33,6 +33,7 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
+import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -173,10 +174,10 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                     case 4:
                         if (isDhizukuActive(requireActivity())) {
                             try {
-                                if (requireActivity().getPackageManager().getPackageInfo("com.rosan.dhizuku", 0).versionCode != 11) {
+                                if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode > 11 && !BuildConfig.DEBUG) {
                                     new AlertDialog.Builder(requireActivity())
                                             .setCancelable(false)
-                                            .setMessage("Dhizuku の互換性がありません。バージョン 2.8 の Dhizuku をインストールしてください。")
+                                            .setMessage(getString(R.string.dialog_dhizuku_require_11))
                                             .setPositiveButton(getString(R.string.dialog_common_ok), null)
                                             .show();
                                     return;

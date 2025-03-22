@@ -41,8 +41,9 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
-import com.rosan.dhizuku.shared.DhizukuVariables;
 
+import com.rosan.dhizuku.shared.DhizukuVariables;
+import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
@@ -66,7 +67,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/** @noinspection SequencedCollectionMethodCanBeUsed*/
+/** @noinspection SequencedCollectionMethodCanBeUsed */
 public class DeviceOwnerFragment extends PreferenceFragmentCompat implements InstallEventListener {
 
     AlertDialog progressDialog;
@@ -126,7 +127,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         if (tryBindDhizukuService()) {
                             try {
                                 mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
-                            } catch (RemoteException ignored) {
+                            } catch (RemoteException e) {
+                                throw new RuntimeException(e);
                             }
                         } else return false;
                     } else {
@@ -148,7 +150,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         if (tryBindDhizukuService()) {
                             try {
                                 mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_PROMPT);
-                            } catch (RemoteException ignored) {
+                            } catch (RemoteException e) {
+                                throw new RuntimeException(e);
                             }
                         } else {
                             return false;
@@ -206,7 +209,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                             if (tryBindDhizukuService()) {
                                 try {
                                     mDhizukuService.clearDeviceOwnerApp("com.rosan.dhizuku");
-                                } catch (RemoteException ignored) {
+                                } catch (RemoteException e) {
+                                    throw new RuntimeException(e);
                                 }
                             }
                         } else {
@@ -298,7 +302,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             } else {
                 if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        switch (dpm.getPermissionPolicy(DhizukuVariables.COMPONENT_NAME)) {
+                        switch (dpm.getPermissionPolicy(Constants.DHIZUKU_COMPONENT)) {
                             case DevicePolicyManager.PERMISSION_POLICY_PROMPT:
                                 swPrePermissionFrc.setChecked(false);
                                 swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
@@ -320,6 +324,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         }
     }
 
+    @Nullable
     private String getDeviceOwnerPackage() {
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
 
@@ -339,11 +344,12 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     public void onResume() {
         super.onResume();
         if (Common.isDhizukuActive(requireActivity())) {
+
             try {
-                if (requireActivity().getPackageManager().getPackageInfo("com.rosan.dhizuku", 0).versionCode > 11) {
+                if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode > 11 && !BuildConfig.DEBUG) {
                     new AlertDialog.Builder(requireActivity())
                             .setCancelable(false)
-                            .setMessage("Dhizuku の互換性がありません。バージョン 2.8 の Dhizuku をインストールしてください。")
+                            .setMessage(getString(R.string.dialog_dhizuku_require_11))
                             .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> {
                                 requireActivity().finish();
                                 requireActivity().overridePendingTransition(0, 0);
@@ -354,7 +360,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 }
             } catch (Exception ignored) {
             }
-
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
             AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
             textView.setText("サービスへの接続を待機しています。画面を切り替えないでください。");
@@ -853,6 +858,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         return Dhizuku.bindUserService(args, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
             }
 
             @Override
@@ -869,7 +875,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     for (String permission : getRuntimePermissions(packageName)) {
                         mDhizukuService.setPermissionGrantState(packageName, permission, grantState);
                     }
-                } catch (RemoteException ignored) {
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
                 }
             }
         } else {

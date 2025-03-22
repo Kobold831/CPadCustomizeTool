@@ -28,6 +28,7 @@ import androidx.annotation.Nullable;
 
 import com.rosan.dhizuku.api.Dhizuku;
 
+import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 
 import org.json.JSONException;
@@ -117,7 +118,7 @@ public class Common {
 
     public static boolean isDhizukuActive(@NonNull Context context) {
         DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        if (dpm.isDeviceOwnerApp("com.rosan.dhizuku")) {
+        if (dpm.isDeviceOwnerApp(DhizukuVariables.OFFICIAL_PACKAGE_NAME)) {
             if (Dhizuku.init(context)) {
                 return Dhizuku.isPermissionGranted();
             }

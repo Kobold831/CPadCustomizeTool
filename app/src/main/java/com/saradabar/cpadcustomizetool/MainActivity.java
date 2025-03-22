@@ -42,6 +42,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
 
+import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
@@ -56,10 +57,12 @@ import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WelAppActivity;
 import com.saradabar.cpadcustomizetool.view.views.UpdateModeListView;
+
 import com.stephentuso.welcome.WelcomeHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.File;
@@ -227,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         }
     }
 
+    @NonNull
     private DchaInstallTask.Listener dchaInstallTaskListener() {
         return new DchaInstallTask.Listener() {
 
@@ -287,13 +291,13 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     private void showUpdateDialog(String str, String downloadFileUrl) {
         /* モデルIDをセット */
         switch (Build.MODEL) {
-            case "TAB-A03-BR3":
+            case Constants.PRODUCT_CT3:
                 Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT3);
                 break;
-            case "TAB-A05-BD":
+            case Constants.PRODUCT_CTX:
                 Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CTX);
                 break;
-            case "TAB-A05-BA1":
+            case Constants.PRODUCT_CTZ:
                 Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CTZ);
                 break;
             default:
@@ -393,10 +397,10 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                             case 4:
                                 if (Common.isDhizukuActive(v.getContext())) {
                                     try {
-                                        if (getPackageManager().getPackageInfo("com.rosan.dhizuku", 0).versionCode > 11) {
+                                        if (getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode > 11 && !BuildConfig.DEBUG) {
                                             new AlertDialog.Builder(v.getContext())
                                                     .setCancelable(false)
-                                                    .setMessage("Dhizuku の互換性がありません。バージョン 2.8 の Dhizuku をインストールしてください。")
+                                                    .setMessage(getString(R.string.dialog_dhizuku_require_11))
                                                     .setPositiveButton(getString(R.string.dialog_common_ok), null)
                                                     .show();
                                             return;
@@ -513,13 +517,13 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     private void confCheck() {
         switch (Build.MODEL) {
-            case "TAB-A03-BR3":
+            case Constants.PRODUCT_CT3:
                 confCheckCT3();
                 break;
-            case "TAB-A05-BD":
+            case Constants.PRODUCT_CTX:
                 confCheckCTX();
                 break;
-            case "TAB-A05-BA1":
+            case Constants.PRODUCT_CTZ:
                 confCheckCTZ();
                 break;
             default:
