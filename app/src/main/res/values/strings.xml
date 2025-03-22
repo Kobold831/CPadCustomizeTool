@@ -78,16 +78,16 @@
     <string name="pre_main_title_system_update">システムアップデート</string>
     <string name="pre_main_title_dhizuku_permission_req">Dhizuku アクセス権限リクエスト</string>
     <string name="pre_main_sum_message_1"> ではこの機能は使用できません。</string>
-    <string name="pre_main_sum_message_2">ホームは %1$s に設定されています。</string>
+    <string name="pre_main_sum_message_2">ホームは [%1$s] に設定されています。</string>
     <string name="pre_main_sum_keep_home">現在のホームを維持します。</string>
     <string name="pre_main_sum_change_settings">デフォルト設定はすべて変更します。</string>
     <string name="pre_main_sum_change_to_normal_mode_settings">デフォルトはすべて変更されます。</string>
-    <string name="pre_main_sum_use_dcha">有効にするには、タップしてください。</string>
+    <string name="pre_main_sum_use_dcha">有効化するには、タップしてください。</string>
     <string name="pre_main_sum_device_admin">このアプリがアンインストールされないようにします。</string>
     <string name="pre_main_sum_silent_install">単一APK のインストールに対応しています。\n分割APK は [デバイスオーナーの機能] -> [サイレントインストール] からインストールできます。</string>
     <string name="pre_main_sum_already_device_owner">デバイスオーナーのため変更できません。</string>
     <string name="pre_main_sum_no_setting_launcher">ホームは設定されていません。</string>
-    <string name="pre_main_sum_get_app">表示されるダイアログからアプリを選択してください。インストーラーは、[アプリ設定] -> [インストールモード] から変更できます。</string>
+    <string name="pre_main_sum_get_app">表示されるダイアログからアプリを選択してください。\nインストーラーは、[アプリ設定] -> [インストールモード] から変更できます。</string>
 
     <!-- アプリ設定 -->
     <string name="pre_app_category_start_settings">起動設定</string>
@@ -144,7 +144,7 @@
     <string name="dialog_title_select_mode">モードを選択</string>
 
     <!-- ダイアログメッセージ -->
-    <string name="dialog_app_start_message">ウイルス対策アプリなどに脅威として検知される場合があります。検知された場合は、除外設定してください。このダイアログは以降表示されません。</string>
+    <string name="dialog_app_start_message">ウイルス対策アプリなどに脅威として検知される場合があります。\n検知された場合は、除外設定してください。\nこのダイアログは以降表示されません。</string>
     <string name="dialog_emergency_select_course">受講中の講座を選択してください。</string>
     <string name="dialog_mode_select_settings">変更する設定を選択してください。\n設定後は OK を押してください。</string>
     <string name="dialog_emergency_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.EmergencyActivity を追加して起動してください。\n</string>
@@ -158,7 +158,7 @@
     <string name="dialog_no_installer">インストーラーが設定されていません。インストーラーを選択して設定してください。 ADB でインストールするには、次の URL から PC でダウンロードしてください。\n%1$s</string>
     <string name="dialog_dhizuku_grant_permission">Dhizuku へのアクセス権限は付与されました。</string>
     <string name="dialog_dhizuku_deny_permission">Dhizuku へのアクセス権限は拒否されました。</string>
-    <string name="dialog_dhizuku_require_11">Dhizuku の互換性がありません。バージョン 2.8 の Dhizuku をインストールしてください。</string>
+    <string name="dialog_dhizuku_require_11">現在のバージョンの Dhizuku と互換性がありません。\nv2.8 の Dhizuku をインストールしてください。</string>
     <string name="dialog_dhizuku_already_grant_permission">Dhizuku へのアクセス権限は付与されています。</string>
     <string name="dialog_question_reboot">デバイスを再起動しますか？</string>
     <string name="dialog_question_dcha">DchaService の機能を使用しますか？</string>
@@ -166,7 +166,7 @@
     <string name="dialog_question_admin">この操作を行うと学習環境のときに、アプリがアンインストールされる可能性があります。</string>
 
     <!-- ダイアログエラー -->
-    <string name="dialog_error_crash">致命的なエラーが発生しました。\nOK を押すと、メイン画面に戻ります。\n\n繰り返し発生する場合は [報告] を押してクラッシュログを開発者に報告できます。クラッシュログは [報告] を押すと自動でコピーされますので、表示されるフォームの入力欄に貼り付けてください。\n報告手順\n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します。\n・最新バージョンであれば「はい」を押して「次へ」を押します。\n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します。\n\nクラッシュログを確認、またはコピーしたいときは 確認 を押してください。</string>
+    <string name="dialog_error_crash">致命的なエラーが発生しました。\nOK を押すと、メイン画面に戻ります。\n\n繰り返し発生する場合は [報告] を押してクラッシュログを開発者に報告できます。\nクラッシュログは [報告] を押すと自動でコピーされますので、表示されるフォームの入力欄に貼り付けてください。\n報告手順\n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します。\n・最新バージョンであれば「はい」を押して「次へ」を押します。\n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します。\n\nクラッシュログを確認、またはコピーしたいときは 確認 を押してください。</string>
     <string name="dialog_error">エラーが発生しました。</string>
     <string name="dialog_error_connection">"データ取得に失敗しました。ネットワークを確認してください。"</string>
     <string name="dialog_error_download">"ダウンロードに失敗しました。ネットワークを確認してください。"</string>
@@ -249,7 +249,7 @@
     <string name="installer_status_failure_incompatible">非対応アプリです。</string>
     <string name="installer_status_failure_conflict">衝突するアプリが存在します。</string>
     <string name="installer_status_failure_blocked">インストールがブロックされました。</string>
-    <string name="installer_status_failure">インストールに失敗しました。</string>
+    <string name="installer_status_failure">インストールに失敗しました。</string>s
     <string name="installer_status_no_allocatable_space">ストレージの空き領域が不足している可能性があります。\n</string>
     <string name="installer_status_unknown_error">不明なエラーが発生しました。</string>
 </resources>

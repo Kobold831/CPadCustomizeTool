@@ -187,7 +187,7 @@
 
     <androidx.preference.Preference
         android:key="pre_dhizuku_permission_req"
-        android:summary="Dhizuku のバージョンが v2.8 であることを確認してください！デバイスオーナーが Dhizuku の場合はタップして権限をリクエストしてください。\n権限が付与されるとデバイスオーナーの機能を使用できます。"
+        android:summary="Dhizuku のバージョンが v2.8 であることを確認してください！\nデバイスオーナーが Dhizuku の場合はタップして権限をリクエストしてください。\n権限が付与されるとデバイスオーナーの機能を使用できます。"
         android:title="@string/pre_main_title_dhizuku_permission_req" />
 
     <androidx.preference.SwitchPreferenceCompat
