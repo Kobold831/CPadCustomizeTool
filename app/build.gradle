@@ -10,8 +10,8 @@ android {
         minSdk = 22
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 22
-        versionCode = 62
-        versionName = "2.6.2"
+        versionCode = 63
+        versionName = "2.6.3"
         proguardFiles += "proguard-rules.pro"
         multiDexEnabled = true
     }
