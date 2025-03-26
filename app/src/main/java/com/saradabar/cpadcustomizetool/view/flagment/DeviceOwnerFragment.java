@@ -477,6 +477,15 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 if (trySetInstallData(data, installFileArrayList)) {
                     String installFileName = new File(installFileArrayList.get(0)).getName();
 
+                    // Dhizuku 切断
+                    if (dhizukuUserServiceArgs != null) {
+                        Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                    }
+
+                    if (dServiceConnection != null) {
+                        Dhizuku.unbindUserService(dServiceConnection);
+                    }
+
                     /* ファイルの拡張子 */
                     if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
                         new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SILENT, this);
