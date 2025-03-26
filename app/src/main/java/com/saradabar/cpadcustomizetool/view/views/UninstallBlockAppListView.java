@@ -70,7 +70,8 @@ public class UninstallBlockAppListView {
                 holder.imageIcon.setImageDrawable(data.icon);
 
                 if (Common.isDhizukuActive(getContext())) {
-                    Dhizuku.bindUserService(new DhizukuUserServiceArgs(new ComponentName(getContext(), DhizukuService.class)), new ServiceConnection() {
+                    DhizukuUserServiceArgs dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(getContext(), DhizukuService.class));
+                    ServiceConnection dServiceConnection = new ServiceConnection() {
                         @Override
                         public void onServiceConnected(ComponentName name, IBinder iBinder) {
                             IDhizukuService iDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
@@ -83,7 +84,11 @@ public class UninstallBlockAppListView {
                         @Override
                         public void onServiceDisconnected(ComponentName name) {
                         }
-                    });
+                    };
+
+                    Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection);
+                    Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                    Dhizuku.unbindUserService(dServiceConnection);
                 } else {
                     ((SwitchCompat) view.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), AdministratorReceiver.class), data.packName));
                 }

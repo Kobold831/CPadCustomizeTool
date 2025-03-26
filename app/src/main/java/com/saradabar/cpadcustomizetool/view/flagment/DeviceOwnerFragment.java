@@ -12,11 +12,13 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
+import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
@@ -58,6 +60,7 @@ import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
+import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 
 import org.zeroturnaround.zip.commons.FileUtils;
@@ -91,10 +94,34 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     DhizukuUserServiceArgs dhizukuUserServiceArgs;
     ServiceConnection dServiceConnection;
 
+    Listener listener;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(requireActivity(), DhizukuService.class));
+        dServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
+                listener.onSuccess();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+            }
+        };
+
+        StartActivity activity = (StartActivity) requireActivity();
+        activity.aa = () -> {
+            if (dhizukuUserServiceArgs != null) {
+                Dhizuku.stopUserService(dhizukuUserServiceArgs);
+            }
+
+            if (dServiceConnection != null) {
+                Dhizuku.unbindUserService(dServiceConnection);
+            }
+        };
     }
 
     @Override
@@ -116,6 +143,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     private void setListener() {
         preUninstallBlock.setOnPreferenceClickListener(preference -> {
             try {
+                // 遷移前にdhizukuから切断
                 if (dhizukuUserServiceArgs != null) {
                     Dhizuku.stopUserService(dhizukuUserServiceArgs);
                 }
@@ -355,8 +383,11 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     @Override
     public void onResume() {
         super.onResume();
-        if (Common.isDhizukuActive(requireActivity())) {
+        restart();
+    }
 
+    private void restart() {
+        if (Common.isDhizukuActive(requireActivity())) {
             try {
                 if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode > 11 && !BuildConfig.DEBUG) {
                     new AlertDialog.Builder(requireActivity())
@@ -378,7 +409,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
 
-            Listener listener = new Listener() {
+            listener = new Listener() {
                 @Override
                 public void onSuccess() {
                     if (waitForServiceDialog.isShowing()) {
@@ -414,18 +445,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                                 startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                             })
                             .show();
-                }
-            };
-
-            dServiceConnection = new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                    mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
-                    listener.onSuccess();
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
                 }
             };
 
@@ -574,7 +593,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 AlertDialog alertDialog = new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            // ok 押下後に再接続する
+                            restart();
+                        })
                         .create();
 
                 if (!alertDialog.isShowing()) {
@@ -599,7 +621,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            // ok 押下後に再接続する
+                            restart();
+                        })
                         .show();
             }
 
@@ -620,7 +645,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            // ok 押下後に再接続する
+                            restart();
+                        })
                         .show();
             }
         };
@@ -664,6 +692,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onSuccess(ArrayList<String> stringArrayList) {
                 alertDialog.dismiss();
                 new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFragment.this);
+                // インストール処理でdhizukuに接続するのでここでは再接続しない
             }
 
             @Override
@@ -683,7 +712,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(getString(R.string.dialog_failure))
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            // ok 押下後に再接続する
+                            restart();
+                        })
                         .show();
             }
 
@@ -704,7 +736,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            // ok 押下後に再接続する
+                            restart();
+                        })
                         .show();
             }
 
@@ -753,6 +788,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onSuccess(ArrayList<String> stringArrayList) {
                 alertDialog.dismiss();
                 new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFragment.this);
+                // インストール処理でdhizukuに接続するのでここでは再接続しない
             }
 
             @Override
@@ -772,7 +808,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(getString(R.string.dialog_failure))
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            // ok 押下後に再接続する
+                            restart();
+                        })
                         .show();
             }
 
@@ -793,7 +832,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            // ok 押下後に再接続する
+                            restart();
+                        })
                         .show();
             }
 
@@ -842,6 +884,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onSuccess(ArrayList<String> stringArrayList) {
                 alertDialog.dismiss();
                 new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFragment.this);
+                // インストール処理でdhizukuに接続するのでここでは再接続しない
             }
 
             @Override
@@ -861,7 +904,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(getString(R.string.dialog_failure))
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            // ok 押下後に再接続する
+                            restart();
+                        })
                         .show();
             }
 
@@ -882,7 +928,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            // ok 押下後に再接続する
+                            restart();
+                        })
                         .show();
             }
 
