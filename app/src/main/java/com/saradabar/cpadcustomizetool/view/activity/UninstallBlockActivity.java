@@ -54,6 +54,18 @@ public class UninstallBlockActivity extends AppCompatActivity {
     DhizukuUserServiceArgs dhizukuUserServiceArgs;
     ServiceConnection dServiceConnection;
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (dhizukuUserServiceArgs != null) {
+            Dhizuku.stopUserService(dhizukuUserServiceArgs);
+        }
+
+        if (dServiceConnection != null) {
+            Dhizuku.unbindUserService(dServiceConnection);
+        }
+    }
+
     @SuppressLint("WrongConstant")
     @Override
     public void onCreate(Bundle savedInstanceState) {

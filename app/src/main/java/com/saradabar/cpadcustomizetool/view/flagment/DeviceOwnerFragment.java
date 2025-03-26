@@ -116,6 +116,13 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     private void setListener() {
         preUninstallBlock.setOnPreferenceClickListener(preference -> {
             try {
+                if (dhizukuUserServiceArgs != null) {
+                    Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                }
+
+                if (dServiceConnection != null) {
+                    Dhizuku.unbindUserService(dServiceConnection);
+                }
                 startActivity(new Intent(requireActivity(), UninstallBlockActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (ActivityNotFoundException ignored) {
             }
