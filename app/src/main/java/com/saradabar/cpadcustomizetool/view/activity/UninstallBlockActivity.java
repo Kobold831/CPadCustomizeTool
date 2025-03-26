@@ -20,7 +20,9 @@ import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -38,16 +40,19 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
 import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
-import com.saradabar.cpadcustomizetool.data.task.IDhizukuTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.view.views.UninstallBlockAppListView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class UninstallBlockActivity extends AppCompatActivity {
 
     IDhizukuService mDhizukuService;
+    DhizukuUserServiceArgs dhizukuUserServiceArgs;
+    ServiceConnection dServiceConnection;
 
     @SuppressLint("WrongConstant")
     @Override
@@ -80,11 +85,11 @@ public class UninstallBlockActivity extends AppCompatActivity {
         listView.setAdapter(appListAdapter);
 
         if (Common.isDhizukuActive(this)) {
-            new IDhizukuTask().execute(this, new IDhizukuTask.Listener() {
-                @Override
-                public void onSuccess(IDhizukuService iDhizukuService) {
-                    mDhizukuService = iDhizukuService;
+            dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(this, DhizukuService.class));
 
+            Listener listener = new Listener() {
+                @Override
+                public void onSuccess() {
                     if (mDhizukuService == null) {
                         new AlertDialog.Builder(UninstallBlockActivity.this)
                                 .setCancelable(false)
@@ -103,10 +108,39 @@ public class UninstallBlockActivity extends AppCompatActivity {
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
                             .show();
                 }
+            };
+
+            dServiceConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                    mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
+                    listener.onSuccess();
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                }
+            };
+
+            // サービスに接続したら発火させる
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.submit(() -> {
+                Handler handler = new Handler(Looper.getMainLooper());
+                new Thread(() -> handler.post(() -> {
+                    if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
+                        // 失敗
+                        listener.onFailure();
+                    }
+                })).start();
             });
         } else {
             setListener(dataList, listView, unDisableButton, unEnableButton, appListAdapter);
         }
+    }
+
+    public interface Listener {
+        void onSuccess();
+        void onFailure();
     }
 
     private void setListener(List<UninstallBlockAppListView.AppData> dataList, @NonNull ListView listView, @NonNull AppCompatButton unDisableButton, @NonNull AppCompatButton unEnableButton, UninstallBlockAppListView.AppListAdapter appListAdapter) {

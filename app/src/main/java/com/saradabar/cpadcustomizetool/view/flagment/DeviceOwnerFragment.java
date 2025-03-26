@@ -24,6 +24,7 @@ import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
@@ -53,7 +54,6 @@ import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 import com.saradabar.cpadcustomizetool.data.task.ApkInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.ApkSCopyTask;
 import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
-import com.saradabar.cpadcustomizetool.data.task.IDhizukuTask;
 import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -66,6 +66,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /** @noinspection SequencedCollectionMethodCanBeUsed */
 public class DeviceOwnerFragment extends PreferenceFragmentCompat implements InstallEventListener {
@@ -86,10 +88,13 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     SwitchPreferenceCompat swPrePermissionFrc;
 
     IDhizukuService mDhizukuService;
+    DhizukuUserServiceArgs dhizukuUserServiceArgs;
+    ServiceConnection dServiceConnection;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(requireActivity(), DhizukuService.class));
     }
 
     @Override
@@ -365,11 +370,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             textView.setText("サービスへの接続を待機しています。画面を切り替えないでください。");
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
-            new IDhizukuTask().execute(requireActivity(), new IDhizukuTask.Listener() {
-                @Override
-                public void onSuccess(IDhizukuService iDhizukuService) {
-                    mDhizukuService = iDhizukuService;
 
+            Listener listener = new Listener() {
+                @Override
+                public void onSuccess() {
                     if (waitForServiceDialog.isShowing()) {
                         waitForServiceDialog.cancel();
                     }
@@ -404,9 +408,50 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                             })
                             .show();
                 }
+            };
+
+            dServiceConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                    mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
+                    listener.onSuccess();
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                }
+            };
+
+            // サービスに接続したら発火させる
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.submit(() -> {
+                Handler handler = new Handler(Looper.getMainLooper());
+                new Thread(() -> handler.post(() -> {
+                    if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
+                        // 失敗
+                        listener.onFailure();
+                    }
+                })).start();
             });
         } else {
             setListener();
+        }
+    }
+
+    public interface Listener {
+        void onSuccess();
+        void onFailure();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (dhizukuUserServiceArgs != null) {
+            Dhizuku.stopUserService(dhizukuUserServiceArgs);
+        }
+
+        if (dServiceConnection != null) {
+            Dhizuku.unbindUserService(dServiceConnection);
         }
     }
 

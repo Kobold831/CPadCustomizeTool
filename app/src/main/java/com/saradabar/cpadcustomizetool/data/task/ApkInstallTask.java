@@ -31,9 +31,12 @@ public class ApkInstallTask {
     final Object objLock = new Object();
 
     IDhizukuService mDhizukuService;
+    DhizukuUserServiceArgs dhizukuUserServiceArgs;
+    ServiceConnection dServiceConnection;
 
     public void execute(Context context, Listener listener, ArrayList<String> splitInstallData, int reqCode, InstallEventListener installEventListener) {
         onPreExecute(listener);
+        dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
@@ -73,12 +76,45 @@ public class ApkInstallTask {
         if (isDhizukuActive(context)) {
             if (tryBindDhizukuService(context)) {
                 try {
-                    new IDhizukuTask().execute(context, iDhizukuTaskListener());
+                    dServiceConnection = new ServiceConnection() {
+                        @Override
+                        public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                            mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
+                            iDhizukuTaskListener().onSuccess();
+                        }
+
+                        @Override
+                        public void onServiceDisconnected(ComponentName name) {
+                        }
+                    };
+
+                    // サービスに接続したら発火させる
+                    ExecutorService executorService = Executors.newSingleThreadExecutor();
+                    executorService.submit(() -> {
+                        Handler handler = new Handler(Looper.getMainLooper());
+                        new Thread(() -> handler.post(() -> {
+                            if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
+                                // 失敗
+                                iDhizukuTaskListener().onFailure();
+                            }
+                        })).start();
+                    });
+
                     synchronized (objLock) {
                         objLock.wait();
                     }
-                    if (mDhizukuService == null) return false;
-                    return mDhizukuService.tryInstallPackages(splitInstallData, reqCode);
+
+                    if (mDhizukuService == null) {
+                        return false;
+                    }
+
+                    if (mDhizukuService.tryInstallPackages(splitInstallData, reqCode)) {
+                        Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                        Dhizuku.unbindUserService(dServiceConnection);
+                        return true;
+                    } else {
+                        return false;
+                    }
                 } catch (Exception e) {
                     return e.getMessage();
                 }
@@ -147,11 +183,10 @@ public class ApkInstallTask {
     }
 
     @NonNull
-    private IDhizukuTask.Listener iDhizukuTaskListener() {
-        return new IDhizukuTask.Listener() {
+    private dListener iDhizukuTaskListener() {
+        return new dListener() {
             @Override
-            public void onSuccess(IDhizukuService iDhizukuService) {
-                mDhizukuService = iDhizukuService;
+            public void onSuccess() {
                 synchronized (objLock) {
                     objLock.notify();
                 }
@@ -164,5 +199,10 @@ public class ApkInstallTask {
                 }
             }
         };
+    }
+
+    public interface dListener {
+        void onSuccess();
+        void onFailure();
     }
 }
