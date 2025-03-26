@@ -87,8 +87,6 @@ public class UninstallBlockAppListView {
                     };
 
                     Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection);
-                    Dhizuku.stopUserService(dhizukuUserServiceArgs);
-                    Dhizuku.unbindUserService(dServiceConnection);
                 } else {
                     ((SwitchCompat) view.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), AdministratorReceiver.class), data.packName));
                 }

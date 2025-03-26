@@ -99,29 +99,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(requireActivity(), DhizukuService.class));
-        dServiceConnection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
-                listener.onSuccess();
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        };
-
-        StartActivity activity = (StartActivity) requireActivity();
-        activity.aa = () -> {
-            if (dhizukuUserServiceArgs != null) {
-                Dhizuku.stopUserService(dhizukuUserServiceArgs);
-            }
-
-            if (dServiceConnection != null) {
-                Dhizuku.unbindUserService(dServiceConnection);
-            }
-        };
     }
 
     @Override
@@ -383,6 +360,29 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     @Override
     public void onResume() {
         super.onResume();
+        dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(requireActivity(), DhizukuService.class));
+        dServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
+                listener.onSuccess();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+            }
+        };
+
+        StartActivity activity = (StartActivity) requireActivity();
+        activity.aa = () -> {
+            if (dhizukuUserServiceArgs != null) {
+                Dhizuku.stopUserService(dhizukuUserServiceArgs);
+            }
+
+            if (dServiceConnection != null) {
+                Dhizuku.unbindUserService(dServiceConnection);
+            }
+        };
         restart();
     }
 
