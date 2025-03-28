@@ -1,6 +1,8 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -32,6 +34,7 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
         new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(getExternalCacheDir(), "ct-notice.json"), Constants.REQUEST_DOWNLOAD_NOTICE);

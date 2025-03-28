@@ -3,6 +3,8 @@ package com.saradabar.cpadcustomizetool.view.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -32,6 +34,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
         AppCompatButton button1 = findViewById(R.id.act_device_info_button_1);

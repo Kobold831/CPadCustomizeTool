@@ -17,6 +17,8 @@ import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
@@ -59,6 +61,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         super.onCreate(savedInstanceState);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
         showLoadingDialog(getString(R.string.progress_state_connecting));
