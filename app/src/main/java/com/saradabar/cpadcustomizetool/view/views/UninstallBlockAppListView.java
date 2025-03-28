@@ -41,10 +41,13 @@ public class UninstallBlockAppListView {
         LayoutInflater mInflater;
         DevicePolicyManager dpm;
 
-        public AppListAdapter(Context context, List<AppData> dataList) {
+        IDhizukuService mDhizukuService;
+
+        public AppListAdapter(Context context, List<AppData> dataList, IDhizukuService iDhizukuService) {
             super(context, R.layout.view_uninstall_item);
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            mDhizukuService = iDhizukuService;
             addAll(dataList);
         }
 
@@ -70,28 +73,14 @@ public class UninstallBlockAppListView {
                 holder.imageIcon.setImageDrawable(data.icon);
 
                 if (Common.isDhizukuActive(getContext())) {
-                    DhizukuUserServiceArgs dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(getContext(), DhizukuService.class));
-                    ServiceConnection dServiceConnection = new ServiceConnection() {
-                        @Override
-                        public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                            IDhizukuService iDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
-                            try {
-                                ((SwitchCompat) view.findViewById(R.id.un_switch)).setChecked(iDhizukuService.isUninstallBlocked(data.packName));
-                            } catch (Exception ignored) {
-                            }
-                        }
-
-                        @Override
-                        public void onServiceDisconnected(ComponentName name) {
-                        }
-                    };
-
-                    Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection);
+                    try {
+                        ((SwitchCompat) view.findViewById(R.id.un_switch)).setChecked(mDhizukuService.isUninstallBlocked(data.packName));
+                    } catch (Exception ignored) {
+                    }
                 } else {
                     ((SwitchCompat) view.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), AdministratorReceiver.class), data.packName));
                 }
             }
-
             return convertView;
         }
     }

@@ -58,8 +58,6 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
 
     Menu menu;
 
-    public aaListener aa;
-
     /* 設定画面表示 */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -377,18 +375,5 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 }
             }, Context.BIND_AUTO_CREATE);
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        // DeviceOwnerFragmentの画面でタスクキルされたときに実行
-        if (aa != null) {
-            aa.onA();
-        }
-    }
-
-    public interface aaListener {
-        void onA();
     }
 }

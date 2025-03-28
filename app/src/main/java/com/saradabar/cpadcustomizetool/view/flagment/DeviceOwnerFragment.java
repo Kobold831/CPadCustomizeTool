@@ -12,13 +12,11 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
-import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
@@ -26,10 +24,10 @@ import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -60,7 +58,6 @@ import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 
 import org.zeroturnaround.zip.commons.FileUtils;
@@ -69,7 +66,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /** @noinspection SequencedCollectionMethodCanBeUsed */
@@ -97,11 +93,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     Listener listener;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.pre_owner);
 
@@ -117,17 +108,46 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         initialize();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.e("DEBUG", "onDestroy");
+
+        if (dhizukuUserServiceArgs != null) {
+            Dhizuku.stopUserService(dhizukuUserServiceArgs);
+        }
+
+        if (dServiceConnection != null) {
+            Dhizuku.unbindUserService(dServiceConnection);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.e("DEBUG", "onPause");
+
+        if (dhizukuUserServiceArgs != null) {
+            Dhizuku.stopUserService(dhizukuUserServiceArgs);
+        }
+
+        if (dServiceConnection != null) {
+            Dhizuku.unbindUserService(dServiceConnection);
+        }
+    }
+
     private void setListener() {
         preUninstallBlock.setOnPreferenceClickListener(preference -> {
-            try {
-                // 遷移前にdhizukuから切断
-                if (dhizukuUserServiceArgs != null) {
-                    Dhizuku.stopUserService(dhizukuUserServiceArgs);
-                }
+            // 遷移前にdhizukuから切断
+            if (dhizukuUserServiceArgs != null) {
+                Dhizuku.stopUserService(dhizukuUserServiceArgs);
+            }
 
-                if (dServiceConnection != null) {
-                    Dhizuku.unbindUserService(dServiceConnection);
-                }
+            if (dServiceConnection != null) {
+                Dhizuku.unbindUserService(dServiceConnection);
+            }
+
+            try {
                 startActivity(new Intent(requireActivity(), UninstallBlockActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (ActivityNotFoundException ignored) {
             }
@@ -356,33 +376,11 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         return null;
     }
 
-    /* 再表示 */
+    /* 表示 */
     @Override
-    public void onResume() {
-        super.onResume();
-        dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(requireActivity(), DhizukuService.class));
-        dServiceConnection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
-                listener.onSuccess();
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        };
-
-        StartActivity activity = (StartActivity) requireActivity();
-        activity.aa = () -> {
-            if (dhizukuUserServiceArgs != null) {
-                Dhizuku.stopUserService(dhizukuUserServiceArgs);
-            }
-
-            if (dServiceConnection != null) {
-                Dhizuku.unbindUserService(dServiceConnection);
-            }
-        };
+    public void onStart() {
+        super.onStart();
+        Log.e("DEBUG", "onStart");
         restart();
     }
 
@@ -403,15 +401,18 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 }
             } catch (Exception ignored) {
             }
+
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
             AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
             textView.setText("サービスへの接続を待機しています。画面を切り替えないでください。");
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
+            Log.e("DEBUG", "waitForServiceDialog.show");
 
             listener = new Listener() {
                 @Override
                 public void onSuccess() {
+                    Log.e("DEBUG", "onSuccess");
                     if (waitForServiceDialog.isShowing()) {
                         waitForServiceDialog.cancel();
                     }
@@ -449,16 +450,26 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             };
 
             // サービスに接続したら発火させる
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                Handler handler = new Handler(Looper.getMainLooper());
-                new Thread(() -> handler.post(() -> {
-                    if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
-                        // 失敗
-                        listener.onFailure();
-                    }
-                })).start();
-            });
+            dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(requireActivity(), DhizukuService.class));
+            dServiceConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                    mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
+                    // サービス接続完了
+                    listener.onSuccess();
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                }
+            };
+
+            Executors.newSingleThreadExecutor().submit(() -> new Thread(() -> {
+                if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
+                    // サービス接続失敗
+                    listener.onFailure();
+                }
+            }).start());
         } else {
             setListener();
         }
@@ -467,18 +478,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     public interface Listener {
         void onSuccess();
         void onFailure();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (dhizukuUserServiceArgs != null) {
-            Dhizuku.stopUserService(dhizukuUserServiceArgs);
-        }
-
-        if (dServiceConnection != null) {
-            Dhizuku.unbindUserService(dServiceConnection);
-        }
     }
 
     @Override

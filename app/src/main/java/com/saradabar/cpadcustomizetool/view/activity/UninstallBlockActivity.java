@@ -20,17 +20,18 @@ import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SwitchCompat;
 
 import com.rosan.dhizuku.api.Dhizuku;
@@ -45,7 +46,6 @@ import com.saradabar.cpadcustomizetool.view.views.UninstallBlockAppListView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class UninstallBlockActivity extends AppCompatActivity {
@@ -57,6 +57,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.e("DEBUG", "UninstallBlockActivity onDestroy");
         if (dhizukuUserServiceArgs != null) {
             Dhizuku.stopUserService(dhizukuUserServiceArgs);
         }
@@ -64,6 +65,26 @@ public class UninstallBlockActivity extends AppCompatActivity {
         if (dServiceConnection != null) {
             Dhizuku.unbindUserService(dServiceConnection);
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.e("DEBUG", "UninstallBlockActivity onPause");
+        if (dhizukuUserServiceArgs != null) {
+            Dhizuku.stopUserService(dhizukuUserServiceArgs);
+        }
+
+        if (dServiceConnection != null) {
+            Dhizuku.unbindUserService(dServiceConnection);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.e("DEBUG", "UninstallBlockActivity onStart");
+        restart();
     }
 
     @SuppressLint("WrongConstant")
@@ -75,7 +96,9 @@ public class UninstallBlockActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+    }
 
+    private void restart() {
         List<UninstallBlockAppListView.AppData> dataList = new ArrayList<>();
         ListView listView = findViewById(R.id.un_list);
         AppCompatButton unDisableButton = findViewById(R.id.un_button_disable);
@@ -92,16 +115,23 @@ public class UninstallBlockActivity extends AppCompatActivity {
             }
         }
 
-        UninstallBlockAppListView.AppListAdapter appListAdapter = new UninstallBlockAppListView.AppListAdapter(UninstallBlockActivity.this, dataList);
-
-        listView.setAdapter(appListAdapter);
-
         if (Common.isDhizukuActive(this)) {
+            View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
+            AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
+            textView.setText("サービスへの接続を待機しています。画面を切り替えないでください。");
+            AlertDialog waitForServiceDialog = new AlertDialog.Builder(this).setCancelable(false).setView(view).create();
+            waitForServiceDialog.show();
+            Log.e("DEBUG", "UninstallBlockActivity waitForServiceDialog.show");
+
             dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(this, DhizukuService.class));
 
             Listener listener = new Listener() {
                 @Override
                 public void onSuccess() {
+                    if (waitForServiceDialog.isShowing()) {
+                        waitForServiceDialog.cancel();
+                    }
+
                     if (mDhizukuService == null) {
                         new AlertDialog.Builder(UninstallBlockActivity.this)
                                 .setCancelable(false)
@@ -109,11 +139,17 @@ public class UninstallBlockActivity extends AppCompatActivity {
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
                                 .show();
                     }
+                    UninstallBlockAppListView.AppListAdapter appListAdapter = new UninstallBlockAppListView.AppListAdapter(UninstallBlockActivity.this, dataList, mDhizukuService);
+                    listView.setAdapter(appListAdapter);
                     setListener(dataList, listView, unDisableButton, unEnableButton, appListAdapter);
                 }
 
                 @Override
                 public void onFailure() {
+                    if (waitForServiceDialog.isShowing()) {
+                        waitForServiceDialog.cancel();
+                    }
+
                     new AlertDialog.Builder(UninstallBlockActivity.this)
                             .setCancelable(false)
                             .setMessage(R.string.dialog_error_no_dhizuku)
@@ -135,17 +171,15 @@ public class UninstallBlockActivity extends AppCompatActivity {
             };
 
             // サービスに接続したら発火させる
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                Handler handler = new Handler(Looper.getMainLooper());
-                new Thread(() -> handler.post(() -> {
-                    if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
-                        // 失敗
-                        listener.onFailure();
-                    }
-                })).start();
-            });
+            Executors.newSingleThreadExecutor().submit(() -> new Thread(() -> {
+                if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
+                    // 失敗
+                    listener.onFailure();
+                }
+            }).start());
         } else {
+            UninstallBlockAppListView.AppListAdapter appListAdapter = new UninstallBlockAppListView.AppListAdapter(UninstallBlockActivity.this, dataList, mDhizukuService);
+            listView.setAdapter(appListAdapter);
             setListener(dataList, listView, unDisableButton, unEnableButton, appListAdapter);
         }
     }
@@ -160,11 +194,9 @@ public class UninstallBlockActivity extends AppCompatActivity {
             UninstallBlockAppListView.AppData item = dataList.get(position);
             String selectPackage = Uri.fromParts("package", item.packName, null).toString();
             if (Common.isDhizukuActive(UninstallBlockActivity.this)) {
-                if (tryBindDhizukuService(UninstallBlockActivity.this)) {
-                    try {
-                        mDhizukuService.setUninstallBlocked(selectPackage.replace("package:", ""), !mDhizukuService.isUninstallBlocked(selectPackage.replace("package:", "")));
-                    } catch (RemoteException ignored) {
-                    }
+                try {
+                    mDhizukuService.setUninstallBlocked(selectPackage.replace("package:", ""), !mDhizukuService.isUninstallBlocked(selectPackage.replace("package:", "")));
+                } catch (RemoteException ignored) {
                 }
             } else {
                 DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -178,14 +210,12 @@ public class UninstallBlockActivity extends AppCompatActivity {
         /* 無効 */
         unDisableButton.setOnClickListener(v -> {
             if (Common.isDhizukuActive(UninstallBlockActivity.this)) {
-                if (tryBindDhizukuService(UninstallBlockActivity.this)) {
-                    try {
-                        for (UninstallBlockAppListView.AppData appData : dataList) {
-                            mDhizukuService.setUninstallBlocked(appData.packName, false);
-                        }
-                        ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
-                    } catch (Exception ignored) {
+                try {
+                    for (UninstallBlockAppListView.AppData appData : dataList) {
+                        mDhizukuService.setUninstallBlocked(appData.packName, false);
                     }
+                    ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
+                } catch (Exception ignored) {
                 }
             } else {
                 DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -201,14 +231,12 @@ public class UninstallBlockActivity extends AppCompatActivity {
         /* 有効 */
         unEnableButton.setOnClickListener(v -> {
             if (Common.isDhizukuActive(UninstallBlockActivity.this)) {
-                if (tryBindDhizukuService(UninstallBlockActivity.this)) {
-                    try {
-                        for (UninstallBlockAppListView.AppData appData : dataList) {
-                            mDhizukuService.setUninstallBlocked(appData.packName, true);
-                        }
-                        ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
-                    } catch (Exception ignored) {
+                try {
+                    for (UninstallBlockAppListView.AppData appData : dataList) {
+                        mDhizukuService.setUninstallBlocked(appData.packName, true);
                     }
+                    ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
+                } catch (Exception ignored) {
                 }
             } else {
                 DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -230,18 +258,5 @@ public class UninstallBlockActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private boolean tryBindDhizukuService(Context context) {
-        DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
-        return Dhizuku.bindUserService(args, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder iBinder) {
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        });
     }
 }
