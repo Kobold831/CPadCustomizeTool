@@ -40,6 +40,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -54,19 +55,19 @@ public class Common {
 
     public static void LogOverWrite(Context context, @NonNull Throwable throwable) {
         String message =
-                "------" + System.lineSeparator() + System.lineSeparator() +
                 "Date: " + getNowDate() + System.lineSeparator() +
                 "Version: v" + BuildConfig.VERSION_NAME + System.lineSeparator() +
                 "Device: " + Build.MODEL + System.lineSeparator() +
                 "Build: " + Build.ID + System.lineSeparator() +
-                "Exception: " + throwable.getMessage() + System.lineSeparator() +
-                System.lineSeparator() + "------";
+                "Exception: " + throwable.getMessage();
 
-        Preferences.save(context, Constants.KEY_STRINGS_CRASH_LOG,
-                Preferences.load(context, Constants.KEY_STRINGS_CRASH_LOG, "").isEmpty()
-                        ? message
-                        : String.join(",", Preferences.load(context, Constants.KEY_STRINGS_CRASH_LOG, "")).replace("    ", "") + message
-        );
+        ArrayList<String> arrayList = Preferences.load(context, Constants.KEY_LIST_CRASH_LOG);
+
+        if (arrayList == null) {
+            arrayList = new ArrayList<>();
+        }
+        arrayList.add(message);
+        Preferences.save(context, Constants.KEY_LIST_CRASH_LOG, arrayList);
     }
 
     /* 選択したファイルデータを取得 */

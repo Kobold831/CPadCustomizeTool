@@ -40,6 +40,7 @@ import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.CrashLogActivity;
+import com.saradabar.cpadcustomizetool.view.activity.ForceCrashActivity;
 import com.saradabar.cpadcustomizetool.view.views.UpdateModeListView;
 
 import java.util.ArrayList;
@@ -57,7 +58,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             preDelCrashLog,
             preUpdateMode,
             preClearCache,
-            preClearData;
+            preClearData,
+            preDebugForceCrash;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,6 +79,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         swDebugRestriction = findPreference("pre_app_debug_restriction");
         preClearCache = findPreference("pre_app_clear_cache");
         preClearData = findPreference("pre_app_clear_data");
+        preDebugForceCrash = findPreference("pre_app_debug_force_crash");
 
         swUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
             Preferences.save(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, !((boolean) newValue));
@@ -97,7 +100,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             new AlertDialog.Builder(requireActivity())
                     .setMessage("消去しますか？")
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                        Preferences.delete(requireActivity(), Constants.KEY_STRINGS_CRASH_LOG);
+                        Preferences.delete(requireActivity(), Constants.KEY_LIST_CRASH_LOG);
                         new AlertDialog.Builder(requireActivity())
                                 .setMessage("消去しました。")
                                 .setPositiveButton(R.string.dialog_common_ok, null)
@@ -242,6 +245,11 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                     })
                     .setNegativeButton(getString(R.string.dialog_common_cancel), null)
                     .show();
+            return false;
+        });
+
+        preDebugForceCrash.setOnPreferenceClickListener(preference -> {
+            startActivity(new Intent(requireActivity(), ForceCrashActivity.class));
             return false;
         });
 

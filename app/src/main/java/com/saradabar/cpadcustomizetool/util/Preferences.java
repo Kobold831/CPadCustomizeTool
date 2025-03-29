@@ -18,6 +18,9 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import org.json.JSONArray;
+
+import java.util.ArrayList;
 import java.util.Set;
 
 public class Preferences {
@@ -35,6 +38,10 @@ public class Preferences {
         context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putString(key, value).apply();
     }
 
+    public static void save(@NonNull Context context, String key, ArrayList<String> value) {
+        context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).edit().putString(key, new JSONArray(value).toString()).apply();
+    }
+
     public static int load(@NonNull Context context, String key, int value) {
         return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getInt(key, value);
     }
@@ -45,6 +52,20 @@ public class Preferences {
 
     public static String load(@NonNull Context context, String key, String value) {
         return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getString(key, value);
+    }
+
+    public static ArrayList<String> load(@NonNull Context context, String key) {
+        try {
+            JSONArray jsonArray = new JSONArray(context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getString(key, null));
+            ArrayList<String> arrayList = new ArrayList<>();
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                arrayList.add(jsonArray.get(i).toString());
+            }
+            return arrayList;
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     public static void delete(@NonNull Context context, String key) {

@@ -12,24 +12,27 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
+import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.ScrollView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatTextView;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
-public class CrashLogActivity extends AppCompatActivity {
+import java.util.ArrayList;
 
-    AppCompatTextView textView;
-    ScrollView scrollView;
+public class CrashLogActivity extends AppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,25 +44,26 @@ public class CrashLogActivity extends AppCompatActivity {
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        textView = findViewById(R.id.textView);
-        scrollView = findViewById(R.id.scrollView);
+        ArrayList<String> arrayList = Preferences.load(this, Constants.KEY_LIST_CRASH_LOG);
 
-        if (!Preferences.load(this, Constants.KEY_STRINGS_CRASH_LOG, "").isEmpty()) {
-            addText(Preferences.load(this, Constants.KEY_STRINGS_CRASH_LOG, ""));
-        } else {
-            addText(getString(R.string.no_log));
+        if (arrayList == null) {
+            new AlertDialog.Builder(this)
+                    .setCancelable(false)
+                    .setMessage(getString(R.string.no_log))
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
+                    .show();
+            return;
         }
-    }
-
-    private void addText(String status) {
-        textView.append(status);
-
-        int bottom = textView.getBottom() + scrollView.getPaddingBottom();
-        int sy = scrollView.getScrollY();
-        int sh = scrollView.getHeight();
-        int delta = bottom - (sy + sh);
-
-        scrollView.smoothScrollBy(0, delta);
+        ListView listView = findViewById(R.id.act_crash_log_list);
+        listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayList));
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(position)));
+            new AlertDialog.Builder(this)
+                    .setMessage("対象データをコピーしました。")
+                    .setPositiveButton(R.string.dialog_common_ok, null)
+                    .show();
+        });
     }
 
     @Override

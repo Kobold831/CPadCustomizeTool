@@ -49,6 +49,7 @@ import org.zeroturnaround.zip.commons.FileUtils;
 import java.io.File;
 import java.util.ArrayList;
 
+/** @noinspection deprecation*/
 public class SelfUpdateActivity extends AppCompatActivity implements DownloadEventListener, InstallEventListener {
 
     AlertDialog progressDialog;

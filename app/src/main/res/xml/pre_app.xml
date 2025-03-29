@@ -60,5 +60,9 @@
         <androidx.preference.SwitchPreferenceCompat
             android:key="pre_app_debug_restriction"
             android:title="" />
+
+        <Preference
+            android:key="pre_app_debug_force_crash"
+            android:title="クラッシュ" />
     </androidx.preference.PreferenceCategory>
 </androidx.preference.PreferenceScreen>

@@ -73,6 +73,7 @@ import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
+/** @noinspection deprecation*/
 public class MainActivity extends AppCompatActivity implements DownloadEventListener, InstallEventListener {
 
     AlertDialog progressDialog;
@@ -106,15 +107,29 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     })
                     .setNegativeButton("報告", (dialog, which) -> {
                         try {
+                            ArrayList<String> arrayList = Preferences.load(this, Constants.KEY_LIST_CRASH_LOG);
+
+                            if (arrayList == null) {
+                                new AlertDialog.Builder(this)
+                                        .setMessage(R.string.dialog_error)
+                                        .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> init())
+                                        .show();
+                                return;
+                            }
                             ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                            clipboardManager.setPrimaryClip(ClipData.newPlainText("", Preferences.load(this, Constants.KEY_STRINGS_CRASH_LOG, "")));
+                            //noinspection SequencedCollectionMethodCanBeUsed
+                            clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(0)));
                             startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK));
-                            init();
+                            new AlertDialog.Builder(this)
+                                    .setCancelable(false)
+                                    .setMessage("ご協力ありがとうございます。")
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> init())
+                                    .show();
                         } catch (Exception e) {
                             new AlertDialog.Builder(this)
                                     .setTitle(R.string.dialog_title_error)
                                     .setMessage(e.getMessage())
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> init())
                                     .show();
                         }
                     })

@@ -31,12 +31,12 @@ import com.saradabar.cpadcustomizetool.R;
 
 import java.util.Objects;
 
+/** @noinspection deprecation*/
 public class WebViewActivity extends AppCompatActivity {
 
     WebView webView;
 
     @SuppressLint("SetJavaScriptEnabled")
-    @Deprecated
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +65,6 @@ public class WebViewActivity extends AppCompatActivity {
                 }
             }
 
-            @Deprecated
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (isUrlDistrusted(url)) {
@@ -101,7 +100,7 @@ public class WebViewActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressWarnings("MissingSuperCall")
+    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
         webView.goBack();

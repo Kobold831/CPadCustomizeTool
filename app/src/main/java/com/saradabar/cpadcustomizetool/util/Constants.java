@@ -84,7 +84,7 @@ public class Constants {
     public static final String KEY_INT_UPDATE_MODE = "update_mode";
     public static final String KEY_INT_GET_APP_TMP = "key_radio_tmp";
     public static final String KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE = "normal_launcher";
-    public static final String KEY_STRINGS_CRASH_LOG = "crash_log";
+    public static final String KEY_LIST_CRASH_LOG = "LIST_CRASH_LOG";
 
     public static final String KEY_EMERGENCY_SETTINGS = "emergency_settings";
     public static final String KEY_NORMAL_SETTINGS = "normal_settings";

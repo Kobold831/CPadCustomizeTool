@@ -12,7 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.annotation.SuppressLint;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -89,7 +88,6 @@ public class UninstallBlockActivity extends AppCompatActivity {
         restart();
     }
 
-    @SuppressLint("WrongConstant")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
