@@ -24,16 +24,21 @@
             android:layout_height="match_parent"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="@drawable/shape_rounded_corners">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/wel_scroll"
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/shape_rounded_corners"
-                android:padding="8dp"
-                android:textColor="@android:color/black"
-                android:textSize="16sp" />
+                android:layout_height="match_parent">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/wel_scroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+            </ScrollView>
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.appcompat.widget.LinearLayoutCompat>
 
