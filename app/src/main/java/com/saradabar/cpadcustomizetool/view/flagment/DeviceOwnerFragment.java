@@ -44,7 +44,6 @@ import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 
 import com.rosan.dhizuku.shared.DhizukuVariables;
-import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
@@ -433,21 +432,15 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
         if (Common.isDhizukuActive(requireActivity())) {
             try {
-                if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode > 11 && !BuildConfig.DEBUG) {
+                if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
                     new AlertDialog.Builder(requireActivity())
                             .setCancelable(false)
-                            .setMessage(getString(R.string.dialog_dhizuku_require_11))
-                            .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> {
-                                requireActivity().finish();
-                                requireActivity().overridePendingTransition(0, 0);
-                                startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                            })
+                            .setMessage(getString(R.string.dialog_dhizuku_require_12))
+                            .setPositiveButton(getString(R.string.dialog_common_ok), null)
                             .show();
-                    return;
                 }
             } catch (Exception ignored) {
             }
-
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
             AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
             textView.setText("サービスへの接続を待機しています。画面を切り替えないでください。");
@@ -479,6 +472,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
                 @Override
                 public void onFailure() {
+                    Log.e("DEBUG", "onFailure");
                     if (waitForServiceDialog.isShowing()) {
                         waitForServiceDialog.cancel();
                     }
@@ -535,6 +529,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             preSessionInstall.setEnabled(true);
             try {
                 if (data == null) {
+                    restart();
                     return;
                 }
 

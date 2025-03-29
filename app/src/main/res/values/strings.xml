@@ -158,7 +158,7 @@
     <string name="dialog_no_installer">インストーラーが設定されていません。インストーラーを選択して設定してください。 ADB でインストールするには、次の URL から PC でダウンロードしてください。\n%1$s</string>
     <string name="dialog_dhizuku_grant_permission">Dhizuku へのアクセス権限は付与されました。</string>
     <string name="dialog_dhizuku_deny_permission">Dhizuku へのアクセス権限は拒否されました。</string>
-    <string name="dialog_dhizuku_require_11">現在のバージョンの Dhizuku と互換性がありません。\nv2.8 の Dhizuku をインストールしてください。</string>
+    <string name="dialog_dhizuku_require_12">Dhizuku を更新することを推奨します。\nv2.9 の Dhizuku をインストールしてください。\nこのままでも機能を使用できますが完全に動作しない可能性があります。\nメイン画面の アプリを取得 から Dhizuku を選択することで最新に更新できます。</string>
     <string name="dialog_dhizuku_already_grant_permission">Dhizuku へのアクセス権限は付与されています。</string>
     <string name="dialog_question_reboot">デバイスを再起動しますか？</string>
     <string name="dialog_question_dcha">DchaService の機能を使用しますか？</string>
@@ -166,7 +166,6 @@
     <string name="dialog_question_admin">この操作を行うと学習環境のときに、アプリがアンインストールされる可能性があります。</string>
 
     <!-- ダイアログエラー -->
-    <string name="dialog_error_crash">致命的なエラーが発生しました。\nOK を押すと、メイン画面に戻ります。\n\n繰り返し発生する場合は [報告] を押してクラッシュログを開発者に報告できます。\nクラッシュログは [報告] を押すと自動でコピーされますので、表示されるフォームの入力欄に貼り付けてください。\n報告手順\n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します。\n・最新バージョンであれば「はい」を押して「次へ」を押します。\n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します。\n\nクラッシュログを確認、またはコピーしたいときは 確認 を押してください。</string>
     <string name="dialog_error">エラーが発生しました。</string>
     <string name="dialog_error_connection">"データ取得に失敗しました。ネットワークを確認してください。"</string>
     <string name="dialog_error_download">"ダウンロードに失敗しました。ネットワークを確認してください。"</string>

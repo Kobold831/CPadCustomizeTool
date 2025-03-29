@@ -38,6 +38,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 
+import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
@@ -59,6 +60,15 @@ public class UninstallBlockActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         Log.e("DEBUG", "UninstallBlockActivity onDestroy");
+
+        // Dhizuku v2.9 以下の場合においてダイアログが消えない事象の対策
+        try {
+            if (getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
+               return;
+            }
+        } catch (Exception ignored) {
+            return;
+        }
 
         if (dhizukuUserServiceArgs != null) {
             try {

@@ -177,17 +177,15 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                     case 4:
                         if (isDhizukuActive(requireActivity())) {
                             try {
-                                if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode > 11 && !BuildConfig.DEBUG) {
+                                if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
                                     new AlertDialog.Builder(requireActivity())
                                             .setCancelable(false)
-                                            .setMessage(getString(R.string.dialog_dhizuku_require_11))
+                                            .setMessage(getString(R.string.dialog_dhizuku_require_12))
                                             .setPositiveButton(getString(R.string.dialog_common_ok), null)
                                             .show();
-                                    return;
-                                } else {
-                                    Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                    listView.invalidateViews();
                                 }
+                                Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
+                                listView.invalidateViews();
                             } catch (Exception ignored) {
                             }
                         } else {

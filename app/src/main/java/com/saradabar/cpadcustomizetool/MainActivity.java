@@ -425,17 +425,15 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                             case 4:
                                 if (Common.isDhizukuActive(v.getContext())) {
                                     try {
-                                        if (getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode > 11 && !BuildConfig.DEBUG) {
+                                        if (getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
                                             new AlertDialog.Builder(v.getContext())
                                                     .setCancelable(false)
-                                                    .setMessage(getString(R.string.dialog_dhizuku_require_11))
+                                                    .setMessage(getString(R.string.dialog_dhizuku_require_12))
                                                     .setPositiveButton(getString(R.string.dialog_common_ok), null)
                                                     .show();
-                                            return;
-                                        } else {
-                                            Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                            listView.invalidateViews();
                                         }
+                                        Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
+                                        listView.invalidateViews();
                                     } catch (Exception ignored) {
                                     }
                                 } else {
