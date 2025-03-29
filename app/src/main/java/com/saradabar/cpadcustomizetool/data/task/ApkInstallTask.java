@@ -36,7 +36,6 @@ public class ApkInstallTask {
 
     public void execute(Context context, Listener listener, ArrayList<String> splitInstallData, int reqCode, InstallEventListener installEventListener) {
         onPreExecute(listener);
-        dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
@@ -74,52 +73,50 @@ public class ApkInstallTask {
 
     protected Object doInBackground(Context context, ArrayList<String> splitInstallData, int reqCode) {
         if (isDhizukuActive(context)) {
-            if (tryBindDhizukuService(context)) {
-                try {
-                    dServiceConnection = new ServiceConnection() {
-                        @Override
-                        public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                            mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
-                            iDhizukuTaskListener().onSuccess();
-                        }
-
-                        @Override
-                        public void onServiceDisconnected(ComponentName name) {
-                        }
-                    };
-
-                    // サービスに接続したら発火させる
-                    ExecutorService executorService = Executors.newSingleThreadExecutor();
-                    executorService.submit(() -> {
-                        Handler handler = new Handler(Looper.getMainLooper());
-                        new Thread(() -> handler.post(() -> {
-                            if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
-                                // 失敗
-                                iDhizukuTaskListener().onFailure();
-                            }
-                        })).start();
-                    });
-
-                    synchronized (objLock) {
-                        objLock.wait();
+            try {
+                dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
+                dServiceConnection = new ServiceConnection() {
+                    @Override
+                    public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                        mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
+                        iDhizukuTaskListener().onSuccess();
                     }
 
-                    if (mDhizukuService == null) {
-                        return false;
+                    @Override
+                    public void onServiceDisconnected(ComponentName name) {
                     }
+                };
 
-                    if (mDhizukuService.tryInstallPackages(splitInstallData, reqCode)) {
-                        Dhizuku.stopUserService(dhizukuUserServiceArgs);
-                        Dhizuku.unbindUserService(dServiceConnection);
-                        return true;
-                    } else {
-                        return false;
-                    }
-                } catch (Exception e) {
-                    return e.getMessage();
+                // サービスに接続したら発火させる
+                if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
+                    // 失敗
+                    iDhizukuTaskListener().onFailure();
+                    return false;
                 }
+
+                synchronized (objLock) {
+                    objLock.wait();
+                }
+
+                if (mDhizukuService == null) {
+                    return false;
+                }
+
+                if (mDhizukuService.tryInstallPackages(splitInstallData, reqCode)) {
+                    if (dhizukuUserServiceArgs != null) {
+                        Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                    }
+
+                    if (dServiceConnection != null) {
+                        Dhizuku.unbindUserService(dServiceConnection);
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (Exception e) {
+                return e.getMessage();
             }
-            return false;
         } else {
             SessionInstaller sessionInstaller = new SessionInstaller();
             int sessionId;
@@ -169,19 +166,6 @@ public class ApkInstallTask {
         void onError(String message);
     }
 
-    private boolean tryBindDhizukuService(Context context) {
-        DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
-        return Dhizuku.bindUserService(args, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder iBinder) {
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        });
-    }
-
     @NonNull
     private dListener iDhizukuTaskListener() {
         return new dListener() {
@@ -203,6 +187,7 @@ public class ApkInstallTask {
 
     public interface dListener {
         void onSuccess();
+
         void onFailure();
     }
 }
