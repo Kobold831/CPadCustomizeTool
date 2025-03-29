@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="前回の起動時に致命的なエラーが発生したため、このアプリは予期せずに終了しました。"
+                android:textColor="@android:color/holo_red_light"
+                android:textSize="40sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="この画面を閉じてメイン画面に戻るには メイン画面に戻る を押してください。"
+                android:textColor="@android:color/holo_red_light"
+                android:textSize="32sp" />
+
+            <Button
+                android:id="@+id/act_splash_btn_main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="メイン画面に戻る"
+                android:textSize="32sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="繰り返し発生する場合は 解決方法 をお試しください。それでも解決しない場合は、開発者にクラッシュログを送信できます。"
+                android:textColor="@android:color/black"
+                android:textSize="32sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="アプリデータのクリア"
+                android:textColor="@android:color/black"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="アプリデータをクリアすると、アプリが正常に動作する場合があります。実行するには アプリデータクリア を押してください。"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/act_splash_btn_clear_app_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="アプリデータクリア" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="そのほかの解決方法"
+                android:textColor="@android:color/black"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="開発者が確認している問題の解決方法を確認できます。解決方法は動的に更新しますので、インターネットに接続されている必要があります。確認するには 解決方法の確認 を押してください。"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/act_splash_btn_open_web"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="解決方法の確認" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="クラッシュログの提供"
+                android:textColor="@android:color/black"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="解決方法を試しても繰り返し発生する場合はクラッシュログを開発者に送信してください。開発者は送信されたクラッシュログを確認して不具合であれば修正を行います。クラッシュログは [クラッシュログを送信] を押すと自動でコピーされますので、表示されるフォームの入力欄に貼り付けてください。 \n報告手順 \n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します。 \n・最新バージョンであれば「はい」を押して「次へ」を押します。 \n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します。 \nクラッシュ履歴を確認したいときは クラッシュログ履歴を開く を押してください。"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/act_splash_btn_send_crash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="クラッシュログを送信" />
+
+            <Button
+                android:id="@+id/act_splash_btn_open_crash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="クラッシュ履歴を開く" />
+        </LinearLayout>
+    </ScrollView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:layout_gravity="bottom"
+        android:text="文字が見切れる場合は、画面をスクロールすることができます。"
+        android:textColor="@android:color/black" />
+</FrameLayout>

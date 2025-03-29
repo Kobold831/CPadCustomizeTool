@@ -14,6 +14,8 @@ package com.saradabar.cpadcustomizetool;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
+import android.app.ActivityManager;
+import android.app.Service;
 import android.app.admin.DevicePolicyManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -30,6 +32,7 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -92,48 +95,60 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     private void init() {
         /* 前回クラッシュしているかどうか */
         if (Preferences.load(this, Constants.KEY_FLAG_ERROR_CRASH, false)) {
-            /* クラッシュダイアログ表示 */
-            new AlertDialog.Builder(this)
-                    .setCancelable(false)
-                    .setTitle(R.string.dialog_title_error)
-                    .setMessage(R.string.dialog_error_crash)
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                        Preferences.save(this, Constants.KEY_FLAG_ERROR_CRASH, false);
-                        init();
-                    })
-                    .setNeutralButton("確認", (dialog, which) -> {
-                        startActivity(new Intent(this, CrashLogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                        finish();
-                    })
-                    .setNegativeButton("報告", (dialog, which) -> {
-                        try {
-                            ArrayList<String> arrayList = Preferences.load(this, Constants.KEY_LIST_CRASH_LOG);
+            setContentView(R.layout.activity_splash);
+            Button btnMain = findViewById(R.id.act_splash_btn_main);
+            Button btnClearAppData = findViewById(R.id.act_splash_btn_clear_app_data);
+            Button btnOpenWeb = findViewById(R.id.act_splash_btn_open_web);
+            Button btnSendCrash = findViewById(R.id.act_splash_btn_send_crash);
+            Button btnOpenCrash = findViewById(R.id.act_splash_btn_open_crash);
 
-                            if (arrayList == null) {
-                                new AlertDialog.Builder(this)
-                                        .setMessage(R.string.dialog_error)
-                                        .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> init())
-                                        .show();
-                                return;
-                            }
-                            ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                            //noinspection SequencedCollectionMethodCanBeUsed
-                            clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(arrayList.size() - 1)));
-                            startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK));
-                            new AlertDialog.Builder(this)
-                                    .setCancelable(false)
-                                    .setMessage("ご協力ありがとうございます。")
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> init())
-                                    .show();
-                        } catch (Exception e) {
-                            new AlertDialog.Builder(this)
-                                    .setTitle(R.string.dialog_title_error)
-                                    .setMessage(e.getMessage())
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> init())
-                                    .show();
-                        }
+            btnMain.setOnClickListener(v -> {
+                View contentView = getWindow().getDecorView().findViewById(android.R.id.content);
+                contentView.setVisibility(View.GONE);
+                Preferences.save(this, Constants.KEY_FLAG_ERROR_CRASH, false);
+                init();
+            });
+
+            btnClearAppData.setOnClickListener(v -> new AlertDialog.Builder(this)
+                    .setMessage("消去しますか？ OK を押下すると、アプリは終了します。")
+                    .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> {
+                        ActivityManager activityManager = (ActivityManager) getSystemService(Service.ACTIVITY_SERVICE);
+                        activityManager.clearApplicationUserData();
                     })
-                    .show();
+                    .setNegativeButton(getString(R.string.dialog_common_cancel), null)
+                    .show());
+
+            btnOpenWeb.setOnClickListener(v -> startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", "")));
+
+            btnSendCrash.setOnClickListener(v -> {
+                try {
+                    ArrayList<String> arrayList = Preferences.load(this, Constants.KEY_LIST_CRASH_LOG);
+
+                    if (arrayList == null) {
+                        new AlertDialog.Builder(this)
+                                .setMessage(R.string.dialog_error)
+                                .setPositiveButton(R.string.dialog_common_ok, null)
+                                .show();
+                        return;
+                    }
+                    ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    //noinspection SequencedCollectionMethodCanBeUsed
+                    clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(arrayList.size() - 1)));
+                    startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK));
+                    new AlertDialog.Builder(this)
+                            .setMessage("ご協力ありがとうございます。")
+                            .setPositiveButton(R.string.dialog_common_ok, null)
+                            .show();
+                } catch (Exception e) {
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.dialog_title_error)
+                            .setMessage(e.getMessage())
+                            .setPositiveButton(R.string.dialog_common_ok, null)
+                            .show();
+                }
+            });
+
+            btnOpenCrash.setOnClickListener(v -> startActivity(new Intent(this, CrashLogActivity.class)));
         } else {
             /* 初回起動か確認 */
             if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
