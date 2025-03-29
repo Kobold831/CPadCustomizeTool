@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                             }
                             ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                             //noinspection SequencedCollectionMethodCanBeUsed
-                            clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(0)));
+                            clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(arrayList.size() - 1)));
                             startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK));
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
