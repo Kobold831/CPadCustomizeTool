@@ -61,11 +61,17 @@ public class UninstallBlockActivity extends AppCompatActivity {
         Log.e("DEBUG", "UninstallBlockActivity onDestroy");
 
         if (dhizukuUserServiceArgs != null) {
-            Dhizuku.stopUserService(dhizukuUserServiceArgs);
+            try {
+                Dhizuku.stopUserService(dhizukuUserServiceArgs);
+            } catch (IllegalStateException ignored) {
+            }
         }
 
         if (dServiceConnection != null) {
-            Dhizuku.unbindUserService(dServiceConnection);
+            try {
+                Dhizuku.unbindUserService(dServiceConnection);
+            } catch (IllegalStateException ignored) {
+            }
         }
     }
 
@@ -75,11 +81,17 @@ public class UninstallBlockActivity extends AppCompatActivity {
         Log.e("DEBUG", "UninstallBlockActivity onPause");
 
         if (dhizukuUserServiceArgs != null) {
-            Dhizuku.stopUserService(dhizukuUserServiceArgs);
+            try {
+                Dhizuku.stopUserService(dhizukuUserServiceArgs);
+            } catch (IllegalStateException ignored) {
+            }
         }
 
         if (dServiceConnection != null) {
-            Dhizuku.unbindUserService(dServiceConnection);
+            try {
+                Dhizuku.unbindUserService(dServiceConnection);
+            } catch (IllegalStateException ignored) {
+            }
         }
     }
 

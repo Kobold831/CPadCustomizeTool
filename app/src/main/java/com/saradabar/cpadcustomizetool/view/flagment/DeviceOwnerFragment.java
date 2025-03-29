@@ -116,11 +116,17 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         Log.e("DEBUG", "onDestroy");
 
         if (dhizukuUserServiceArgs != null) {
-            Dhizuku.stopUserService(dhizukuUserServiceArgs);
+            try {
+                Dhizuku.stopUserService(dhizukuUserServiceArgs);
+            } catch (IllegalStateException ignored) {
+            }
         }
 
         if (dServiceConnection != null) {
-            Dhizuku.unbindUserService(dServiceConnection);
+            try {
+                Dhizuku.unbindUserService(dServiceConnection);
+            } catch (IllegalStateException ignored) {
+            }
         }
     }
 
@@ -130,11 +136,17 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         Log.e("DEBUG", "onPause");
 
         if (dhizukuUserServiceArgs != null) {
-            Dhizuku.stopUserService(dhizukuUserServiceArgs);
+            try {
+                Dhizuku.stopUserService(dhizukuUserServiceArgs);
+            } catch (IllegalStateException ignored) {
+            }
         }
 
         if (dServiceConnection != null) {
-            Dhizuku.unbindUserService(dServiceConnection);
+            try {
+                Dhizuku.unbindUserService(dServiceConnection);
+            } catch (IllegalStateException ignored) {
+            }
         }
     }
 
@@ -142,11 +154,17 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         preUninstallBlock.setOnPreferenceClickListener(preference -> {
             // 遷移前にdhizukuから切断
             if (dhizukuUserServiceArgs != null) {
-                Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                try {
+                    Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                } catch (IllegalStateException ignored) {
+                }
             }
 
             if (dServiceConnection != null) {
-                Dhizuku.unbindUserService(dServiceConnection);
+                try {
+                    Dhizuku.unbindUserService(dServiceConnection);
+                } catch (IllegalStateException ignored) {
+                }
             }
 
             try {
@@ -221,11 +239,17 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
                 // Dhizuku 切断
                 if (dhizukuUserServiceArgs != null) {
-                    Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                    try {
+                        Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                    } catch (IllegalStateException ignored) {
+                    }
                 }
 
                 if (dServiceConnection != null) {
-                    Dhizuku.unbindUserService(dServiceConnection);
+                    try {
+                        Dhizuku.unbindUserService(dServiceConnection);
+                    } catch (IllegalStateException ignored) {
+                    }
                 }
             } catch (Exception ignored) {
                 preSessionInstall.setEnabled(true);

@@ -104,11 +104,17 @@ public class ApkInstallTask {
 
                 if (mDhizukuService.tryInstallPackages(splitInstallData, reqCode)) {
                     if (dhizukuUserServiceArgs != null) {
-                        Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                        try {
+                            Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                        } catch (IllegalStateException ignored) {
+                        }
                     }
 
                     if (dServiceConnection != null) {
-                        Dhizuku.unbindUserService(dServiceConnection);
+                        try {
+                            Dhizuku.unbindUserService(dServiceConnection);
+                        } catch (IllegalStateException ignored) {
+                        }
                     }
                     return true;
                 } else {
