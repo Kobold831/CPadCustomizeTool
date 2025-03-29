@@ -92,6 +92,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
     Listener listener;
 
+    boolean isActiveInstallTask = false;
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.pre_owner);
@@ -213,6 +215,18 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             try {
                 preSessionInstall.setEnabled(false);
                 startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/*"}).addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true), ""), Constants.REQUEST_ACTIVITY_INSTALL);
+
+                // インストール中状態を設定
+                isActiveInstallTask = true;
+
+                // Dhizuku 切断
+                if (dhizukuUserServiceArgs != null) {
+                    Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                }
+
+                if (dServiceConnection != null) {
+                    Dhizuku.unbindUserService(dServiceConnection);
+                }
             } catch (Exception ignored) {
                 preSessionInstall.setEnabled(true);
                 new AlertDialog.Builder(requireActivity())
@@ -381,10 +395,18 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     public void onStart() {
         super.onStart();
         Log.e("DEBUG", "onStart");
+
+        //インストール中なら終了
+        if (isActiveInstallTask) {
+            return;
+        }
         restart();
     }
 
     private void restart() {
+        // インストール中状態を解除
+        isActiveInstallTask = false;
+
         if (Common.isDhizukuActive(requireActivity())) {
             try {
                 if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode > 11 && !BuildConfig.DEBUG) {
@@ -496,15 +518,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     //noinspection SequencedCollectionMethodCanBeUsed
                     String installFileName = new File(installFileArrayList.get(0)).getName();
 
-                    // Dhizuku 切断
-                    if (dhizukuUserServiceArgs != null) {
-                        Dhizuku.stopUserService(dhizukuUserServiceArgs);
-                    }
-
-                    if (dServiceConnection != null) {
-                        Dhizuku.unbindUserService(dServiceConnection);
-                    }
-
                     /* ファイルの拡張子 */
                     if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
                         new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SILENT, this);
@@ -521,13 +534,13 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 } else {
                     new AlertDialog.Builder(requireActivity())
                             .setMessage(getString(R.string.dialog_error_no_file_data))
-                            .setPositiveButton(R.string.dialog_common_ok, null)
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> restart())
                             .show();
                 }
             } catch (Exception ignored) {
                 new AlertDialog.Builder(requireActivity())
                         .setMessage(getString(R.string.dialog_error_no_file_data))
-                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> restart())
                         .show();
             }
         }
