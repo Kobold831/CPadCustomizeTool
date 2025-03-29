@@ -123,7 +123,6 @@ public class EmergencyActivity extends AppCompatActivity {
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 3)) {
             Preferences.save(this, Constants.KEY_FLAG_KEEP_HOME, false);
         }
-
         startService(new Intent(this, KeepService.class));
         startService(new Intent(this, ProtectKeepService.class));
 
@@ -146,7 +145,6 @@ public class EmergencyActivity extends AppCompatActivity {
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 2)) {
             new DchaServiceUtil(this, mDchaService).hideNavigationBar(true);
         }
-
         // 解像度修正
         int[] lcdSize = new DchaUtilServiceUtil(mUtilService).getLcdSize();
         new DchaUtilServiceUtil(mUtilService).setForcedDisplaySize(lcdSize[0], lcdSize[1]);

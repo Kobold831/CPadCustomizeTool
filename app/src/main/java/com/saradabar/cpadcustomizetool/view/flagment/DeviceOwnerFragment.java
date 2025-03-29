@@ -68,7 +68,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 
-/** @noinspection SequencedCollectionMethodCanBeUsed */
+/** @noinspection deprecation*/
 public class DeviceOwnerFragment extends PreferenceFragmentCompat implements InstallEventListener {
 
     AlertDialog progressDialog;
@@ -493,6 +493,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 }
 
                 if (trySetInstallData(data, installFileArrayList)) {
+                    //noinspection SequencedCollectionMethodCanBeUsed
                     String installFileName = new File(installFileArrayList.get(0)).getName();
 
                     // Dhizuku 切断
@@ -532,6 +533,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         }
     }
 
+    /** @noinspection SequencedCollectionMethodCanBeUsed*/
     /* splitInstallDataにファイルパスを格納 */
     private boolean trySetInstallData(Intent intent, ArrayList<String> stringArrayList) {
         try {

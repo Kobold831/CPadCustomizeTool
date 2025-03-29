@@ -3,9 +3,7 @@ package com.saradabar.cpadcustomizetool.view.views;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
-import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +14,8 @@ import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.AppCompatTextView;
 
-import com.rosan.dhizuku.api.Dhizuku;
-import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
-
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
-import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
 import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 import com.saradabar.cpadcustomizetool.util.Common;
 

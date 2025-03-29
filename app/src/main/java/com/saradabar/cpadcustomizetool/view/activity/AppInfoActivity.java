@@ -38,7 +38,6 @@ public class AppInfoActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-
         initialize();
         findViewById(R.id.download_button).setOnClickListener(view -> {
             try {

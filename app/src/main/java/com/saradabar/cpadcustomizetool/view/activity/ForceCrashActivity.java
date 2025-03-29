@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.rosan.dhizuku.shared.DhizukuVariables;
 
 public class ForceCrashActivity extends AppCompatActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

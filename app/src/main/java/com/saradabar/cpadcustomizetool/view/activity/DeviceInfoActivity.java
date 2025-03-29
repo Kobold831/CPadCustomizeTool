@@ -36,7 +36,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-
         AppCompatButton button1 = findViewById(R.id.act_device_info_button_1);
         AppCompatButton button2 = findViewById(R.id.act_device_info_button_2);
         AppCompatButton button3 = findViewById(R.id.act_device_info_button_3);
@@ -80,8 +79,10 @@ public class DeviceInfoActivity extends AppCompatActivity {
         StringBuilder stringBuilder = new StringBuilder();
         Properties properties = System.getProperties();
         Enumeration<?> propertyNames = properties.propertyNames();
+
         while (propertyNames.hasMoreElements()) {
             String nextElement = propertyNames.nextElement().toString();
+
             if (properties.getProperty(nextElement).equals(System.lineSeparator())) {
                 stringBuilder.append(nextElement).append("=").append(properties.getProperty(nextElement).replace(System.lineSeparator(), "")).append(System.lineSeparator());
             } else {
@@ -107,6 +108,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             process.waitFor();
 
             String data;
+
             while ((data = bufferedReader.readLine()) != null)
                 stringBuilder.append(data).append(System.lineSeparator());
             bufferedReader.close();
@@ -126,7 +128,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
         if (batteryStatus == null || batteryManager == null) {
             return "";
         }
-
         stringBuilder.append("BatteryLevel=").append(batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)).append(System.lineSeparator())
                 .append("BatteryScale=").append(batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1)).append(System.lineSeparator())
                 .append("BatteryHealth=").append(batteryStatus.getIntExtra(BatteryManager.EXTRA_HEALTH, -1)).append(System.lineSeparator())
@@ -141,7 +142,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 .append("BatteryCurrentAverage=").append(batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE)).append(System.lineSeparator())
                 .append("BatteryEnergyCounter=").append(batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_ENERGY_COUNTER)).append(System.lineSeparator())
                 .append("BatteryCurrentNow=").append(batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)).append(System.lineSeparator());
-
         return stringBuilder.toString().trim();
     }
 }

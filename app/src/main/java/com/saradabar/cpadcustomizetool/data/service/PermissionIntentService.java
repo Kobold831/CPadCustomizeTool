@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
-@SuppressWarnings("deprecation")
+/** @noinspection deprecation*/
 public class PermissionIntentService extends IntentService {
 
     public PermissionIntentService() {

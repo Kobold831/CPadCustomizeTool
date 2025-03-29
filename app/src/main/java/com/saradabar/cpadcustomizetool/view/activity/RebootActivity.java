@@ -39,7 +39,6 @@ public class RebootActivity extends AppCompatActivity {
             finishAndRemoveTask();
             return;
         }
-
         reboot();
     }
 

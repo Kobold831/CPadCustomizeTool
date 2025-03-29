@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
     }
 
-    /** @noinspection SequencedCollectionMethodCanBeUsed*/ /* ダウンロード完了 */
+    /* ダウンロード完了 */
     @Override
     public void onDownloadComplete(int reqCode) {
         ArrayList<String> installFileArrayList = new ArrayList<>();
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                     .show();
                             return;
                         }
-
+                        //noinspection SequencedCollectionMethodCanBeUsed
                         installFileArrayList.add(0, new File(getExternalCacheDir(), "update.apk").getPath());
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                     .show();
                             return;
                         }
-
+                        //noinspection SequencedCollectionMethodCanBeUsed
                         installFileArrayList.add(0, new File(getExternalCacheDir(), "update.apk").getPath());
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
@@ -285,7 +285,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         cancelLoadingDialog();
         new WelcomeHelper(this, WelAppActivity.class).forceShow();
     }
-
 
     /* サーバー接続エラー */
     @Override
@@ -366,7 +365,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         dataList.add(data);
                         i++;
                     }
-
                     ListView listView = v.findViewById(R.id.update_list);
                     listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
                     listView.setAdapter(new UpdateModeListView.AppListAdapter(v.getContext(), dataList));
@@ -526,7 +524,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 return;
             }
         }
-
         confCheck();
     }
 
@@ -642,7 +639,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         if (!isAccessExternalStoragePermissionCheck()) {
             return false;
         }
-
         return isAccessDchaServicePermissionCheck();
     }
 
@@ -653,7 +649,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             canWrite = Settings.System.canWrite(this);
         }
-
         return canWrite;
     }
 
@@ -667,7 +662,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 requestPermissions(new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"}, 0);
             }
         }
-
         return canWrite;
     }
 
@@ -683,7 +677,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 }
             }
         }
-
         return canWrite;
     }
 
@@ -810,7 +803,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     }
                 } catch (Exception ignored) {
                 }
-
                 cancelLoadingDialog();
                 AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
                         .setMessage(R.string.dialog_success_silent_install)
@@ -835,7 +827,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     }
                 } catch (Exception ignored) {
                 }
-
                 cancelLoadingDialog();
                 new AlertDialog.Builder(MainActivity.this)
                         .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
@@ -855,7 +846,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     }
                 } catch (Exception ignored) {
                 }
-
                 cancelLoadingDialog();
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle(getString(R.string.dialog_title_error))

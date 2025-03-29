@@ -43,7 +43,6 @@ public class CrashLogActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-
         ArrayList<String> arrayList = Preferences.load(this, Constants.KEY_LIST_CRASH_LOG);
 
         if (arrayList == null) {

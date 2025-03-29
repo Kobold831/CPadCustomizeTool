@@ -60,11 +60,11 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-
         showLoadingDialog(getString(R.string.progress_state_connecting));
         new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
     }
@@ -119,6 +119,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                         break;
                     case 3:
                         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+
                         if (!dpm.isDeviceOwnerApp(getPackageName())) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
@@ -128,7 +129,6 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                                     .show();
                             return;
                         }
-
                         installFileArrayList.add(0, new File(getExternalCacheDir(), "update.apk").getPath());
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
@@ -142,7 +142,6 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                                     .show();
                             return;
                         }
-
                         installFileArrayList.add(0, new File(getExternalCacheDir(), "update.apk").getPath());
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
@@ -292,6 +291,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == Constants.REQUEST_ACTIVITY_UPDATE) {
             finish();
         }

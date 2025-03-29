@@ -59,6 +59,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         Log.e("DEBUG", "UninstallBlockActivity onDestroy");
+
         if (dhizukuUserServiceArgs != null) {
             Dhizuku.stopUserService(dhizukuUserServiceArgs);
         }
@@ -72,6 +73,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         Log.e("DEBUG", "UninstallBlockActivity onPause");
+
         if (dhizukuUserServiceArgs != null) {
             Dhizuku.stopUserService(dhizukuUserServiceArgs);
         }
@@ -150,7 +152,6 @@ public class UninstallBlockActivity extends AppCompatActivity {
                     if (waitForServiceDialog.isShowing()) {
                         waitForServiceDialog.cancel();
                     }
-
                     new AlertDialog.Builder(UninstallBlockActivity.this)
                             .setCancelable(false)
                             .setMessage(R.string.dialog_error_no_dhizuku)
@@ -194,6 +195,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
         listView.setOnItemClickListener((parent, view, position, id) -> {
             UninstallBlockAppListView.AppData item = dataList.get(position);
             String selectPackage = Uri.fromParts("package", item.packName, null).toString();
+
             if (Common.isDhizukuActive(UninstallBlockActivity.this)) {
                 try {
                     mDhizukuService.setUninstallBlocked(selectPackage.replace("package:", ""), !mDhizukuService.isUninstallBlocked(selectPackage.replace("package:", "")));
@@ -220,6 +222,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 }
             } else {
                 DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+
                 for (UninstallBlockAppListView.AppData appData : dataList) {
                     dpm.setUninstallBlocked(new ComponentName(UninstallBlockActivity.this, AdministratorReceiver.class), appData.packName, false);
                 }
@@ -241,6 +244,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 }
             } else {
                 DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+
                 for (UninstallBlockAppListView.AppData appData : dataList) {
                     dpm.setUninstallBlocked(new ComponentName(UninstallBlockActivity.this, AdministratorReceiver.class), appData.packName, true);
                 }

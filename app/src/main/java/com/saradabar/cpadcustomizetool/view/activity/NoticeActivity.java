@@ -36,7 +36,6 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-
         new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(getExternalCacheDir(), "ct-notice.json"), Constants.REQUEST_DOWNLOAD_NOTICE);
     }
 
@@ -65,7 +64,6 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
                     appData.message = jsonArray.getJSONObject(i).getString("message");
                     appDataList.add(appData);
                 }
-
                 NoticeListView.AppListAdapter appListAdapter = new NoticeListView.AppListAdapter(this, appDataList);
                 listView.setAdapter(appListAdapter);
                 listView.setOnItemClickListener((parent, view, position, id) -> {

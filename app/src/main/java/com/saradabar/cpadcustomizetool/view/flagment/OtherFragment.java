@@ -118,6 +118,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                     .setTitle("スクリーンのタイムアウト")
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         try {
+                            //noinspection DataFlowIssue
                             Settings.System.putInt(requireActivity().getContentResolver(), "screen_off_timeout", Integer.parseInt(editText.getText().toString()));
                             setSummaryScreenOffTimeConvert();
                         } catch (Exception e) {
@@ -158,6 +159,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                     .setTitle("sleep_timeout")
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         try {
+                            //noinspection DataFlowIssue
                             Settings.Secure.putInt(requireActivity().getContentResolver(), "sleep_timeout", Integer.parseInt(editText.getText().toString()));
                         } catch (Exception e) {
                             new AlertDialog.Builder(requireActivity())

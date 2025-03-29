@@ -53,7 +53,6 @@ public class NormalActivity extends AppCompatActivity {
             finishAndRemoveTask();
             return;
         }
-
         new IDchaTask().execute(this, new IDchaTask.Listener() {
             @Override
             public void onSuccess(IDchaService iDchaService) {
@@ -63,7 +62,6 @@ public class NormalActivity extends AppCompatActivity {
                     Toast.makeText(NormalActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
                     finishAndRemoveTask();
                 }
-
                 ActivityManager activityManager = (ActivityManager) NormalActivity.this.getSystemService(ACTIVITY_SERVICE);
                 switch (PreferenceManager.getDefaultSharedPreferences(NormalActivity.this).getString("emergency_mode", "")) {
                     case "1":

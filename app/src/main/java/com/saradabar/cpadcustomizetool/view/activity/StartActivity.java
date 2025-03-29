@@ -14,6 +14,7 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 
+import android.annotation.SuppressLint;
 import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -56,6 +57,7 @@ import java.util.Objects;
 
 import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
 
+/** @noinspection deprecation*/
 public class StartActivity extends AppCompatActivity implements DownloadEventListener {
 
     Menu menu;
@@ -76,6 +78,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 FrameLayout frameLayout = findViewById(R.id.layout_main);
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+
                 switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
                     case Constants.MODEL_CT2:
                     case Constants.MODEL_CT3:
@@ -91,6 +94,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 FrameLayout frameLayout = findViewById(R.id.layout_main);
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+
                 switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
                     case Constants.MODEL_CT2:
                     case Constants.MODEL_CT3:
@@ -104,7 +108,6 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 frameLayout.setLayoutParams(marginLayoutParams);
             }
         }
-
         transitionFragment(new MainFragment(), false);
 
         /* アップデートチェックするか確認 */
@@ -147,12 +150,11 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
             transitionFragment(new MainFragment(), false);
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     /* 戻るボタン */
-    @SuppressWarnings({"deprecation", "MissingSuperCall"})
+    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
         menu.findItem(R.id.app_info_3).setVisible(true);
@@ -175,6 +177,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     @Override
     public void onResume() {
         super.onResume();
+
         /* DchaServiceが機能していな場合は再起動 */
         if (!Preferences.load(this, "debug_restriction", false)) {
             if (Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
@@ -230,11 +233,13 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+
         if (supportModelCheck()) {
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                 FrameLayout frameLayout = findViewById(R.id.layout_main);
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+
                 switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
                     case Constants.MODEL_CT2:
                     case Constants.MODEL_CT3:
@@ -250,6 +255,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 FrameLayout frameLayout = findViewById(R.id.layout_main);
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
+
                 switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
                     case Constants.MODEL_CT2:
                     case Constants.MODEL_CT3:
@@ -302,7 +308,6 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 if (!alertDialog.isShowing()) {
                     alertDialog.show();
                 }
-
                 /* カウント開始 */
                 mHandler = new Handler();
                 mRunnable = new Runnable() {
@@ -319,7 +324,6 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                             mHandler.removeCallbacks(this);
                             resetResolution();
                         }
-
                         i--;
                     }
                 };

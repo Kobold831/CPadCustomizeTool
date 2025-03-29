@@ -45,7 +45,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatEditText;
@@ -95,9 +94,8 @@ import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 
+/** @noinspection deprecation*/
 public class MainFragment extends PreferenceFragmentCompat implements DownloadEventListener, InstallEventListener {
-
-    ActivityResultLauncher<Intent> activityResultLauncher;
 
     AlertDialog progressDialog;
     AppCompatTextView progressPercentText;
@@ -764,7 +762,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         AppCompatEditText editTextHeight = view.findViewById(R.id.edit_text_2);
 
                         try {
+                            //noinspection DataFlowIssue
                             int width = Integer.parseInt(editTextWidth.getText().toString());
+                            //noinspection DataFlowIssue
                             int height = Integer.parseInt(editTextHeight.getText().toString());
 
                             if (width < 0 || height < 0) {
@@ -924,7 +924,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     }
 
     /* 初期化 */
-    @SuppressWarnings("deprecation")
     public void initialize() {
         if (getPreferenceScreen() != null) {
             /* DchaServiceを使用するか */
@@ -1086,7 +1085,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
             try {
-                //noinspection deprecation
                 swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
             } catch (Exception ignored) {
             }
@@ -1107,7 +1105,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     };
 
     /* 設定変更 */
-    @SuppressWarnings("deprecation")
     private void chgSetting(int req) {
         switch (req) {
             case Constants.FLAG_USB_DEBUG_TRUE:
@@ -1226,7 +1223,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         };
     }
 
-    /** @noinspection SequencedCollectionMethodCanBeUsed*/
     @SuppressLint("InflateParams")
     @Override
     public void onDownloadComplete(int reqCode) {
@@ -1315,6 +1311,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                                     .setCancelable(false)
                                                     .setPositiveButton(R.string.dialog_common_ok, (dialog3, which3) -> {
                                                         ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editText.getWindowToken(), 0);
+                                                        //noinspection DataFlowIssue
                                                         startDownload(editText.getText().toString());
                                                     })
                                                     .setNegativeButton(R.string.dialog_common_cancel, null)
@@ -1355,6 +1352,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             return;
                         }
 
+                        //noinspection SequencedCollectionMethodCanBeUsed
                         installFileArrayList.add(0, new File(requireActivity().getExternalCacheDir(), "update.apk").getPath());
                         new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_GET_APP, this);
                         break;
@@ -1369,6 +1367,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             return;
                         }
 
+                        //noinspection SequencedCollectionMethodCanBeUsed
                         installFileArrayList.add(0, new File(requireActivity().getExternalCacheDir(), "update.apk").getPath());
                         new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_GET_APP, this);
                         break;
