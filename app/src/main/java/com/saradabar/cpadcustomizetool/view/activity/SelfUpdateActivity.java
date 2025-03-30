@@ -44,7 +44,6 @@ import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
-import org.jetbrains.annotations.Contract;
 import org.json.JSONObject;
 import org.zeroturnaround.zip.commons.FileUtils;
 
@@ -185,7 +184,6 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     }
 
     @NonNull
-    @Contract(" -> new")
     private DchaInstallTask.Listener dchaInstallTaskListener() {
         return new DchaInstallTask.Listener() {
 
