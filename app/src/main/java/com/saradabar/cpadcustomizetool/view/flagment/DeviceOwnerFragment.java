@@ -27,7 +27,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -112,7 +111,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e("DEBUG", "onDestroy");
+        Common.debugLog("onDestroy");
 
         if (dhizukuUserServiceArgs != null) {
             try {
@@ -132,7 +131,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     @Override
     public void onPause() {
         super.onPause();
-        Log.e("DEBUG", "onPause");
+        Common.debugLog("onPause");
 
         if (dhizukuUserServiceArgs != null) {
             try {
@@ -417,7 +416,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     @Override
     public void onStart() {
         super.onStart();
-        Log.e("DEBUG", "onStart");
+        Common.debugLog("onStart");
 
         //インストール中なら終了
         if (isActiveInstallTask) {
@@ -443,15 +442,15 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             }
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
             AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
-            textView.setText("サービスへの接続を待機しています。画面を切り替えないでください。");
+            textView.setText("サービスへの接続を待機しています。\n画面を切り替えないでください。");
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
-            Log.e("DEBUG", "waitForServiceDialog.show");
+            Common.debugLog("waitForServiceDialog.show");
 
             listener = new Listener() {
                 @Override
                 public void onSuccess() {
-                    Log.e("DEBUG", "onSuccess");
+                    Common.debugLog("onSuccess");
                     if (waitForServiceDialog.isShowing()) {
                         waitForServiceDialog.cancel();
                     }
@@ -472,7 +471,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
                 @Override
                 public void onFailure() {
-                    Log.e("DEBUG", "onFailure");
+                    Common.debugLog("onFailure");
                     if (waitForServiceDialog.isShowing()) {
                         waitForServiceDialog.cancel();
                     }

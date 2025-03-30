@@ -1,6 +1,5 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
@@ -19,7 +18,6 @@ import javax.xml.transform.stream.StreamResult;
 
 public class EditAdminActivity extends AppCompatActivity {
 
-    @SuppressLint("SdCardPath")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

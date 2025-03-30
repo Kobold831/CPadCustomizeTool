@@ -27,6 +27,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
@@ -43,6 +44,7 @@ import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
+import org.jetbrains.annotations.Contract;
 import org.json.JSONObject;
 import org.zeroturnaround.zip.commons.FileUtils;
 
@@ -182,6 +184,8 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         progressDialog.setMessage(new StringBuilder(getString(R.string.progress_state_download_file)));
     }
 
+    @NonNull
+    @Contract(" -> new")
     private DchaInstallTask.Listener dchaInstallTaskListener() {
         return new DchaInstallTask.Listener() {
 
@@ -280,7 +284,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;

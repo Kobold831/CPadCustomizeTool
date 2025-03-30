@@ -136,9 +136,9 @@
     <string name="pre_app_title_update">インストールモード</string>
     <string name="pre_app_title_crash_history">クラッシュ履歴</string>
     <string name="pre_app_title_delete_crash_history">クラッシュ履歴の消去</string>
-    <string name="pre_app_sum_dcha">デフォルトは DchaService を使用しません。</string>
+    <string name="pre_app_sum_dcha">既定では DchaService を使用しません。</string>
     <string name="pre_app_sum_usb">デバイス起動時に USBデバッグ の無効を阻止します。</string>
-    <string name="pre_app_sum_confirmation_dcha">この機能を使用するには、 DchaService 機能を有効 から内容を確認してください。</string>
+    <string name="pre_app_sum_confirmation_dcha">この機能を使用するには、DchaService 機能を有効 から内容を確認してください。</string>
     
     <!-- デバイスオーナー設定 -->
     <string name="pre_owner_title_uninstall_block">アンインストールブロッカー</string>
@@ -149,7 +149,7 @@
     <string name="pre_owner_sum_no_device_owner">デバイスオーナーは設定されていません。</string>
     <string name="pre_owner_sum_not_use_function">デバイスオーナーが設定されていないため、この機能は使用できません。</string>
     <string name="pre_owner_sum_uninstall_block">ユーザーアプリのアンインストールをブロックします。</string>
-    <string name="pre_owner_sum_silent_install">単一APK 及び 分割APK(xapk, apkm, apks) をインストールできます。\n分割APK のインストールは、ファイルを<b>長押し</b>して選択してください。</string>
+    <string name="pre_owner_sum_silent_install">単一APK 及び 分割APK (xapk, apkm, apks) をインストールできます。\n分割APK のインストールは、ファイルを<b>長押し</b>して選択してください。</string>
     <string name="pre_owner_sum_permission_forced">デバイスポリシーでユーザーアプリのランタイム権限は強制付与されます。</string>
     <string name="pre_owner_sum_permission_default">デバイスポリシーはデフォルトです。</string>
 
@@ -183,18 +183,18 @@
     <string name="dialog_app_start_message">ウイルス対策アプリなどに脅威として検知される場合があります。\n検知された場合は、除外設定してください。\nこのダイアログは以降表示されません。</string>
     <string name="dialog_emergency_select_course">受講中の講座を選択してください。</string>
     <string name="dialog_mode_select_settings">変更する設定を選択してください。\n設定後は OK を押してください。</string>
-    <string name="dialog_emergency_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.EmergencyActivity を追加して起動してください。\n</string>
+    <string name="dialog_emergency_manual">この機能はアクティビティを呼び出すアプリで使用できます。\nアクティビティ一覧から、｢<b>緊急モード (.view.activity.EmergencyActivity)</b>｣ を追加して起動してください。\n</string>
     <string name="dialog_emergency_manual_red">システムUIを変更するためアクティビティや他のアプリを起動させるアプリをインストールしておかないと初期化以外に勉強ホームから抜け出すことができなくなります。\nアプリ履歴を全消去はナビゲーションバーの□ボタンを押すと表示されるアプリ履歴のアプリを終了します。</string>
-    <string name="dialog_normal_manual">この機能はアクティビティを呼び出すアプリで使用できます。\n.view.activity.NormalActivity を追加して起動してください。</string>
+    <string name="dialog_normal_manual">この機能はアクティビティを呼び出すアプリで使用できます。\nアクティビティ一覧から、｢<b>通常モード (.view.activity.NormalActivity)</b>｣ を追加して起動してください。</string>
     <string name="dialog_dcha_warning">このデバイスのシステム領域を DchaService が変更していないことを検知しました。\n続行すると一部の動作がシステムで制限される可能性があります。</string>
     <string name="dialog_failure">失敗しました。</string>
     <string name="dialog_no_update">アップデートはありません。</string>
     <string name="dialog_failure_silent_install">サイレントインストールに失敗しました。</string>
     <string name="dialog_success_silent_install">サイレントインストールに成功しました。</string>
-    <string name="dialog_no_installer">インストーラーが設定されていません。インストーラーを選択して設定してください。 ADB でインストールするには、次の URL から PC でダウンロードしてください。\n%1$s</string>
+    <string name="dialog_no_installer">インストーラーが設定されていません。インストーラーを選択して設定してください。\n\nADB でインストールするには、次の URL から PC でダウンロードしてください。\n%1$s</string>
     <string name="dialog_dhizuku_grant_permission">Dhizuku へのアクセス権限は付与されました。</string>
     <string name="dialog_dhizuku_deny_permission">Dhizuku へのアクセス権限は拒否されました。</string>
-    <string name="dialog_dhizuku_require_12">Dhizuku を更新することを推奨します。\nv2.9 の Dhizuku をインストールしてください。\nこのままでも機能を使用できますが完全に動作しない可能性があります。\nメイン画面の アプリを取得 から Dhizuku を選択することで最新に更新できます。</string>
+    <string name="dialog_dhizuku_require_12">Dhizuku を更新することを推奨します。\nv2.9 の Dhizuku をインストールしてください。\n現在の状態でも機能を使用できますが完全に動作しない可能性があります。\nメイン画面の アプリを取得 から Dhizuku を選択することで最新に更新できます。</string>
     <string name="dialog_dhizuku_already_grant_permission">Dhizuku へのアクセス権限は付与されています。</string>
     <string name="dialog_question_reboot">デバイスを再起動しますか？</string>
     <string name="dialog_question_dcha">DchaService の機能を使用しますか？</string>
@@ -236,14 +236,13 @@
     <string name="info_app_info">アプリの情報</string>
     <string name="info_app_state">アプリの状態：%1$s</string>
     <string name="info_development">開発者</string>
-    <string name="info_development_label">こぼるど</string>
+    <string name="info_development_label">こぼるど / しゅーご</string>
     <string name="info_library">外部ライブラリーと謝辞</string>
     <string name="info_library_wel_label">・welcome-android\nCopyright 2015\-2017 Stephen Tuso</string>
     <string name="info_library_zip_label">・ZeroTurnaround ZIP Library\nCopyright 2012 ZeroTurnaround LLC.</string>
     <string name="info_library_yib_label">・よびばいと (YiB)\n画像の提供（navigationbar.webp / ex.webp）\nウォークスルーの追加のご協力</string>
     <string name="info_library_dhizuku_label">・Dhizuku-API\nCopyright © 2023 R0S</string>
     <string name="info_library_awayume_label">・粟夢 (Awayume)\n不具合修正のご協力</string>
-    <string name="info_library_syuugo_label">・しゅーご (Syuugo)\n不具合修正\nアプリの最適化\n機能修正のご協力</string>
     <string name="info_library_naniwara_label">・なにわらマサト\nアプリアイコン (cpad_grid_icon_v2.webp) の提供</string>
     <string name="info_library_other_label">敬称略・順不同で記載しています。著作物はその著作権者に帰属されます。</string>
     <string name="info_github">GitHub</string>
@@ -254,7 +253,7 @@
     <string name="img_content_description">icon</string>
     <string name="layout_un_list_button_1">すべて無効</string>
     <string name="layout_un_list_button_2">すべて有効</string>
-    <string name="view_update_text_info">アップデートがあります。アップデートしますか？\n更新情報：\n</string>
+    <string name="view_update_text_info">アプリの更新ががあります。アップデートしますか？\n更新情報：\n</string>
     <string name="view_update_button_detail_info">詳細な更新情報</string>
     <string name="view_resolution_text_width">横の解像度</string>
     <string name="view_resolution_text_x">x</string>

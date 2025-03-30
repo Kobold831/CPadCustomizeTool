@@ -210,7 +210,7 @@ public class KeepService extends Service {
             try {
                 Settings.Global.putInt(getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 1);
                 if (Settings.Global.getInt(getContentResolver(), Settings.Global.ADB_ENABLED) == 0) {
-                    if (Common.getDchaCompletedPast(getBaseContext())) {
+                    if (Common.getDchaCompletedPast()) {
                         Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 3);
                         Thread.sleep(100);
                     }
@@ -219,7 +219,7 @@ public class KeepService extends Service {
                     Settings.Global.putInt(getContentResolver(), Settings.Global.ADB_ENABLED, 1);
                     Settings.System.putInt(getContentResolver(), Constants.BC_PASSWORD_HIT_FLAG, 1);
 
-                    if (Common.getDchaCompletedPast(getBaseContext())) {
+                    if (Common.getDchaCompletedPast()) {
                         Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
                     }
                 }

@@ -12,7 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -36,7 +35,6 @@ public class WebViewActivity extends AppCompatActivity {
 
     WebView webView;
 
-    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,7 +98,6 @@ public class WebViewActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
         webView.goBack();

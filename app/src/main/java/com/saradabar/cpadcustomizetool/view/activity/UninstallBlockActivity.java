@@ -23,7 +23,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
@@ -59,7 +58,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e("DEBUG", "UninstallBlockActivity onDestroy");
+        Common.debugLog("UninstallBlockActivity onDestroy");
 
         // Dhizuku v2.9 以下の場合においてダイアログが消えない事象の対策
         try {
@@ -88,7 +87,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        Log.e("DEBUG", "UninstallBlockActivity onPause");
+        Common.debugLog("UninstallBlockActivity onPause");
 
         if (dhizukuUserServiceArgs != null) {
             try {
@@ -108,7 +107,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        Log.e("DEBUG", "UninstallBlockActivity onStart");
+        Common.debugLog("UninstallBlockActivity onStart");
         restart();
     }
 
@@ -143,10 +142,10 @@ public class UninstallBlockActivity extends AppCompatActivity {
         if (Common.isDhizukuActive(this)) {
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
             AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
-            textView.setText("サービスへの接続を待機しています。画面を切り替えないでください。");
+            textView.setText("サービスへの接続を待機しています。\n画面を切り替えないでください。");
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(this).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
-            Log.e("DEBUG", "UninstallBlockActivity waitForServiceDialog.show");
+            Common.debugLog("UninstallBlockActivity waitForServiceDialog.show");
 
             dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(this, DhizukuService.class));
 

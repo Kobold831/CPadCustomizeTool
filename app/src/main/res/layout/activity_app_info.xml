@@ -154,14 +154,6 @@
                 android:layout_gravity="start"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/info_library_syuugo_label" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="8dp"
                 android:text="@string/info_library_naniwara_label" />
 
             <androidx.appcompat.widget.AppCompatTextView

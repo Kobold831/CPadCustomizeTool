@@ -17,6 +17,7 @@ import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.json.JSONArray;
 
@@ -54,6 +55,7 @@ public class Preferences {
         return context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getString(key, value);
     }
 
+    @Nullable
     public static ArrayList<String> load(@NonNull Context context, String key) {
         try {
             JSONArray jsonArray = new JSONArray(context.getSharedPreferences(Constants.SHARED_PREFERENCE_KEY, Context.MODE_PRIVATE).getString(key, null));

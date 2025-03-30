@@ -87,7 +87,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
             if (Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) == 1) {
                 try {
                     // DchaCompletedPast && DchaState != 3
-                    if (Common.getDchaCompletedPast(requireActivity().getApplicationContext()) && Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0) != 3) {
+                    if (Common.getDchaCompletedPast() && Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0) != 3) {
                         Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
                     }
                     startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));

@@ -47,6 +47,7 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatEditText;
@@ -322,11 +323,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 return false;
             }
 
-            if ((boolean) o) {
-                new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(3);
-            } else {
-                new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
-            }
+            new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus((boolean) o ? 3 : 0);
             return false;
         });
 
@@ -930,7 +927,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     startActivityForResult(
                             new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
                                     .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, new ComponentName(requireActivity(), AdministratorReceiver.class))
-                                    .putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "｢端末管理アプリ｣を有効にする事で､ DchaService による自動アンインストールをブロックします｡")
+                                    .putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "｢端末管理アプリ｣を有効にする事で､ アンインストールをブロックします｡")
                             , Constants.REQUEST_ACTIVITY_ADMIN);
                 }
             } else {
@@ -1223,7 +1220,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     }
 
     /* ランチャーのパッケージ名を取得 */
-    private String getLauncherPackage(Context context) {
+    @Nullable
+    private String getLauncherPackage(@NonNull Context context) {
         ResolveInfo resolveInfo = context.getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
 
         if (resolveInfo != null) {
@@ -1233,7 +1231,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     }
 
     /* ランチャーのアプリ名を取得 */
-    private String getLauncherName(Context context) {
+    @Nullable
+    private String getLauncherName(@NonNull Context context) {
         ResolveInfo resolveInfo = context.getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
 
         if (resolveInfo != null) {
@@ -1242,6 +1241,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         return null;
     }
 
+    @NonNull
     private DchaInstallTask.Listener dchaInstallTaskListener() {
         return new DchaInstallTask.Listener() {
 

@@ -693,7 +693,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         return canWrite;
     }
 
-    private boolean isDchaInstalled(Context context) {
+    private boolean isDchaInstalled(@NonNull Context context) {
         try {
             context.getPackageManager().getPackageInfo("jp.co.benesse.dcha.dchaservice", PackageManager.GET_ACTIVITIES);
             return true;

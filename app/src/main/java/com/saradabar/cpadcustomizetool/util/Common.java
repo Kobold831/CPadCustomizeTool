@@ -14,7 +14,6 @@ package com.saradabar.cpadcustomizetool.util;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.BenesseExtension;
@@ -22,6 +21,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -127,12 +127,11 @@ public class Common {
         return false;
     }
 
-    public static boolean getDchaCompletedPast(@NonNull Context context) {
-        PackageManager packageManager = context.getPackageManager();
+    public static boolean getDchaCompletedPast() {
         try {
-            return (packageManager.getApplicationEnabledSetting("com.android.quicksearchbox") == PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-                    && packageManager.getApplicationEnabledSetting("com.android.browser") == PackageManager.COMPONENT_ENABLED_STATE_DISABLED);
-        } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
+            // IGNORE_DCHA_COMPLETED が存在している場合は 3 にしても何ら問題ない
+            return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists();
+        } catch (NoSuchMethodError | NoClassDefFoundError | ExceptionInInitializerError ignored) {
             return false;
         }
     }
@@ -142,7 +141,7 @@ public class Common {
         try {
             //noinspection ResultOfMethodCallIgnored
             BenesseExtension.getDchaState();
-            if (!getDchaCompletedPast(context)) {
+            if (!getDchaCompletedPast()) {
                 return Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, false);
             } else {
                 return true;
@@ -214,6 +213,7 @@ public class Common {
         return false;
     }
 
+    @NonNull
     public static String getRandomString() {
         String theAlphaNumericS;
         StringBuilder builder;
@@ -225,5 +225,9 @@ public class Common {
             builder.append(theAlphaNumericS.charAt(myindex));
         }
         return builder.toString();
+    }
+
+    public static void debugLog(String msg) {
+        if (BuildConfig.DEBUG) Log.e("DEBUG", msg);
     }
 }

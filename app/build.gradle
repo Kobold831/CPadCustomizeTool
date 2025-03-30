@@ -48,7 +48,7 @@ android {
 
     lint {
         checkReleaseBuilds = false
-        disable 'ProtectedPermissions', 'ExportedService', 'UnusedAttribute'
+        disable 'ProtectedPermissions', 'ExportedService', 'UnusedAttribute', 'SdCardPath', 'SetJavaScriptEnabled', 'MissingSuperCall'
     }
     
     compileOptions {
@@ -59,8 +59,9 @@ android {
 
 dependencies {
     // Custom Libraries
-    compileOnly files('libs/BenesseExtension.jar')
-    implementation fileTree(dir: 'libs', include: ['Dcha*.jar'])
+    compileOnly 'com.github.s1204IT:BenesseExtension:1.0.0'
+    implementation 'com.github.s1204IT:DchaService:1.0.0'
+    implementation 'com.github.s1204IT:DchaUtilService:1.0.0'
 
     // AndroidX
     implementation 'androidx.preference:preference:1.2.1'
@@ -83,5 +84,5 @@ dependencies {
     //implementation 'io.github.iamr0s:Dhizuku-SERVER_API:0.0.5'
 
     //HiddenApiBypass
-    compileOnly 'dev.rikka.hidden:stub:4.3.2'
+    compileOnly 'dev.rikka.hidden:stub:4.3.3'
 }
