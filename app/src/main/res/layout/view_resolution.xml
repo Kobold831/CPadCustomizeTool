@@ -2,32 +2,77 @@
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center_vertical|center_horizontal"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:gravity="center">
 
-    <androidx.appcompat.widget.AppCompatEditText
-        android:id="@+id/edit_text_1"
+    <LinearLayout
+        android:id="@+id/v_resolution_linearlayout_any"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_marginHorizontal="20dp"
-        android:gravity="center"
-        android:hint="@string/view_resolution_text_width"
-        android:inputType="number"
-        android:maxLength="4" />
+        android:visibility="visible">
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/view_resolution_text_x" />
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/edit_text_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:hint="@string/view_resolution_text_width"
+            android:inputType="number"
+            android:maxLength="4" />
 
-    <androidx.appcompat.widget.AppCompatEditText
-        android:id="@+id/edit_text_2"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/view_resolution_text_x" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/edit_text_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:hint="@string/view_resolution_text_height"
+            android:inputType="number"
+            android:maxLength="4" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/v_resolution_linearlayout_benesse"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:gravity="center"
-        android:hint="@string/view_resolution_text_height"
-        android:inputType="number"
-        android:maxLength="4" />
+        android:orientation="vertical"
+        android:layout_margin="20dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="セキュリティで保護されたシステム設定にアクセスするための android.permission.WRITE_SECURE_SETTINGS が付与されていません。そのため、任意に解像度を変更できません。代替として、BenesseExtension　による解像度変更が可能です。リストから選択してください。"
+            android:textColor="@android:color/black" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/v_resolution_radio_1024"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1024 x 768" />
+
+            <RadioButton
+                android:id="@+id/v_resolution_radio_1280"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1280 x 800" />
+
+            <RadioButton
+                android:id="@+id/v_resolution_radio_1920"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1920 x 1200" />
+        </RadioGroup>
+    </LinearLayout>
 </androidx.appcompat.widget.LinearLayoutCompat>

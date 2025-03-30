@@ -41,8 +41,10 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -141,11 +143,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preNotice;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.pre_main);
 
@@ -209,8 +206,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     /* 再表示 */
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
             AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
@@ -223,7 +220,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     mDchaService = iDchaService;
 
                     if (waitForServiceDialog.isShowing()) {
-                        waitForServiceDialog.cancel();
+                        try {
+                            waitForServiceDialog.cancel();
+                        } catch (IllegalStateException | IllegalArgumentException ignored) {
+                        }
                     }
 
                     if (mDchaService == null) {
@@ -237,7 +237,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                 })
                                 .show();
                     }
-                    setListener();
+
+                    try {
+                        setListener();
+                    } catch (IllegalStateException | IllegalArgumentException ignored) {
+                    }
                 }
 
                 @Override
@@ -740,7 +744,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         preResolution.setOnPreferenceClickListener(preference -> {
             /* DchaUtilServiceが機能しているか */
-            if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
+            if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2 ||
+                    Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
                 if (!tryBindDchaUtilService()) {
                     new AlertDialog.Builder(requireActivity())
                             .setMessage(R.string.dialog_error_no_dcha_util)
@@ -751,6 +756,53 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             }
 
             View view = requireActivity().getLayoutInflater().inflate(R.layout.view_resolution, null);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (requireActivity().checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
+                    LinearLayout linearLayoutAny = view.findViewById(R.id.v_resolution_linearlayout_any);
+                    LinearLayout linearLayoutBenesse = view.findViewById(R.id.v_resolution_linearlayout_benesse);
+                    linearLayoutAny.setVisibility(View.GONE);
+                    linearLayoutBenesse.setVisibility(View.VISIBLE);
+                    new AlertDialog.Builder(requireActivity())
+                            .setView(view)
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                                RadioButton rb1024 = view.findViewById(R.id.v_resolution_radio_1024);
+                                RadioButton rb1280 = view.findViewById(R.id.v_resolution_radio_1280);
+                                RadioButton rb1920 = view.findViewById(R.id.v_resolution_radio_1920);
+
+                                int width = 0, height = 0;
+
+                                if (rb1024.isChecked()) {
+                                    width = 1024;
+                                    height = 768;
+                                }
+
+                                if (rb1280.isChecked()) {
+                                    width = 1280;
+                                    height = 800;
+                                }
+
+                                if (rb1920.isChecked()) {
+                                    width = 1920;
+                                    height = 1200;
+                                }
+
+                                if (width == 0) {
+                                    new AlertDialog.Builder(requireActivity())
+                                            .setMessage("選択されていないためキャンセルしました。")
+                                            .setPositiveButton(R.string.dialog_common_ok, null)
+                                            .show();
+                                    return;
+                                }
+                                StartActivity startActivity = (StartActivity) requireActivity();
+                                new ResolutionTask().execute(requireActivity(), startActivity.resolutionTaskListener(), width, height);
+                            })
+                            .setNegativeButton(R.string.dialog_common_cancel, null)
+                            .show();
+                    return false;
+                }
+            }
 
             new AlertDialog.Builder(requireActivity())
                     .setView(view)

@@ -316,7 +316,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
 
                     @Override
                     public void run() {
-                        alertDialog.setMessage(i + "秒で初期設定に戻ります。");
+                        alertDialog.setMessage(i + " 秒で初期設定に戻ります。");
                         mHandler.postDelayed(this, 1000);
 
                         if (i <= 0) {

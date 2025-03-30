@@ -63,6 +63,7 @@ public class CrashLogActivity extends AppCompatActivity {
                     .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
         });
+        listView.setSelection(arrayList.size() - 1);
     }
 
     @Override
