@@ -112,7 +112,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
 
         /* アップデートチェックするか確認 */
         if (Preferences.load(this, Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
-            new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
+            new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), Constants.CHECK_JSON), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
         }
     }
 
@@ -154,7 +154,6 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     }
 
     /* 戻るボタン */
-    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
         menu.findItem(R.id.app_info_3).setVisible(true);
@@ -181,7 +180,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
         /* DchaServiceが機能していな場合は再起動 */
         if (!Preferences.load(this, "debug_restriction", false)) {
             if (Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-                if (!bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
+                if (!bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
                     @Override
                     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                     }
@@ -202,13 +201,13 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
         /* アップデートチェック要求の場合 */
         if (reqCode == Constants.REQUEST_DOWNLOAD_UPDATE_CHECK) {
             try {
-                JSONObject jsonObj1 = parseJson(new File(getExternalCacheDir(), "Check.json"));
+                JSONObject jsonObj1 = parseJson(new File(getExternalCacheDir(), Constants.CHECK_JSON));
                 JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                 JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
 
                 if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
                     new AlertDialog.Builder(this)
-                            .setMessage("新しいバージョンが利用可能です。")
+                            .setMessage(R.string.dialog_new_version_available)
                             .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
                             .setNegativeButton(getString(R.string.dialog_common_cancel), null)
                             .show();
@@ -291,7 +290,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
             public void onSuccess() {
                 /* 設定変更カウントダウンダイアログ表示 */
                 AlertDialog alertDialog = new AlertDialog.Builder(StartActivity.this)
-                        .setTitle("解像度の変更を適用しますか？")
+                        .setTitle(R.string.dialog_apply_resolution)
                         .setCancelable(false)
                         .setMessage("")
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
@@ -365,7 +364,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                         .show();
             }
         } else {
-            bindService(Constants.DCHA_UTIL_SERVICE, new ServiceConnection() {
+            bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                     IDchaUtilService iDchaUtilService = IDchaUtilService.Stub.asInterface(iBinder);

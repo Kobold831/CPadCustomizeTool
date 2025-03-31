@@ -39,7 +39,7 @@ public class IDchaTask {
     }
 
     public boolean tryBindDchaService(@NonNull Context context, Listener listener) {
-        return context.bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
+        return context.bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
 
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {

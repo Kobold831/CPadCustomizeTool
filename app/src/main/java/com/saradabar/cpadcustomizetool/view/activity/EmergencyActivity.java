@@ -61,21 +61,21 @@ public class EmergencyActivity extends AppCompatActivity {
                 mDchaService = iDchaService;
 
                 if (mDchaService == null) {
-                    Toast.makeText(EmergencyActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EmergencyActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                     finishAndRemoveTask();
                 }
 
                 // メイン処理
                 switch (PreferenceManager.getDefaultSharedPreferences(EmergencyActivity.this).getString("emergency_mode", "")) {
                     case "1":
-                        if (run("jp.co.benesse.touch.allgrade.b003.touchhomelauncher", "jp.co.benesse.touch.allgrade.b003.touchhomelauncher.HomeLauncherActivity")) {
+                        if (run(Constants.PKG_SHO_HOME, Constants.HOME_SHO)) {
                             // 成功
                             Toast.makeText(EmergencyActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
                         }
                         finishAndRemoveTask();
                         break;
                     case "2":
-                        if (run("jp.co.benesse.touch.home", "jp.co.benesse.touch.home.LoadingActivity")) {
+                        if (run(Constants.PKG_CHU_HOME, Constants.HOME_CHU)) {
                             // 成功
                             Toast.makeText(EmergencyActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
                         }
@@ -86,7 +86,7 @@ public class EmergencyActivity extends AppCompatActivity {
 
             @Override
             public void onFailure() {
-                Toast.makeText(EmergencyActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EmergencyActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
             }
         });
@@ -97,14 +97,14 @@ public class EmergencyActivity extends AppCompatActivity {
                 mUtilService = mDchaUtilService;
 
                 if (mUtilService == null) {
-                    Toast.makeText(EmergencyActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EmergencyActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                     finishAndRemoveTask();
                 }
             }
 
             @Override
             public void onFailure() {
-                Toast.makeText(EmergencyActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EmergencyActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
             }
         });
@@ -160,7 +160,7 @@ public class EmergencyActivity extends AppCompatActivity {
                     return false;
                 }
             } else {
-                Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 return false;
             }
         }
@@ -170,7 +170,7 @@ public class EmergencyActivity extends AppCompatActivity {
             try {
                 mDchaService.removeTask(null);
             } catch (Exception ignored) {
-                Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 return false;
             }
         }

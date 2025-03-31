@@ -163,8 +163,8 @@ public class DhizukuService extends IDhizukuService.Stub {
 
         try {
             session = packageInstaller.openSession(sessionId);
-            Intent intent = new Intent("com.saradabar.cpadcustomizetool.data.service.InstallService")
-                    .setPackage("com.saradabar.cpadcustomizetool")
+            Intent intent = new Intent(InstallService.class.getName())
+                    .setPackage(mContext.getPackageName())
                     .putExtra("REQUEST_CODE", reqCode)
                     .putExtra("REQUEST_SESSION", sessionId);
             PendingIntent pendingIntent = PendingIntent.getService(

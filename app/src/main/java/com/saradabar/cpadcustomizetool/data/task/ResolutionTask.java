@@ -14,7 +14,6 @@ import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -63,8 +62,7 @@ public class ResolutionTask {
                     );
                     return true;
                 }
-                //noinspection JavaReflectionMemberAccess
-                Class.forName("android.view.IWindowManager").getMethod("setForcedDisplaySize", int.class, int.class, int.class).invoke(IWindowManager.Stub.asInterface(ServiceManager.getService("window")), Display.DEFAULT_DISPLAY, i, i1);
+                IWindowManager.Stub.asInterface(ServiceManager.getService("window")).setForcedDisplaySize(Display.DEFAULT_DISPLAY, i, i1);
                 return true;
             } else {
                 new IDchaUtilTask().execute(context, iDchaUtilTaskListener());
@@ -77,8 +75,6 @@ public class ResolutionTask {
                 }
                 return new DchaUtilServiceUtil(mDchaUtilService).setForcedDisplaySize(i, i1);
             }
-        } catch (InvocationTargetException e) {
-            return e.getTargetException();
         } catch (Exception ignored) {
             return false;
         }

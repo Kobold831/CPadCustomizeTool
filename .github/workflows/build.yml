@@ -37,18 +37,16 @@ jobs:
 
       - name: Build
         run: |
-          ./gradlew --no-daemon --warning-mode=all assembleDebug bundleDebug
+          ./gradlew --no-daemon --warning-mode=all assembleDebug
           cp -f app/build/outputs/apk/debug/app-debug.apk ${{ env.repo }}-${{ env.version }}@${{ env.commit }}.apk
-          cp -f app/build/outputs/bundle/debug/app-debug.aab ${{ env.repo }}-${{ env.version }}@${{ env.commit }}.aab
-          java -jar bundletool.jar build-apks --ks app/android.jks --ks-pass pass:android --ks-key-alias android --bundle ${{ env.repo }}-${{ env.version }}@${{ env.commit }}.aab --output ${{ env.repo }}-${{ env.version }}@${{ env.commit }}.apks
 
       - name: Attest
         uses: actions/attest-build-provenance@v1
         with:
-          subject-path: ${{ env.repo }}-${{ env.version }}*.a*
+          subject-path: ${{ env.repo }}-${{ env.version }}*.apk
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.repo }}(${{ env.version }}@${{ env.commit }})
-          path: ${{ env.repo }}-${{ env.version }}*.a*
+          name: ${{ env.repo }}-${{ env.version }}@${{ env.commit }}
+          path: ${{ env.repo }}-${{ env.version }}@${{ env.commit }}.apk

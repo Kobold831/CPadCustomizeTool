@@ -142,7 +142,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
         if (Common.isDhizukuActive(this)) {
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
             AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
-            textView.setText("サービスへの接続を待機しています。\n画面を切り替えないでください。");
+            textView.setText(R.string.dialog_service_connecting);
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(this).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
             Common.debugLog("UninstallBlockActivity waitForServiceDialog.show");
@@ -278,7 +278,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
 
     /* メニュー選択 */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;

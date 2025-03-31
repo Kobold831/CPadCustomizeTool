@@ -14,6 +14,7 @@ package com.saradabar.cpadcustomizetool;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.app.admin.DevicePolicyManager;
@@ -110,8 +111,8 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             });
 
             btnClearAppData.setOnClickListener(v -> new AlertDialog.Builder(this)
-                    .setMessage("消去しますか？ OK を押下すると、アプリは終了します。")
-                    .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> {
+                    .setMessage(R.string.dialog_confirm_delete)
+                    .setPositiveButton(getString(R.string.dialog_common_yes), (dialog, which) -> {
                         ActivityManager activityManager = (ActivityManager) getSystemService(Service.ACTIVITY_SERVICE);
                         activityManager.clearApplicationUserData();
                     })
@@ -170,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     /* アップデートチェック */
     private void updateCheck() {
         showLoadingDialog(getString(R.string.progress_state_connecting));
-        new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
+        new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), Constants.CHECK_JSON), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
     }
 
     /* ダウンロード完了 */
@@ -182,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             /* アップデートチェック要求の場合 */
             case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
                 try {
-                    JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "Check.json"));
+                    JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), Constants.CHECK_JSON));
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
 
@@ -202,11 +203,11 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 cancelLoadingDialog();
                 switch (Preferences.load(this, Constants.KEY_INT_UPDATE_MODE, 1)) {
                     case 0:
-                        startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
+                        startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
                         break;
                     case 1:
                         try {
-                            JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "Check.json"));
+                            JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), Constants.CHECK_JSON));
                             JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                             JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
 
@@ -217,12 +218,12 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         } catch (Exception ignored) {
-                            Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                             finish();
                         }
                         break;
                     case 2:
-                        new DchaInstallTask().execute(this, dchaInstallTaskListener(), new File(getExternalCacheDir(), "update.apk").getPath());
+                        new DchaInstallTask().execute(this, dchaInstallTaskListener(), new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
                         break;
                     case 3:
                         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -236,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                             return;
                         }
                         //noinspection SequencedCollectionMethodCanBeUsed
-                        installFileArrayList.add(0, new File(getExternalCacheDir(), "update.apk").getPath());
+                        installFileArrayList.add(0, new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                     case 4:
@@ -250,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                             return;
                         }
                         //noinspection SequencedCollectionMethodCanBeUsed
-                        installFileArrayList.add(0, new File(getExternalCacheDir(), "update.apk").getPath());
+                        installFileArrayList.add(0, new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                 }
@@ -347,12 +348,12 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_title_update)
-                .setMessage("インストールモードを変更するには 設定 を押下してください。")
+                .setMessage(R.string.dialog_install_mode)
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                     FileDownloadTask fileDownloadTask = new FileDownloadTask();
-                    fileDownloadTask.execute(this, downloadFileUrl, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
+                    fileDownloadTask.execute(this, downloadFileUrl, new File(getExternalCacheDir(), Constants.DOWNLOAD_APK), Constants.REQUEST_DOWNLOAD_APK);
                     ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
                     progressHandler.fileDownloadTask = fileDownloadTask;
                     progressHandler.sendEmptyMessage(0);
@@ -401,7 +402,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                 listView.invalidateViews();
                                 break;
                             case 2:
-                                if (bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE) && Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                                if (bindService(Constants.ACTION_DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE) && Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
                                     Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 } else {
@@ -523,7 +524,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     private void checkDchaService() {
         /* DchaServiceを使用するか確認 */
         if (Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-            if (!bindService(Constants.DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE)) {
+            if (!bindService(Constants.ACTION_DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE)) {
                 new AlertDialog.Builder(this)
                         .setCancelable(false)
                         .setTitle(R.string.dialog_title_error)
@@ -670,9 +671,9 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         boolean canWrite = true;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            canWrite = checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") == PackageManager.PERMISSION_GRANTED;
+            canWrite = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
             if (!canWrite) {
-                requestPermissions(new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"}, 0);
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
             }
         }
         return canWrite;
@@ -684,9 +685,9 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (isDchaInstalled(this)) {
-                canWrite = checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") == PackageManager.PERMISSION_GRANTED;
+                canWrite = checkSelfPermission(Constants.DCHA_ACCESS_SYSTEM) == PackageManager.PERMISSION_GRANTED;
                 if (!canWrite) {
-                    requestPermissions(new String[]{"jp.co.benesse.dcha.permission.ACCESS_SYSTEM"}, 1);
+                    requestPermissions(new String[]{Constants.DCHA_ACCESS_SYSTEM}, 1);
                 }
             }
         }
@@ -695,7 +696,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     private boolean isDchaInstalled(@NonNull Context context) {
         try {
-            context.getPackageManager().getPackageInfo("jp.co.benesse.dcha.dchaservice", PackageManager.GET_ACTIVITIES);
+            context.getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, PackageManager.GET_ACTIVITIES);
             return true;
         } catch (PackageManager.NameNotFoundException e) {
             return false;
@@ -719,13 +720,13 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
         if (requestCode == 0 && grantResults.length > 0) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED) {
+                if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     new AlertDialog.Builder(this)
                             .setCancelable(false)
-                            .setMessage("ストレージ権限を付与してください。権限を付与される場合は OK を押下してください。")
+                            .setMessage(R.string.dialog_request_storage_permission)
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                                if (checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED) {
-                                    requestPermissions(new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"}, 0);
+                                if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
                                 }
                             })
                             .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> finishAffinity())

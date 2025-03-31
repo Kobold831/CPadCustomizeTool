@@ -77,7 +77,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
 
         preOtherStartSettings.setOnPreferenceClickListener(preference -> {
             try {
-                startActivity(new Intent().setClassName("com.android.settings", "com.android.settings.Settings").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                startActivity(new Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (ActivityNotFoundException ignored) {
             }
             return false;
@@ -101,7 +101,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
 
         preStartUiAdjustment.setOnPreferenceClickListener(preference -> {
             try {
-                startActivity(new Intent().setClassName("com.android.systemui", "com.android.systemui.DemoMode").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                startActivity(new Intent("com.android.settings.action.DEMO_MODE").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (ActivityNotFoundException ignored) {
             }
             return false;
@@ -188,7 +188,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
         });
 
         preWebView.setOnPreferenceClickListener(preference -> {
-            startActivity(new Intent(requireActivity(), WebViewActivity.class).putExtra("URL", "https://www.google.com").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            startActivity(new Intent(requireActivity(), WebViewActivity.class).putExtra("URL", "https://www.google.com/intl/ja/").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             return false;
         });
 
@@ -237,7 +237,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
 
         if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2) {
             preStartUiAdjustment.setEnabled(false);
-            preStartUiAdjustment.setSummary(Build.MODEL + "ではこの機能は使用できません");
+            preStartUiAdjustment.setSummary(Build.MODEL + R.string.pre_main_sum_message_1);
         }
         setSummaryScreenOffTimeConvert();
     }

@@ -1,0 +1,21 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    namespace = "android"
+    compileSdk = 35
+
+    defaultConfig {
+        minSdk = 24
+    }
+
+    buildFeatures {
+        aidl = true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+}

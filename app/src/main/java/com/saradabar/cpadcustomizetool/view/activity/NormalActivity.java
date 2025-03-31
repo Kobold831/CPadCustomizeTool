@@ -59,7 +59,7 @@ public class NormalActivity extends AppCompatActivity {
                 mDchaService = iDchaService;
 
                 if (mDchaService == null) {
-                    Toast.makeText(NormalActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(NormalActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                     finishAndRemoveTask();
                 }
                 ActivityManager activityManager = (ActivityManager) NormalActivity.this.getSystemService(ACTIVITY_SERVICE);
@@ -67,7 +67,7 @@ public class NormalActivity extends AppCompatActivity {
                     case "1":
                         if (run()) {
                             // 成功
-                            activityManager.killBackgroundProcesses("jp.co.benesse.touch.allgrade.b003.touchhomelauncher");
+                            activityManager.killBackgroundProcesses(Constants.PKG_SHO_HOME);
                             Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
                         }
                         finishAndRemoveTask();
@@ -75,7 +75,7 @@ public class NormalActivity extends AppCompatActivity {
                     case "2":
                         if (run()) {
                             // 成功
-                            activityManager.killBackgroundProcesses("jp.co.benesse.touch.home");
+                            activityManager.killBackgroundProcesses(Constants.PKG_CHU_HOME);
                             Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
                         }
                         finishAndRemoveTask();
@@ -85,7 +85,7 @@ public class NormalActivity extends AppCompatActivity {
 
             @Override
             public void onFailure() {
-                Toast.makeText(NormalActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                Toast.makeText(NormalActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
             }
         });
@@ -96,14 +96,14 @@ public class NormalActivity extends AppCompatActivity {
                 mUtilService = mDchaUtilService;
 
                 if (mUtilService == null) {
-                    Toast.makeText(NormalActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(NormalActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                     finishAndRemoveTask();
                 }
             }
 
             @Override
             public void onFailure() {
-                Toast.makeText(NormalActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                Toast.makeText(NormalActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
             }
         });
@@ -160,7 +160,7 @@ public class NormalActivity extends AppCompatActivity {
                     return false;
                 }
             } else {
-                Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 return false;
             }
         }

@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.Preference;
@@ -98,13 +99,10 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
         preDelCrashLog.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
-                    .setMessage("消去しますか？")
+                    .setMessage(R.string.dialog_check_delete)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         Preferences.delete(requireActivity(), Constants.KEY_LIST_CRASH_LOG);
-                        new AlertDialog.Builder(requireActivity())
-                                .setMessage("消去しました。")
-                                .setPositiveButton(R.string.dialog_common_ok, null)
-                                .show();
+                        Toast.makeText(requireActivity(), R.string.dialog_check_delete, Toast.LENGTH_SHORT).show();
                     })
                     .setNegativeButton(R.string.dialog_common_cancel, null)
                     .show();
@@ -213,20 +211,14 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
         preClearCache.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
-                    .setMessage("消去しますか？")
+                    .setMessage(R.string.dialog_check_delete)
                     .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> {
                         if (requireActivity().getCacheDir().delete()) {
                             if (Common.deleteDirectory(requireActivity().getExternalCacheDir())) {
-                                new AlertDialog.Builder(requireActivity())
-                                        .setMessage("消去しました。")
-                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                        .show();
+                                Toast.makeText(requireActivity(), R.string.toast_deleted, Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            new AlertDialog.Builder(requireActivity())
-                                    .setMessage("不要ファイルがないため消去できませんでした。")
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                    .show();
+                            Toast.makeText(requireActivity(), R.string.toast_not_deleted, Toast.LENGTH_SHORT).show();
                         }
                     })
                     .setNegativeButton(getString(R.string.dialog_common_cancel), null)
@@ -236,8 +228,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
         preClearData.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
-                    .setMessage("消去しますか？ OK を押下すると、アプリは終了します。")
-                    .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> {
+                    .setMessage(R.string.dialog_confirm_delete)
+                    .setPositiveButton(getString(R.string.dialog_common_yes), (dialog, which) -> {
                         ActivityManager activityManager = (ActivityManager) requireActivity().getSystemService(Service.ACTIVITY_SERVICE);
                         activityManager.clearApplicationUserData();
                     })
@@ -272,7 +264,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean tryBindDchaService() {
-        return requireActivity().bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
+        return requireActivity().bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
 
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {

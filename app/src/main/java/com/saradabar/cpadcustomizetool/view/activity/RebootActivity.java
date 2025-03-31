@@ -45,14 +45,14 @@ public class RebootActivity extends AppCompatActivity {
     private void reboot() {
         new AlertDialog.Builder(this)
                 .setMessage(R.string.dialog_question_reboot)
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
                     @Override
                     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                         try {
                             IDchaService iDchaService = IDchaService.Stub.asInterface(iBinder);
                             iDchaService.rebootPad(0, null);
                         } catch (Exception ignored) {
-                            Toast.makeText(RebootActivity.this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RebootActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                             finishAndRemoveTask();
                         }
                     }

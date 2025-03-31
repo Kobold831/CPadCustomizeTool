@@ -94,7 +94,7 @@ public class WebViewActivity extends AppCompatActivity {
         if (getIntent().getStringExtra("URL") != null) {
             webView.loadUrl(Objects.requireNonNull(getIntent().getStringExtra("URL")));
         } else {
-            webView.loadUrl("https://www.google.com");
+            webView.loadUrl("https://www.google.co.jp/intl/ja/");
         }
     }
 

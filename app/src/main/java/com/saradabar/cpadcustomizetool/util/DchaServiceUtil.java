@@ -227,9 +227,10 @@ public class DchaServiceUtil {
     }
 
     public boolean execSystemUpdate(String s, int i) {
+        String updateFile = "/cache/update.zip";
         try {
-            if (mDchaService.copyUpdateImage(s, "/cache/update.zip")) {
-                mDchaService.rebootPad(i, "/cache/update.zip");
+            if (mDchaService.copyUpdateImage(s, updateFile)) {
+                mDchaService.rebootPad(i, updateFile);
                 return true;
             } else {
                 return false;

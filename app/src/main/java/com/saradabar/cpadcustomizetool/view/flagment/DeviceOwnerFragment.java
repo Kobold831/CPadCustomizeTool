@@ -29,6 +29,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -267,10 +268,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 }
             }
 
-            new AlertDialog.Builder(requireActivity())
-                    .setMessage("セッションを破棄しました。")
-                    .setPositiveButton(R.string.dialog_common_ok, null)
-                    .show();
+            Toast.makeText(requireActivity(), R.string.toast_session_dest, Toast.LENGTH_SHORT).show();
             return false;
         });
 
@@ -281,7 +279,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         if (Common.isDhizukuActive(requireActivity())) {
                             if (tryBindDhizukuService()) {
                                 try {
-                                    mDhizukuService.clearDeviceOwnerApp("com.rosan.dhizuku");
+                                mDhizukuService.clearDeviceOwnerApp(DhizukuVariables.OFFICIAL_PACKAGE_NAME);
                                 } catch (RemoteException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -442,7 +440,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             }
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
             AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
-            textView.setText("サービスへの接続を待機しています。\n画面を切り替えないでください。");
+            textView.setText(R.string.dialog_service_connecting);
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
             Common.debugLog("waitForServiceDialog.show");

@@ -67,7 +67,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
         showLoadingDialog(getString(R.string.progress_state_connecting));
-        new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
+        new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), Constants.CHECK_JSON), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
     }
 
     /** @noinspection SequencedCollectionMethodCanBeUsed*/
@@ -78,7 +78,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         switch (reqCode) {
             case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
                 try {
-                    JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "Check.json"));
+                    JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), Constants.CHECK_JSON));
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
 
@@ -96,11 +96,11 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 cancelLoadingDialog();
                 switch (Preferences.load(this, Constants.KEY_INT_UPDATE_MODE, 1)) {
                     case 0:
-                        startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), "update.apk").getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
+                        startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
                         break;
                     case 1:
                         try {
-                            JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "Check.json"));
+                            JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), Constants.CHECK_JSON));
                             JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                             JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
 
@@ -111,12 +111,12 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         } catch (Exception ignored) {
-                            Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                             finish();
                         }
                         break;
                     case 2:
-                        new DchaInstallTask().execute(this, dchaInstallTaskListener(), new File(getExternalCacheDir(), "update.apk").getPath());
+                        new DchaInstallTask().execute(this, dchaInstallTaskListener(), new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
                         break;
                     case 3:
                         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -130,7 +130,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                                     .show();
                             return;
                         }
-                        installFileArrayList.add(0, new File(getExternalCacheDir(), "update.apk").getPath());
+                        installFileArrayList.add(0, new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                     case 4:
@@ -143,7 +143,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                                     .show();
                             return;
                         }
-                        installFileArrayList.add(0, new File(getExternalCacheDir(), "update.apk").getPath());
+                        installFileArrayList.add(0, new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                 }

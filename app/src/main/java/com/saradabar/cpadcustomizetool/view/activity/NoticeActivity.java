@@ -36,7 +36,7 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-        new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(getExternalCacheDir(), "ct-notice.json"), Constants.REQUEST_DOWNLOAD_NOTICE);
+        new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(getExternalCacheDir(), Constants.NOTICE_JSON), Constants.REQUEST_DOWNLOAD_NOTICE);
     }
 
     @Override
@@ -46,13 +46,13 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
                 List<NoticeListView.AppData> appDataList = new ArrayList<>();
                 ListView listView = findViewById(R.id.list_notice);
 
-                JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), "ct-notice.json"));
+                JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), Constants.NOTICE_JSON));
                 JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                 JSONArray jsonArray = jsonObj2.getJSONArray("noticeList");
 
                 if (jsonArray.length() == 0) {
                     new AlertDialog.Builder(this)
-                            .setMessage("アプリのお知らせはありません。")
+                            .setMessage(R.string.dialog_no_notice)
                             .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> finish())
                             .show();
                     return;

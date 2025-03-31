@@ -79,6 +79,7 @@ import com.saradabar.cpadcustomizetool.view.activity.EditAdminActivity;
 import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NormalActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NoticeActivity;
+import com.saradabar.cpadcustomizetool.view.activity.RebootActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.views.GetAppListView;
 import com.saradabar.cpadcustomizetool.view.views.HomeAppListView;
@@ -212,7 +213,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
             View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
             AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
-            textView.setText("サービスへの接続を待機しています。画面を切り替えないでください。");
+            textView.setText(R.string.dialog_service_connecting);
             AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
             waitForServiceDialog.show();
             new IDchaTask().execute(requireActivity(), new IDchaTask.Listener() {
@@ -230,7 +231,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     if (mDchaService == null) {
                         new AlertDialog.Builder(requireActivity())
                                 .setCancelable(false)
-                                .setMessage("DchaService との通信に失敗しました。")
+                                .setMessage(R.string.dialog_dcha_failed)
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                                     requireActivity().finish();
                                     requireActivity().overridePendingTransition(0, 0);
@@ -253,7 +254,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                     new AlertDialog.Builder(requireActivity())
                             .setCancelable(false)
-                            .setMessage("DchaService との通信に失敗しました。")
+                            .setMessage(R.string.dialog_dcha_failed)
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                                 requireActivity().finish();
                                 requireActivity().overridePendingTransition(0, 0);
@@ -610,8 +611,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         preEmgExecute.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
-                    .setMessage("緊急モードを起動してもよろしいですか？よろしければ はい を押下してください。")
-                    .setNeutralButton(R.string.dialog_common_ok, (dialog, which) -> startActivity(new Intent(requireActivity(), EmergencyActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                    .setMessage(R.string.note_start_emergency_mode)
+                    .setNeutralButton(R.string.dialog_common_yes, (dialog, which) -> startActivity(new Intent(requireActivity(), EmergencyActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
                     .setPositiveButton(R.string.dialog_common_cancel, null)
                     .show();
             return false;
@@ -622,10 +623,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.activity_emergency))
                         .setShortLabel(getString(R.string.activity_emergency))
                         .setIcon(Icon.createWithResource(requireActivity(), android.R.drawable.ic_dialog_alert))
-                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), "com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity"))
+                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), EmergencyActivity.class.getName()))
                         .build(), null);
             } else {
-                requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity"))
+                requireActivity().sendBroadcast(new Intent(Constants.ACTION_INSTALL_SHORTCUT).putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), EmergencyActivity.class.getName()))
                         .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), android.R.drawable.ic_dialog_alert))
                         .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_emergency));
                 Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
@@ -675,8 +676,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         preNorExecute.setOnPreferenceClickListener(preference -> {
             new AlertDialog.Builder(requireActivity())
-                    .setMessage("通常モードを起動してもよろしいですか？よろしければ はい を押下してください。")
-                    .setNeutralButton(R.string.dialog_common_ok, (dialog, which) -> startActivity(new Intent(requireActivity(), NormalActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                    .setMessage(R.string.note_start_normal_mode)
+                    .setNeutralButton(R.string.dialog_common_yes, (dialog, which) -> startActivity(new Intent(requireActivity(), NormalActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
                     .setPositiveButton(R.string.dialog_common_cancel, null)
                     .show();
             return false;
@@ -687,10 +688,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.activity_normal))
                         .setShortLabel(getString(R.string.activity_normal))
                         .setIcon(Icon.createWithResource(requireActivity(), android.R.drawable.ic_menu_revert))
-                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), "com.saradabar.cpadcustomizetool.view.activity.NormalActivity"))
+                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), NormalActivity.class.getName()))
                         .build(), null);
             } else {
-                requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.NormalActivity"))
+                requireActivity().sendBroadcast(new Intent(Constants.ACTION_INSTALL_SHORTCUT).putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), NormalActivity.class.getName()))
                         .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), android.R.drawable.ic_menu_revert))
                         .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_normal));
                 Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
@@ -717,7 +718,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.reboot))
                         .setShortLabel(getString(R.string.reboot))
                         .setIcon(Icon.createWithResource(requireActivity(), android.R.drawable.ic_popup_sync))
-                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), "com.saradabar.cpadcustomizetool.view.activity.RebootActivity"))
+                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), RebootActivity.class.getName()))
                         .build(), null);
             } else {
                 makeRebootShortcut();
@@ -768,28 +769,19 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                 RadioButton rb1280 = view.findViewById(R.id.v_resolution_radio_1280);
                                 RadioButton rb1920 = view.findViewById(R.id.v_resolution_radio_1920);
 
-                                int width = 0, height = 0;
+                                int width, height;
 
                                 if (rb1024.isChecked()) {
                                     width = 1024;
                                     height = 768;
-                                }
-
-                                if (rb1280.isChecked()) {
+                                } else if (rb1280.isChecked()) {
                                     width = 1280;
                                     height = 800;
-                                }
-
-                                if (rb1920.isChecked()) {
+                                } else if (rb1920.isChecked()) {
                                     width = 1920;
                                     height = 1200;
-                                }
-
-                                if (width == 0) {
-                                    new AlertDialog.Builder(requireActivity())
-                                            .setMessage("選択されていないためキャンセルしました。")
-                                            .setPositiveButton(R.string.dialog_common_ok, null)
-                                            .show();
+                                } else {
+                                    Toast.makeText(requireActivity(), R.string.toast_not_selected, Toast.LENGTH_SHORT).show();
                                     return;
                                 }
                                 StartActivity startActivity = (StartActivity) requireActivity();
@@ -840,7 +832,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         preResetResolution.setOnPreferenceClickListener(preference -> {
-            /* DchaUtilServiceが機能しているか */
+            /* DchaUtilService が機能しているか */
             if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
                 if (!tryBindDchaUtilService()) {
                     new AlertDialog.Builder(requireActivity())
@@ -927,13 +919,13 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     startActivityForResult(
                             new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
                                     .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, new ComponentName(requireActivity(), AdministratorReceiver.class))
-                                    .putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "｢端末管理アプリ｣を有効にする事で､ アンインストールをブロックします｡")
+                                    .putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, R.string.device_admin_detail)
                             , Constants.REQUEST_ACTIVITY_ADMIN);
                 }
             } else {
                 swDeviceAdmin.setChecked(true);
                 new AlertDialog.Builder(requireActivity())
-                        .setTitle("デバイス管理者を無効にしますか？")
+                        .setTitle(R.string.dialog_disable_device_admin)
                         .setMessage(R.string.dialog_question_admin)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             ((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).removeActiveAdmin(new ComponentName(requireActivity(), AdministratorReceiver.class));
@@ -951,7 +943,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         preGetApp.setOnPreferenceClickListener(preference -> {
             showLoadingDialog(getString(R.string.progress_state_connecting));
-            new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(requireActivity().getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_APP_CHECK);
+            new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(requireActivity().getExternalCacheDir(), Constants.CHECK_JSON), Constants.REQUEST_DOWNLOAD_APP_CHECK);
             return false;
         });
 
@@ -966,7 +958,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     /* 再起動ショートカットを作成 */
     private void makeRebootShortcut() {
-        requireActivity().sendBroadcast(new Intent("com.android.launcher.action.INSTALL_SHORTCUT").putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName("com.saradabar.cpadcustomizetool", "com.saradabar.cpadcustomizetool.view.activity.RebootActivity"))
+        requireActivity().sendBroadcast(new Intent(Constants.ACTION_INSTALL_SHORTCUT).putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), RebootActivity.class.getName()))
                 .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), android.R.drawable.ic_popup_sync))
                 .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_reboot));
         Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
@@ -1033,7 +1025,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         swKeepLauncher.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_HOME, false));
         preLauncher.setSummary(getLauncherName(requireActivity()));
 
-        //String normalLauncherName = Build.VERSION.SDK_INT == 22 ? "com.android.launcher2" : "com.android.launcher3";
+        //String normalLauncherName = "com.android.launcher" + (Build.VERSION.SDK_INT == 22 ? "2" : "3");
         String normalLauncherName = null;
 
         try {
@@ -1051,7 +1043,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         switch (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
             case Constants.MODEL_CT2:
                 try {
-                    if (requireActivity().getPackageManager().getPackageInfo(Constants.DCHA_SERVICE_PACKAGE, 0).versionCode < 5) {
+                    if (requireActivity().getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode < 5) {
                         preSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
                         preSilentInstall.setEnabled(false);
                     }
@@ -1098,7 +1090,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swBypassAdbDisable.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
         }
 
-        new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(requireActivity().getExternalCacheDir(), "ct-notice.json"), Constants.REQUEST_DOWNLOAD_NOTICE);
+        new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(requireActivity().getExternalCacheDir(), Constants.NOTICE_JSON), Constants.REQUEST_DOWNLOAD_NOTICE);
     }
 
     /* システムUIオブザーバー */
@@ -1203,7 +1195,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     private void startDownload(String str) {
         FileDownloadTask fileDownloadTask = new FileDownloadTask();
-        fileDownloadTask.execute(this, str, new File(requireActivity().getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
+        fileDownloadTask.execute(this, str, new File(requireActivity().getExternalCacheDir(), Constants.DOWNLOAD_APK), Constants.REQUEST_DOWNLOAD_APK);
         ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
         progressHandler.fileDownloadTask = fileDownloadTask;
         progressHandler.sendEmptyMessage(0);
@@ -1287,7 +1279,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 ArrayList<GetAppListView.AppData> appDataArrayList = new ArrayList<>();
 
                 try {
-                    JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), "Check.json"));
+                    JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), Constants.CHECK_JSON));
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONArray jsonArray = jsonObj2.getJSONArray("appList");
 
@@ -1390,7 +1382,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                 .show();
                         break;
                     case 2:
-                        new DchaInstallTask().execute(requireActivity(), dchaInstallTaskListener(), new File(requireActivity().getExternalCacheDir(), "update.apk").getPath());
+                        new DchaInstallTask().execute(requireActivity(), dchaInstallTaskListener(), new File(requireActivity().getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
                         break;
                     case 3:
                         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -1405,7 +1397,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         }
 
                         //noinspection SequencedCollectionMethodCanBeUsed
-                        installFileArrayList.add(0, new File(requireActivity().getExternalCacheDir(), "update.apk").getPath());
+                        installFileArrayList.add(0, new File(requireActivity().getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
                         new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_GET_APP, this);
                         break;
                     case 4:
@@ -1420,21 +1412,21 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         }
 
                         //noinspection SequencedCollectionMethodCanBeUsed
-                        installFileArrayList.add(0, new File(requireActivity().getExternalCacheDir(), "update.apk").getPath());
+                        installFileArrayList.add(0, new File(requireActivity().getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
                         new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_GET_APP, this);
                         break;
                 }
                 break;
             case Constants.REQUEST_DOWNLOAD_NOTICE:
                 try {
-                    JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), "ct-notice.json"));
+                    JSONObject jsonObj1 = Common.parseJson(new File(requireActivity().getExternalCacheDir(), Constants.NOTICE_JSON));
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONArray jsonArray = jsonObj2.getJSONArray("noticeList");
                     if (jsonArray.length() == 0) {
                         // 表示しない
                         preNotice.setVisible(false);
                     } else {
-                        preNotice.setTitle("＊＊アプリのお知らせが " + jsonArray.length() + " 件あります＊＊");
+                        preNotice.setTitle("＜＜アプリのお知らせが " + jsonArray.length() + " 件あります＞＞");
                         preNotice.setSummary("タップして確認してください。");
                     }
                 } catch (Exception ignored) {
@@ -1576,7 +1568,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean tryBindDchaService() {
-        return requireActivity().bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
+        return requireActivity().bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
 
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -1590,12 +1582,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean tryBindDchaUtilService() {
-        return requireActivity().bindService(Constants.DCHA_UTIL_SERVICE, new ServiceConnection() {
-
+        return requireActivity().bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             }
-
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
             }

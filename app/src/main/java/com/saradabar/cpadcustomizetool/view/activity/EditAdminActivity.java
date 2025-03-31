@@ -5,6 +5,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.saradabar.cpadcustomizetool.R;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -39,17 +41,17 @@ public class EditAdminActivity extends AppCompatActivity {
         } catch (Exception e) {
             new AlertDialog.Builder(this)
                     .setCancelable(false)
-                    .setTitle("エラーが発生しました")
+                    .setTitle(R.string.dialog_error)
                     .setMessage(e.getMessage())
-                    .setPositiveButton("OK", (dialog, which) -> finish())
+                    .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> finish())
                     .show();
             return;
         }
 
         new AlertDialog.Builder(this)
                 .setCancelable(false)
-                .setMessage("成功")
-                .setPositiveButton("OK", (dialog, which) -> finish())
+                .setMessage(R.string.toast_success)
+                .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> finish())
                 .show();
     }
 

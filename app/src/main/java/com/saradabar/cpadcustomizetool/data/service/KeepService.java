@@ -117,7 +117,7 @@ public class KeepService extends Service {
 
                 if (getDefaultLauncherPackageName() != null) {
                     if (!getDefaultLauncherPackageName().equals(Preferences.load(getBaseContext(), Constants.KEY_STRINGS_KEEP_HOME_APP_PACKAGE, null))) {
-                        bindService(Constants.DCHA_SERVICE, new ServiceConnection() {
+                        bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
                             @Override
                             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                                 try {

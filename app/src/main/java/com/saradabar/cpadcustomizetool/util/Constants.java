@@ -62,11 +62,14 @@ public class Constants {
     
     //　アプリで使用しているURL
     // TODO: Check.json 参照先変更機能
-    public static final String URL_CHECK = "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/Check.json";
+    public static final String CHECK_JSON = "Check.json";
+    public static final String NOTICE_JSON = "ct-notice.json";
+    public static final String URL_BASE = "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/";
+    public static final String URL_CHECK = URL_BASE + CHECK_JSON;
     public static final String URL_GITHUB = "https://github.com/Kobold831/CPadCustomizeTool";
     public static final String URL_UPDATE_INFO = URL_GITHUB + "/releases/latest";
     public static final String URL_FEEDBACK = "https://forms.gle/LnGuEc4GdRmwzf3GA";
-    public static final String URL_NOTICE = "https://raw.githubusercontent.com/Kobold831/Server/main/production/json/ct-notice.json";
+    public static final String URL_NOTICE = URL_BASE + NOTICE_JSON;
 
     public static final String DCHA_STATE = "dcha_state";
     public static final String HIDE_NAVIGATION_BAR = "hide_navigation_bar";
@@ -97,9 +100,20 @@ public class Constants {
     public static final String KEY_STRINGS_KEEP_HOME_APP_PACKAGE = "save_keep_home";
     public static final String KEY_FLAG_AUTO_USB_DEBUG = "enabled_auto_usb_debug";
 
-    public static final String DCHA_SERVICE_PACKAGE = "jp.co.benesse.dcha.dchaservice";
-    public static final Intent DCHA_SERVICE = new Intent(DCHA_SERVICE_PACKAGE + ".DchaService").setPackage(DCHA_SERVICE_PACKAGE);
-    public static final Intent DCHA_UTIL_SERVICE = new Intent("jp.co.benesse.dcha.dchautilservice.DchaUtilService").setPackage("jp.co.benesse.dcha.dchautilservice");
+    public static final String PKG_COMMON_DCHA = "jp.co.benesse.dcha";
+    public static final String PKG_DCHA_SERVICE = PKG_COMMON_DCHA + ".dchaservice";
+    public static final Intent ACTION_DCHA_SERVICE = new Intent(PKG_DCHA_SERVICE + ".DchaService").setPackage(PKG_DCHA_SERVICE);
+    public static final String PKG_UTIL_SERVICE = PKG_COMMON_DCHA + ".dchautilservice";
+    public static final Intent ACTION_UTIL_SERVICE = new Intent(PKG_UTIL_SERVICE + ".DchaUtilService").setPackage(PKG_UTIL_SERVICE);
+    public static final String PKG_SHO_HOME = "jp.co.benesse.touch.allgrade.b003.touchhomelauncher";
+    public static final String HOME_SHO = PKG_SHO_HOME + ".HomeLauncherActivity";
+    public static final String PKG_CHU_HOME = "jp.co.benesse.touch.home";
+    public static final String HOME_CHU = PKG_CHU_HOME + ".LoadingActivity";
+
+    public static final String DCHA_ACCESS_SYSTEM = PKG_COMMON_DCHA + ".permission.ACCESS_SYSTEM";
+
+    public static final String ACTION_INSTALL_SHORTCUT = "com.android.launcher.action.INSTALL_SHORTCUT";
+    public static final String DOWNLOAD_APK = "update.apk";
 
     public static final List<String> LIST_UPDATE_MODE = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー", "Dhizuku");
 

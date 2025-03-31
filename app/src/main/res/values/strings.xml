@@ -167,6 +167,7 @@
     <!-- ダイアログボタン -->
     <string name="dialog_common_ok">OK</string>
     <string name="dialog_common_cancel">キャンセル</string>
+    <string name="dialog_common_yes">はい</string>
 
     <!-- ダイアログタイトル -->
     <string name="dialog_title_update">アプリの更新</string>
@@ -187,8 +188,10 @@
     <string name="dialog_emergency_manual_red">システムUIを変更するためアクティビティや他のアプリを起動させるアプリをインストールしておかないと初期化以外に勉強ホームから抜け出すことができなくなります。\nアプリ履歴を全消去はナビゲーションバーの□ボタンを押すと表示されるアプリ履歴のアプリを終了します。</string>
     <string name="dialog_normal_manual">この機能はアクティビティを呼び出すアプリで使用できます。\nアクティビティ一覧から、｢<b>通常モード (.view.activity.NormalActivity)</b>｣ を追加して起動してください。</string>
     <string name="dialog_dcha_warning">このデバイスのシステム領域を DchaService が変更していないことを検知しました。\n続行すると一部の動作がシステムで制限される可能性があります。</string>
+    <string name="dialog_dcha_failed">DchaService との通信に失敗しました。</string>
     <string name="dialog_failure">失敗しました。</string>
     <string name="dialog_no_update">アップデートはありません。</string>
+    <string name="dialog_disable_device_admin">デバイス管理者を無効にしますか？</string>
     <string name="dialog_failure_silent_install">サイレントインストールに失敗しました。</string>
     <string name="dialog_success_silent_install">サイレントインストールに成功しました。</string>
     <string name="dialog_no_installer">インストーラーが設定されていません。インストーラーを選択して設定してください。\n\nADB でインストールするには、次の URL から PC でダウンロードしてください。\n%1$s</string>
@@ -196,30 +199,40 @@
     <string name="dialog_dhizuku_deny_permission">Dhizuku へのアクセス権限は拒否されました。</string>
     <string name="dialog_dhizuku_require_12">Dhizuku を更新することを推奨します。\nv2.9 の Dhizuku をインストールしてください。\n現在の状態でも機能を使用できますが完全に動作しない可能性があります。\nメイン画面の アプリを取得 から Dhizuku を選択することで最新に更新できます。</string>
     <string name="dialog_dhizuku_already_grant_permission">Dhizuku へのアクセス権限は付与されています。</string>
+    <string name="dialog_service_connecting">サービスへの接続を待機しています。\n画面を切り替えないでください。</string>
     <string name="dialog_question_reboot">デバイスを再起動しますか？</string>
     <string name="dialog_question_dcha">DchaService の機能を使用しますか？</string>
     <string name="dialog_question_owner">デバイスオーナーを解除しますか？</string>
     <string name="dialog_question_admin">この操作を行うと学習環境のときに、アプリがアンインストールされる可能性があります。</string>
+    <string name="dialog_check_delete">消去しますか？</string>
+    <string name="dialog_confirm_delete">消去しますか？\n<b>はい</b> を押下すると、アプリは終了します。</string>
+    <string name="dialog_request_storage_permission">ストレージ権限を付与してください。\n権限を付与される場合は <b>OK</b> を押下してください。</string>
+    <string name="dialog_install_mode">インストールモードを変更するには <b>設定</b> を押下してください。</string>
+    <string name="dialog_no_notice">アプリのお知らせはありません。</string>
+    <string name="dialog_new_version_available">新しいバージョンが利用可能です。</string>
+    <string name="dialog_apply_resolution">解像度の変更を適用しますか？</string>
 
     <!-- ダイアログエラー -->
     <string name="dialog_error">エラーが発生しました。</string>
-    <string name="dialog_error_connection">"データ取得に失敗しました。ネットワークを確認してください。"</string>
-    <string name="dialog_error_download">"ダウンロードに失敗しました。ネットワークを確認してください。"</string>
-    <string name="dialog_error_check_dcha">DchaService が動作していません。 OK を押すと、メイン画面に戻ります。</string>
-    <string name="dialog_error_check_device">この端末はサポートされていません。このアプリは使用できません。</string>
-    <string name="dialog_error_check_permission">システム設定権限を付与してください。権限を付与される場合は OK を押下してください。</string>
+    <string name="dialog_error_connection">"データ取得に失敗しました。\nネットワークを確認してください。"</string>
+    <string name="dialog_error_download">"ダウンロードに失敗しました。\nネットワークを確認してください。"</string>
+    <string name="dialog_error_check_dcha">DchaService が動作していません。\n<b>OK</b> を押すと、メイン画面に戻ります。</string>
+    <string name="dialog_error_check_device">この端末はサポートされていません。\nこのアプリは使用できません。</string>
+    <string name="dialog_error_check_permission">システム設定権限を付与してください。\n権限を付与される場合は <b>OK</b> を押下してください。</string>
     <string name="dialog_error_no_dcha">DchaService が動作していないため、この機能は使用できません。</string>
     <string name="dialog_error_no_dcha_util">DchaUtilService が動作していないため、この機能は使用できません。</string>
-    <string name="dialog_error_illegal_value">値が不正なため変更できません。入力した値が極端ではないことを確認してください。</string>
+    <string name="dialog_error_illegal_value">値が不正なため変更できません。\n入力した値が極端ではないことを確認してください。</string>
     <string name="dialog_error_no_file_browse">ファイルブラウザがインストールされていません。</string>
     <string name="dialog_error_no_file_data">ファイルデータを取得できませんでした。</string>
     <string name="dialog_error_no_mode">選択されたモードは機能していません。</string>
-    <string name="dialog_error_reset_installer">エラーが発生しました。インストールモードをリセットしました。</string>
+    <string name="dialog_error_reset_installer">エラーが発生しました。\nインストールモードをリセットしました。</string>
     <string name="dialog_error_no_dhizuku">Dhizuku との通信に失敗しました。</string>
 
     <!-- サービス -->
     <string name="service_activity">ホームアプリ 切り替えサービス</string>
     <string name="accessibility_description">[ホームボタン]と[音量－ボタン]を同時に押すと、既定のランチャーを起動できます\nまた、[ホームボタン]と[音量＋ボタン]を同時に押すと、学習環境を起動できます</string>
+    <string name="note_start_emergency_mode"><b>緊急モード</b>を起動してもよろしいですか？\nよろしければ、<b>はい</b> を押下してください。</string>
+    <string name="note_start_normal_mode"><b>通常モード</b>を起動してもよろしいですか？\nよろしければ <b>はい</b> を押下してください。</string>
     
     <!-- トースト -->
     <string name="toast_success">成功しました</string>
@@ -231,6 +244,10 @@
     <string name="toast_no_permission">権限を付与してください</string>
     <string name="toast_no_browser">ブラウザを開けませんでした</string>
     <string name="toast_no_debug_option">開発者向けオプションを有効にしてください</string>
+    <string name="toast_not_selected">選択されなかったため、キャンセルしました</string>
+    <string name="toast_session_dest">セッションを破棄しました。</string>
+    <string name="toast_deleted">消去しました。</string>
+    <string name="toast_not_deleted">不要ファイルがないため消去できませんでした。</string>
 
     <!-- アプリ情報 -->
     <string name="info_app_info">アプリの情報</string>
@@ -266,15 +283,16 @@
     <string name="time_out_hint">最大値：%1$s</string>
     <string name="time_out_label">単位：ミリ秒（1秒1000ミリ秒）\n設定値：%1$s\n推定時間：%2$s\n推定時刻：%3$s</string>
     <string name="time_out_button">最大値</string>
+    <string name="device_admin_detail">｢端末管理アプリ｣を有効にする事で､ アンインストールをブロックします｡</string>
 
     <!-- 進行バー -->
-    <string name="progress_state_connecting">サーバーと通信しています。画面を切り替えないでください。</string>
-    <string name="progress_state_download_file">ファイルをサーバーからダウンロードしています。画面を切り替えないでください。</string>
-    <string name="progress_state_rename">拡張子を変更しています。画面を切り替えないでください。</string>
-    <string name="progress_state_unpack">圧縮ファイルを展開しています。画面を切り替えないでください。</string>
-    <string name="progress_state_copy_file">データをコピーしています。画面を切り替えないでください。</string>
-    <string name="progress_state_check_file">データを確認しています。画面を切り替えないでください。</string>
-    <string name="progress_state_installing">インストールしています。画面を切り替えないでください。</string>
+    <string name="progress_state_connecting">サーバーと通信しています。\n画面を切り替えないでください。</string>
+    <string name="progress_state_download_file">ファイルをダウンロードしています。\n画面を切り替えないでください。</string>
+    <string name="progress_state_rename">拡張子を変更しています。\n画面を切り替えないでください。</string>
+    <string name="progress_state_unpack">圧縮ファイルを展開しています。\n画面を切り替えないでください。</string>
+    <string name="progress_state_copy_file">データをコピーしています。\n画面を切り替えないでください。</string>
+    <string name="progress_state_check_file">データを確認しています。\n画面を切り替えないでください。</string>
+    <string name="progress_state_installing">インストールしています。\n画面を切り替えないでください。</string>
 
     <!-- インストーラー -->
     <string name="installer_status_user_action">ユーザの確認が必要です。</string>
