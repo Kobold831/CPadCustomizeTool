@@ -51,18 +51,18 @@ public class ResolutionTask {
         }, 1500);
     }
 
-    protected Object doInBackground(Context context, int i, int i1) {
+    protected Object doInBackground(Context context, int width, int height) {
         try {
             if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                     Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                if (i == 1024 && i1 == 768 || i == 1280 && i1 == 800 || i == 1920 && i1 == 1200) {
+                if (width == 1024 && height == 768 || width == 1280 && height == 800 || width == 1920 && height == 1200) {
                     //noinspection ResultOfMethodCallIgnored
                     BenesseExtension.putInt(Constants.BC_COMPATSCREEN,
-                            i == 1024 ? 1 : i == 1280 ? 2 : 0 // 1920x1200
+                            width == 1024 ? 1 : width == 1280 ? 2 : 0 // 1920x1200
                     );
                     return true;
                 }
-                IWindowManager.Stub.asInterface(ServiceManager.getService("window")).setForcedDisplaySize(Display.DEFAULT_DISPLAY, i, i1);
+                IWindowManager.Stub.asInterface(ServiceManager.getService("window")).setForcedDisplaySize(Display.DEFAULT_DISPLAY, width, height);
                 return true;
             } else {
                 new IDchaUtilTask().execute(context, iDchaUtilTaskListener());
