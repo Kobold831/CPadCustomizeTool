@@ -60,9 +60,9 @@ public class ResolutionTask {
                     BenesseExtension.putInt(Constants.BC_COMPATSCREEN,
                             width == 1024 ? 1 : width == 1280 ? 2 : 0 // 1920x1200
                     );
-                    return true;
+                } else {
+                    IWindowManager.Stub.asInterface(ServiceManager.getService("window")).setForcedDisplaySize(Display.DEFAULT_DISPLAY, width, height);
                 }
-                IWindowManager.Stub.asInterface(ServiceManager.getService("window")).setForcedDisplaySize(Display.DEFAULT_DISPLAY, width, height);
                 return true;
             } else {
                 new IDchaUtilTask().execute(context, iDchaUtilTaskListener());
