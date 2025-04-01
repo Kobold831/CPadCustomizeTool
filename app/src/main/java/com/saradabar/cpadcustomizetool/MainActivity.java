@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     .setNegativeButton(getString(R.string.dialog_common_cancel), null)
                     .show());
 
+            // TODO ページ作成する
             btnOpenWeb.setOnClickListener(v -> startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", "")));
 
             btnSendCrash.setOnClickListener(v -> {
