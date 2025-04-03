@@ -41,26 +41,20 @@ public class DeviceInfoActivity extends AppCompatActivity {
         AppCompatButton button3 = findViewById(R.id.act_device_info_button_3);
 
         button1.setOnClickListener(view -> {
-            ArrayList<String> stringArrayList = new ArrayList<>();
-            stringArrayList.add(getSystemProperties());
             ListView listView = findViewById(R.id.act_device_info_list);
-            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, stringArrayList));
+            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, getSystemProperties()));
             listView.invalidateViews();
         });
 
         button2.setOnClickListener(view -> {
-            ArrayList<String> stringArrayList = new ArrayList<>();
-            stringArrayList.add(exec());
             ListView listView = findViewById(R.id.act_device_info_list);
-            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, stringArrayList));
+            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, exec()));
             listView.invalidateViews();
         });
 
         button3.setOnClickListener(view -> {
-            ArrayList<String> stringArrayList = new ArrayList<>();
-            stringArrayList.add(getBatteryInfo());
             ListView listView = findViewById(R.id.act_device_info_list);
-            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, stringArrayList));
+            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, getBatteryInfo()));
             listView.invalidateViews();
         });
     }
@@ -75,8 +69,8 @@ public class DeviceInfoActivity extends AppCompatActivity {
     }
 
     @NonNull
-    private String getSystemProperties() {
-        StringBuilder stringBuilder = new StringBuilder();
+    private ArrayList<String> getSystemProperties() {
+        ArrayList<String> stringArrayList = new ArrayList<>();
         Properties properties = System.getProperties();
         Enumeration<?> propertyNames = properties.propertyNames();
 
@@ -84,20 +78,20 @@ public class DeviceInfoActivity extends AppCompatActivity {
             String nextElement = propertyNames.nextElement().toString();
 
             if (properties.getProperty(nextElement).equals(System.lineSeparator())) {
-                stringBuilder.append(nextElement).append("=").append(properties.getProperty(nextElement).replace(System.lineSeparator(), "")).append(System.lineSeparator());
+                stringArrayList.add(nextElement + "=" + properties.getProperty(nextElement).replace(System.lineSeparator(), ""));
             } else {
-                stringBuilder.append(nextElement).append("=").append(properties.getProperty(nextElement)).append(System.lineSeparator());
+                stringArrayList.add(nextElement + "=" + properties.getProperty(nextElement));
             }
         }
-        return stringBuilder.toString().trim();
+        return stringArrayList;
     }
 
     @NonNull
-    private String exec() {
+    private ArrayList<String> exec() {
         Process process;
         BufferedWriter bufferedWriter;
         BufferedReader bufferedReader;
-        StringBuilder stringBuilder = new StringBuilder();
+        ArrayList<String> stringArrayList = new ArrayList<>();
 
         try {
             process = Runtime.getRuntime().exec("getprop" + System.lineSeparator());
@@ -109,39 +103,40 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
             String data;
 
-            while ((data = bufferedReader.readLine()) != null)
-                stringBuilder.append(data).append(System.lineSeparator());
+            while ((data = bufferedReader.readLine()) != null) {
+                stringArrayList.add(data);
+            }
             bufferedReader.close();
             bufferedWriter.close();
             process.destroy();
         } catch (Exception ignored) {
         }
-        return stringBuilder.toString().trim();
+        return stringArrayList;
     }
 
     @NonNull
-    private String getBatteryInfo() {
-        StringBuilder stringBuilder = new StringBuilder();
+    private ArrayList<String> getBatteryInfo() {
+        ArrayList<String> stringArrayList = new ArrayList<>();
         Intent batteryStatus = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         BatteryManager batteryManager = (BatteryManager) this.getSystemService(Context.BATTERY_SERVICE);
 
         if (batteryStatus == null || batteryManager == null) {
-            return "";
+            return new ArrayList<>();
         }
-        stringBuilder.append("BatteryLevel=").append(batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)).append(System.lineSeparator())
-                .append("BatteryScale=").append(batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1)).append(System.lineSeparator())
-                .append("BatteryHealth=").append(batteryStatus.getIntExtra(BatteryManager.EXTRA_HEALTH, -1)).append(System.lineSeparator())
-                .append("BatteryTechnology=").append(batteryStatus.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY)).append(System.lineSeparator())
-                .append("BatteryVoltage=").append(batteryStatus.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1)).append(System.lineSeparator())
-                .append("BatteryTemperature=").append(batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)).append(System.lineSeparator())
-                .append("BatteryStatus=").append(batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1)).append(System.lineSeparator())
-                .append("BatteryPlugged=").append(batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)).append(System.lineSeparator())
-                .append("BatteryPresent=").append(batteryStatus.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false)).append(System.lineSeparator())
-                .append("BatteryCapacity=").append(batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)).append(System.lineSeparator())
-                .append("BatteryChargeCounter=").append(batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)).append(System.lineSeparator())
-                .append("BatteryCurrentAverage=").append(batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE)).append(System.lineSeparator())
-                .append("BatteryEnergyCounter=").append(batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_ENERGY_COUNTER)).append(System.lineSeparator())
-                .append("BatteryCurrentNow=").append(batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)).append(System.lineSeparator());
-        return stringBuilder.toString().trim();
+        stringArrayList.add("BatteryLevel=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
+        stringArrayList.add("BatteryScale=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
+        stringArrayList.add("BatteryHealth=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_HEALTH, -1));
+        stringArrayList.add("BatteryTechnology=" + batteryStatus.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY));
+        stringArrayList.add("BatteryVoltage=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1));
+        stringArrayList.add("BatteryTemperature=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1));
+        stringArrayList.add("BatteryStatus=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1));
+        stringArrayList.add("BatteryPlugged=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1));
+        stringArrayList.add("BatteryPresent=" + batteryStatus.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false));
+        stringArrayList.add("BatteryCapacity=" + batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY));
+        stringArrayList.add("BatteryChargeCounter=" + batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER));
+        stringArrayList.add("BatteryCurrentAverage=" + batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE));
+        stringArrayList.add("BatteryEnergyCounter=" + batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_ENERGY_COUNTER));
+        stringArrayList.add("BatteryCurrentNow=" + batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW));
+        return stringArrayList;
     }
 }
