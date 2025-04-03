@@ -101,7 +101,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
 
         preStartUiAdjustment.setOnPreferenceClickListener(preference -> {
             try {
-                startActivity(new Intent("com.android.settings.action.DEMO_MODE").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                startActivity(new Intent().setClassName("com.android.systemui", "com.android.systemui.DemoMode").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (ActivityNotFoundException ignored) {
             }
             return false;
