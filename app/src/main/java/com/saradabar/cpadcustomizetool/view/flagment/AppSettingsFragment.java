@@ -102,7 +102,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                     .setMessage(R.string.dialog_check_delete)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         Preferences.delete(requireActivity(), Constants.KEY_LIST_CRASH_LOG);
-                        Toast.makeText(requireActivity(), R.string.dialog_check_delete, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireActivity(), R.string.toast_deleted, Toast.LENGTH_SHORT).show();
                     })
                     .setNegativeButton(R.string.dialog_common_cancel, null)
                     .show();
