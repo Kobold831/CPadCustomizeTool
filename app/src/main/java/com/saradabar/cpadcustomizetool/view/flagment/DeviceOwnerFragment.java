@@ -70,7 +70,7 @@ import java.util.concurrent.Executors;
 /** @noinspection deprecation*/
 public class DeviceOwnerFragment extends PreferenceFragmentCompat implements InstallEventListener {
 
-    AlertDialog progressDialog;
+    AlertDialog progressDialog, waitForServiceDialog;
 
     XApkCopyTask xApkCopyTask;
     ApkMCopyTask apkMCopyTask;
@@ -92,6 +92,15 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     Listener listener;
 
     boolean isActiveInstallTask = false;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
+        AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
+        textView.setText(R.string.dialog_service_connecting);
+        waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
+    }
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -420,6 +429,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         if (isActiveInstallTask) {
             return;
         }
+
+        if (waitForServiceDialog.isShowing()) {
+            return;
+        }
         restart();
     }
 
@@ -438,10 +451,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 }
             } catch (Exception ignored) {
             }
-            View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
-            AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
-            textView.setText(R.string.dialog_service_connecting);
-            AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
+
             waitForServiceDialog.show();
             Common.debugLog("waitForServiceDialog.show");
 
@@ -526,6 +536,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             preSessionInstall.setEnabled(true);
             try {
                 if (data == null) {
+                    Common.debugLog("data == null");
                     restart();
                     return;
                 }
