@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.saradabar.hidden-api"
+    namespace = "com.saradabar.hiddenapi"
     compileSdk = 35
 
     defaultConfig {
