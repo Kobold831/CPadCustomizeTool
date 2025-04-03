@@ -19,6 +19,8 @@ import android.net.Uri;
 import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Environment;
+import android.os.IBenesseExtensionService;
+import android.os.ServiceManager;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.Log;
@@ -127,26 +129,28 @@ public class Common {
         return false;
     }
 
-    public static boolean getDchaCompletedPast() {
+    public static boolean isBenesseExtensionExist() {
+        IBenesseExtensionService mBenesseExtensionService = null;
         try {
-            // IGNORE_DCHA_COMPLETED が存在している場合は 3 にしても何ら問題ない
-            return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists();
-        } catch (NoSuchMethodError | NoClassDefFoundError | ExceptionInInitializerError ignored) {
+            mBenesseExtensionService = IBenesseExtensionService.Stub.asInterface(ServiceManager.getService("benesse_extension"));
+            return true;
+        } catch (RuntimeException ignored) {
             return false;
         }
     }
 
+    public static boolean getDchaCompletedPast() {
+        // BenesseExtension が存在しない場合は配慮不要
+        if (!isBenesseExtensionExist()) return true;
+        // IGNORE_DCHA_COMPLETED が存在している場合は COUNT_DCHA_COMPLETED を作成しても何ら問題ない
+        return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists();
+    }
+
     /** @noinspection BooleanMethodIsAlwaysInverted*/
     public static boolean isCfmDialog(Context context) {
-        try {
-            //noinspection ResultOfMethodCallIgnored
-            BenesseExtension.getDchaState();
-            if (!getDchaCompletedPast()) {
-                return Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, false);
-            } else {
-                return true;
-            }
-        } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
+        if (!getDchaCompletedPast()) {
+            return Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, false);
+        } else {
             return true;
         }
     }
