@@ -88,12 +88,12 @@ public class DchaServiceUtil {
     }
 
     public int getSetupStatus() {
-        try {
+        if (Common.isBenesseExtensionExist()) {
             return BenesseExtension.getDchaState();
-        } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
+        } else {
             try {
                 return mDchaService.getSetupStatus();
-            } catch (Exception unused) {
+            } catch (Exception ignored) {
                 return -1;
             }
         }
@@ -178,9 +178,9 @@ public class DchaServiceUtil {
 
     public void setSetupStatus(int status) {
         try {
-            try {
+            if (Common.isBenesseExtensionExist() && Preferences.load(mContext, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT3) != Constants.MODEL_CT3) {
                 BenesseExtension.setDchaState(status);
-            } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
+            } else {
                 if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
                     mDchaService.setSetupStatus(status);
                 } else {
