@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.preference.PreferenceCategory>
+    <PreferenceCategory>
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_other_start_settings"
             android:title="@string/pre_other_title_settings" />
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_other_start_dev_settings"
             android:title="@string/pre_other_title_development" />
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_other_start_ui_adjustment"
             android:title="@string/pre_other_title_adjustment" />
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_other_screen_off_time"
             android:summary="スクリーンがタイムアウトするまでの時間を変更します。"
             android:title="@string/pre_other_title_screen_off_time" />
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_other_sleep_timeout"
             android:title="sleep_timeout"
             app:isPreferenceVisible="false" />
 
-        <androidx.preference.Preference
+        <Preference
             android:summary="通常では変更できない設定を変更します\n設定、値の入力が必須です"
             android:title="内部設定変更"
             app:isPreferenceVisible="false" />
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_other_web_view"
             android:summary="セキュリティのため HTTP 接続、ファイルアクセス機能は使用できません。"
             android:title="アプリ内ブラウザを起動" />
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_other_launch_app"
             android:summary="インストールされている任意のアプリを起動します。"
             android:title="アプリランチャー" />
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_other_start_device_info"
             android:title="デバイス情報" />
-    </androidx.preference.PreferenceCategory>
-</androidx.preference.PreferenceScreen>
+    </PreferenceCategory>
+</PreferenceScreen>

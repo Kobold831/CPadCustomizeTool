@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -19,7 +19,7 @@
             android:textColor="@android:color/black"
             android:textSize="24sp" />
 
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginHorizontal="16dp"
@@ -31,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <TextView
                     android:id="@+id/wel_scroll"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -39,10 +39,10 @@
                     android:textColor="@android:color/black"
                     android:textSize="16sp" />
             </ScrollView>
-        </androidx.appcompat.widget.LinearLayoutCompat>
-    </androidx.appcompat.widget.LinearLayoutCompat>
+        </LinearLayout>
+    </LinearLayout>
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -51,7 +51,7 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/wel_no"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="0dp"
@@ -60,7 +60,7 @@
             android:text="@string/wel_disagree"
             android:textSize="24sp" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/wel_yes"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="0dp"
@@ -68,5 +68,5 @@
             android:layout_weight="1"
             android:text="@string/wel_agree"
             android:textSize="24sp" />
-    </androidx.appcompat.widget.LinearLayoutCompat>
-</androidx.appcompat.widget.LinearLayoutCompat>
+    </LinearLayout>
+</LinearLayout>

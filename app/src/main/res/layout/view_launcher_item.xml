@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusableInTouchMode="false"
     android:orientation="horizontal">
 
-    <androidx.appcompat.widget.AppCompatRadioButton
+    <RadioButton
         android:id="@+id/launcher_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -15,7 +15,7 @@
         android:focusable="false"
         android:paddingTop="20dp" />
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <ImageView
         android:id="@+id/launcher_image"
         android:layout_width="48dp"
         android:layout_height="48dp"
@@ -25,11 +25,11 @@
         android:layout_marginBottom="8dp"
         android:contentDescription="@string/img_content_description" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/launcher_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginStart="20dp"
         android:textSize="20sp" />
-</androidx.appcompat.widget.LinearLayoutCompat>
+</LinearLayout>

@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.preference.Preference
+    <Preference
         android:key="pre_owner_now_set_own_pkg"
         app:selectable="false" />
 
-    <androidx.preference.PreferenceCategory
+    <PreferenceCategory
         android:title="アンインストール設定">
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_owner_uninstall_block"
             android:summary="@string/pre_owner_sum_uninstall_block"
             android:title="@string/pre_owner_title_uninstall_block" />
-    </androidx.preference.PreferenceCategory>
+    </PreferenceCategory>
 
-    <androidx.preference.PreferenceCategory
+    <PreferenceCategory
         android:title="権限設定">
 
-        <androidx.preference.SwitchPreferenceCompat
+        <SwitchPreferenceCompat
             android:key="pre_owner_permission_frc"
             android:summary="@string/pre_owner_sum_permission_forced"
             android:title="@string/pre_owner_title_permission" />
-    </androidx.preference.PreferenceCategory>
+    </PreferenceCategory>
 
-    <androidx.preference.PreferenceCategory
+    <PreferenceCategory
         android:title="インストール">
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_owner_session_install_notice"
             android:summary="タップして内容を確認してください。正しい手順で操作しないとエラーの可能性があります！"
             android:title="サイレントインストールの注意事項" />
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_owner_session_install"
             android:summary="@string/pre_owner_sum_silent_install"
             android:title="@string/pre_owner_title_silent_install" />
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_owner_abandon_session"
             android:summary="インストールで問題が発生した場合に使用してください。"
             android:title="インストールセッション破棄" />
-    </androidx.preference.PreferenceCategory>
+    </PreferenceCategory>
 
-    <androidx.preference.PreferenceCategory
+    <PreferenceCategory
         android:title="デバイスオーナー設定">
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_owner_clr_dev_own"
             android:title="@string/pre_owner_title_device_owner" />
-    </androidx.preference.PreferenceCategory>
-</androidx.preference.PreferenceScreen>
+    </PreferenceCategory>
+</PreferenceScreen>

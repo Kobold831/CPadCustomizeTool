@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,30 +13,30 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/act_device_info_button_1"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="システムプロパティ情報" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/act_device_info_button_2"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="システム情報" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/act_device_info_button_3"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="バッテリー情報" />
-    </androidx.appcompat.widget.LinearLayoutCompat>
-</androidx.appcompat.widget.LinearLayoutCompat>
+    </LinearLayout>
+</LinearLayout>

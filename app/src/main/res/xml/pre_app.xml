@@ -1,68 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.preference.PreferenceCategory
+    <PreferenceCategory
         android:title="@string/pre_app_category_start_settings">
 
-        <androidx.preference.SwitchPreferenceCompat
+        <SwitchPreferenceCompat
             android:key="pre_app_update_check"
             android:summary="アプリ起動時にアップデートを確認します。"
             android:title="@string/pre_app_title_update_check" />
-    </androidx.preference.PreferenceCategory>
+    </PreferenceCategory>
 
-    <androidx.preference.PreferenceCategory
+    <PreferenceCategory
         android:title="@string/pre_app_category_settings">
 
-        <androidx.preference.SwitchPreferenceCompat
+        <SwitchPreferenceCompat
             android:key="pre_app_use_dcha"
             android:summary="@string/pre_app_sum_dcha"
             android:title="@string/pre_app_title_dcha" />
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_app_clear_cache"
             android:summary="このアプリの不要ファイルを消去します。"
             android:title="キャッシュをクリア" />
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_app_clear_data"
             android:summary="このアプリのデータを消去します。"
             android:title="ユーザーデータをクリア" />
-    </androidx.preference.PreferenceCategory>
+    </PreferenceCategory>
 
-    <androidx.preference.PreferenceCategory
+    <PreferenceCategory
         android:title="@string/pre_app_category_update">
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_app_update_mode"
             android:summary="アップデートやアプリを取得するときのインストーラーを変更できます。"
             android:title="@string/pre_app_title_update" />
-    </androidx.preference.PreferenceCategory>
+    </PreferenceCategory>
 
-    <androidx.preference.PreferenceCategory
+    <PreferenceCategory
         android:title="@string/pre_app_category_log">
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_app_crash_log"
             android:summary="アプリが予期せず終了したときのログを確認できます。"
             android:title="@string/pre_app_title_crash_history" />
 
-        <androidx.preference.Preference
+        <Preference
             android:key="pre_app_del_crash_log"
             android:title="@string/pre_app_title_delete_crash_history" />
-    </androidx.preference.PreferenceCategory>
+    </PreferenceCategory>
 
-    <androidx.preference.PreferenceCategory
+    <PreferenceCategory
         android:key="pre_app_category_debug"
         android:title="デバッグ"
         app:isPreferenceVisible="false">
 
-        <androidx.preference.SwitchPreferenceCompat
+        <SwitchPreferenceCompat
             android:key="pre_app_debug_restriction"
             android:title="" />
 
         <Preference
             android:key="pre_app_debug_force_crash"
             android:title="クラッシュ" />
-    </androidx.preference.PreferenceCategory>
-</androidx.preference.PreferenceScreen>
+    </PreferenceCategory>
+</PreferenceScreen>

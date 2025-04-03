@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -16,13 +16,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp" />
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    </LinearLayout>
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <TextView
             android:id="@+id/progress_percent"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
             android:gravity="start"
             android:text="" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <TextView
             android:id="@+id/progress_byte"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -39,5 +39,5 @@
             android:layout_weight="1"
             android:gravity="end"
             android:text="" />
-    </androidx.appcompat.widget.LinearLayoutCompat>
-</androidx.appcompat.widget.LinearLayoutCompat>
+    </LinearLayout>
+</LinearLayout>

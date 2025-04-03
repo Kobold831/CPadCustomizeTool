@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -13,7 +13,7 @@
         android:layout_marginHorizontal="20dp"
         android:visibility="visible">
 
-        <androidx.appcompat.widget.AppCompatEditText
+        <EditText
             android:id="@+id/edit_text_1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -22,13 +22,13 @@
             android:inputType="number"
             android:maxLength="4" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/view_resolution_text_x" />
 
-        <androidx.appcompat.widget.AppCompatEditText
+        <EditText
             android:id="@+id/edit_text_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -75,4 +75,4 @@
                 android:text="1920 x 1200" />
         </RadioGroup>
     </LinearLayout>
-</androidx.appcompat.widget.LinearLayoutCompat>
+</LinearLayout>

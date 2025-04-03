@@ -4,13 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="20dp">
 
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
@@ -18,7 +18,7 @@
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -26,7 +26,7 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:id="@+id/menu_text_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="8dp" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:id="@+id/menu_text_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="8dp" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:id="@+id/menu_text_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="8dp" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:id="@+id/menu_text_4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -58,7 +58,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="8dp" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:id="@+id/menu_text_5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -66,9 +66,9 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="20dp" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
+        </LinearLayout>
 
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
@@ -76,7 +76,7 @@
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -84,15 +84,15 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="20dp"
                 android:text="@string/info_development_label" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
+        </LinearLayout>
 
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
@@ -100,7 +100,7 @@
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -108,7 +108,7 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
@@ -116,7 +116,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/info_library_wel_label" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
@@ -124,7 +124,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/info_library_zip_label" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
@@ -132,7 +132,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/info_library_yib_label" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
@@ -140,7 +140,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/info_library_dhizuku_label" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
@@ -148,7 +148,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/info_library_awayume_label" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
@@ -156,7 +156,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/info_library_naniwara_label" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
@@ -165,9 +165,9 @@
                 android:layout_marginEnd="20dp"
                 android:layout_marginBottom="20dp"
                 android:text="@string/info_library_other_label" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
+        </LinearLayout>
 
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
@@ -175,7 +175,7 @@
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -183,30 +183,30 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:text="@string/info_github_label" />
 
-            <androidx.appcompat.widget.AppCompatButton
+            <Button
                 android:id="@+id/download_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="20dp"
                 android:text="@string/info_github_button" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
+        </LinearLayout>
 
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/shape_rounded_corners"
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -215,7 +215,7 @@
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -223,7 +223,7 @@
                 android:text="開発者に問題や提案を送信できます。"
                 tools:ignore="HardcodedText" />
 
-            <androidx.appcompat.widget.AppCompatButton
+            <Button
                 android:id="@+id/act_app_info_button_feedback"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -231,6 +231,6 @@
                 android:layout_marginBottom="20dp"
                 android:text="フォームを開く"
                 tools:ignore="HardcodedText" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
-    </androidx.appcompat.widget.LinearLayoutCompat>
+        </LinearLayout>
+    </LinearLayout>
 </ScrollView>
