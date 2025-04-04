@@ -138,14 +138,6 @@
                 android:layout_gravity="start"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/info_library_dhizuku_label" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="8dp"
                 android:text="@string/info_library_awayume_label" />
 
             <TextView

@@ -42,7 +42,6 @@ android {
     }
 
     buildFeatures {
-        aidl = true
         buildConfig = true
     }
 
@@ -79,8 +78,4 @@ dependencies {
 
     // ZIP
     implementation 'org.zeroturnaround:zt-zip:1.17'
-
-    // Dhizuku
-    implementation 'io.github.iamr0s:Dhizuku-API:2.5.3'
-    //implementation 'io.github.iamr0s:Dhizuku-SERVER_API:0.0.5'
 }

@@ -16,8 +16,6 @@ import androidx.appcompat.widget.AppCompatTextView;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
-import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
-import com.saradabar.cpadcustomizetool.util.Common;
 
 import java.util.List;
 
@@ -35,13 +33,10 @@ public class UninstallBlockAppListView {
         LayoutInflater mInflater;
         DevicePolicyManager dpm;
 
-        IDhizukuService mDhizukuService;
-
-        public AppListAdapter(Context context, List<AppData> dataList, IDhizukuService iDhizukuService) {
+        public AppListAdapter(Context context, List<AppData> dataList) {
             super(context, R.layout.view_uninstall_item);
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-            mDhizukuService = iDhizukuService;
             addAll(dataList);
         }
 
@@ -66,14 +61,8 @@ public class UninstallBlockAppListView {
                 holder.textLabel.setText(data.label);
                 holder.imageIcon.setImageDrawable(data.icon);
 
-                if (Common.isDhizukuActive(getContext())) {
-                    try {
-                        ((SwitchCompat) view.findViewById(R.id.un_switch)).setChecked(mDhizukuService.isUninstallBlocked(data.packName));
-                    } catch (Exception ignored) {
-                    }
-                } else {
-                    ((SwitchCompat) view.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), AdministratorReceiver.class), data.packName));
-                }
+                ((SwitchCompat) view.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), AdministratorReceiver.class), data.packName));
+
             }
             return convertView;
         }

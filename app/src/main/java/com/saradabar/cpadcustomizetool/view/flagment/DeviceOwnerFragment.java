@@ -18,15 +18,12 @@ import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.Looper;
-import android.os.RemoteException;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -40,16 +37,10 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
-import com.rosan.dhizuku.api.Dhizuku;
-import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
-
-import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
-import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
-import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 import com.saradabar.cpadcustomizetool.data.task.ApkInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.ApkSCopyTask;
 import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
@@ -65,7 +56,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.Executors;
 
 /** @noinspection deprecation*/
 public class DeviceOwnerFragment extends PreferenceFragmentCompat implements InstallEventListener {
@@ -84,12 +74,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             preSessionInstallNotice;
 
     SwitchPreferenceCompat swPrePermissionFrc;
-
-    IDhizukuService mDhizukuService;
-    DhizukuUserServiceArgs dhizukuUserServiceArgs;
-    ServiceConnection dServiceConnection;
-
-    Listener listener;
 
     boolean isActiveInstallTask = false;
 
@@ -121,60 +105,15 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Common.debugLog("onDestroy");
-
-        if (dhizukuUserServiceArgs != null) {
-            try {
-                Dhizuku.stopUserService(dhizukuUserServiceArgs);
-            } catch (IllegalStateException ignored) {
-            }
-        }
-
-        if (dServiceConnection != null) {
-            try {
-                Dhizuku.unbindUserService(dServiceConnection);
-            } catch (IllegalStateException ignored) {
-            }
-        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Common.debugLog("onPause");
-
-        if (dhizukuUserServiceArgs != null) {
-            try {
-                Dhizuku.stopUserService(dhizukuUserServiceArgs);
-            } catch (IllegalStateException ignored) {
-            }
-        }
-
-        if (dServiceConnection != null) {
-            try {
-                Dhizuku.unbindUserService(dServiceConnection);
-            } catch (IllegalStateException ignored) {
-            }
-        }
     }
 
     private void setListener() {
         preUninstallBlock.setOnPreferenceClickListener(preference -> {
-            // 遷移前にdhizukuから切断
-            if (dhizukuUserServiceArgs != null) {
-                try {
-                    Dhizuku.stopUserService(dhizukuUserServiceArgs);
-                } catch (IllegalStateException ignored) {
-                }
-            }
-
-            if (dServiceConnection != null) {
-                try {
-                    Dhizuku.unbindUserService(dServiceConnection);
-                } catch (IllegalStateException ignored) {
-                }
-            }
-
             try {
                 startActivity(new Intent(requireActivity(), UninstallBlockActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (ActivityNotFoundException ignored) {
@@ -188,18 +127,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     swPrePermissionFrc.setChecked(true);
                     swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_forced));
 
-                    if (Common.isDhizukuActive(requireActivity())) {
-                        if (tryBindDhizukuService()) {
-                            try {
-                                mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
-                            } catch (RemoteException e) {
-                                throw new RuntimeException(e);
-                            }
-                        } else return false;
-                    } else {
-                        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
-                        dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
-                    }
+                    DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+                    dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
 
                     for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
                         /* ユーザーアプリか確認 */
@@ -211,20 +140,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     swPrePermissionFrc.setChecked(false);
                     swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
 
-                    if (Common.isDhizukuActive(requireActivity())) {
-                        if (tryBindDhizukuService()) {
-                            try {
-                                mDhizukuService.setPermissionPolicy(DevicePolicyManager.PERMISSION_POLICY_PROMPT);
-                            } catch (RemoteException e) {
-                                throw new RuntimeException(e);
-                            }
-                        } else {
-                            return false;
-                        }
-                    } else {
-                        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
-                        dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_PROMPT);
-                    }
+                    DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+                    dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_PROMPT);
 
                     for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
                         /* ユーザーアプリか確認 */
@@ -244,21 +161,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
                 // インストール中状態を設定
                 isActiveInstallTask = true;
-
-                // Dhizuku 切断
-                if (dhizukuUserServiceArgs != null) {
-                    try {
-                        Dhizuku.stopUserService(dhizukuUserServiceArgs);
-                    } catch (IllegalStateException ignored) {
-                    }
-                }
-
-                if (dServiceConnection != null) {
-                    try {
-                        Dhizuku.unbindUserService(dServiceConnection);
-                    } catch (IllegalStateException ignored) {
-                    }
-                }
             } catch (Exception ignored) {
                 preSessionInstall.setEnabled(true);
                 new AlertDialog.Builder(requireActivity())
@@ -285,18 +187,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             new AlertDialog.Builder(requireActivity())
                     .setMessage(R.string.dialog_question_owner)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                        if (Common.isDhizukuActive(requireActivity())) {
-                            if (tryBindDhizukuService()) {
-                                try {
-                                mDhizukuService.clearDeviceOwnerApp(DhizukuVariables.OFFICIAL_PACKAGE_NAME);
-                                } catch (RemoteException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-                        } else {
-                            DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
-                            dpm.clearDeviceOwnerApp(requireActivity().getPackageName());
-                        }
+
+                        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+                        dpm.clearDeviceOwnerApp(requireActivity().getPackageName());
 
                         requireActivity().finish();
                         requireActivity().overridePendingTransition(0, 0);
@@ -368,7 +261,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 }
             }
         } else {
-            if (!Common.isDhizukuActive(requireActivity())) {
                 preUninstallBlock.setEnabled(false);
                 preUninstallBlock.setSummary(getString(R.string.pre_owner_sum_not_use_function));
                 preClrDevOwn.setEnabled(false);
@@ -379,22 +271,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 preSessionInstall.setSummary(getString(R.string.pre_owner_sum_not_use_function));
                 preAbandonSession.setEnabled(false);
                 preAbandonSession.setSummary(getString(R.string.pre_owner_sum_not_use_function));
-            } else {
-                if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        switch (dpm.getPermissionPolicy(Constants.DHIZUKU_COMPONENT)) {
-                            case DevicePolicyManager.PERMISSION_POLICY_PROMPT:
-                                swPrePermissionFrc.setChecked(false);
-                                swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
-                                break;
-                            case DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT:
-                                swPrePermissionFrc.setChecked(true);
-                                swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_forced));
-                                break;
-                        }
-                    }
-                }
-            }
         }
 
         if (getDeviceOwnerPackage() != null) {
@@ -439,87 +315,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     private void restart() {
         // インストール中状態を解除
         isActiveInstallTask = false;
-
-        if (Common.isDhizukuActive(requireActivity())) {
-            try {
-                if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
-                    new AlertDialog.Builder(requireActivity())
-                            .setCancelable(false)
-                            .setMessage(getString(R.string.dialog_dhizuku_require_12))
-                            .setPositiveButton(getString(R.string.dialog_common_ok), null)
-                            .show();
-                }
-            } catch (Exception ignored) {
-            }
-
-            waitForServiceDialog.show();
-            Common.debugLog("waitForServiceDialog.show");
-
-            listener = new Listener() {
-                @Override
-                public void onSuccess() {
-                    Common.debugLog("onSuccess");
-                    if (waitForServiceDialog.isShowing()) {
-                        waitForServiceDialog.cancel();
-                    }
-
-                    if (mDhizukuService == null) {
-                        new AlertDialog.Builder(requireActivity())
-                                .setCancelable(false)
-                                .setMessage(R.string.dialog_error_no_dhizuku)
-                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                                    requireActivity().finish();
-                                    requireActivity().overridePendingTransition(0, 0);
-                                    startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                                })
-                                .show();
-                    }
-                    setListener();
-                }
-
-                @Override
-                public void onFailure() {
-                    Common.debugLog("onFailure");
-                    if (waitForServiceDialog.isShowing()) {
-                        waitForServiceDialog.cancel();
-                    }
-
-                    new AlertDialog.Builder(requireActivity())
-                            .setCancelable(false)
-                            .setMessage(R.string.dialog_error_no_dhizuku)
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                                requireActivity().finish();
-                                requireActivity().overridePendingTransition(0, 0);
-                                startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                            })
-                            .show();
-                }
-            };
-
-            // サービスに接続したら発火させる
-            dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(requireActivity(), DhizukuService.class));
-            dServiceConnection = new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                    mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
-                    // サービス接続完了
-                    listener.onSuccess();
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                }
-            };
-
-            Executors.newSingleThreadExecutor().submit(() -> new Thread(() -> {
-                if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
-                    // サービス接続失敗
-                    listener.onFailure();
-                }
-            }).start());
-        } else {
-            setListener();
-        }
+        setListener();
     }
 
     public interface Listener {
@@ -733,7 +529,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onSuccess(ArrayList<String> stringArrayList) {
                 alertDialog.dismiss();
                 new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFragment.this);
-                // インストール処理でdhizukuに接続するのでここでは再接続しない
             }
 
             @Override
@@ -829,7 +624,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onSuccess(ArrayList<String> stringArrayList) {
                 alertDialog.dismiss();
                 new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFragment.this);
-                // インストール処理でdhizukuに接続するのでここでは再接続しない
             }
 
             @Override
@@ -925,7 +719,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onSuccess(ArrayList<String> stringArrayList) {
                 alertDialog.dismiss();
                 new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFragment.this);
-                // インストール処理でdhizukuに接続するのでここでは再接続しない
             }
 
             @Override
@@ -1004,37 +797,11 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         }
     }
 
-    private boolean tryBindDhizukuService() {
-        DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(requireActivity(), DhizukuService.class));
-        return Dhizuku.bindUserService(args, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        });
-    }
-
     @RequiresApi(Build.VERSION_CODES.M)
     private void setPermissionGrantState(String packageName, int grantState) {
-        if (Common.isDhizukuActive(requireActivity())) {
-            if (tryBindDhizukuService()) {
-                try {
-                    for (String permission : getRuntimePermissions(packageName)) {
-                        mDhizukuService.setPermissionGrantState(packageName, permission, grantState);
-                    }
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        } else {
-            DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
-            for (String permission : getRuntimePermissions(packageName)) {
-                dpm.setPermissionGrantState(new ComponentName(requireActivity(), AdministratorReceiver.class), packageName, permission, grantState);
-            }
+        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+        for (String permission : getRuntimePermissions(packageName)) {
+            dpm.setPermissionGrantState(new ComponentName(requireActivity(), AdministratorReceiver.class), packageName, permission, grantState);
         }
     }
 

@@ -14,7 +14,6 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 
-import android.annotation.SuppressLint;
 import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.Context;

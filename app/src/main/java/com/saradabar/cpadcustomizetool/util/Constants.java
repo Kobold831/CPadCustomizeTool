@@ -12,10 +12,7 @@
 
 package com.saradabar.cpadcustomizetool.util;
 
-import android.content.ComponentName;
 import android.content.Intent;
-
-import com.rosan.dhizuku.shared.DhizukuVariables;
 
 import java.util.Arrays;
 import java.util.List;
@@ -59,7 +56,7 @@ public class Constants {
     public static final int REQUEST_INSTALL_SILENT = 0;
     public static final int REQUEST_INSTALL_SELF_UPDATE = 1;
     public static final int REQUEST_INSTALL_GET_APP = 2;
-    
+
     //　アプリで使用しているURL
     // TODO: Check.json 参照先変更機能
     public static final String CHECK_JSON = "Check.json";
@@ -115,11 +112,7 @@ public class Constants {
     public static final String ACTION_INSTALL_SHORTCUT = "com.android.launcher.action.INSTALL_SHORTCUT";
     public static final String DOWNLOAD_APK = "update.apk";
 
-    public static final List<String> LIST_UPDATE_MODE = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー", "Dhizuku");
+    public static final List<String> LIST_UPDATE_MODE = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー");
 
-    public static final String[] LIST_MODEL = {PRODUCT_CT2S, PRODUCT_CT2K, PRODUCT_CT2L, PRODUCT_CT3, PRODUCT_CTX, PRODUCT_CTZ};
-
-    // Don't use Dhizuku.getOwnerComponent()
-    public static final ComponentName DHIZUKU_COMPONENT = new ComponentName(DhizukuVariables.OFFICIAL_PACKAGE_NAME, DhizukuVariables.OFFICIAL_PACKAGE_NAME + ".server.DhizukuDAReceiver");
-
+    public static final String[] LIST_MODEL = { PRODUCT_CT2S, PRODUCT_CT2K, PRODUCT_CT2L, PRODUCT_CT3, PRODUCT_CTX, PRODUCT_CTZ };
 }

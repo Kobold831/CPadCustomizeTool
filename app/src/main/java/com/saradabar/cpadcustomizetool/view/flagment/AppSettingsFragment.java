@@ -12,8 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-
 import android.app.ActivityManager;
 import android.app.Service;
 import android.app.admin.DevicePolicyManager;
@@ -34,7 +32,6 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
-import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -165,27 +162,6 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName()) && Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
                             Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
-                        } else {
-                            new AlertDialog.Builder(requireActivity())
-                                    .setMessage(getString(R.string.dialog_error_no_mode))
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                    .show();
-                        }
-                        break;
-                    case 4:
-                        if (isDhizukuActive(requireActivity())) {
-                            try {
-                                if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
-                                    new AlertDialog.Builder(requireActivity())
-                                            .setCancelable(false)
-                                            .setMessage(getString(R.string.dialog_dhizuku_require_12))
-                                            .setPositiveButton(getString(R.string.dialog_common_ok), null)
-                                            .show();
-                                }
-                                Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                listView.invalidateViews();
-                            } catch (Exception ignored) {
-                            }
                         } else {
                             new AlertDialog.Builder(requireActivity())
                                     .setMessage(getString(R.string.dialog_error_no_mode))

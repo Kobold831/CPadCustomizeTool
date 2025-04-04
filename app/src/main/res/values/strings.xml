@@ -112,7 +112,6 @@
     <string name="pre_main_title_launcher">変更するホーム</string>
     <string name="pre_main_title_device_owner">デバイスオーナーの機能</string>
     <string name="pre_main_title_system_update">システムアップデート</string>
-    <string name="pre_main_title_dhizuku_permission_req">Dhizuku アクセス権限リクエスト</string>
     <string name="pre_main_sum_message_1"> ではこの機能は使用できません。</string>
     <string name="pre_main_sum_message_2">ホームは [%1$s] に設定されています。</string>
     <string name="pre_main_sum_keep_home">現在のホームを維持します。</string>
@@ -195,10 +194,6 @@
     <string name="dialog_failure_silent_install">サイレントインストールに失敗しました。</string>
     <string name="dialog_success_silent_install">サイレントインストールに成功しました。</string>
     <string name="dialog_no_installer">インストーラーが設定されていません。インストーラーを選択して設定してください。\n\nADB でインストールするには、次の URL から PC でダウンロードしてください。\n%1$s</string>
-    <string name="dialog_dhizuku_grant_permission">Dhizuku へのアクセス権限は付与されました。</string>
-    <string name="dialog_dhizuku_deny_permission">Dhizuku へのアクセス権限は拒否されました。</string>
-    <string name="dialog_dhizuku_require_12">Dhizuku を更新することを推奨します。\nv2.9 の Dhizuku をインストールしてください。\n現在の状態でも機能を使用できますが完全に動作しない可能性があります。\nメイン画面の アプリを取得 から Dhizuku を選択することで最新に更新できます。</string>
-    <string name="dialog_dhizuku_already_grant_permission">Dhizuku へのアクセス権限は付与されています。</string>
     <string name="dialog_service_connecting">サービスへの接続を待機しています。\n画面を切り替えないでください。</string>
     <string name="dialog_question_reboot">デバイスを再起動しますか？</string>
     <string name="dialog_question_dcha">DchaService の機能を使用しますか？</string>
@@ -226,7 +221,6 @@
     <string name="dialog_error_no_file_data">ファイルデータを取得できませんでした。</string>
     <string name="dialog_error_no_mode">選択されたモードは機能していません。</string>
     <string name="dialog_error_reset_installer">エラーが発生しました。\nインストールモードをリセットしました。</string>
-    <string name="dialog_error_no_dhizuku">Dhizuku との通信に失敗しました。</string>
 
     <!-- サービス -->
     <string name="service_activity">ホームアプリ 切り替えサービス</string>
@@ -258,7 +252,6 @@
     <string name="info_library_wel_label">・welcome-android\nCopyright 2015\-2017 Stephen Tuso</string>
     <string name="info_library_zip_label">・ZeroTurnaround ZIP Library\nCopyright 2012 ZeroTurnaround LLC.</string>
     <string name="info_library_yib_label">・よびばいと (YiB)\n画像の提供（navigationbar.webp / ex.webp）\nウォークスルーの追加のご協力</string>
-    <string name="info_library_dhizuku_label">・Dhizuku-API\nCopyright © 2023 R0S</string>
     <string name="info_library_awayume_label">・粟夢 (Awayume)\n不具合修正のご協力</string>
     <string name="info_library_naniwara_label">・なにわらマサト\nアプリアイコン (cpad_grid_icon_v2.webp) の提供</string>
     <string name="info_library_other_label">敬称略・順不同で記載しています。著作物はその著作権者に帰属されます。</string>

@@ -1,25 +1,15 @@
 package com.saradabar.cpadcustomizetool.data.task;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
-
-import com.rosan.dhizuku.api.Dhizuku;
-import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 
 import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.installer.SessionInstaller;
-import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
-import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,12 +17,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ApkInstallTask {
-
-    final Object objLock = new Object();
-
-    IDhizukuService mDhizukuService;
-    DhizukuUserServiceArgs dhizukuUserServiceArgs;
-    ServiceConnection dServiceConnection;
 
     public void execute(Context context, Listener listener, ArrayList<String> splitInstallData, int reqCode, InstallEventListener installEventListener) {
         onPreExecute(listener);
@@ -72,93 +56,40 @@ public class ApkInstallTask {
     }
 
     protected Object doInBackground(Context context, ArrayList<String> splitInstallData, int reqCode) {
-        if (isDhizukuActive(context)) {
-            try {
-                dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
-                dServiceConnection = new ServiceConnection() {
-                    @Override
-                    public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                        mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
-                        iDhizukuTaskListener().onSuccess();
-                    }
+        SessionInstaller sessionInstaller = new SessionInstaller();
+        int sessionId;
 
-                    @Override
-                    public void onServiceDisconnected(ComponentName name) {
-                    }
-                };
+        try {
+            sessionId = sessionInstaller.splitCreateSession(context);
 
-                // サービスに接続したら発火させる
-                if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
-                    // 失敗
-                    iDhizukuTaskListener().onFailure();
-                    return false;
-                }
-
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-
-                if (mDhizukuService == null) {
-                    return false;
-                }
-
-                if (mDhizukuService.tryInstallPackages(splitInstallData, reqCode)) {
-                    if (dhizukuUserServiceArgs != null) {
-                        try {
-                            Dhizuku.stopUserService(dhizukuUserServiceArgs);
-                        } catch (IllegalStateException ignored) {
-                        }
-                    }
-
-                    if (dServiceConnection != null) {
-                        try {
-                            Dhizuku.unbindUserService(dServiceConnection);
-                        } catch (IllegalStateException ignored) {
-                        }
-                    }
-                    return true;
-                } else {
-                    return false;
-                }
-            } catch (Exception e) {
-                return e.getMessage();
+            if (sessionId < 0) {
+                return false;
             }
-        } else {
-            SessionInstaller sessionInstaller = new SessionInstaller();
-            int sessionId;
+        } catch (Exception e) {
+            return e.getMessage();
+        }
 
-            try {
-                sessionId = sessionInstaller.splitCreateSession(context);
-
-                if (sessionId < 0) {
-                    return false;
-                }
-            } catch (Exception e) {
-                return e.getMessage();
-            }
-
-            /* インストールデータの長さ回数繰り返す */
-            for (String str : splitInstallData) {
-                /* 配列の中身を確認 */
-                if (str != null) {
-                    try {
-                        if (!sessionInstaller.splitWriteSession(context, new File(str), sessionId)) {
-                            return false;
-                        }
-                    } catch (Exception e) {
-                        return e.getMessage();
+        /* インストールデータの長さ回数繰り返す */
+        for (String str : splitInstallData) {
+            /* 配列の中身を確認 */
+            if (str != null) {
+                try {
+                    if (!sessionInstaller.splitWriteSession(context, new File(str), sessionId)) {
+                        return false;
                     }
-                } else {
-                    /* つぎの配列がnullなら終了 */
-                    break;
+                } catch (Exception e) {
+                    return e.getMessage();
                 }
+            } else {
+                /* つぎの配列がnullなら終了 */
+                break;
             }
+        }
 
-            try {
-                return sessionInstaller.splitCommitSession(context, sessionId, reqCode);
-            } catch (Exception e) {
-                return e.getMessage();
-            }
+        try {
+            return sessionInstaller.splitCommitSession(context, sessionId, reqCode);
+        } catch (Exception e) {
+            return e.getMessage();
         }
     }
 
@@ -172,28 +103,4 @@ public class ApkInstallTask {
         void onError(String message);
     }
 
-    @NonNull
-    private dListener iDhizukuTaskListener() {
-        return new dListener() {
-            @Override
-            public void onSuccess() {
-                synchronized (objLock) {
-                    objLock.notify();
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                synchronized (objLock) {
-                    objLock.notify();
-                }
-            }
-        };
-    }
-
-    public interface dListener {
-        void onSuccess();
-
-        void onFailure();
-    }
 }

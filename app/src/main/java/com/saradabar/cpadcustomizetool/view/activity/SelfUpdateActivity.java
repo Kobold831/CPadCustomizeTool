@@ -12,8 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
@@ -122,19 +120,6 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 
                         if (!dpm.isDeviceOwnerApp(getPackageName())) {
-                            Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
-                            new AlertDialog.Builder(this)
-                                    .setCancelable(false)
-                                    .setMessage(getString(R.string.dialog_error_reset_installer))
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                    .show();
-                            return;
-                        }
-                        installFileArrayList.add(0, new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
-                        new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
-                        break;
-                    case 4:
-                        if (!isDhizukuActive(this)) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)

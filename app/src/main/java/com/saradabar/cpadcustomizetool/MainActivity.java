@@ -12,8 +12,6 @@
 
 package com.saradabar.cpadcustomizetool;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-
 import android.Manifest;
 import android.app.ActivityManager;
 import android.app.Service;
@@ -43,10 +41,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.rosan.dhizuku.api.Dhizuku;
-import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
-
-import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
@@ -241,20 +235,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         installFileArrayList.add(0, new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
-                    case 4:
-                        if (!isDhizukuActive(this)) {
-                            Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
-                            new AlertDialog.Builder(this)
-                                    .setCancelable(false)
-                                    .setMessage(getString(R.string.dialog_error_reset_installer))
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                    .show();
-                            return;
-                        }
-                        //noinspection SequencedCollectionMethodCanBeUsed
-                        installFileArrayList.add(0, new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
-                        new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
-                        break;
                 }
                 break;
             default:
@@ -422,46 +402,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                             .setMessage(getString(R.string.dialog_error_no_mode))
                                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
                                             .show();
-                                }
-                                break;
-                            case 4:
-                                if (Common.isDhizukuActive(v.getContext())) {
-                                    try {
-                                        if (getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
-                                            new AlertDialog.Builder(v.getContext())
-                                                    .setCancelable(false)
-                                                    .setMessage(getString(R.string.dialog_dhizuku_require_12))
-                                                    .setPositiveButton(getString(R.string.dialog_common_ok), null)
-                                                    .show();
-                                        }
-                                        Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                        listView.invalidateViews();
-                                    } catch (Exception ignored) {
-                                    }
-                                } else {
-                                    if (!Dhizuku.init(v.getContext())) {
-                                        new AlertDialog.Builder(v.getContext())
-                                                .setMessage(getString(R.string.dialog_error_no_mode))
-                                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                                                .show();
-                                    }
-
-                                    Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
-                                        @Override
-                                        public void onRequestPermission(int grantResult) {
-                                            runOnUiThread(() -> {
-                                                if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                                                    Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                                    listView.invalidateViews();
-                                                } else {
-                                                    new AlertDialog.Builder(v.getContext())
-                                                            .setMessage(R.string.dialog_dhizuku_deny_permission)
-                                                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                                                            .show();
-                                                }
-                                            });
-                                        }
-                                    });
                                 }
                                 break;
                         }
