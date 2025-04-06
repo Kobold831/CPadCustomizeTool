@@ -1,6 +1,7 @@
 package com.saradabar.cpadcustomizetool.util;
 
 import android.os.BenesseExtension;
+import android.os.Build;
 
 import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
 
@@ -117,7 +118,7 @@ public class DchaUtilServiceUtil {
     public boolean setForcedDisplaySize(int width, int height) {
         try {
             if (mUtilService == null) {
-                if (Common.isBenesseExtensionExist() && Preferences.load(mContext, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
+                if (Common.isBenesseExtensionExist() && Build.MODEL.equals(Constants.PRODUCT_CT3)) {
                     try {
                         // WRITE_SECURE_SETTINGS が必要
                         return BenesseExtension.setForcedDisplaySize(width, height);
