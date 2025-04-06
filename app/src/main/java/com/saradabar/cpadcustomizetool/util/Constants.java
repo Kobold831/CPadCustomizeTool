@@ -26,6 +26,7 @@ public class Constants {
     public static final String PRODUCT_CT2S = "TAB-A03-BS";
     public static final String PRODUCT_CT2K = "TAB-A03-BR";
     public static final String PRODUCT_CT2L = "TAB-A03-BR2";
+    public static final List<String> PRODUCT_CT2 = Arrays.asList(PRODUCT_CT2S, PRODUCT_CT2K, PRODUCT_CT2L);
     public static final String PRODUCT_CT3 = "TAB-A03-BR3";
     public static final String PRODUCT_CTX = "TAB-A05-BD";
     public static final String PRODUCT_CTZ = "TAB-A05-BA1";
@@ -117,7 +118,7 @@ public class Constants {
 
     public static final List<String> LIST_UPDATE_MODE = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー", "Dhizuku");
 
-    public static final String[] LIST_MODEL = {PRODUCT_CT2S, PRODUCT_CT2K, PRODUCT_CT2L, PRODUCT_CT3, PRODUCT_CTX, PRODUCT_CTZ};
+    public static final String[] LIST_MODEL = { PRODUCT_CT2S, PRODUCT_CT2K, PRODUCT_CT2L, PRODUCT_CT3, PRODUCT_CTX, PRODUCT_CTZ };
 
     // Don't use Dhizuku.getOwnerComponent()
     public static final ComponentName DHIZUKU_COMPONENT = new ComponentName(DhizukuVariables.OFFICIAL_PACKAGE_NAME, DhizukuVariables.OFFICIAL_PACKAGE_NAME + ".server.DhizukuDAReceiver");

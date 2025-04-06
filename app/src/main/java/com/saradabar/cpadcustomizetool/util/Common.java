@@ -127,26 +127,47 @@ public class Common {
         return false;
     }
 
-    public static boolean getDchaCompletedPast() {
+    private static String getProductModelName() {
+        return Build.MODEL;
+    }
+
+    public static boolean isCT2() {
+        return Constants.PRODUCT_CT2.contains(getProductModelName());
+    }
+
+    public static boolean isCT3() {
+        return getProductModelName().equals(Constants.PRODUCT_CT3);
+    }
+    
+    public static boolean isCTX() {
+        return getProductModelName().equals(Constants.PRODUCT_CTX);
+    }
+    
+    public static boolean isCTZ() {
+        return getProductModelName().equals(Constants.PRODUCT_CTZ);
+    }
+    
+    public static boolean isBenesseExtensionExist() {
         try {
-            // IGNORE_DCHA_COMPLETED が存在している場合は 3 にしても何ら問題ない
-            return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists();
-        } catch (NoSuchMethodError | NoClassDefFoundError | ExceptionInInitializerError ignored) {
+            int status = BenesseExtension.getDchaState();
+            return true;
+        } catch (NoClassDefFoundError ignored) {
             return false;
         }
+    }
+    
+    public static boolean getDchaCompletedPast() {
+        // BenesseExtension が存在しない場合は配慮不要
+        if (!isBenesseExtensionExist()) return true;
+        // IGNORE_DCHA_COMPLETED が存在している場合は COUNT_DCHA_COMPLETED を作成しても何ら問題ない
+        return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists();
     }
 
     /** @noinspection BooleanMethodIsAlwaysInverted*/
     public static boolean isCfmDialog(Context context) {
-        try {
-            //noinspection ResultOfMethodCallIgnored
-            BenesseExtension.getDchaState();
-            if (!getDchaCompletedPast()) {
-                return Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, false);
-            } else {
-                return true;
-            }
-        } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
+        if (!getDchaCompletedPast()) {
+            return Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, false);
+        } else {
             return true;
         }
     }

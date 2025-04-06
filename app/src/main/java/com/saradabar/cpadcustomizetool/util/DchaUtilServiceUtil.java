@@ -117,12 +117,14 @@ public class DchaUtilServiceUtil {
     public boolean setForcedDisplaySize(int width, int height) {
         try {
             if (mUtilService == null) {
-                try {
-                    // WRITE_SECURE_SETTINGS が必要
-                    //noinspection ResultOfMethodCallIgnored
-                    BenesseExtension.setForcedDisplaySize(width, height);
-                    return true;
-                } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
+                if (Common.isBenesseExtensionExist() && Common.isCT3()) {
+                    try {
+                        // WRITE_SECURE_SETTINGS が必要
+                        return BenesseExtension.setForcedDisplaySize(width, height);
+                    } catch (SecurityException ignored) {
+                        return false;
+                    }
+                } else {
                     return false;
                 }
             }

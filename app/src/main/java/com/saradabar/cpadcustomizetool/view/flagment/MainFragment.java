@@ -1094,10 +1094,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         swBypassAdbDisable.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_AUTO_USB_DEBUG, false));
 
-        try {
-            //noinspection ResultOfMethodCallIgnored
-            BenesseExtension.getDchaState();
-        } catch (NoSuchMethodError | NoClassDefFoundError | Exception e) {
+        if (!Common.isBenesseExtensionExist()) {
             swBypassAdbDisable.setEnabled(false);
             swBypassAdbDisable.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
         }
