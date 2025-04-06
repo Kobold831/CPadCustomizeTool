@@ -23,18 +23,18 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/un_button_disable"
+        <com.google.android.material.button.MaterialButton
             style="?android:attr/buttonBarButtonStyle"
+            android:id="@+id/un_button_disable"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:layout_weight="1"
             android:text="@string/layout_un_list_button_1" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/un_button_enable"
+        <com.google.android.material.button.MaterialButton
             style="?android:attr/buttonBarButtonStyle"
+            android:id="@+id/un_button_enable"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"

@@ -21,11 +21,11 @@
         android:orientation="vertical">
 
         <androidx.appcompat.widget.AppCompatTextView
+            style="@style/MyApp.TextView"
             android:id="@+id/launch_app_text_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:textColor="@android:color/black"
             android:textSize="16sp" />
 
         <androidx.appcompat.widget.AppCompatTextView

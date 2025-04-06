@@ -54,7 +54,8 @@ public class PermissionIntentService extends IntentService {
     @RequiresApi(Build.VERSION_CODES.M)
     private void setPermissionGrantState(Context context, String packageName) {
         if (Common.isDhizukuActive(context)) {
-            Dhizuku.bindUserService(new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class)), new ServiceConnection() {
+            DhizukuUserServiceArgs dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
+            Dhizuku.bindUserService(dhizukuUserServiceArgs, new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder iBinder) {
                     IDhizukuService iDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
@@ -62,6 +63,16 @@ public class PermissionIntentService extends IntentService {
                         for (String permission : getRuntimePermissions(context, packageName)) {
                             iDhizukuService.setPermissionGrantState(packageName, permission, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
                         }
+                    } catch (Exception ignored) {
+                    }
+
+                    try {
+                        Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                    } catch (Exception ignored) {
+                    }
+
+                    try {
+                        Dhizuku.unbindUserService(this);
                     } catch (Exception ignored) {
                     }
                 }

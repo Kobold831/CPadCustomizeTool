@@ -25,4 +25,8 @@
     <style name="PreferenceMaterialSwitch" parent="@style/Preference.SwitchPreferenceCompat.Material">
         <!-- <item name="widgetLayout">@layout/widget_material_switch</item> -->
     </style>
+
+    <style name="MyApp.TextView" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
 </resources>

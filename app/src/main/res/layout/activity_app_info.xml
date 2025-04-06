@@ -182,19 +182,20 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/download_button"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="8dp"
+                android:layout_gravity="center"
                 android:text="@string/info_github_button" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/shape_rounded_corners"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:layout_marginBottom="8dp"
+            android:orientation="vertical"
+            android:background="@drawable/shape_rounded_corners">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="match_parent"
@@ -217,10 +218,11 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/act_app_info_button_feedback"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="8dp"
+                android:layout_gravity="center"
                 android:text="フォームを開く"
                 tools:ignore="HardcodedText" />
         </LinearLayout>

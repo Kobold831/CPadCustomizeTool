@@ -47,18 +47,18 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/wel_no"
+        <com.google.android.material.button.MaterialButton
             style="?android:attr/buttonBarButtonStyle"
+            android:id="@+id/wel_no"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/wel_disagree"
             android:textSize="24sp" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/wel_yes"
+        <com.google.android.material.button.MaterialButton
             style="?android:attr/buttonBarButtonStyle"
+            android:id="@+id/wel_yes"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

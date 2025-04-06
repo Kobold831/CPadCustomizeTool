@@ -47,10 +47,10 @@
         android:visibility="gone">
 
         <androidx.appcompat.widget.AppCompatTextView
+            style="@style/MyApp.TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="セキュリティで保護されたシステム設定にアクセスするための権限\n(WRITE_SECURE_SETTINGS) が付与されていないため、\n任意の解像度を設定できません。\n\nシステムで予め予約された解像度なら設定できます。\n下記のリストから選択してください。"
-            android:textColor="@android:color/black" />
+            android:text="セキュリティで保護されたシステム設定にアクセスするための権限\n(WRITE_SECURE_SETTINGS) が付与されていないため、\n任意の解像度を設定できません。\n\nシステムで予め予約された解像度なら設定できます。\n下記のリストから選択してください。" />
 
         <RadioGroup
             android:layout_width="match_parent"

@@ -37,8 +37,8 @@
                     android:textSize="16sp" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/act_splash_btn_main"
                     style="@style/Widget.AppCompat.Button"
+                    android:id="@+id/act_splash_btn_main"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="メイン画面に戻る"
@@ -52,10 +52,10 @@
                 android:layout_marginTop="8dp">
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/MyApp.TextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="繰り返し発生する場合は、以下の操作をお試しください。"
-                    android:textColor="@android:color/black"
                     android:textSize="16sp"/>
             </LinearLayout>
 
@@ -67,23 +67,23 @@
                 android:background="@drawable/shape_rounded_corners">
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/MyApp.TextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="アプリデータのクリア"
-                    android:textColor="@android:color/black"
                     android:textSize="16sp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/MyApp.TextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="アプリデータをクリアすると、アプリが正常に動作する場合があります。\n実行するには アプリデータのクリア を押してください。"
-                    android:textColor="@android:color/black"
                     android:textSize="16sp" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/act_splash_btn_clear_app_data"
                     style="@style/Widget.AppCompat.Button"
+                    android:id="@+id/act_splash_btn_clear_app_data"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="アプリデータのクリア" />
@@ -97,23 +97,23 @@
                 android:background="@drawable/shape_rounded_corners">
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/MyApp.TextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="そのほかの解決方法"
-                    android:textColor="@android:color/black"
                     android:textSize="16sp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/MyApp.TextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="開発者が、すでに確認している問題の解決方法を確認できます。動的に更新するため、インターネットに接続する必要があります。\n確認するには 解決方法の確認 を押してください。"
-                    android:textColor="@android:color/black"
                     android:textSize="16sp" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/act_splash_btn_open_web"
                     style="@style/Widget.AppCompat.Button"
+                    android:id="@+id/act_splash_btn_open_web"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="解決方法の確認" />
@@ -127,37 +127,37 @@
                 android:background="@drawable/shape_rounded_corners">
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/MyApp.TextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="クラッシュログの提供"
-                    android:textColor="@android:color/black"
                     android:textSize="16sp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/MyApp.TextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="問題が解決しない場合は、クラッシュログを開発者に提供してください。開発者は、クラッシュログの原因が不具合であれば修正をします。\nクラッシュログは [クラッシュログの提供] を押すと自動コピーされます。表示されるフォームに貼り付けてください。 \n\n報告手順 \n・「問題のカテゴリを選択してください。」でバグレポートを選択して「次へ」を押します。 \n・最新バージョンであれば「はい」を押して「次へ」を押します。 \n・「どのような問題が発生しますか？」の入力欄で長押ししてペーストを押します。"
-                    android:textColor="@android:color/black"
                     android:textSize="16sp" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/act_splash_btn_send_crash"
                     style="@style/Widget.AppCompat.Button"
+                    android:id="@+id/act_splash_btn_send_crash"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="クラッシュログの提供" />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/MyApp.TextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="クラッシュログを確認したいときは クラッシュログ履歴を開く を押してください。"
-                    android:textColor="@android:color/black"
                     android:textSize="16sp" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/act_splash_btn_open_crash"
                     style="@style/Widget.AppCompat.Button"
+                    android:id="@+id/act_splash_btn_open_crash"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="クラッシュログ履歴を開く" />
@@ -166,10 +166,10 @@
     </ScrollView>
 
     <androidx.appcompat.widget.AppCompatTextView
+        style="@style/MyApp.TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
         android:layout_gravity="bottom"
-        android:text="文字が見切れる場合は、画面をスクロールすることができます。"
-        android:textColor="@android:color/black" />
+        android:background="@android:color/transparent"
+        android:text="文字が見切れる場合は、画面をスクロールすることができます。" />
 </FrameLayout>

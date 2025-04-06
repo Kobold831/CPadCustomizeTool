@@ -6,15 +6,15 @@
     android:paddingHorizontal="24dp">
 
     <androidx.appcompat.widget.AppCompatTextView
+        android:layout_gravity="bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="選択して OK を押下すると詳細な情報が表示されます。"
-        android:textColor="@android:color/black"
         android:textSize="16sp" />
 
     <ListView
-        android:id="@+id/app_list"
         style="@style/Widget.AppCompat.ListView"
+        android:id="@+id/app_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@null" />

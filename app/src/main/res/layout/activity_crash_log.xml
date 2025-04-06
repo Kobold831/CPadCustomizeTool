@@ -6,8 +6,8 @@
     android:padding="8dp">
 
     <ListView
-        android:id="@+id/act_crash_log_list"
         style="@style/Widget.AppCompat.ListView"
+        android:id="@+id/act_crash_log_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </FrameLayout>

@@ -6,8 +6,8 @@
     android:paddingTop="8dp">
 
     <ListView
-        android:id="@+id/update_list"
         style="@style/Widget.AppCompat.ListView"
+        android:id="@+id/update_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@null" />
