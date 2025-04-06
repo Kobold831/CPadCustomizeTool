@@ -84,8 +84,9 @@
                 <com.google.android.material.button.MaterialButton
                     style="@style/Widget.AppCompat.Button"
                     android:id="@+id/act_splash_btn_clear_app_data"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:text="アプリデータのクリア" />
             </LinearLayout>
 
@@ -114,8 +115,9 @@
                 <com.google.android.material.button.MaterialButton
                     style="@style/Widget.AppCompat.Button"
                     android:id="@+id/act_splash_btn_open_web"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:text="解決方法の確認" />
             </LinearLayout>
 
@@ -144,8 +146,9 @@
                 <com.google.android.material.button.MaterialButton
                     style="@style/Widget.AppCompat.Button"
                     android:id="@+id/act_splash_btn_send_crash"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:text="クラッシュログの提供" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -158,8 +161,9 @@
                 <com.google.android.material.button.MaterialButton
                     style="@style/Widget.AppCompat.Button"
                     android:id="@+id/act_splash_btn_open_crash"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:text="クラッシュログ履歴を開く" />
             </LinearLayout>
         </LinearLayout>
