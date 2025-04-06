@@ -19,7 +19,6 @@ import android.net.Uri;
 import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Environment;
-import android.os.ServiceManager;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.Log;
