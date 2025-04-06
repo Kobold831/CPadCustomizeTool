@@ -19,7 +19,6 @@ import android.net.Uri;
 import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Environment;
-import android.os.IBenesseExtensionService;
 import android.os.ServiceManager;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
@@ -142,7 +141,7 @@ public class Common {
     }
 
     public static boolean isCT3(boolean existBE) {
-        return getProductModelName().equals(Constants.PRODUCT_CT3) && isBenesseExtensionExist();
+        return existBE ? getProductModelName().equals(Constants.PRODUCT_CT3) && isBenesseExtensionExist() : getProductModelName().equals(Constants.PRODUCT_CT3);
     }
     
     public static boolean isCTX() {
@@ -154,11 +153,10 @@ public class Common {
     }
     
     public static boolean isBenesseExtensionExist() {
-        IBenesseExtensionService mBenesseExtensionService = null;
         try {
-            mBenesseExtensionService = IBenesseExtensionService.Stub.asInterface(ServiceManager.getService("benesse_extension"));
+            int status = BenesseExtension.getDchaState();
             return true;
-        } catch (RuntimeException ignored) {
+        } catch (NoClassDefFoundError ignored) {
             return false;
         }
     }
