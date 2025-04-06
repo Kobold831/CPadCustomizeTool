@@ -118,7 +118,7 @@ public class DchaUtilServiceUtil {
     public boolean setForcedDisplaySize(int width, int height) {
         try {
             if (mUtilService == null) {
-                if (Common.isBenesseExtensionExist() && Build.MODEL.equals(Constants.PRODUCT_CT3)) {
+                if (Common.isBenesseExtensionExist() && Common.isCT3()) {
                     try {
                         // WRITE_SECURE_SETTINGS が必要
                         return BenesseExtension.setForcedDisplaySize(width, height);
