@@ -134,7 +134,7 @@ public class Common {
     }
 
     public static boolean isCT2() {
-        return getProductModelName().equals(Constants.PRODUCT_CT2);
+        return Constants.PRODUCT_CT2.contains(getProductModelName());
     }
 
     public static boolean isCT3() {
