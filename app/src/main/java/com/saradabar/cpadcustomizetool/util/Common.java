@@ -129,6 +129,30 @@ public class Common {
         return false;
     }
 
+    private static String getProductModelName() {
+        return Build.MODEL;
+    }
+
+    public static boolean isCT2() {
+        return getProductModelName().equals(Constants.PRODUCT_CT2);
+    }
+
+    public static boolean isCT3() {
+        return getProductModelName().equals(Constants.PRODUCT_CT3);
+    }
+
+    public static boolean isCT3(boolean existBE) {
+        return getProductModelName().equals(Constants.PRODUCT_CT3) && isBenesseExtensionExist();
+    }
+    
+    public static boolean isCTX() {
+        return getProductModelName().equals(Constants.PRODUCT_CTX);
+    }
+    
+    public static boolean isCTZ() {
+        return getProductModelName().equals(Constants.PRODUCT_CTZ);
+    }
+    
     public static boolean isBenesseExtensionExist() {
         IBenesseExtensionService mBenesseExtensionService = null;
         try {
@@ -138,7 +162,7 @@ public class Common {
             return false;
         }
     }
-
+    
     public static boolean getDchaCompletedPast() {
         // BenesseExtension が存在しない場合は配慮不要
         if (!isBenesseExtensionExist()) return true;
