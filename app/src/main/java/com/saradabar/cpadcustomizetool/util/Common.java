@@ -139,10 +139,6 @@ public class Common {
     public static boolean isCT3() {
         return getProductModelName().equals(Constants.PRODUCT_CT3);
     }
-
-    public static boolean isCT3(boolean existBE) {
-        return existBE ? getProductModelName().equals(Constants.PRODUCT_CT3) && isBenesseExtensionExist() : getProductModelName().equals(Constants.PRODUCT_CT3);
-    }
     
     public static boolean isCTX() {
         return getProductModelName().equals(Constants.PRODUCT_CTX);
