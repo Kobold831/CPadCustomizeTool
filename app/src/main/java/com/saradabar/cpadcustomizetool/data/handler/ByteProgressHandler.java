@@ -17,10 +17,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
 import com.saradabar.cpadcustomizetool.data.task.ApkSCopyTask;
@@ -32,7 +32,7 @@ public class ByteProgressHandler extends Handler {
     public ApkMCopyTask apkMCopyTask;
     public ApkSCopyTask apkSCopyTask;
     public ProgressBar progressBar;
-    public TextView textPercent, textByte;
+    public AppCompatTextView textPercent, textByte;
 
     public ByteProgressHandler(Looper looper) {
         super(looper);

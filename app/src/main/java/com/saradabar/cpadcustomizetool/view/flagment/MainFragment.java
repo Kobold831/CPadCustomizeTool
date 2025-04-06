@@ -44,13 +44,13 @@ import android.widget.AbsListView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatEditText;
+import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -229,15 +229,18 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     }
 
                     if (mDchaService == null) {
-                        new AlertDialog.Builder(requireActivity())
-                                .setCancelable(false)
-                                .setMessage(R.string.dialog_dcha_failed)
-                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                                    requireActivity().finish();
-                                    requireActivity().overridePendingTransition(0, 0);
-                                    startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                                })
-                                .show();
+                        if (!Preferences.load(requireActivity(), "debug_restriction", false)) {
+                            new AlertDialog.Builder(requireActivity())
+                                    .setCancelable(false)
+                                    .setMessage(R.string.dialog_dcha_failed)
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                                        Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
+                                        requireActivity().finish();
+                                        requireActivity().overridePendingTransition(0, 0);
+                                        startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                                    })
+                                    .show();
+                        }
                     }
 
                     try {
@@ -252,15 +255,24 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         waitForServiceDialog.cancel();
                     }
 
-                    new AlertDialog.Builder(requireActivity())
-                            .setCancelable(false)
-                            .setMessage(R.string.dialog_dcha_failed)
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                                requireActivity().finish();
-                                requireActivity().overridePendingTransition(0, 0);
-                                startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                            })
-                            .show();
+                    if (!Preferences.load(requireActivity(), "debug_restriction", false)) {
+                        new AlertDialog.Builder(requireActivity())
+                                .setCancelable(false)
+                                .setMessage(R.string.dialog_dcha_failed)
+                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                                    Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
+                                    requireActivity().finish();
+                                    requireActivity().overridePendingTransition(0, 0);
+                                    startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                                })
+                                .show();
+                    } else {
+                        // debug mode
+                        try {
+                            setListener();
+                        } catch (IllegalStateException | IllegalArgumentException ignored) {
+                        }
+                    }
                 }
             });
         } else {
@@ -765,9 +777,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             .setView(view)
                             .setCancelable(false)
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                                RadioButton rb1024 = view.findViewById(R.id.v_resolution_radio_1024);
-                                RadioButton rb1280 = view.findViewById(R.id.v_resolution_radio_1280);
-                                RadioButton rb1920 = view.findViewById(R.id.v_resolution_radio_1920);
+                                AppCompatRadioButton rb1024 = view.findViewById(R.id.v_resolution_radio_1024);
+                                AppCompatRadioButton rb1280 = view.findViewById(R.id.v_resolution_radio_1280);
+                                AppCompatRadioButton rb1920 = view.findViewById(R.id.v_resolution_radio_1920);
 
                                 int width, height;
 

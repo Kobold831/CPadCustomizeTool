@@ -6,7 +6,7 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <EditText
+    <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/edit_app_url"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

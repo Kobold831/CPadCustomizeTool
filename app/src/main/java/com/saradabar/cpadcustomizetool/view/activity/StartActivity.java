@@ -14,7 +14,6 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 
-import android.annotation.SuppressLint;
 import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -189,6 +188,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                     public void onServiceDisconnected(ComponentName componentName) {
                     }
                 }, Context.BIND_AUTO_CREATE)) {
+                    Preferences.save(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
                     startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                     finish();
                 }

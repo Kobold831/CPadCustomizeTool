@@ -237,7 +237,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
 
         if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2) {
             preStartUiAdjustment.setEnabled(false);
-            preStartUiAdjustment.setSummary(Build.MODEL + R.string.pre_main_sum_message_1);
+            preStartUiAdjustment.setSummary(Build.MODEL + requireActivity().getString(R.string.pre_main_sum_message_1));
         }
         setSummaryScreenOffTimeConvert();
     }

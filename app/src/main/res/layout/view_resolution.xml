@@ -13,7 +13,7 @@
         android:layout_marginHorizontal="20dp"
         android:visibility="visible">
 
-        <EditText
+        <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/edit_text_1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -22,13 +22,13 @@
             android:inputType="number"
             android:maxLength="4" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/view_resolution_text_x" />
 
-        <EditText
+        <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/edit_text_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
         android:layout_margin="20dp"
         android:visibility="gone">
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="セキュリティで保護されたシステム設定にアクセスするための権限\n(WRITE_SECURE_SETTINGS) が付与されていないため、\n任意の解像度を設定できません。\n\nシステムで予め予約された解像度なら設定できます。\n下記のリストから選択してください。"
@@ -56,19 +56,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <RadioButton
+            <androidx.appcompat.widget.AppCompatRadioButton
                 android:id="@+id/v_resolution_radio_1024"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="1024 x 768" />
 
-            <RadioButton
+            <androidx.appcompat.widget.AppCompatRadioButton
                 android:id="@+id/v_resolution_radio_1280"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="1280 x 800" />
 
-            <RadioButton
+            <androidx.appcompat.widget.AppCompatRadioButton
                 android:id="@+id/v_resolution_radio_1920"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

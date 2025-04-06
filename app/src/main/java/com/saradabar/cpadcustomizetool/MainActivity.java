@@ -33,15 +33,15 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
@@ -81,8 +81,8 @@ import jp.co.benesse.dcha.dchaservice.IDchaService;
 public class MainActivity extends AppCompatActivity implements DownloadEventListener, InstallEventListener {
 
     AlertDialog progressDialog;
-    TextView progressPercentText;
-    TextView progressByteText;
+    AppCompatTextView progressPercentText;
+    AppCompatTextView progressByteText;
     ProgressBar dialogProgressBar;
 
     IDchaService mDchaService;
@@ -97,11 +97,11 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         /* 前回クラッシュしているかどうか */
         if (Preferences.load(this, Constants.KEY_FLAG_ERROR_CRASH, false)) {
             setContentView(R.layout.activity_splash);
-            Button btnMain = findViewById(R.id.act_splash_btn_main);
-            Button btnClearAppData = findViewById(R.id.act_splash_btn_clear_app_data);
-            Button btnOpenWeb = findViewById(R.id.act_splash_btn_open_web);
-            Button btnSendCrash = findViewById(R.id.act_splash_btn_send_crash);
-            Button btnOpenCrash = findViewById(R.id.act_splash_btn_open_crash);
+            AppCompatButton btnMain = findViewById(R.id.act_splash_btn_main);
+            AppCompatButton btnClearAppData = findViewById(R.id.act_splash_btn_clear_app_data);
+            AppCompatButton btnOpenWeb = findViewById(R.id.act_splash_btn_open_web);
+            AppCompatButton btnSendCrash = findViewById(R.id.act_splash_btn_send_crash);
+            AppCompatButton btnOpenCrash = findViewById(R.id.act_splash_btn_open_crash);
 
             btnMain.setOnClickListener(v -> {
                 View contentView = getWindow().getDecorView().findViewById(android.R.id.content);
@@ -337,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         }
 
         View view = getLayoutInflater().inflate(R.layout.view_update, null);
-        TextView tv = view.findViewById(R.id.update_information);
+        AppCompatTextView tv = view.findViewById(R.id.update_information);
         tv.setText(str);
         view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
             try {
@@ -483,7 +483,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     /* ローディングダイアログを表示する */
     private void showLoadingDialog(String message) {
         View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
-        TextView textView = view.findViewById(R.id.view_progress_spinner_text);
+        AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
         textView.setText(message);
         progressDialog = new AlertDialog.Builder(this).setCancelable(false).setView(view).create();
         progressDialog.show();
@@ -530,8 +530,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         .setCancelable(false)
                         .setTitle(R.string.dialog_title_error)
                         .setMessage(R.string.dialog_error_check_dcha)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finishAffinity())
-                        .setNeutralButton(R.string.dialog_common_ok, (dialog, which) -> {
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             Preferences.save(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
                             confCheck();
                         })

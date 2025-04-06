@@ -7,7 +7,8 @@
 
     <PreferenceCategory
         android:key="1"
-        android:title="@string/pre_main_category_system_ui">
+        android:title="@string/pre_main_category_system_ui"
+        app:allowDividerAbove="false">
 
         <SwitchPreferenceCompat
             android:key="pre_dcha_state"
@@ -28,7 +29,8 @@
 
     <PreferenceCategory
         android:key="2"
-        android:title="@string/pre_main_category_system">
+        android:title="@string/pre_main_category_system"
+        app:allowDividerAbove="false">
 
         <SwitchPreferenceCompat
             android:key="pre_unk_src"
@@ -68,7 +70,8 @@
 
     <PreferenceCategory
         android:key="category_emergency"
-        android:title="@string/pre_main_category_emergency_mode">
+        android:title="@string/pre_main_category_emergency_mode"
+        app:allowDividerAbove="false">
 
         <ListPreference
             android:defaultValue="1"
@@ -104,7 +107,8 @@
 
     <PreferenceCategory
         android:key="category_normal"
-        android:title="@string/pre_main_category_change_to_normal_mode">
+        android:title="@string/pre_main_category_change_to_normal_mode"
+        app:allowDividerAbove="false">
 
         <MultiSelectListPreference
             android:defaultValue="@array/normal_def_value"
@@ -135,7 +139,8 @@
 
     <PreferenceCategory
         android:key="category_other"
-        android:title="@string/pre_main_category_other_settings" />
+        android:title="@string/pre_main_category_other_settings"
+        app:allowDividerAbove="false" />
 
     <Preference
         android:key="pre_enable_dcha_service"
@@ -172,7 +177,8 @@
         android:title="@string/pre_main_title_system_update" />
 
     <PreferenceCategory
-        android:title="デバイス管理者設定" />
+        android:title="デバイス管理者設定"
+        app:allowDividerAbove="false" />
 
     <Preference
         android:key="pre_device_owner_fn"
@@ -196,15 +202,11 @@
 
     <PreferenceCategory
         android:key="pre_cat_assist"
-        android:title="アシスト機能" />
+        android:title="アシスト機能"
+        app:allowDividerAbove="false" />
 
     <Preference
         android:key="pre_get_app"
         android:summary="@string/pre_main_sum_get_app"
         android:title="アプリを取得" />
-
-    <Preference
-        android:summary="この機能は単体で可能な限り、Googleを利用可能にします"
-        android:title="EnableGPlay"
-        app:isPreferenceVisible="false" />
 </PreferenceScreen>

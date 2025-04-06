@@ -17,7 +17,8 @@
         <SwitchPreferenceCompat
             android:key="pre_app_use_dcha"
             android:summary="@string/pre_app_sum_dcha"
-            android:title="@string/pre_app_title_dcha" />
+            android:title="@string/pre_app_title_dcha"
+            app:singleLineTitle="false" />
 
         <Preference
             android:key="pre_app_clear_cache"

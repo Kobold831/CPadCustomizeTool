@@ -2,27 +2,28 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:gravity="center">
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
+        android:layout_gravity="center"
         android:gravity="center"
         android:text="@string/view_update_text_info"
         android:textSize="15sp" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/update_information"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
+        android:layout_gravity="center"
         android:textColor="@android:color/black"
         android:textSize="15sp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/update_info_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

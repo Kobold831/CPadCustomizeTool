@@ -270,7 +270,7 @@
     <string name="img_content_description">icon</string>
     <string name="layout_un_list_button_1">すべて無効</string>
     <string name="layout_un_list_button_2">すべて有効</string>
-    <string name="view_update_text_info">アプリの更新ががあります。アップデートしますか？\n更新情報：\n</string>
+    <string name="view_update_text_info">アプリの更新があります。アップデートしますか？\n更新情報：\n</string>
     <string name="view_update_button_detail_info">詳細な更新情報</string>
     <string name="view_resolution_text_width">横の解像度</string>
     <string name="view_resolution_text_x">x</string>

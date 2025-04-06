@@ -2,7 +2,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory>
+    <PreferenceCategory
+        app:allowDividerAbove="false">
 
         <Preference
             android:key="pre_other_start_settings"
@@ -24,11 +25,6 @@
         <Preference
             android:key="pre_other_sleep_timeout"
             android:title="sleep_timeout"
-            app:isPreferenceVisible="false" />
-
-        <Preference
-            android:summary="通常では変更できない設定を変更します\n設定、値の入力が必須です"
-            android:title="内部設定変更"
             app:isPreferenceVisible="false" />
 
         <Preference

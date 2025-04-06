@@ -12,8 +12,7 @@ android {
         targetSdk = 22
         versionCode = 63
         versionName = "2.6.3"
-        proguardFiles += "proguard-rules.pro"
-        multiDexEnabled = true
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
 
     signingConfigs {
@@ -71,16 +70,11 @@ dependencies {
     implementation 'com.google.android.material:material:1.12.0'
 
     // Welcome
-    // https://jitpack.io/com/github/stephentuso/welcome-android/v1.4.1/welcome-android-v1.4.1-release.aar
     implementation files('libs/welcome-android.aar')
-    // https://jitpack.io/#stephentuso/welcome-android/v1.4.1
-    // タグ(v1.4.1)とアーティファクト名(v1.4.1-release)が異なるため使用不可
-    //implementation 'com.github.stephentuso:welcome-android:v1.4.1'
 
     // ZIP
     implementation 'org.zeroturnaround:zt-zip:1.17'
 
     // Dhizuku
     implementation 'io.github.iamr0s:Dhizuku-API:2.5.3'
-    //implementation 'io.github.iamr0s:Dhizuku-SERVER_API:0.0.5'
 }

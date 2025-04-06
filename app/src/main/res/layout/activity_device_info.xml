@@ -14,26 +14,30 @@
         android:layout_weight="1" />
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/act_device_info_button_1"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="システムプロパティ情報" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/act_device_info_button_2"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="システム情報" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/act_device_info_button_3"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"

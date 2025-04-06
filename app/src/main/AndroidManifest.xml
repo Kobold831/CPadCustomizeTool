@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="jp.co.benesse.dcha.permission.ACCESS_SYSTEM" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
@@ -17,27 +18,32 @@
         android:required="false" />
 
     <application
-        android:name=".MyApplication"
-        android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:appCategory="productivity"
-        android:persistent="true"
         android:allowBackup="false"
-        android:supportsRtl="false"
-        android:resizeableActivity="true">
+        android:appCategory="productivity"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:name=".MyApplication"
+        android:persistent="true"
+        android:roundIcon="@mipmap/ic_launcher"
+        tools:remove="android:appComponentFactory">
+
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
 
         <activity
             android:name=".view.activity.WelAppActivity"
-            android:theme="@style/WelcomeScreenTheme.Light" />
+            android:exported="false"
+            android:theme="@style/WelcomeTheme" />
 
         <activity
             android:name=".MainActivity"
-            android:clearTaskOnLaunch="true"
-            android:configChanges="keyboardHidden|screenSize|orientation"
             android:exported="true"
             android:label="@string/activity_main"
-            android:theme="@style/NoActionBarTheme">
+            android:theme="@style/NoActionBarTheme"
+            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:launchMode="singleTask"
+            android:clearTaskOnLaunch="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
@@ -52,32 +58,36 @@
 
         <activity
             android:name=".view.activity.StartActivity"
-            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:exported="false"
             android:label="@string/activity_start"
-            android:theme="@style/ActionBarTheme" />
+            android:theme="@style/ActionBarTheme"
+            android:configChanges="keyboardHidden|screenSize|orientation" />
 
         <activity
             android:name=".view.activity.SelfUpdateActivity"
-            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:exported="false"
             android:label="@string/activity_self_update"
-            android:theme="@style/ActionBarTheme" />
+            android:theme="@style/ActionBarTheme"
+            android:configChanges="keyboardHidden|screenSize|orientation" />
 
         <activity
             android:name=".view.activity.AppInfoActivity"
-            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:exported="false"
             android:label="@string/activity_app_info"
-            android:theme="@style/ActionBarTheme" />
+            android:theme="@style/ActionBarTheme"
+            android:configChanges="keyboardHidden|screenSize|orientation" />
 
         <activity
             android:name=".view.activity.EmergencyActivity"
-            android:configChanges="keyboardHidden|screenSize|orientation"
-            android:documentLaunchMode="always"
-            android:excludeFromRecents="true"
             android:exported="true"
             android:icon="@android:drawable/ic_dialog_alert"
             android:label="@string/activity_emergency"
-            android:launchMode="singleInstance"
-            android:theme="@style/DialogNoActionBarTheme">
+            android:theme="@style/DialogNoActionBarTheme"
+            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:clearTaskOnLaunch="true"
+            android:documentLaunchMode="always"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
@@ -85,14 +95,15 @@
 
         <activity
             android:name=".view.activity.NormalActivity"
-            android:configChanges="keyboardHidden|screenSize|orientation"
-            android:documentLaunchMode="always"
-            android:excludeFromRecents="true"
             android:exported="true"
             android:icon="@android:drawable/ic_menu_revert"
             android:label="@string/activity_normal"
-            android:launchMode="singleInstance"
-            android:theme="@style/DialogNoActionBarTheme">
+            android:theme="@style/DialogNoActionBarTheme"
+            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:clearTaskOnLaunch="true"
+            android:documentLaunchMode="always"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
@@ -100,13 +111,15 @@
 
         <activity
             android:name=".view.activity.RebootActivity"
-            android:clearTaskOnLaunch="true"
-            android:configChanges="keyboardHidden|screenSize|orientation"
-            android:documentLaunchMode="always"
             android:exported="true"
             android:icon="@android:drawable/ic_popup_sync"
             android:label="@string/activity_reboot"
-            android:theme="@style/DialogNoActionBarTheme">
+            android:theme="@style/DialogNoActionBarTheme"
+            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:clearTaskOnLaunch="true"
+            android:documentLaunchMode="always"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
@@ -114,43 +127,49 @@
 
         <activity
             android:name=".view.activity.UninstallBlockActivity"
-            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:exported="false"
             android:label="@string/activity_uninstall_block"
-            android:theme="@style/ActionBarTheme" />
+            android:theme="@style/ActionBarTheme"
+            android:configChanges="keyboardHidden|screenSize|orientation" />
 
         <activity
             android:name=".view.activity.CrashLogActivity"
-            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:exported="false"
             android:label="@string/activity_crash_log"
-            android:theme="@style/ActionBarTheme" />
+            android:theme="@style/ActionBarTheme"
+            android:configChanges="keyboardHidden|screenSize|orientation" />
 
         <activity
             android:name=".view.activity.WebViewActivity"
-            android:clearTaskOnLaunch="true"
-            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:exported="false"
             android:label=""
-            android:theme="@style/NoActionBarTheme" />
+            android:theme="@style/NoActionBarTheme"
+            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:clearTaskOnLaunch="true" />
 
         <activity
             android:name=".view.activity.EditAdminActivity"
-            android:configChanges="keyboardHidden|screenSize|orientation"
-            android:theme="@style/ActionBarTheme" />
+            android:exported="false"
+            android:theme="@style/ActionBarTheme"
+            android:configChanges="keyboardHidden|screenSize|orientation" />
 
         <activity
             android:name=".view.activity.NoticeActivity"
+            android:exported="false"
             android:label="アプリのお知らせ"
             android:theme="@style/ActionBarTheme" />
 
         <activity
             android:name=".view.activity.DeviceInfoActivity"
+            android:exported="false"
             android:theme="@style/ActionBarTheme" />
 
         <activity
             android:name=".view.activity.ForceCrashActivity"
             android:exported="true"
             android:label="強制クラッシュ (開発用)"
-            android:launchMode="singleInstance"
-            android:theme="@android:style/Theme.NoDisplay">
+            android:theme="@android:style/Theme.NoDisplay"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
@@ -158,9 +177,9 @@
 
         <service
             android:name=".data.service.AccessibilityService"
-            android:description="@string/accessibility_description"
             android:exported="true"
             android:label="@string/service_activity"
+            android:description="@string/accessibility_description"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
@@ -172,7 +191,6 @@
 
         <service
             android:name=".data.service.KeepService"
-            android:enabled="true"
             android:exported="false"
             android:label="@string/service_keep">
             <intent-filter>

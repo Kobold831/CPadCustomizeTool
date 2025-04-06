@@ -7,7 +7,8 @@
         app:selectable="false" />
 
     <PreferenceCategory
-        android:title="アンインストール設定">
+        android:title="アンインストール設定"
+        app:allowDividerAbove="false">
 
         <Preference
             android:key="pre_owner_uninstall_block"
@@ -16,7 +17,8 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="権限設定">
+        android:title="権限設定"
+        app:allowDividerAbove="false">
 
         <SwitchPreferenceCompat
             android:key="pre_owner_permission_frc"
@@ -25,7 +27,8 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="インストール">
+        android:title="インストール"
+        app:allowDividerAbove="false">
 
         <Preference
             android:key="pre_owner_session_install_notice"
@@ -44,7 +47,8 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="デバイスオーナー設定">
+        android:title="デバイスオーナー設定"
+        app:allowDividerAbove="false">
 
         <Preference
             android:key="pre_owner_clr_dev_own"
