@@ -1,7 +1,6 @@
 package com.saradabar.cpadcustomizetool.util;
 
 import android.os.BenesseExtension;
-import android.os.Build;
 
 import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
 
