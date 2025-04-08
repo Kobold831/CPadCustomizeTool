@@ -41,6 +41,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.rosan.dhizuku.api.Dhizuku;
+import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 
 import com.rosan.dhizuku.shared.DhizukuVariables;
@@ -441,6 +442,28 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         isActiveInstallTask = false;
 
         if (Common.isDhizukuActive(requireActivity())) {
+            if (!Dhizuku.isPermissionGranted()) {
+                Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
+                    @Override
+                    public void onRequestPermission(int grantResult) {
+                        requireActivity().runOnUiThread(() -> {
+                            if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                                new AlertDialog.Builder(requireActivity())
+                                        .setMessage(R.string.dialog_dhizuku_grant_permission)
+                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> restart())
+                                        .show();
+                            } else {
+                                new AlertDialog.Builder(requireActivity())
+                                        .setMessage(R.string.dialog_dhizuku_deny_permission)
+                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> setListener())
+                                        .show();
+                            }
+                        });
+                    }
+                });
+                return;
+            }
+
             try {
                 if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
                     new AlertDialog.Builder(requireActivity())

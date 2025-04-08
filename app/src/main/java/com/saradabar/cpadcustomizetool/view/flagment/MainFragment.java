@@ -30,7 +30,6 @@ import android.database.ContentObserver;
 import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -55,9 +54,6 @@ import androidx.appcompat.widget.AppCompatTextView;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
-
-import com.rosan.dhizuku.api.Dhizuku;
-import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
@@ -139,7 +135,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preResetResolution,
             preDeviceOwnerFn,
             preEditAdmin,
-            preDhizukuPermissionReq,
             preSystemUpdate,
             preGetApp,
             preNotice;
@@ -176,7 +171,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preSystemUpdate = findPreference("pre_system_update");
         preDeviceOwnerFn = findPreference("pre_device_owner_fn");
         preEditAdmin = findPreference("pre_edit_admin");
-        preDhizukuPermissionReq = findPreference("pre_dhizuku_permission_req");
         swDeviceAdmin = findPreference("pre_device_admin");
         preGetApp = findPreference("pre_get_app");
         preNotice = findPreference("pre_notice");
@@ -888,43 +882,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             return false;
         });
 
-        preDhizukuPermissionReq.setOnPreferenceClickListener(preference -> {
-            if (!Dhizuku.init(requireActivity())) {
-                new AlertDialog.Builder(requireActivity())
-                        .setMessage(R.string.dialog_error_no_dhizuku)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-                return false;
-            }
-
-            if (!Dhizuku.isPermissionGranted()) {
-                Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
-                    @Override
-                    public void onRequestPermission(int grantResult) {
-                        requireActivity().runOnUiThread(() -> {
-                            if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                                new AlertDialog.Builder(requireActivity())
-                                        .setMessage(R.string.dialog_dhizuku_grant_permission)
-                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                                        .show();
-                            } else {
-                                new AlertDialog.Builder(requireActivity())
-                                        .setMessage(R.string.dialog_dhizuku_deny_permission)
-                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                                        .show();
-                            }
-                        });
-                    }
-                });
-            } else {
-                new AlertDialog.Builder(requireActivity())
-                        .setMessage(R.string.dialog_dhizuku_already_grant_permission)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
-                        .show();
-            }
-            return false;
-        });
-
         swDeviceAdmin.setOnPreferenceChangeListener((preference, o) -> {
             if ((boolean) o) {
                 if (!((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
@@ -1076,7 +1033,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         if (!requireActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN)) {
             preDeviceOwnerFn.setEnabled(false);
             preDeviceOwnerFn.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-            preDhizukuPermissionReq.setVisible(false);
             swDeviceAdmin.setVisible(false);
         }
 
@@ -1088,8 +1044,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName())) {
             swDeviceAdmin.setEnabled(false);
             swDeviceAdmin.setSummary(getString(R.string.pre_main_sum_already_device_owner));
-            preDhizukuPermissionReq.setEnabled(false);
-            preDhizukuPermissionReq.setSummary(getString(R.string.pre_main_sum_already_device_owner));
         }
 
         swBypassAdbDisable.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_AUTO_USB_DEBUG, false));

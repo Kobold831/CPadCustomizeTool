@@ -190,11 +190,6 @@
         android:title="デバイス管理者の編集"
         app:isPreferenceVisible="false" />
 
-    <Preference
-        android:key="pre_dhizuku_permission_req"
-        android:summary="デバイスオーナーが Dhizuku の場合はタップして権限をリクエストしてください。\n権限が付与されるとデバイスオーナーの機能を使用できます。"
-        android:title="@string/pre_main_title_dhizuku_permission_req" />
-
     <SwitchPreferenceCompat
         android:key="pre_device_admin"
         android:summary="@string/pre_main_sum_device_admin"
