@@ -441,7 +441,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         // インストール中状態を解除
         isActiveInstallTask = false;
 
-        if (Common.isDhizukuActive(requireActivity())) {
+        if (Dhizuku.init(requireActivity())) {
             if (!Dhizuku.isPermissionGranted()) {
                 Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
                     @Override
@@ -449,11 +449,13 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         requireActivity().runOnUiThread(() -> {
                             if (grantResult == PackageManager.PERMISSION_GRANTED) {
                                 new AlertDialog.Builder(requireActivity())
+                                        .setCancelable(false)
                                         .setMessage(R.string.dialog_dhizuku_grant_permission)
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> restart())
                                         .show();
                             } else {
                                 new AlertDialog.Builder(requireActivity())
+                                        .setCancelable(false)
                                         .setMessage(R.string.dialog_dhizuku_deny_permission)
                                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> setListener())
                                         .show();
@@ -463,7 +465,9 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 });
                 return;
             }
+        }
 
+        if (Common.isDhizukuActive(requireActivity())) {
             try {
                 if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
                     new AlertDialog.Builder(requireActivity())
