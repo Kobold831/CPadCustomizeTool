@@ -39,7 +39,7 @@ import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 
 import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
+import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
 import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
 import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -224,7 +224,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 }
             } else {
                 DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-                dpm.setUninstallBlocked(new ComponentName(UninstallBlockActivity.this, AdministratorReceiver.class), selectPackage.replace("package:", ""), !dpm.isUninstallBlocked(new ComponentName(UninstallBlockActivity.this, AdministratorReceiver.class), selectPackage.replace("package:", "")));
+                dpm.setUninstallBlocked(new ComponentName(UninstallBlockActivity.this, DeviceAdminReceiver.class), selectPackage.replace("package:", ""), !dpm.isUninstallBlocked(new ComponentName(UninstallBlockActivity.this, DeviceAdminReceiver.class), selectPackage.replace("package:", "")));
             }
             /* listviewの更新 */
             listView.invalidateViews();
@@ -245,7 +245,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 
                 for (UninstallBlockAppListView.AppData appData : dataList) {
-                    dpm.setUninstallBlocked(new ComponentName(UninstallBlockActivity.this, AdministratorReceiver.class), appData.packName, false);
+                    dpm.setUninstallBlocked(new ComponentName(UninstallBlockActivity.this, DeviceAdminReceiver.class), appData.packName, false);
                 }
                 ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
             }
@@ -267,7 +267,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 
                 for (UninstallBlockAppListView.AppData appData : dataList) {
-                    dpm.setUninstallBlocked(new ComponentName(UninstallBlockActivity.this, AdministratorReceiver.class), appData.packName, true);
+                    dpm.setUninstallBlocked(new ComponentName(UninstallBlockActivity.this, DeviceAdminReceiver.class), appData.packName, true);
                 }
                 ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
             }

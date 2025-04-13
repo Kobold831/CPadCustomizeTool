@@ -46,9 +46,9 @@ import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 
 import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
+import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
 import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
 import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 import com.saradabar.cpadcustomizetool.data.task.ApkInstallTask;
@@ -199,7 +199,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         } else return false;
                     } else {
                         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
-                        dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
+                        dpm.setPermissionPolicy(new ComponentName(requireActivity(), DeviceAdminReceiver.class), DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
                     }
 
                     for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
@@ -224,7 +224,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                         }
                     } else {
                         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
-                        dpm.setPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class), DevicePolicyManager.PERMISSION_POLICY_PROMPT);
+                        dpm.setPermissionPolicy(new ComponentName(requireActivity(), DeviceAdminReceiver.class), DevicePolicyManager.PERMISSION_POLICY_PROMPT);
                     }
 
                     for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
@@ -356,7 +356,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         if (dpm.isDeviceOwnerApp(requireActivity().getPackageName())) {
             if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    switch (dpm.getPermissionPolicy(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
+                    switch (dpm.getPermissionPolicy(new ComponentName(requireActivity(), DeviceAdminReceiver.class))) {
                         case DevicePolicyManager.PERMISSION_POLICY_PROMPT:
                             swPrePermissionFrc.setChecked(false);
                             swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
@@ -432,6 +432,26 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         }
 
         if (waitForServiceDialog.isShowing()) {
+            return;
+        }
+
+        // Admin Component を変えるための措置
+        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+
+        if (dpm.isDeviceOwnerApp(requireActivity().getPackageName())
+                && !dpm.isAdminActive(new ComponentName(requireActivity(), DeviceAdminReceiver.class))
+                && !dpm.isAdminActive(new ComponentName(requireActivity(), "com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver"))) {
+            new AlertDialog.Builder(requireActivity())
+                    .setCancelable(false)
+                    .setTitle(R.string.dialog_title_error)
+                    .setMessage("新しいバージョンは Device Owner の再設定が必要になりました。\nDevice Owner はこのデバイスに付与されていますが、Device Owner を ADB で再度有効にする必要があります。\n\n”OK” を押すと、Device Owner は解除されます。\n詳細は、メイン画面から ”アプリのお知らせ” を開いてください。")
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        dpm.clearDeviceOwnerApp(requireActivity().getPackageName());
+                        requireActivity().finish();
+                        requireActivity().overridePendingTransition(0, 0);
+                        startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                    })
+                    .show();
             return;
         }
         restart();
@@ -1060,7 +1080,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         } else {
             DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
             for (String permission : getRuntimePermissions(packageName)) {
-                dpm.setPermissionGrantState(new ComponentName(requireActivity(), AdministratorReceiver.class), packageName, permission, grantState);
+                dpm.setPermissionGrantState(new ComponentName(requireActivity(), DeviceAdminReceiver.class), packageName, permission, grantState);
             }
         }
     }

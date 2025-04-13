@@ -56,7 +56,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
+import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
@@ -884,10 +884,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         swDeviceAdmin.setOnPreferenceChangeListener((preference, o) -> {
             if ((boolean) o) {
-                if (!((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), AdministratorReceiver.class))) {
+                if (!((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), DeviceAdminReceiver.class))) {
                     startActivityForResult(
                             new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-                                    .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, new ComponentName(requireActivity(), AdministratorReceiver.class))
+                                    .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, new ComponentName(requireActivity(), DeviceAdminReceiver.class))
                                     .putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, R.string.device_admin_detail)
                             , Constants.REQUEST_ACTIVITY_ADMIN);
                 }
@@ -897,7 +897,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         .setTitle(R.string.dialog_disable_device_admin)
                         .setMessage(R.string.dialog_question_admin)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                            ((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).removeActiveAdmin(new ComponentName(requireActivity(), AdministratorReceiver.class));
+                            ((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).removeActiveAdmin(new ComponentName(requireActivity(), DeviceAdminReceiver.class));
                             swDeviceAdmin.setChecked(false);
                         })
 
@@ -986,7 +986,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         } catch (Exception ignored) {
         }
 
-        swDeviceAdmin.setChecked(((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), AdministratorReceiver.class)));
+        swDeviceAdmin.setChecked(((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), DeviceAdminReceiver.class)));
         swKeepNavigation.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false));
         swKeepUnkSrc.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_MARKET_APP, false));
         swKeepDchaState.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false));

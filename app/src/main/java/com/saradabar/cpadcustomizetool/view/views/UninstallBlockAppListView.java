@@ -15,7 +15,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
+import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
 import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
 import com.saradabar.cpadcustomizetool.util.Common;
 
@@ -72,7 +72,7 @@ public class UninstallBlockAppListView {
                     } catch (Exception ignored) {
                     }
                 } else {
-                    ((SwitchCompat) view.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), AdministratorReceiver.class), data.packName));
+                    ((SwitchCompat) view.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(new ComponentName(getContext(), DeviceAdminReceiver.class), data.packName));
                 }
             }
             return convertView;

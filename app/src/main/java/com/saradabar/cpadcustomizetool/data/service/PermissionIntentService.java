@@ -16,7 +16,7 @@ import androidx.annotation.RequiresApi;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
-import com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver;
+import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
 import com.saradabar.cpadcustomizetool.util.Common;
 
 import java.util.ArrayList;
@@ -84,7 +84,7 @@ public class PermissionIntentService extends IntentService {
         } else {
             DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
             for (String permission : getRuntimePermissions(context, packageName)) {
-                dpm.setPermissionGrantState(new ComponentName(context, AdministratorReceiver.class), packageName, permission, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
+                dpm.setPermissionGrantState(new ComponentName(context, DeviceAdminReceiver.class), packageName, permission, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
             }
         }
     }
