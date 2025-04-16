@@ -70,7 +70,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.12.0'
 
     // Welcome
-    implementation files('libs/welcome-android.aar')
+    implementation 'com.github.s1204IT:welcome-android:1.4.1'
 
     // ZIP
     implementation 'org.zeroturnaround:zt-zip:1.17'
