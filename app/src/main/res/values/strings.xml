@@ -127,10 +127,12 @@
 
     <!-- アプリ設定 -->
     <string name="pre_app_category_start_settings">起動設定</string>
+    <string name="pre_app_category_noti">通知設定</string>
     <string name="pre_app_category_settings">アプリ設定</string>
     <string name="pre_app_category_update">インストール設定</string>
     <string name="pre_app_category_log">アプリログ</string>
     <string name="pre_app_title_update_check">アップデートチェックを無効</string>
+    <string name="pre_app_title_noti_always">通知を常駐</string>
     <string name="pre_app_title_dcha">内部設定の変更に DchaService を使用</string>
     <string name="pre_app_title_usb">デバイス起動時の USB デバッグ</string>
     <string name="pre_app_title_update">インストールモード</string>

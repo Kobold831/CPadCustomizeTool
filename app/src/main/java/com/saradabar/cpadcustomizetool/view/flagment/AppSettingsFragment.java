@@ -29,6 +29,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
@@ -37,6 +38,7 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.data.service.AlwaysNotiService;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
@@ -52,6 +54,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
     PreferenceCategory catDebugRestriction;
 
     SwitchPreferenceCompat swUpdateCheck,
+            swNotiAlways,
             swUseDcha,
             swDebugRestriction;
 
@@ -72,6 +75,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         addPreferencesFromResource(R.xml.pre_app);
 
         swUpdateCheck = findPreference("pre_app_update_check");
+        swNotiAlways = findPreference("pre_app_noti_always");
         swUseDcha = findPreference("pre_app_use_dcha");
         preCrashLog = findPreference("pre_app_crash_log");
         preDelCrashLog = findPreference("pre_app_del_crash_log");
@@ -84,6 +88,15 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
         swUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
             Preferences.save(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, !((boolean) newValue));
+            return true;
+        });
+
+        swNotiAlways.setOnPreferenceChangeListener((preference, newValue) -> {
+            Intent notiService = new Intent(requireContext(), AlwaysNotiService.class);
+            if ((boolean) newValue)
+                ContextCompat.startForegroundService(requireContext(), notiService);
+            else
+                requireContext().stopService(notiService);
             return true;
         });
 

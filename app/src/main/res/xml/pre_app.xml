@@ -54,6 +54,15 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:title="@string/pre_app_category_noti">
+
+        <SwitchPreferenceCompat
+            android:key="pre_app_noti_always"
+            android:summary="バックグラウンドでの自動タスクキルを防ぎます。"
+            android:title="@string/pre_app_title_noti_always" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:key="pre_app_category_debug"
         android:title="デバッグ"
         app:isPreferenceVisible="false">
