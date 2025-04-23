@@ -5,3 +5,4 @@
 -keepclassmembers class * extends com.stephentuso.welcome.WelcomeActivity { public static java.lang.String welcomeKey(); }
 -keepattributes LineNumberTable, SourceFile
 -renamesourcefileattribute SourceFile
+-dontwarn org.slf4j.impl.StaticLoggerBinder
