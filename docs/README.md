@@ -55,8 +55,7 @@ SDカード から簡単に利用できるようになりました。
 
 ## サンプル画像
 
-<a href="#"><img src="images/image-02.png" height="400"></a>  
-<a href="#"><img src="images/image-01.png" height="400"></a>
+<a href="#"><img src="images/image-02.png" height="400"></a><a href="#"><img src="images/image-01.png" height="400"></a>
 
 ## 権限付与
 
@@ -99,11 +98,28 @@ adb shell dpm set-device-owner com.saradabar.cpadcustomizetool/.data.receiver.De
 > [!TIP]
 > デバイスオーナーは複数設定することはできません
 
+> [!NOTE]
+> アプリ内の機能からデバイスオーナーを解除することができない場合は、以下のいずれかをお試しください。
+> 
+> ・デバイスの初期化。
+> 
+> ・以下のコマンドを ADB で**特権実行**。
+> 
+> ```
+> adb shell rm /data/system/device_owner_2.xml
+> ```
+
 ## 問題の報告
 
 新たなバグや修正方法を見つけた場合は、お手数ですが [報告](https://github.com/Kobold831/CPadCustomizeTool/issues/new/choose) をお願いします。
 
 GitHub アカウントをお持ちでない方、または匿名を希望の場合は[**Google フォームから報告**](https://forms.gle/LnGuEc4GdRmwzf3GA)できます。
+
+## 利用規約
+
+以下のリンクから確認することができます。
+
+[利用規約はこちら](https://drive.google.com/file/d/1yUfxu7CEqYikn0FN5SItc4valZOvR4Uh/view?usp=sharing)
 
 ## 外部ライブラリー
 
