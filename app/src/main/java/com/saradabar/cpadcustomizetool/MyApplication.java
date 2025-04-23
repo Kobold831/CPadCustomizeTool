@@ -15,5 +15,3 @@ public class MyApplication extends Application {
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
     }
 }
-
-// TODO デバッグ未完了
