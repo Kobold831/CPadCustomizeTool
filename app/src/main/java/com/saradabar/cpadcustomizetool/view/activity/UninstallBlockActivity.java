@@ -231,6 +231,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                                 try {
                                     startActivity(getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
                                     finish();
+                                    android.os.Process.killProcess(android.os.Process.myPid());
                                 } catch (ActivityNotFoundException ignored1) {
                                 }
                             })
@@ -263,6 +264,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                                 try {
                                     startActivity(getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
                                     finish();
+                                    android.os.Process.killProcess(android.os.Process.myPid());
                                 } catch (ActivityNotFoundException ignored1) {
                                 }
                             })
@@ -298,6 +300,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                                 try {
                                     startActivity(getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
                                     finish();
+                                    android.os.Process.killProcess(android.os.Process.myPid());
                                 } catch (ActivityNotFoundException ignored1) {
                                 }
                             })

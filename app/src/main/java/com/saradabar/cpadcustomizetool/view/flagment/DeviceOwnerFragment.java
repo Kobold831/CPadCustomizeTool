@@ -206,6 +206,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                                             try {
                                                 finish();
                                                 startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
+                                                android.os.Process.killProcess(android.os.Process.myPid());
                                             } catch (ActivityNotFoundException ignored1) {
                                             }
                                         })
@@ -243,6 +244,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                                             try {
                                                 finish();
                                                 startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
+                                                android.os.Process.killProcess(android.os.Process.myPid());
                                             } catch (ActivityNotFoundException ignored1) {
                                             }
                                         })
@@ -333,6 +335,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                                                 try {
                                                     finish();
                                                     startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
+                                                    android.os.Process.killProcess(android.os.Process.myPid());
                                                 } catch (ActivityNotFoundException ignored1) {
                                                 }
                                             })
