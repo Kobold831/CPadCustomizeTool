@@ -58,9 +58,9 @@ android {
 
 dependencies {
     // Custom Libraries
-    compileOnly 'com.github.s1204IT:BenesseExtension:1.0.0'
-    implementation 'com.github.s1204IT:DchaService:1.0.0'
-    implementation 'com.github.s1204IT:DchaUtilService:1.0.0'
+    compileOnly 'me.s1204:BenesseExtension:1.0.0'
+    implementation 'me.s1204:DchaService:1.0.0'
+    implementation 'me.s1204:DchaUtilService:1.0.0'
     compileOnly project(':hidden-api')
 
     // AndroidX
