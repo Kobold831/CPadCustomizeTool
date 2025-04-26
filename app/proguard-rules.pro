@@ -1,5 +1,6 @@
 -keepnames class * implements android.os.Parcelable { public static final ** CREATOR; }
 -keep class androidx.core.app.CoreComponentFactory { *; }
+-keep class com.saradabar.cpadcustomizetool.** { *; }
 -keep class jp.co.benesse.dcha.** { *; }
 -keep class org.zeroturnaround.** { *; }
 -keepclassmembers class * extends com.stephentuso.welcome.WelcomeActivity { public static java.lang.String welcomeKey(); }

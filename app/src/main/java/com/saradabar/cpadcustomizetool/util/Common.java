@@ -35,9 +35,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,6 +50,63 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class Common {
+
+    public static ArrayList<String> exec(String str) {
+        Process process = null;
+        BufferedWriter bufferedWriterOutput = null;
+        BufferedReader bufferedReaderInput = null, bufferedReaderError = null;
+        ArrayList<String> stringArrayList = new ArrayList<>();
+
+        try {
+            String[] cmd = {"/system/bin/sh", "-c", str,};
+            process = Runtime.getRuntime().exec(cmd);
+            bufferedWriterOutput = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            bufferedReaderInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            bufferedReaderError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            bufferedWriterOutput.write("exit" + System.lineSeparator());
+            bufferedWriterOutput.flush();
+            process.waitFor();
+
+            String data;
+
+            if (bufferedReaderInput.readLine() != null) {
+                while ((data = bufferedReaderInput.readLine()) != null) {
+                    stringArrayList.add(data);
+                }
+            } else if (bufferedReaderError.readLine() != null) {
+                while ((data = bufferedReaderError.readLine()) != null) {
+                    stringArrayList.add(data);
+                }
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (bufferedReaderInput != null) {
+                try {
+                    bufferedReaderInput.close();
+                } catch (IOException ignored) {
+                }
+            }
+
+            if (bufferedReaderError != null) {
+                try {
+                    bufferedReaderError.close();
+                } catch (IOException ignored) {
+                }
+            }
+
+            if (bufferedWriterOutput != null) {
+                try {
+                    bufferedWriterOutput.close();
+                } catch (IOException ignored) {
+                }
+            }
+
+            if (process != null) {
+                process.destroy();
+            }
+        }
+        return stringArrayList;
+    }
 
     public static String getNowDate() {
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd (E) HH:mm:ss", Locale.US);

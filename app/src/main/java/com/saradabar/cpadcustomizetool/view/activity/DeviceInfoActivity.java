@@ -16,11 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Common;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -48,7 +45,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         button2.setOnClickListener(view -> {
             ListView listView = findViewById(R.id.act_device_info_list);
-            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, exec()));
+            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, Common.exec("getprop")));
             listView.invalidateViews();
         });
 
@@ -82,34 +79,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
             } else {
                 stringArrayList.add(nextElement + "=" + properties.getProperty(nextElement));
             }
-        }
-        return stringArrayList;
-    }
-
-    @NonNull
-    private ArrayList<String> exec() {
-        Process process;
-        BufferedWriter bufferedWriter;
-        BufferedReader bufferedReader;
-        ArrayList<String> stringArrayList = new ArrayList<>();
-
-        try {
-            process = Runtime.getRuntime().exec("getprop" + System.lineSeparator());
-            bufferedWriter = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-            bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            bufferedWriter.write("exit" + System.lineSeparator());
-            bufferedWriter.flush();
-            process.waitFor();
-
-            String data;
-
-            while ((data = bufferedReader.readLine()) != null) {
-                stringArrayList.add(data);
-            }
-            bufferedReader.close();
-            bufferedWriter.close();
-            process.destroy();
-        } catch (Exception ignored) {
         }
         return stringArrayList;
     }
