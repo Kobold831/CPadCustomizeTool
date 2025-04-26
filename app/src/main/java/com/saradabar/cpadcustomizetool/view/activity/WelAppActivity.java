@@ -44,6 +44,6 @@ public class WelAppActivity extends WelcomeActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        //super.onBackPressed();
     }
 }

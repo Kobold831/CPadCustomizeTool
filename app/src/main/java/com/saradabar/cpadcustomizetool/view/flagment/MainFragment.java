@@ -229,9 +229,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                     .setMessage(R.string.dialog_dcha_failed)
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                                         Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
-                                        requireActivity().finish();
-                                        requireActivity().overridePendingTransition(0, 0);
-                                        startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                                        finish();
                                     })
                                     .show();
                         }
@@ -255,9 +253,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                 .setMessage(R.string.dialog_dcha_failed)
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                                     Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
-                                    requireActivity().finish();
-                                    requireActivity().overridePendingTransition(0, 0);
-                                    startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                                    finish();
                                 })
                                 .show();
                     } else {
@@ -321,6 +317,12 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 }
                 break;
         }
+    }
+
+    private void finish() {
+        requireActivity().finish();
+        requireActivity().overridePendingTransition(0, 0);
+        startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
     }
 
     private void setListener() {
