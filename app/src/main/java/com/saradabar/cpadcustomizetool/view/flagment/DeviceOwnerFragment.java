@@ -469,7 +469,11 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                                 new AlertDialog.Builder(requireActivity())
                                         .setCancelable(false)
                                         .setMessage(R.string.dialog_dhizuku_grant_permission)
-                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> restart())
+                                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                                            requireActivity().finish();
+                                            requireActivity().overridePendingTransition(0, 0);
+                                            startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                                        })
                                         .show();
                             } else {
                                 new AlertDialog.Builder(requireActivity())
