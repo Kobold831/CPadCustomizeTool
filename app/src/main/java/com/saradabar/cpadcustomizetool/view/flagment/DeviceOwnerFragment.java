@@ -331,8 +331,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                                             .setMessage("Dhizuku と正常に通信できませんでした。Dhizuku のメイン画面から右上の︙を押して、”停止”をしてから再度やり直してください。")
                                             .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> {
                                                 try {
-                                                    startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
                                                     finish();
+                                                    startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
                                                 } catch (ActivityNotFoundException ignored1) {
                                                 }
                                             })
