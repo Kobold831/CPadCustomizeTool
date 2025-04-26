@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.IBinder;
+import android.os.Process;
 import android.os.RemoteException;
 import android.view.MenuItem;
 import android.view.View;
@@ -231,7 +232,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                                 try {
                                     startActivity(getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
                                     finish();
-                                    android.os.Process.killProcess(android.os.Process.myPid());
+                                    Process.killProcess(Process.myPid());
                                 } catch (ActivityNotFoundException ignored1) {
                                 }
                             })
@@ -264,7 +265,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                                 try {
                                     startActivity(getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
                                     finish();
-                                    android.os.Process.killProcess(android.os.Process.myPid());
+                                    Process.killProcess(Process.myPid());
                                 } catch (ActivityNotFoundException ignored1) {
                                 }
                             })
@@ -300,7 +301,7 @@ public class UninstallBlockActivity extends AppCompatActivity {
                                 try {
                                     startActivity(getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
                                     finish();
-                                    android.os.Process.killProcess(android.os.Process.myPid());
+                                    Process.killProcess(Process.myPid());
                                 } catch (ActivityNotFoundException ignored1) {
                                 }
                             })

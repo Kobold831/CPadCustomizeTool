@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Process;
 import android.os.RemoteException;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -206,7 +207,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                                             try {
                                                 finish();
                                                 startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
-                                                android.os.Process.killProcess(android.os.Process.myPid());
+                                                Process.killProcess(Process.myPid());
                                             } catch (ActivityNotFoundException ignored1) {
                                             }
                                         })
@@ -244,7 +245,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                                             try {
                                                 finish();
                                                 startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
-                                                android.os.Process.killProcess(android.os.Process.myPid());
+                                                Process.killProcess(Process.myPid());
                                             } catch (ActivityNotFoundException ignored1) {
                                             }
                                         })
@@ -335,7 +336,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                                                 try {
                                                     finish();
                                                     startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
-                                                    android.os.Process.killProcess(android.os.Process.myPid());
+                                                    Process.killProcess(Process.myPid());
                                                 } catch (ActivityNotFoundException ignored1) {
                                                 }
                                             })
