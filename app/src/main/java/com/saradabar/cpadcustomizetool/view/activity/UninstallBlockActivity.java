@@ -13,6 +13,7 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.app.admin.DevicePolicyManager;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -21,6 +22,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.view.MenuItem;
@@ -220,6 +222,19 @@ public class UninstallBlockActivity extends AppCompatActivity {
             if (Common.isDhizukuActive(UninstallBlockActivity.this)) {
                 try {
                     mDhizukuService.setUninstallBlocked(selectPackage.replace("package:", ""), !mDhizukuService.isUninstallBlocked(selectPackage.replace("package:", "")));
+                } catch (DeadObjectException ignored) {
+                    new AlertDialog.Builder(this)
+                            .setCancelable(false)
+                            .setTitle(R.string.dialog_title_error)
+                            .setMessage("Dhizuku と正常に通信できませんでした。Dhizuku のメイン画面から右上の︙を押して、”停止”をしてから再度やり直してください。")
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                                try {
+                                    startActivity(getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
+                                    finish();
+                                } catch (ActivityNotFoundException ignored1) {
+                                }
+                            })
+                            .show();
                 } catch (RemoteException ignored) {
                 }
             } else {
@@ -239,6 +254,19 @@ public class UninstallBlockActivity extends AppCompatActivity {
                         mDhizukuService.setUninstallBlocked(appData.packName, false);
                     }
                     ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
+                } catch (DeadObjectException ignored) {
+                    new AlertDialog.Builder(this)
+                            .setCancelable(false)
+                            .setTitle(R.string.dialog_title_error)
+                            .setMessage("Dhizuku と正常に通信できませんでした。Dhizuku のメイン画面から右上の︙を押して、”停止”をしてから再度やり直してください。")
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                                try {
+                                    startActivity(getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
+                                    finish();
+                                } catch (ActivityNotFoundException ignored1) {
+                                }
+                            })
+                            .show();
                 } catch (Exception ignored) {
                 }
             } else {
@@ -261,6 +289,19 @@ public class UninstallBlockActivity extends AppCompatActivity {
                         mDhizukuService.setUninstallBlocked(appData.packName, true);
                     }
                     ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
+                } catch (DeadObjectException ignored) {
+                    new AlertDialog.Builder(this)
+                            .setCancelable(false)
+                            .setTitle(R.string.dialog_title_error)
+                            .setMessage("Dhizuku と正常に通信できませんでした。Dhizuku のメイン画面から右上の︙を押して、”停止”をしてから再度やり直してください。")
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                                try {
+                                    startActivity(getPackageManager().getLaunchIntentForPackage(DhizukuVariables.OFFICIAL_PACKAGE_NAME));
+                                    finish();
+                                } catch (ActivityNotFoundException ignored1) {
+                                }
+                            })
+                            .show();
                 } catch (Exception ignored) {
                 }
             } else {
