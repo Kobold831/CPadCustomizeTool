@@ -119,7 +119,7 @@ GitHub アカウントをお持ちでない方、または匿名を希望の場�
 
 以下のリンクから確認することができます。
 
-[利用規約はこちら](https://drive.google.com/file/d/1yUfxu7CEqYikn0FN5SItc4valZOvR4Uh/view?usp=sharing)
+[利用規約はこちら](TERMS.md)
 
 ## 外部ライブラリー
 
