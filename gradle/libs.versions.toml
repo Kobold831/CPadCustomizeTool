@@ -1,0 +1,22 @@
+[versions]
+agp = "8.9.2"
+benesse = "1.0.0"
+androidx-preference = "1.2.1"
+google-material = "1.12.0"
+welcome = "1.4.1"
+zt-zip = "1.17"
+dhizuku-api = "2.5.3"
+
+[plugins]
+agp-app = { id = "com.android.application", version.ref = "agp" }
+agp-lib = { id = "com.android.library", version.ref = "agp" }
+
+[libraries]
+benesse-dchaservice = { group = "me.s1204", name = "DchaService", version.ref = "benesse" }
+benesse-dchautilservice = { group = "me.s1204", name = "DchaUtilService", version.ref = "benesse" }
+benesse-extension = { group = "me.s1204", name = "BenesseExtension", version.ref = "benesse" }
+androidx-preference = { group = "androidx.preference", name = "preference", version.ref = "androidx.preference" }
+google-material = { group = "com.google.android.material", name = "material", version.ref = "google.material" }
+welcome = { group = "com.github.s1204IT", name = "welcome-android", version.ref = "welcome" }
+zt-zip = { group = "org.zeroturnaround", name = "zt-zip", version.ref = "zt.zip" }
+dhizuku-api = { group = "io.github.iamr0s", name = "Dhizuku-API", version.ref = "dhizuku.api" }

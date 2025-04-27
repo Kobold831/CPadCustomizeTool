@@ -1,5 +1,5 @@
 plugins {
-    id 'com.android.application'
+    alias(libs.plugins.agp.app)
 }
 
 android {
@@ -34,12 +34,6 @@ android {
         }
     }
 
-    bundle {
-        density {
-            enableSplit = true
-        }
-    }
-
     buildFeatures {
         aidl = true
         buildConfig = true
@@ -58,23 +52,27 @@ android {
 
 dependencies {
     // Custom Libraries
-    compileOnly 'me.s1204:BenesseExtension:1.0.0'
-    implementation 'me.s1204:DchaService:1.0.0'
-    implementation 'me.s1204:DchaUtilService:1.0.0'
+    compileOnly(libs.benesse.extension)
+    implementation(libs.benesse.dchaservice)
+    implementation(libs.benesse.dchautilservice)
     compileOnly project(':hidden-api')
 
     // AndroidX
-    implementation 'androidx.preference:preference:1.2.1'
+    implementation(libs.androidx.preference)
 
     // Google Material You
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation(libs.google.material)
 
     // Welcome
-    implementation 'com.github.s1204IT:welcome-android:1.4.1'
+    implementation(libs.welcome)
 
     // ZIP
-    implementation 'org.zeroturnaround:zt-zip:1.17'
+    implementation(libs.zt.zip)
 
     // Dhizuku
-    implementation 'io.github.iamr0s:Dhizuku-API:2.5.3'
+    implementation(libs.dhizuku.api)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
 }

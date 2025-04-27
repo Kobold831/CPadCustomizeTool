@@ -1,5 +1,5 @@
 plugins {
-    id 'com.android.library'
+    alias(libs.plugins.agp.lib)
 }
 
 android {
@@ -12,6 +12,7 @@ android {
 
     buildFeatures {
         aidl = true
+        buildConfig = false
     }
 
     compileOptions {
