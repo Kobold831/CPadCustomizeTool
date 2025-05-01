@@ -22,6 +22,11 @@ import java.util.List;
 
 public class Constants {
 
+    // デフォルト値
+    public static final int DEF_INT = 0;
+    public static final String DEF_STR = "";
+    public static final boolean DEF_BOOL = false;
+
     // タブレットのモデル
     public static final String PRODUCT_CT2S = "TAB-A03-BS";
     public static final String PRODUCT_CT2K = "TAB-A03-BR";

@@ -95,77 +95,83 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     private void init() {
         /* 前回クラッシュしているかどうか */
-        if (Preferences.load(this, Constants.KEY_FLAG_ERROR_CRASH, false)) {
-            setContentView(R.layout.activity_splash);
-            AppCompatButton btnMain = findViewById(R.id.act_splash_btn_main);
-            AppCompatButton btnClearAppData = findViewById(R.id.act_splash_btn_clear_app_data);
-            AppCompatButton btnOpenWeb = findViewById(R.id.act_splash_btn_open_web);
-            AppCompatButton btnSendCrash = findViewById(R.id.act_splash_btn_send_crash);
-            AppCompatButton btnOpenCrash = findViewById(R.id.act_splash_btn_open_crash);
-
-            btnMain.setOnClickListener(v -> {
-                View contentView = getWindow().getDecorView().findViewById(android.R.id.content);
-                contentView.setVisibility(View.GONE);
-                Preferences.save(this, Constants.KEY_FLAG_ERROR_CRASH, false);
-                init();
-            });
-
-            btnClearAppData.setOnClickListener(v -> new AlertDialog.Builder(this)
-                    .setMessage(R.string.dialog_confirm_delete)
-                    .setPositiveButton(getString(R.string.dialog_common_yes), (dialog, which) -> {
-                        ActivityManager activityManager = (ActivityManager) getSystemService(Service.ACTIVITY_SERVICE);
-                        activityManager.clearApplicationUserData();
-                    })
-                    .setNegativeButton(getString(R.string.dialog_common_cancel), null)
-                    .show());
-
-            btnOpenWeb.setOnClickListener(v -> startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", "https://docs.google.com/document/d/1NcdovWYrOTPrwvzDrYF0hUSg3T7zyQxnef27rTKU_SY/edit?usp=drive_link")));
-
-            btnSendCrash.setOnClickListener(v -> {
-                try {
-                    ArrayList<String> arrayList = Preferences.load(this, Constants.KEY_LIST_CRASH_LOG);
-
-                    if (arrayList == null) {
-                        new AlertDialog.Builder(this)
-                                .setMessage(R.string.dialog_error)
-                                .setPositiveButton(R.string.dialog_common_ok, null)
-                                .show();
-                        return;
-                    }
-                    ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                    //noinspection SequencedCollectionMethodCanBeUsed
-                    clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(arrayList.size() - 1)));
-                    startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK));
-                    new AlertDialog.Builder(this)
-                            .setMessage("ご協力ありがとうございます。")
-                            .setPositiveButton(R.string.dialog_common_ok, null)
-                            .show();
-                } catch (Exception e) {
-                    new AlertDialog.Builder(this)
-                            .setTitle(R.string.dialog_title_error)
-                            .setMessage(e.getMessage())
-                            .setPositiveButton(R.string.dialog_common_ok, null)
-                            .show();
-                }
-            });
-
-            btnOpenCrash.setOnClickListener(v -> startActivity(new Intent(this, CrashLogActivity.class)));
-        } else {
-            /* 初回起動か確認 */
-            if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
-                /* 初回起動ではないならサポート端末か確認 */
-                if (supportModelCheck()) {
-                    /* DchaServiceを確認 */
-                    checkDchaService();
-                } else {
-                    supportModelError();
-                }
-            } else {
-                /* 初回起動はアップデート確認後ウォークスルー起動 */
-                /* アップデートチェック */
-                updateCheck();
-            }
+        if (Preferences.load(this, Constants.KEY_FLAG_ERROR_CRASH, Constants.DEF_BOOL)) {
+            // クラッシュ画面表示
+            showCrashView();
+            return;
         }
+
+        /* 初回起動が完了しているかどうか */
+        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
+            /* サポート端末か確認 */
+            if (supportModelCheck()) {
+                /* DchaServiceを確認 */
+                checkDchaService();
+            } else {
+                supportModelError();
+            }
+        } else {
+            // 初回起動
+            updateCheck();
+        }
+    }
+
+    private void showCrashView() {
+        setContentView(R.layout.activity_splash);
+
+        AppCompatButton btnMain = findViewById(R.id.act_splash_btn_main);
+        AppCompatButton btnClearAppData = findViewById(R.id.act_splash_btn_clear_app_data);
+        AppCompatButton btnOpenWeb = findViewById(R.id.act_splash_btn_open_web);
+        AppCompatButton btnSendCrash = findViewById(R.id.act_splash_btn_send_crash);
+        AppCompatButton btnOpenCrash = findViewById(R.id.act_splash_btn_open_crash);
+
+        btnMain.setOnClickListener(v -> {
+            View contentView = getWindow().getDecorView().findViewById(android.R.id.content);
+            contentView.setVisibility(View.GONE);
+            Preferences.save(this, Constants.KEY_FLAG_ERROR_CRASH, false);
+            init();
+        });
+
+        btnClearAppData.setOnClickListener(v -> new AlertDialog.Builder(this)
+                .setMessage(R.string.dialog_confirm_delete)
+                .setPositiveButton(getString(R.string.dialog_common_yes), (dialog, which) -> {
+                    ActivityManager activityManager = (ActivityManager) getSystemService(Service.ACTIVITY_SERVICE);
+                    activityManager.clearApplicationUserData();
+                })
+                .setNegativeButton(getString(R.string.dialog_common_cancel), null)
+                .show());
+
+        btnOpenWeb.setOnClickListener(v -> startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", "https://docs.google.com/document/d/1NcdovWYrOTPrwvzDrYF0hUSg3T7zyQxnef27rTKU_SY/edit?usp=drive_link")));
+
+        btnSendCrash.setOnClickListener(v -> {
+            try {
+                ArrayList<String> arrayList = Preferences.load(this, Constants.KEY_LIST_CRASH_LOG);
+
+                if (arrayList == null) {
+                    new AlertDialog.Builder(this)
+                            .setMessage(R.string.dialog_error)
+                            .setPositiveButton(R.string.dialog_common_ok, null)
+                            .show();
+                    return;
+                }
+                ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                //noinspection SequencedCollectionMethodCanBeUsed
+                clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(arrayList.size() - 1)));
+                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK));
+                new AlertDialog.Builder(this)
+                        .setMessage("ご協力ありがとうございます。")
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            } catch (Exception e) {
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.dialog_title_error)
+                        .setMessage(e.getMessage())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            }
+        });
+
+        btnOpenCrash.setOnClickListener(v -> startActivity(new Intent(this, CrashLogActivity.class)));
     }
 
     /* アップデートチェック */

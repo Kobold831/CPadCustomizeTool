@@ -223,13 +223,18 @@ public class Common {
         return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists();
     }
 
-    /** @noinspection BooleanMethodIsAlwaysInverted*/
     public static boolean isCfmDialog(Context context) {
-        if (!getDchaCompletedPast()) {
-            return Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, false);
-        } else {
-            return true;
+        if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2 ||
+                Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT3) {
+            // CT2、CT3は確認ダイアログを表示しない
+            return false;
         }
+
+        if (getDchaCompletedPast()) {
+            // すでにdchaファイルが作成されている場合は確認ダイアログを表示しない
+            return false;
+        }
+        return Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, Constants.DEF_BOOL);
     }
 
     public static long getFileSize(final File file) {

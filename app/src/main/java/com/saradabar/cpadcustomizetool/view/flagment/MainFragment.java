@@ -229,7 +229,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                     .setMessage(R.string.dialog_dcha_failed)
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                                         Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
-                                        finish();
+                                        restart();
                                     })
                                     .show();
                         }
@@ -253,7 +253,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                 .setMessage(R.string.dialog_dcha_failed)
                                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                                     Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
-                                    finish();
+                                    restart();
                                 })
                                 .show();
                     } else {
@@ -319,7 +319,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         }
     }
 
-    private void finish() {
+    private void restart() {
         requireActivity().finish();
         requireActivity().overridePendingTransition(0, 0);
         startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
@@ -327,7 +327,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     private void setListener() {
         swDchaState.setOnPreferenceChangeListener((preference, o) -> {
-            if (!Common.isCfmDialog(requireActivity())) {
+            // 確認ダイアログが必要か
+            if (Common.isCfmDialog(requireActivity())) {
                 cfmDialog();
                 return false;
             }
@@ -337,7 +338,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         swKeepDchaState.setOnPreferenceChangeListener((preference, o) -> {
-            if (!Common.isCfmDialog(requireActivity())) {
+            // 確認ダイアログが必要か
+            if (Common.isCfmDialog(requireActivity())) {
                 cfmDialog();
                 return false;
             }
@@ -403,7 +405,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 }
             }
 
-            if (!Common.isCfmDialog(requireActivity())) {
+            // 確認ダイアログが必要か
+            if (Common.isCfmDialog(requireActivity())) {
                 cfmDialog();
                 return false;
             }
@@ -448,7 +451,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 }
             }
 
-            if (!Common.isCfmDialog(requireActivity())) {
+            // 確認ダイアログが必要か
+            if (Common.isCfmDialog(requireActivity())) {
                 cfmDialog();
                 return false;
             }
@@ -492,7 +496,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 }
             }
 
-            if (!Common.isCfmDialog(requireActivity())) {
+            // 確認ダイアログが必要か
+            if (Common.isCfmDialog(requireActivity())) {
                 cfmDialog();
                 return false;
             }
@@ -577,25 +582,26 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         preEnableDchaService.setOnPreferenceClickListener(preference -> {
-            if (!Common.isCfmDialog(requireActivity())) {
+            // 確認ダイアログが必要か
+            if (Common.isCfmDialog(requireActivity())) {
                 cfmDialog();
+                return false;
+            }
+
+            if (!Preferences.load(requireActivity(), "debug_restriction", false) && !tryBindDchaService()) {
+                // デバッグモードが無効かつdcha接続失敗
+                new AlertDialog.Builder(requireActivity())
+                        .setMessage(R.string.dialog_error_no_dcha)
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
                 return false;
             }
 
             new AlertDialog.Builder(requireActivity())
                     .setMessage(R.string.dialog_question_dcha)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                        if (!Preferences.load(requireActivity(), "debug_restriction", false) && !tryBindDchaService()) {
-                            new AlertDialog.Builder(requireActivity())
-                                    .setMessage(R.string.dialog_error_no_dcha)
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                    .show();
-                        } else {
-                            Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, true);
-                            requireActivity().finish();
-                            requireActivity().overridePendingTransition(0, 0);
-                            startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                        }
+                        Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, true);
+                        restart();
                     })
                     .setNegativeButton(R.string.dialog_common_cancel, null)
                     .show();
