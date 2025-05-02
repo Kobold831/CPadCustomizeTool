@@ -65,7 +65,6 @@ import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 import com.saradabar.cpadcustomizetool.data.task.ApkInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.DchaInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
-import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
 import com.saradabar.cpadcustomizetool.data.task.ResolutionTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -200,74 +199,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         }
     }
 
-    /* 再表示 */
+    /* 表示 */
     @Override
     public void onStart() {
         super.onStart();
-        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-            View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
-            AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
-            textView.setText(R.string.dialog_service_connecting);
-            AlertDialog waitForServiceDialog = new AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).create();
-            waitForServiceDialog.show();
-            new IDchaTask().execute(requireActivity(), new IDchaTask.Listener() {
-                @Override
-                public void onSuccess(IDchaService iDchaService) {
-                    mDchaService = iDchaService;
-
-                    if (waitForServiceDialog.isShowing()) {
-                        try {
-                            waitForServiceDialog.cancel();
-                        } catch (IllegalStateException | IllegalArgumentException ignored) {
-                        }
-                    }
-
-                    if (mDchaService == null) {
-                        if (!Preferences.load(requireActivity(), "debug_restriction", false)) {
-                            new AlertDialog.Builder(requireActivity())
-                                    .setCancelable(false)
-                                    .setMessage(R.string.dialog_dcha_failed)
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                                        Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
-                                        restart();
-                                    })
-                                    .show();
-                        }
-                    }
-
-                    try {
-                        setListener();
-                    } catch (IllegalStateException | IllegalArgumentException ignored) {
-                    }
-                }
-
-                @Override
-                public void onFailure() {
-                    if (waitForServiceDialog.isShowing()) {
-                        waitForServiceDialog.cancel();
-                    }
-
-                    if (!Preferences.load(requireActivity(), "debug_restriction", false)) {
-                        new AlertDialog.Builder(requireActivity())
-                                .setCancelable(false)
-                                .setMessage(R.string.dialog_dcha_failed)
-                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                                    Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
-                                    restart();
-                                })
-                                .show();
-                    } else {
-                        // debug mode
-                        try {
-                            setListener();
-                        } catch (IllegalStateException | IllegalArgumentException ignored) {
-                        }
-                    }
-                }
-            });
-        } else {
-            setListener();
-        }
+        setListener();
     }
 
     @Override
@@ -303,7 +239,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 String updateData = Common.getFilePath(requireActivity(), data.getData());
 
                 if (updateData != null) {
-                    if (!new DchaServiceUtil(requireActivity(), mDchaService).execSystemUpdate(updateData, 0)) {
+                    if (!execSystemUpdate(updateData, 0)) {
                         new AlertDialog.Builder(requireActivity())
                                 .setMessage(R.string.dialog_error)
                                 .setPositiveButton(R.string.dialog_common_ok, null)
@@ -316,6 +252,19 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                             .show();
                 }
                 break;
+        }
+    }
+
+    /** @noinspection SameParameterValue*/
+    private boolean execSystemUpdate(String s, int i) {
+        String updateFile = "/cache/update.zip";
+        try {
+            if (new DchaServiceUtil(requireActivity()).copyUpdateImage(s, updateFile)) {
+                return new DchaServiceUtil(requireActivity()).rebootPad(i, updateFile);
+            }
+            return false;
+        } catch (Exception ignored) {
+            return false;
         }
     }
 
@@ -333,7 +282,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 return false;
             }
 
-            new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus((boolean) o ? 3 : 0);
+            new DchaServiceUtil(requireActivity()).setSetupStatus((boolean) o ? 3 : 0);
             return false;
         });
 
@@ -347,7 +296,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             Preferences.save(requireActivity(), Constants.KEY_FLAG_KEEP_DCHA_STATE, (boolean) o);
 
             if ((boolean) o) {
-                new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
+                new DchaServiceUtil(requireActivity()).setSetupStatus(0);
             }
 
             requireActivity().startService(new Intent(requireActivity(), KeepService.class));
@@ -356,7 +305,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         swNavigation.setOnPreferenceChangeListener((preference, o) -> {
-            new DchaServiceUtil(requireActivity(), mDchaService).hideNavigationBar((boolean) o);
+            new DchaServiceUtil(requireActivity()).hideNavigationBar((boolean) o);
             return false;
         });
 
@@ -364,7 +313,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             Preferences.save(requireActivity(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, (boolean) o);
 
             if ((boolean) o) {
-                new DchaServiceUtil(requireActivity(), mDchaService).hideNavigationBar(false);
+                new DchaServiceUtil(requireActivity()).hideNavigationBar(false);
             }
 
             requireActivity().startService(new Intent(requireActivity(), KeepService.class));
@@ -415,7 +364,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 try {
                     if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                             Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(3);
+                        new DchaServiceUtil(requireActivity()).setSetupStatus(3);
                         Thread.sleep(100);
                     }
 
@@ -423,14 +372,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                     if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                             Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
+                        new DchaServiceUtil(requireActivity()).setSetupStatus(0);
                     }
                 } catch (Exception ignored) {
                     Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
 
                     if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                             Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
+                        new DchaServiceUtil(requireActivity()).setSetupStatus(0);
                     }
                 }
             } else {
@@ -461,7 +410,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 try {
                     if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                             Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(3);
+                        new DchaServiceUtil(requireActivity()).setSetupStatus(3);
                         Thread.sleep(100);
                     }
 
@@ -469,14 +418,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                     if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                             Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
+                        new DchaServiceUtil(requireActivity()).setSetupStatus(0);
                     }
                 } catch (Exception ignored) {
                     Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
 
                     if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                             Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                        new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
+                        new DchaServiceUtil(requireActivity()).setSetupStatus(0);
                     }
                     return false;
                 }
@@ -505,7 +454,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             try {
                 if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                         Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                    new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(3);
+                    new DchaServiceUtil(requireActivity()).setSetupStatus(3);
                     Thread.sleep(100);
                 }
 
@@ -513,14 +462,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                 if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                         Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                    new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
+                    new DchaServiceUtil(requireActivity()).setSetupStatus(0);
                 }
             } catch (Exception ignored) {
                 Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
 
                 if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
                         Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
-                    new DchaServiceUtil(requireActivity(), mDchaService).setSetupStatus(0);
+                    new DchaServiceUtil(requireActivity()).setSetupStatus(0);
                 }
                 return false;
             }
@@ -546,13 +495,13 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             listView.setAdapter(new HomeAppListView.AppListAdapter(requireActivity(), dataList));
             listView.setOnItemClickListener((parent, mView, position, id) -> {
-                new DchaServiceUtil(requireActivity(), mDchaService)
-                        .setPreferredHomeApp(getLauncherPackage(requireActivity()),
-                                Uri.fromParts("package",
-                                                installedAppList.get(position).activityInfo.packageName, null)
-                                        .toString().replace("package:", ""));
-                listView.invalidateViews();
-                initialize();
+                if (new DchaServiceUtil(requireActivity()).clearDefaultPreferredApp(getLauncherPackage(requireActivity()))) {
+                    if (new DchaServiceUtil(requireActivity()).setDefaultPreferredHomeApp(Uri.fromParts("package",
+                            installedAppList.get(position).activityInfo.packageName, null).toString().replace("package:", ""))) {
+                        listView.invalidateViews();
+                        initialize();
+                    }
+                }
             });
 
             new AlertDialog.Builder(requireActivity())

@@ -23,19 +23,16 @@ import androidx.preference.PreferenceManager;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
-import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
 import com.saradabar.cpadcustomizetool.data.task.IDchaUtilTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
-import jp.co.benesse.dcha.dchaservice.IDchaService;
 import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
 
 public class EmergencyActivity extends AppCompatActivity {
 
-    IDchaService mDchaService;
     IDchaUtilService mUtilService;
 
     @Override
@@ -54,42 +51,23 @@ public class EmergencyActivity extends AppCompatActivity {
             finishAndRemoveTask();
             return;
         }
-
-        new IDchaTask().execute(this, new IDchaTask.Listener() {
-            @Override
-            public void onSuccess(IDchaService iDchaService) {
-                mDchaService = iDchaService;
-
-                if (mDchaService == null) {
-                    Toast.makeText(EmergencyActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
-                    finishAndRemoveTask();
+        // メイン処理
+        switch (PreferenceManager.getDefaultSharedPreferences(EmergencyActivity.this).getString("emergency_mode", "")) {
+            case "1":
+                if (run(Constants.PKG_SHO_HOME, Constants.HOME_SHO)) {
+                    // 成功
+                    Toast.makeText(EmergencyActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
                 }
-
-                // メイン処理
-                switch (PreferenceManager.getDefaultSharedPreferences(EmergencyActivity.this).getString("emergency_mode", "")) {
-                    case "1":
-                        if (run(Constants.PKG_SHO_HOME, Constants.HOME_SHO)) {
-                            // 成功
-                            Toast.makeText(EmergencyActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                        }
-                        finishAndRemoveTask();
-                        break;
-                    case "2":
-                        if (run(Constants.PKG_CHU_HOME, Constants.HOME_CHU)) {
-                            // 成功
-                            Toast.makeText(EmergencyActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                        }
-                        finishAndRemoveTask();
-                        break;
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                Toast.makeText(EmergencyActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
-            }
-        });
+                break;
+            case "2":
+                if (run(Constants.PKG_CHU_HOME, Constants.HOME_CHU)) {
+                    // 成功
+                    Toast.makeText(EmergencyActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
+                }
+                finishAndRemoveTask();
+                break;
+        }
 
         new IDchaUtilTask().execute(this, new IDchaUtilTask.Listener() {
             @Override
@@ -138,12 +116,12 @@ public class EmergencyActivity extends AppCompatActivity {
 
         // DchaState 変更
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 1)) {
-            new DchaServiceUtil(this, mDchaService).setSetupStatus(3);
+            new DchaServiceUtil(this).setSetupStatus(3);
         }
 
         // ナビバー表示設定
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 2)) {
-            new DchaServiceUtil(this, mDchaService).hideNavigationBar(true);
+            new DchaServiceUtil(this).hideNavigationBar(true);
         }
         // 解像度修正
         int[] lcdSize = new DchaUtilServiceUtil(mUtilService).getLcdSize();
@@ -154,7 +132,7 @@ public class EmergencyActivity extends AppCompatActivity {
 
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 3)) {
             if (resolveInfo != null) {
-                if (!new DchaServiceUtil(this, mDchaService).setPreferredHomeApp(resolveInfo.activityInfo.packageName, packageName)) {
+                if (!setPreferredHomeApp(resolveInfo.activityInfo.packageName, packageName)) {
                     // 失敗
                     Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
                     return false;
@@ -168,13 +146,24 @@ public class EmergencyActivity extends AppCompatActivity {
         // タスクの消去
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 4)) {
             try {
-                mDchaService.removeTask(null);
+                new DchaServiceUtil(this).removeTask(null);
             } catch (Exception ignored) {
                 Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean setPreferredHomeApp(String s, String s1) {
+        try {
+            if (new DchaServiceUtil(this).clearDefaultPreferredApp(s)) {
+                return new DchaServiceUtil(this).setDefaultPreferredHomeApp(s1);
+            }
+            return false;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     @Override

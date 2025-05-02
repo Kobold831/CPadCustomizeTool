@@ -201,7 +201,7 @@ public class ApkInstallTask {
         };
     }
 
-    public interface doListener {
+    private interface doListener {
         void onPost(Context context, Listener listener, Object result, InstallEventListener installEventListener);
     }
 }

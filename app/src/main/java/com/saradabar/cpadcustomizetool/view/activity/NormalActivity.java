@@ -23,19 +23,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
 import com.saradabar.cpadcustomizetool.data.task.IDchaUtilTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
-import jp.co.benesse.dcha.dchaservice.IDchaService;
 import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
 
 public class NormalActivity extends AppCompatActivity {
 
-    IDchaService mDchaService;
     IDchaUtilService mUtilService;
 
     @Override
@@ -53,42 +50,25 @@ public class NormalActivity extends AppCompatActivity {
             finishAndRemoveTask();
             return;
         }
-        new IDchaTask().execute(this, new IDchaTask.Listener() {
-            @Override
-            public void onSuccess(IDchaService iDchaService) {
-                mDchaService = iDchaService;
-
-                if (mDchaService == null) {
-                    Toast.makeText(NormalActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
-                    finishAndRemoveTask();
+        ActivityManager activityManager = (ActivityManager) NormalActivity.this.getSystemService(ACTIVITY_SERVICE);
+        switch (PreferenceManager.getDefaultSharedPreferences(NormalActivity.this).getString("emergency_mode", "")) {
+            case "1":
+                if (run()) {
+                    // 成功
+                    activityManager.killBackgroundProcesses(Constants.PKG_SHO_HOME);
+                    Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
                 }
-                ActivityManager activityManager = (ActivityManager) NormalActivity.this.getSystemService(ACTIVITY_SERVICE);
-                switch (PreferenceManager.getDefaultSharedPreferences(NormalActivity.this).getString("emergency_mode", "")) {
-                    case "1":
-                        if (run()) {
-                            // 成功
-                            activityManager.killBackgroundProcesses(Constants.PKG_SHO_HOME);
-                            Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                        }
-                        finishAndRemoveTask();
-                        break;
-                    case "2":
-                        if (run()) {
-                            // 成功
-                            activityManager.killBackgroundProcesses(Constants.PKG_CHU_HOME);
-                            Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                        }
-                        finishAndRemoveTask();
-                        break;
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                Toast.makeText(NormalActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
-            }
-        });
+                break;
+            case "2":
+                if (run()) {
+                    // 成功
+                    activityManager.killBackgroundProcesses(Constants.PKG_CHU_HOME);
+                    Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
+                }
+                finishAndRemoveTask();
+                break;
+        }
 
         new IDchaUtilTask().execute(this, new IDchaUtilTask.Listener() {
             @Override
@@ -131,13 +111,13 @@ public class NormalActivity extends AppCompatActivity {
             try {
                 BenesseExtension.setDchaState(0);
             } catch (Exception ignored) {
-                new DchaServiceUtil(this, mDchaService).setSetupStatus(0);
+                new DchaServiceUtil(this).setSetupStatus(0);
             }
         }
 
         // ナビバー表示設定
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 2)) {
-            new DchaServiceUtil(this, mDchaService).hideNavigationBar(false);
+            new DchaServiceUtil(this).hideNavigationBar(false);
         }
 
         // 解像度の修正
@@ -153,7 +133,7 @@ public class NormalActivity extends AppCompatActivity {
 
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 3)) {
             if (resolveInfo != null) {
-                if (!new DchaServiceUtil(this, mDchaService).setPreferredHomeApp(resolveInfo.activityInfo.packageName,
+                if (!setPreferredHomeApp(resolveInfo.activityInfo.packageName,
                         Preferences.load(this, Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, ""))) {
                     // 失敗
                     Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
@@ -165,6 +145,17 @@ public class NormalActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+
+    private boolean setPreferredHomeApp(String s, String s1) {
+        try {
+            if (new DchaServiceUtil(this).clearDefaultPreferredApp(s)) {
+                return new DchaServiceUtil(this).setDefaultPreferredHomeApp(s1);
+            }
+            return false;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     @Override

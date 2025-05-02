@@ -22,20 +22,20 @@ public class IDchaTask {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
-            new Thread(() -> handler.post(() -> doInBackground(context, listener))).start();
+            new Thread(() ->
+                    handler.post(() ->
+                            doInBackground(context, listener))).start();
         });
     }
 
     protected void doInBackground(Context context, Listener listener) {
         if (!tryBindDchaService(context, listener)) {
-            listener.onFailure();
+            listener.onDo(null);
         }
     }
 
     public interface Listener {
-        void onSuccess(IDchaService iDchaService);
-
-        void onFailure();
+        void onDo(IDchaService iDchaService);
     }
 
     public boolean tryBindDchaService(@NonNull Context context, Listener listener) {
@@ -44,7 +44,7 @@ public class IDchaTask {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 IDchaService iDchaService = IDchaService.Stub.asInterface(iBinder);
-                listener.onSuccess(iDchaService);
+                listener.onDo(iDchaService);
             }
 
             @Override
