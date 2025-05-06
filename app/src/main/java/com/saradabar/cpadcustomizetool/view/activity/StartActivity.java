@@ -43,15 +43,18 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.data.task.ResolutionTask;
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.flagment.AppSettingsFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 
 import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
@@ -78,7 +81,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
 
-                switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
+                switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT)) {
                     case Constants.MODEL_CT2:
                     case Constants.MODEL_CT3:
                         marginLayoutParams.setMargins(64, 0, 64, 0);
@@ -94,7 +97,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
 
-                switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
+                switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT)) {
                     case Constants.MODEL_CT2:
                     case Constants.MODEL_CT3:
                         marginLayoutParams.setMargins(112, 0, 112, 0);
@@ -171,28 +174,20 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
         }
     }
 
-    /* 再表示 */
+    /* 表示 */
     @Override
     public void onResume() {
         super.onResume();
 
-        /* DchaServiceが機能していな場合は再起動 */
-        if (!Preferences.load(this, "debug_restriction", false)) {
-            if (Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-                if (!bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
-                    @Override
-                    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                    }
-
-                    @Override
-                    public void onServiceDisconnected(ComponentName componentName) {
-                    }
-                }, Context.BIND_AUTO_CREATE)) {
-                    Preferences.save(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
-                    startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                    finish();
-                }
-            }
+        // デバッグモードが無効かつ DchaService を使う設定かつ　DchaService と通信できないかどうか
+        if (!Preferences.load(this, "debug_restriction", Constants.DEF_BOOL) &&
+                Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL) &&
+                !Common.isDchaActive(this)) {
+            // DchaService と通信できないならアプリを再起動
+            Preferences.save(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
+            startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            overridePendingTransition(0, 0);
+            finish();
         }
     }
 
@@ -208,11 +203,12 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
                 if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
                     new AlertDialog.Builder(this)
                             .setMessage(R.string.dialog_new_version_available)
-                            .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
+                            .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) ->
+                                    startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
                             .setNegativeButton(getString(R.string.dialog_common_cancel), null)
                             .show();
                 }
-            } catch (Exception ignored) {
+            } catch (JSONException | IOException ignored) {
             }
         }
     }

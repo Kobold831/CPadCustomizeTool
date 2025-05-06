@@ -12,6 +12,7 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +22,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.Fragment;
 
+import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.stephentuso.welcome.WelcomePage;
 
 public class WelcomeFragment extends Fragment implements WelcomePage.OnChangeListener {
@@ -33,7 +37,12 @@ public class WelcomeFragment extends Fragment implements WelcomePage.OnChangeLis
 
         textView.setText(getString(R.string.wel_terms_of_service));
         view.findViewById(R.id.wel_no).setOnClickListener(v -> requireActivity().finishAffinity());
-        view.findViewById(R.id.wel_yes).setOnClickListener(v -> requireActivity().finish());
+        view.findViewById(R.id.wel_yes).setOnClickListener(v -> {
+            Preferences.save(requireActivity(), Constants.KEY_FLAG_APP_WELCOME_COMPLETE, true);
+            startActivity(new Intent(requireActivity(), MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            requireActivity().overridePendingTransition(0, 0);
+            requireActivity().finish();
+        });
         return view;
     }
 

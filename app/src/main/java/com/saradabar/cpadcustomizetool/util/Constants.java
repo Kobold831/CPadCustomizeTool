@@ -83,6 +83,7 @@ public class Constants {
     public static final String BC_COMPATSCREEN = "bc:compatscreen";
 
     // 設定キー
+    public static final String KEY_FLAG_APP_WELCOME_COMPLETE = "key_flag_app_welcome_complete";
     public static final String KEY_FLAG_APP_SETTINGS_COMPLETE = "settings";
     public static final String KEY_FLAG_APP_START_UPDATE_CHECK = "update";
     public static final String KEY_FLAG_DCHA_FUNCTION = "dcha_service";

@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        android:title="@string/pre_app_category_start_settings">
+        android:title="@string/pre_app_category_start_settings"
+        app:allowDividerAbove="false">
 
         <SwitchPreferenceCompat
             android:key="pre_app_update_check"
@@ -12,7 +13,8 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/pre_app_category_settings">
+        android:title="@string/pre_app_category_settings"
+        app:allowDividerAbove="false">
 
         <SwitchPreferenceCompat
             android:key="pre_app_use_dcha"
@@ -32,7 +34,8 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/pre_app_category_update">
+        android:title="@string/pre_app_category_update"
+        app:allowDividerAbove="false">
 
         <Preference
             android:key="pre_app_update_mode"
@@ -41,7 +44,8 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/pre_app_category_log">
+        android:title="@string/pre_app_category_log"
+        app:allowDividerAbove="false">
 
         <Preference
             android:key="pre_app_crash_log"
@@ -54,7 +58,8 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/pre_app_category_noti">
+        android:title="@string/pre_app_category_noti"
+        app:allowDividerAbove="false">
 
         <SwitchPreferenceCompat
             android:key="pre_app_noti_always"
@@ -65,11 +70,12 @@
     <PreferenceCategory
         android:key="pre_app_category_debug"
         android:title="デバッグ"
-        app:isPreferenceVisible="false">
+        app:isPreferenceVisible="false"
+        app:allowDividerAbove="false">
 
         <SwitchPreferenceCompat
             android:key="pre_app_debug_restriction"
-            android:title="" />
+            android:title="デバッグモード" />
 
         <Preference
             android:key="pre_app_debug_force_crash"

@@ -15,20 +15,14 @@ package com.saradabar.cpadcustomizetool;
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
 import android.Manifest;
-import android.app.ActivityManager;
-import android.app.Service;
 import android.app.admin.DevicePolicyManager;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.ComponentName;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
@@ -40,7 +34,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import com.rosan.dhizuku.api.Dhizuku;
@@ -56,7 +49,7 @@ import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.view.activity.CrashLogActivity;
+import com.saradabar.cpadcustomizetool.view.activity.CrashScreenActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WelAppActivity;
@@ -75,8 +68,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import jp.co.benesse.dcha.dchaservice.IDchaService;
-
 /** @noinspection deprecation*/
 public class MainActivity extends AppCompatActivity implements DownloadEventListener, InstallEventListener {
 
@@ -84,8 +75,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     AppCompatTextView progressPercentText;
     AppCompatTextView progressByteText;
     ProgressBar dialogProgressBar;
-
-    IDchaService mDchaService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -97,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         /* 前回クラッシュしているかどうか */
         if (Preferences.load(this, Constants.KEY_FLAG_ERROR_CRASH, Constants.DEF_BOOL)) {
             // クラッシュ画面表示
-            showCrashView();
+            showCrashScreen();
             return;
         }
 
@@ -116,62 +105,26 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         }
     }
 
-    private void showCrashView() {
-        setContentView(R.layout.activity_splash);
+    private void showCrashScreen() {
+        startActivity(new Intent(this, CrashScreenActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+        overridePendingTransition(0, 0);
+        finish();
+    }
 
-        AppCompatButton btnMain = findViewById(R.id.act_splash_btn_main);
-        AppCompatButton btnClearAppData = findViewById(R.id.act_splash_btn_clear_app_data);
-        AppCompatButton btnOpenWeb = findViewById(R.id.act_splash_btn_open_web);
-        AppCompatButton btnSendCrash = findViewById(R.id.act_splash_btn_send_crash);
-        AppCompatButton btnOpenCrash = findViewById(R.id.act_splash_btn_open_crash);
-
-        btnMain.setOnClickListener(v -> {
-            View contentView = getWindow().getDecorView().findViewById(android.R.id.content);
-            contentView.setVisibility(View.GONE);
-            Preferences.save(this, Constants.KEY_FLAG_ERROR_CRASH, false);
-            init();
-        });
-
-        btnClearAppData.setOnClickListener(v -> new AlertDialog.Builder(this)
-                .setMessage(R.string.dialog_confirm_delete)
-                .setPositiveButton(getString(R.string.dialog_common_yes), (dialog, which) -> {
-                    ActivityManager activityManager = (ActivityManager) getSystemService(Service.ACTIVITY_SERVICE);
-                    activityManager.clearApplicationUserData();
-                })
-                .setNegativeButton(getString(R.string.dialog_common_cancel), null)
-                .show());
-
-        btnOpenWeb.setOnClickListener(v -> startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", "https://docs.google.com/document/d/1NcdovWYrOTPrwvzDrYF0hUSg3T7zyQxnef27rTKU_SY/edit?usp=drive_link")));
-
-        btnSendCrash.setOnClickListener(v -> {
-            try {
-                ArrayList<String> arrayList = Preferences.load(this, Constants.KEY_LIST_CRASH_LOG);
-
-                if (arrayList == null) {
-                    new AlertDialog.Builder(this)
-                            .setMessage(R.string.dialog_error)
-                            .setPositiveButton(R.string.dialog_common_ok, null)
-                            .show();
-                    return;
-                }
-                ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                //noinspection SequencedCollectionMethodCanBeUsed
-                clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(arrayList.size() - 1)));
-                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK));
-                new AlertDialog.Builder(this)
-                        .setMessage("ご協力ありがとうございます。")
-                        .setPositiveButton(R.string.dialog_common_ok, null)
-                        .show();
-            } catch (Exception e) {
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.dialog_title_error)
-                        .setMessage(e.getMessage())
-                        .setPositiveButton(R.string.dialog_common_ok, null)
-                        .show();
+    private void showWelcome() {
+        if (Preferences.load(this, Constants.KEY_FLAG_APP_WELCOME_COMPLETE, Constants.DEF_BOOL)) {
+            /* サポート端末か確認 */
+            if (supportModelCheck()) {
+                /* DchaServiceを確認 */
+                checkDchaService();
+            } else {
+                supportModelError();
             }
-        });
-
-        btnOpenCrash.setOnClickListener(v -> startActivity(new Intent(this, CrashLogActivity.class)));
+        } else {
+            new WelcomeHelper(this, WelAppActivity.class).forceShow();
+            overridePendingTransition(0, 0);
+            finish();
+        }
     }
 
     /* アップデートチェック */
@@ -183,8 +136,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     /* ダウンロード完了 */
     @Override
     public void onDownloadComplete(int reqCode) {
-        ArrayList<String> installFileArrayList = new ArrayList<>();
-
+        cancelLoadingDialog();
         switch (reqCode) {
             /* アップデートチェック要求の場合 */
             case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
@@ -194,19 +146,16 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
 
                     if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
-                        cancelLoadingDialog();
                         showUpdateDialog(jsonObj3.getString("description"), jsonObj3.getString("url"));
                     } else {
-                        cancelLoadingDialog();
-                        new WelcomeHelper(this, WelAppActivity.class).forceShow();
+                        showWelcome();
                     }
                 } catch (JSONException | IOException ignored) {
-                    onDownloadError(0);
+                    onDownloadError(reqCode);
                 }
                 break;
             /* APKダウンロード要求の場合 */
             case Constants.REQUEST_DOWNLOAD_APK:
-                cancelLoadingDialog();
                 switch (Preferences.load(this, Constants.KEY_INT_UPDATE_MODE, 1)) {
                     case 0:
                         startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
@@ -221,11 +170,11 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                     .setCancelable(false)
                                     .setTitle(getString(R.string.dialog_title_error))
                                     .setMessage(getString(R.string.dialog_no_installer, jsonObj3.getString("url")))
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
                                     .show();
                         } catch (Exception ignored) {
                             Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
-                            finish();
+                            init();
                         }
                         break;
                     case 2:
@@ -238,13 +187,11 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_installer))
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
                                     .show();
                             return;
                         }
-                        //noinspection SequencedCollectionMethodCanBeUsed
-                        installFileArrayList.add(0, new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
-                        new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
+                        new ApkInstallTask().execute(this, apkInstallTaskListener(), new ArrayList<>(List.of(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                     case 4:
                         if (!isDhizukuActive(this)) {
@@ -252,17 +199,13 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_installer))
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
                                     .show();
                             return;
                         }
-                        //noinspection SequencedCollectionMethodCanBeUsed
-                        installFileArrayList.add(0, new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
-                        new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
+                        new ApkInstallTask().execute(this, apkInstallTaskListener(), new ArrayList<>(List.of(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                 }
-                break;
-            default:
                 break;
         }
     }
@@ -284,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 new AlertDialog.Builder(MainActivity.this)
                         .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
                         .show();
             }
 
@@ -295,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 new AlertDialog.Builder(MainActivity.this)
                         .setMessage(R.string.dialog_failure_silent_install)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
                         .show();
             }
         };
@@ -305,14 +248,14 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     @Override
     public void onDownloadError(int reqCode) {
         cancelLoadingDialog();
-        new WelcomeHelper(this, WelAppActivity.class).forceShow();
+        showWelcome();
     }
 
     /* サーバー接続エラー */
     @Override
     public void onConnectionError(int reqCode) {
         cancelLoadingDialog();
-        new WelcomeHelper(this, WelAppActivity.class).forceShow();
+        showWelcome();
     }
 
     @Override
@@ -347,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
             try {
                 startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_UPDATE_INFO).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            } catch (Exception ignored) {
+            } catch (ActivityNotFoundException ignored) {
                 Toast.makeText(this, R.string.toast_no_browser, Toast.LENGTH_SHORT).show();
             }
         });
@@ -374,8 +317,8 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     progressDialog.setMessage("");
                     progressDialog.show();
                 })
-                .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> new WelcomeHelper(this, WelAppActivity.class).forceShow())
-                .setNeutralButton("設定", (dialog2, which2) -> {
+                .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> showWelcome())
+                .setNeutralButton("設定", (dialog, which) -> {
                     View v = getLayoutInflater().inflate(R.layout.layout_update_list, null);
                     List<UpdateModeListView.AppData> dataList = new ArrayList<>();
                     int i = 0;
@@ -393,13 +336,14 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     listView.setOnItemClickListener((parent, mView, position, id) -> {
                         switch (position) {
                             case 0:
-                                if (Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
+                                if (Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2 ||
+                                        Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT3) {
                                     Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 } else {
                                     new AlertDialog.Builder(v.getContext())
                                             .setMessage(getString(R.string.dialog_error_no_mode))
-                                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                            .setPositiveButton(R.string.dialog_common_ok, null)
                                             .show();
                                 }
                                 break;
@@ -408,24 +352,26 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                 listView.invalidateViews();
                                 break;
                             case 2:
-                                if (bindService(Constants.ACTION_DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE) && Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                                if (Common.isDchaActive(this) &&
+                                        Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
                                     Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 } else {
                                     new AlertDialog.Builder(v.getContext())
                                             .setMessage(getString(R.string.dialog_error_no_mode))
-                                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                            .setPositiveButton(R.string.dialog_common_ok, null)
                                             .show();
                                 }
                                 break;
                             case 3:
-                                if (((DevicePolicyManager) v.getContext().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(v.getContext().getPackageName()) && Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                                if (((DevicePolicyManager) v.getContext().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(v.getContext().getPackageName()) &&
+                                        Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
                                     Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 } else {
                                     new AlertDialog.Builder(v.getContext())
                                             .setMessage(getString(R.string.dialog_error_no_mode))
-                                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                            .setPositiveButton(R.string.dialog_common_ok, null)
                                             .show();
                                 }
                                 break;
@@ -441,16 +387,20 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                         }
                                         Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                         listView.invalidateViews();
-                                    } catch (Exception ignored) {
+                                    } catch (PackageManager.NameNotFoundException ignored) {
+                                        new AlertDialog.Builder(v.getContext())
+                                                .setMessage(getString(R.string.dialog_error_no_mode))
+                                                .setPositiveButton(R.string.dialog_common_ok, null)
+                                                .show();
                                     }
                                 } else {
                                     if (!Dhizuku.init(v.getContext())) {
                                         new AlertDialog.Builder(v.getContext())
                                                 .setMessage(getString(R.string.dialog_error_no_mode))
-                                                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                                .setPositiveButton(R.string.dialog_common_ok, null)
                                                 .show();
+                                        return;
                                     }
-
                                     Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
                                         @Override
                                         public void onRequestPermission(int grantResult) {
@@ -461,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                                 } else {
                                                     new AlertDialog.Builder(v.getContext())
                                                             .setMessage(R.string.dialog_dhizuku_deny_permission)
-                                                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                                                            .setPositiveButton(R.string.dialog_common_ok, null)
                                                             .show();
                                                 }
                                             });
@@ -476,10 +426,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                             .setCancelable(false)
                             .setView(v)
                             .setTitle(getString(R.string.dialog_title_select_mode))
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                                finish();
-                                startActivity(new Intent(this, getClass()));
-                            })
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> init())
                             .show();
                 })
                 .show();
@@ -528,16 +475,17 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     /* DchaService動作チェック */
     private void checkDchaService() {
-        /* DchaServiceを使用するか確認 */
-        if (Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-            if (!bindService(Constants.ACTION_DCHA_SERVICE, mDchaServiceConnection, Context.BIND_AUTO_CREATE)) {
+        /* DchaServiceを使用する設定かどうか */
+        if (Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
+            // dcha接続不可かどうか
+            if (!Common.isDchaActive(this)) {
                 new AlertDialog.Builder(this)
                         .setCancelable(false)
                         .setTitle(R.string.dialog_title_error)
                         .setMessage(R.string.dialog_error_check_dcha)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             Preferences.save(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
-                            confCheck();
+                            init();
                         })
                         .show();
                 return;
@@ -567,7 +515,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     private void confCheckCT2() {
         Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2);
 
-        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
             startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             overridePendingTransition(0, 0);
             finish();
@@ -580,7 +528,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     private void confCheckCT3() {
         Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT3);
 
-        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
             if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 overridePendingTransition(0, 0);
@@ -595,7 +543,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     private void confCheckCTX() {
         Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CTX);
 
-        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
             if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 overridePendingTransition(0, 0);
@@ -610,7 +558,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     private void confCheckCTZ() {
         Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CTZ);
 
-        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
+        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
             if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 overridePendingTransition(0, 0);
@@ -628,12 +576,10 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 .setTitle(R.string.dialog_title_notice_start)
                 .setMessage(R.string.dialog_app_start_message)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                    if (isPermissionCheck()) {
-                        Preferences.save(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, true);
-                        startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                        overridePendingTransition(0, 0);
-                        finish();
-                    }
+                    Preferences.save(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, true);
+                    finish();
+                    startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                    overridePendingTransition(0, 0);
                 })
                 .show();
     }
@@ -650,7 +596,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                             startActivityForResult(new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.fromParts("package", getPackageName(), null)).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION), Constants.REQUEST_ACTIVITY_PERMISSION);
                         }
                     })
-                    .setNeutralButton(R.string.dialog_common_cancel, (dialog, which) -> finishAffinity())
+                    .setNeutralButton(R.string.dialog_common_cancel, (dialog, which) -> init())
                     .show();
             return false;
         }
@@ -703,21 +649,10 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         try {
             context.getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, PackageManager.GET_ACTIVITIES);
             return true;
-        } catch (PackageManager.NameNotFoundException e) {
+        } catch (PackageManager.NameNotFoundException ignored) {
             return false;
         }
     }
-
-    ServiceConnection mDchaServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            mDchaService = IDchaService.Stub.asInterface(iBinder);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-        }
-    };
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -734,7 +669,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                     requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
                                 }
                             })
-                            .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> finishAffinity())
+                            .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> init())
                             .show();
                     return;
                 }
@@ -752,7 +687,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                     requestPermissions(new String[]{"jp.co.benesse.dcha.permission.ACCESS_SYSTEM"}, 1);
                                 }
                             })
-                            .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> finishAffinity())
+                            .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> init())
                             .show();
                     return;
                 }
@@ -760,10 +695,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         }
 
         if (isPermissionCheck()) {
-            Preferences.save(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, true);
-            startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            overridePendingTransition(0, 0);
-            finish();
+            init();
         }
     }
 
@@ -772,32 +704,10 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case Constants.REQUEST_ACTIVITY_UPDATE:
-                if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
-                    if (supportModelCheck()) {
-                        checkDchaService();
-                    } else {
-                        supportModelError();
-                    }
-                } else {
-                    new WelcomeHelper(this, WelAppActivity.class).forceShow();
-                }
-                break;
             case WelcomeHelper.DEFAULT_WELCOME_SCREEN_REQUEST:
             case Constants.REQUEST_ACTIVITY_PERMISSION:
-                if (supportModelCheck()) {
-                    checkDchaService();
-                } else {
-                    supportModelError();
-                }
+                init();
                 break;
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mDchaService != null) {
-            unbindService(mDchaServiceConnection);
         }
     }
 
@@ -820,13 +730,13 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
                     }
-                } catch (Exception ignored) {
+                } catch (IOException ignored) {
                 }
                 cancelLoadingDialog();
                 AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
                         .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
                         .create();
 
                 if (!alertDialog.isShowing()) {
@@ -844,13 +754,13 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
                     }
-                } catch (Exception ignored) {
+                } catch (IOException ignored) {
                 }
                 cancelLoadingDialog();
                 new AlertDialog.Builder(MainActivity.this)
                         .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
                         .show();
             }
 
@@ -863,14 +773,14 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
                     }
-                } catch (Exception ignored) {
+                } catch (IOException ignored) {
                 }
                 cancelLoadingDialog();
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
                         .show();
             }
         };

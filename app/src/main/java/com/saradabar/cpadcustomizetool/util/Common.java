@@ -13,12 +13,15 @@
 package com.saradabar.cpadcustomizetool.util;
 
 import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Environment;
+import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.Log;
@@ -50,6 +53,20 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class Common {
+
+    public static boolean isDchaActive(Context context) {
+        return context.bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                context.unbindService(this);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                context.unbindService(this);
+            }
+        }, Context.BIND_AUTO_CREATE);
+    }
 
     public static ArrayList<String> exec(String str) {
         Process process = null;
