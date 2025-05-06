@@ -34,12 +34,8 @@ public class DchaInstallTask {
     }
 
     protected void doInBackground(Context context, Listener listener, String installData) {
-        try {
-            doListener().onPost(listener, new DchaServiceUtil(context).installApp(installData, 2));
-        } catch (Exception ignored) {
-            // 失敗
-            doListener().onPost(listener, false);
-        }
+        new DchaServiceUtil(context).installApp(installData, 2, object ->
+                doListener().onPost(listener, object.equals(true)));
     }
 
     public interface Listener {

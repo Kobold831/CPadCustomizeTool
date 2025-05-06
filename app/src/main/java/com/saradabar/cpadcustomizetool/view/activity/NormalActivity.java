@@ -111,13 +111,15 @@ public class NormalActivity extends AppCompatActivity {
             try {
                 BenesseExtension.setDchaState(0);
             } catch (Exception ignored) {
-                new DchaServiceUtil(this).setSetupStatus(0);
+                new DchaServiceUtil(this).setSetupStatus(0, object -> {
+                });
             }
         }
 
         // ナビバー表示設定
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 2)) {
-            new DchaServiceUtil(this).hideNavigationBar(false);
+            new DchaServiceUtil(this).hideNavigationBar(false, object -> {
+            });
         }
 
         // 解像度の修正
@@ -132,30 +134,19 @@ public class NormalActivity extends AppCompatActivity {
         ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
 
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 3)) {
-            if (resolveInfo != null) {
-                if (!setPreferredHomeApp(resolveInfo.activityInfo.packageName,
-                        Preferences.load(this, Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, ""))) {
-                    // 失敗
-                    Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-            } else {
+            if (resolveInfo == null) {
                 Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 return false;
             }
+            new DchaServiceUtil(this).setPreferredHomeApp(resolveInfo.activityInfo.packageName,
+                    Preferences.load(this, Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, ""), object -> {
+                        if (!object.equals(true)) {
+                            // 失敗
+                            Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
+                        }
+                    });
         }
         return true;
-    }
-
-    private boolean setPreferredHomeApp(String s, String s1) {
-        try {
-            if (new DchaServiceUtil(this).clearDefaultPreferredApp(s)) {
-                return new DchaServiceUtil(this).setDefaultPreferredHomeApp(s1);
-            }
-            return false;
-        } catch (Exception ignored) {
-            return false;
-        }
     }
 
     @Override

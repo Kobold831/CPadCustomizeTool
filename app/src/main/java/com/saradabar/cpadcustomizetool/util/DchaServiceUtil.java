@@ -7,565 +7,325 @@ import android.provider.Settings;
 
 import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import jp.co.benesse.dcha.dchaservice.IDchaService;
-
 /** @noinspection unused*/
 public class DchaServiceUtil {
 
-    final Object objLock = new Object();
-
     Context mContext;
-    IDchaService mDchaService;
 
     public DchaServiceUtil(Context context) {
         mContext = context;
     }
 
-    public void cancelSetup() {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    try {
-                        objLock.wait();
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-                try {
-                    mDchaService.cancelSetup();
-                } catch (RemoteException ignored) {
-                }
-            });
-        } catch (Exception ignored) {
-        }
+    public interface Listener {
+        void onResult(Object object);
     }
 
-    public boolean checkPadRooted() {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                return mDchaService.checkPadRooted();
-            }).get();
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public boolean clearDefaultPreferredApp(String packageName) {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                mDchaService.clearDefaultPreferredApp(packageName);
-                return true;
-            }).get();
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public boolean copyFile(String srcFilePath, String dstFilePath) {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                return mDchaService.copyFile(srcFilePath, dstFilePath);
-            }).get();
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public boolean copyUpdateImage(String srcFilePath, String dstFilePath) {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                return mDchaService.copyFile(srcFilePath, dstFilePath.startsWith("/cache") ? dstFilePath : "/cache/../" + dstFilePath);
-            }).get();
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public boolean deleteFile(String path) {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                return mDchaService.deleteFile(path);
-            }).get();
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public void disableADB() {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    try {
-                        objLock.wait();
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-                try {
-                    mDchaService.disableADB();
-                } catch (RemoteException ignored) {
-                }
-            });
-        } catch (Exception ignored) {
-            Settings.Secure.putInt(mContext.getContentResolver(), "adb_enabled", 0);
-        }
-    }
-
-    public String getCanonicalExternalPath(String linkPath) {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                return mDchaService.getCanonicalExternalPath(linkPath);
-            }).get();
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    public String getForegroundPackageName() {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                return mDchaService.getForegroundPackageName();
-            }).get();
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    public int getSetupStatus() {
-        if (Common.isBenesseExtensionExist()) {
-            return BenesseExtension.getDchaState();
-        } else {
+    public void cancelSetup(Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
             try {
-                ExecutorService executorService = Executors.newSingleThreadExecutor();
-                return executorService.submit(() -> {
-                    new IDchaTask().execute(mContext, iDchaService -> {
-                        mDchaService = iDchaService;
-                        synchronized (objLock) {
-                            objLock.notify();
-                        }
-                    });
-                    synchronized (objLock) {
-                        objLock.wait();
-                    }
-                    return mDchaService.getSetupStatus();
-                }).get();
-            } catch (Exception ignored) {
-                return -1;
+                iDchaService.cancelSetup();
+                listener.onResult(true);
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
             }
-        }
+        });
     }
 
-    public int getUserCount() {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
+    public void checkPadRooted(Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                listener.onResult(iDchaService.checkPadRooted());
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void clearDefaultPreferredApp(String packageName, Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                iDchaService.clearDefaultPreferredApp(packageName);
+                listener.onResult(true);
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void copyFile(String srcFilePath, String dstFilePath, Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                listener.onResult(iDchaService.copyFile(srcFilePath, dstFilePath));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void copyUpdateImage(String srcFilePath, String dstFilePath, Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                listener.onResult(iDchaService.copyUpdateImage(srcFilePath, dstFilePath.startsWith("/cache") ? dstFilePath : "/cache/../" + dstFilePath));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void deleteFile(String path, Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                listener.onResult(iDchaService.deleteFile(path));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void disableADB(Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                iDchaService.disableADB();
+                listener.onResult(true);
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void getCanonicalExternalPath(String linkPath, Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                listener.onResult(iDchaService.getCanonicalExternalPath(linkPath));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void getForegroundPackageName(Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                listener.onResult(iDchaService.getForegroundPackageName());
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void getSetupStatus(Listener listener) {
+        if (Common.isBenesseExtensionExist()) {
+            listener.onResult(BenesseExtension.getDchaState());
+        } else {
+            new IDchaTask().execute(mContext, iDchaService -> {
+                try {
+                    listener.onResult(iDchaService.getSetupStatus());
+                } catch (RemoteException e) {
+                    listener.onResult(e.getMessage());
                 }
-                return mDchaService.getUserCount();
-            }).get();
-        } catch (Exception ignored) {
-            return -1;
+            });
         }
     }
 
-    public void hideNavigationBar(boolean hide) {
-        try {
-            if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
-                ExecutorService executorService = Executors.newSingleThreadExecutor();
-                executorService.submit(() -> {
-                    new IDchaTask().execute(mContext, iDchaService -> {
-                        mDchaService = iDchaService;
-                        synchronized (objLock) {
-                            objLock.notify();
-                        }
-                    });
-                    synchronized (objLock) {
-                        try {
-                            objLock.wait();
-                        } catch (InterruptedException ignored) {
-                        }
-                    }
-                    try {
-                        mDchaService.hideNavigationBar(hide);
-                    } catch (RemoteException ignored) {
+    public void getUserCount(Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                listener.onResult(iDchaService.getUserCount());
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void hideNavigationBar(boolean hide, Listener listener) {
+        if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
+            new IDchaTask().execute(mContext, iDchaService -> {
+                try {
+                    iDchaService.hideNavigationBar(hide);
+                    listener.onResult(true);
+                } catch (RemoteException e) {
+                    listener.onResult(e.getMessage());
+                }
+            });
+        } else {
+            Settings.System.putInt(mContext.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, hide ? 1 : 0);
+        }
+    }
+
+    public void installApp(String path, int installFlag, Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                listener.onResult(iDchaService.installApp(path, installFlag));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void isDeviceEncryptionEnabled(Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                listener.onResult(iDchaService.isDeviceEncryptionEnabled());
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void rebootPad(int rebootMode, String srcFile, Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                iDchaService.rebootPad(rebootMode, srcFile);
+                listener.onResult(true);
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void removeTask(String packageName, Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                iDchaService.removeTask(packageName);
+                listener.onResult(true);
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void sdUnmount(Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                iDchaService.sdUnmount();
+                listener.onResult(true);
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void setDefaultParam(Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                iDchaService.setDefaultParam();
+                listener.onResult(true);
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void setDefaultPreferredHomeApp(String packageName, Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                iDchaService.setDefaultPreferredHomeApp(packageName);
+                listener.onResult(true);
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void setPermissionEnforced(boolean enforced, Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                iDchaService.setPermissionEnforced(enforced);
+                listener.onResult(true);
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void setSetupStatus(int status, Listener listener) {
+        // BenesseExtensionが存在してかつCT3ではないか
+        if (Common.isBenesseExtensionExist() &&
+                Preferences.load(mContext, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT3) {
+            BenesseExtension.setDchaState(status);
+            listener.onResult(true);
+            return;
+        }
+
+        // BenesseExtensionが存在しないまたはCT3
+        // Dchaを使うかどうか
+        if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
+            new IDchaTask().execute(mContext, iDchaService -> {
+                try {
+                    iDchaService.setSetupStatus(status);
+                    listener.onResult(true);
+                } catch (RemoteException e) {
+                    listener.onResult(e.getMessage());
+                }
+            });
+        } else {
+            Settings.System.putInt(mContext.getContentResolver(), Constants.DCHA_STATE, status);
+            listener.onResult(true);
+        }
+    }
+
+    public void setSystemTime(String time, String timeFormat, Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                iDchaService.setSystemTime(time, timeFormat);
+                listener.onResult(true);
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void uninstallApp(String packageName, int uninstallFlag, Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                listener.onResult(iDchaService.uninstallApp(packageName, uninstallFlag));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void verifyUpdateImage(String updateFile, Listener listener) {
+        new IDchaTask().execute(mContext, iDchaService -> {
+            try {
+                listener.onResult(iDchaService.verifyUpdateImage(updateFile));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void setPreferredHomeApp(String s, String s1, Listener listener) {
+        clearDefaultPreferredApp(s, object -> {
+            if (object.equals(true)) {
+                setDefaultPreferredHomeApp(s1, object1 -> {
+                    if (object1.equals(true)) {
+                        listener.onResult(true);
+                    } else {
+                        listener.onResult(false);
                     }
                 });
             } else {
-                Settings.System.putInt(mContext.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, hide ? 1 : 0);
+                listener.onResult(false);
             }
-        } catch (Exception ignored) {
-        }
+        });
     }
 
-    public boolean installApp(String path, int installFlag) {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
+    public void execSystemUpdate(String s, int i, Listener listener) {
+        String updateFile = "/cache/update.zip";
+
+        copyUpdateImage(s, updateFile, object -> {
+            if (object.equals(true)) {
+                rebootPad(i, updateFile, object1 -> {
+                    if (object1.equals(true)) {
+                        listener.onResult(true);
+                    } else {
+                        listener.onResult(false);
                     }
                 });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                return mDchaService.installApp(path, installFlag);
-            }).get();
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public boolean isDeviceEncryptionEnabled() {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                return mDchaService.isDeviceEncryptionEnabled();
-            }).get();
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public boolean rebootPad(int rebootMode, String srcFile) {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                mDchaService.rebootPad(rebootMode, srcFile);
-                return true;
-            }).get();
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public void removeTask(String packageName) {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    try {
-                        objLock.wait();
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-                try {
-                    mDchaService.removeTask(packageName);
-                } catch (RemoteException ignored) {
-                }
-            });
-        } catch (Exception ignored) {
-        }
-    }
-
-    public void sdUnmount() {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    try {
-                        objLock.wait();
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-                try {
-                    mDchaService.sdUnmount();
-                } catch (RemoteException ignored) {
-                }
-            });
-        } catch (Exception ignored) {
-        }
-    }
-
-    public boolean setDefaultParam() {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                mDchaService.setDefaultParam();
-                return true;
-            }).get();
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public boolean setDefaultPreferredHomeApp(String packageName) {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                mDchaService.setDefaultPreferredHomeApp(packageName);
-                return true;
-            }).get();
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public void setPermissionEnforced(boolean enforced) {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    try {
-                        objLock.wait();
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-                try {
-                    mDchaService.setPermissionEnforced(enforced);
-                } catch (RemoteException ignored) {
-                }
-            });
-        } catch (Exception ignored) {
-        }
-    }
-
-    public void setSetupStatus(int status) {
-        try {
-            // BenesseExtensionが存在してかつCT3ではないか
-            if (Common.isBenesseExtensionExist() &&
-                    Preferences.load(mContext, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT3) {
-                BenesseExtension.setDchaState(status);
             } else {
-                // BenesseExtensionが存在しないまたはCT3
-                // Dchaを使うかどうか
-                if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
-                    ExecutorService executorService = Executors.newSingleThreadExecutor();
-                    executorService.submit(() -> {
-                        new IDchaTask().execute(mContext, iDchaService -> {
-                            mDchaService = iDchaService;
-                            synchronized (objLock) {
-                                objLock.notify();
-                            }
-                        });
-                        synchronized (objLock) {
-                            try {
-                                objLock.wait();
-                            } catch (InterruptedException ignored) {
-                            }
-                        }
-                        try {
-                            mDchaService.setSetupStatus(status);
-                        } catch (RemoteException ignored) {
-                        }
-                    });
-                } else {
-                    Settings.System.putInt(mContext.getContentResolver(), Constants.DCHA_STATE, status);
-                }
+                listener.onResult(false);
             }
-        } catch (Exception ignored) {
-        }
-    }
-
-    public void setSystemTime(String time, String timeFormat) {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    try {
-                        objLock.wait();
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-                try {
-                    mDchaService.setSystemTime(time, timeFormat);
-                } catch (RemoteException ignored) {
-                }
-            });
-        } catch (Exception ignored) {
-        }
-    }
-
-    public boolean uninstallApp(String packageName, int uninstallFlag) {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                return mDchaService.uninstallApp(packageName, uninstallFlag);
-            }).get();
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public boolean verifyUpdateImage(String updateFile) {
-        try {
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            return executorService.submit(() -> {
-                new IDchaTask().execute(mContext, iDchaService -> {
-                    mDchaService = iDchaService;
-                    synchronized (objLock) {
-                        objLock.notify();
-                    }
-                });
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-                return mDchaService.verifyUpdateImage(updateFile);
-            }).get();
-        } catch (Exception ignored) {
-            return true;
-        }
+        });
     }
 }

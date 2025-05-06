@@ -116,12 +116,14 @@ public class EmergencyActivity extends AppCompatActivity {
 
         // DchaState 変更
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 1)) {
-            new DchaServiceUtil(this).setSetupStatus(3);
+            new DchaServiceUtil(this).setSetupStatus(3, object -> {
+            });
         }
 
         // ナビバー表示設定
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 2)) {
-            new DchaServiceUtil(this).hideNavigationBar(true);
+            new DchaServiceUtil(this).hideNavigationBar(true, object -> {
+            });
         }
         // 解像度修正
         int[] lcdSize = new DchaUtilServiceUtil(mUtilService).getLcdSize();
@@ -131,39 +133,29 @@ public class EmergencyActivity extends AppCompatActivity {
         ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
 
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 3)) {
-            if (resolveInfo != null) {
-                if (!setPreferredHomeApp(resolveInfo.activityInfo.packageName, packageName)) {
-                    // 失敗
-                    Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-            } else {
+            if (resolveInfo == null) {
                 Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 return false;
             }
+            new DchaServiceUtil(this).setPreferredHomeApp(resolveInfo.activityInfo.packageName, packageName, object -> {
+                if (!object.equals(true)) {
+                    // 失敗
+                    Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         // タスクの消去
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 4)) {
             try {
-                new DchaServiceUtil(this).removeTask(null);
+                new DchaServiceUtil(this).removeTask(null, object -> {
+                });
             } catch (Exception ignored) {
                 Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 return false;
             }
         }
         return true;
-    }
-
-    private boolean setPreferredHomeApp(String s, String s1) {
-        try {
-            if (new DchaServiceUtil(this).clearDefaultPreferredApp(s)) {
-                return new DchaServiceUtil(this).setDefaultPreferredHomeApp(s1);
-            }
-            return false;
-        } catch (Exception ignored) {
-            return false;
-        }
     }
 
     @Override
