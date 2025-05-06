@@ -23,17 +23,12 @@ import androidx.preference.PreferenceManager;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
-import com.saradabar.cpadcustomizetool.data.task.IDchaUtilTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
-import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
-
 public class EmergencyActivity extends AppCompatActivity {
-
-    IDchaUtilService mUtilService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,24 +63,6 @@ public class EmergencyActivity extends AppCompatActivity {
                 finishAndRemoveTask();
                 break;
         }
-
-        new IDchaUtilTask().execute(this, new IDchaUtilTask.Listener() {
-            @Override
-            public void onSuccess(IDchaUtilService mDchaUtilService) {
-                mUtilService = mDchaUtilService;
-
-                if (mUtilService == null) {
-                    Toast.makeText(EmergencyActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
-                    finishAndRemoveTask();
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                Toast.makeText(EmergencyActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
-            }
-        });
     }
 
     private boolean run(String packageName, String className) {
@@ -126,8 +103,13 @@ public class EmergencyActivity extends AppCompatActivity {
             });
         }
         // 解像度修正
-        int[] lcdSize = new DchaUtilServiceUtil(mUtilService).getLcdSize();
-        new DchaUtilServiceUtil(mUtilService).setForcedDisplaySize(lcdSize[0], lcdSize[1]);
+        new DchaUtilServiceUtil(this).getLcdSize(object -> {
+            if (object.getClass().equals(int[].class)) {
+                int[] lcdSize = (int[]) object;
+                new DchaUtilServiceUtil(this).setForcedDisplaySize(lcdSize[0], lcdSize[1], object1 -> {
+                });
+            }
+        });
 
         // ホームを変更
         ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);

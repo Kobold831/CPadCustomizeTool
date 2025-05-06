@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     ProgressBar dialogProgressBar;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         init();
     }
@@ -570,7 +570,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     /* 初回起動お知らせ */
-    public void WarningDialog() {
+    private void WarningDialog() {
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_notice_start)
@@ -711,7 +711,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         }
     }
 
-    public ApkInstallTask.Listener apkInstallTaskListener() {
+    private ApkInstallTask.Listener apkInstallTaskListener() {
         return new ApkInstallTask.Listener() {
 
             /* プログレスバーの表示 */

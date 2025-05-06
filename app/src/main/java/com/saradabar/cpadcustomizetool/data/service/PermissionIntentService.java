@@ -2,21 +2,15 @@ package com.saradabar.cpadcustomizetool.data.service;
 
 import android.app.IntentService;
 import android.app.admin.DevicePolicyManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import com.rosan.dhizuku.api.Dhizuku;
-import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
-import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
 import com.saradabar.cpadcustomizetool.util.Common;
 
 import java.util.ArrayList;
@@ -42,50 +36,23 @@ public class PermissionIntentService extends IntentService {
 
         try {
             PackageInfo packageInfo = getBaseContext().getPackageManager().getPackageInfo(Objects.requireNonNull(intent.getStringExtra("packageName")), 0);
-            assert packageInfo.applicationInfo != null;
+
+            if (packageInfo.applicationInfo == null) {
+                return;
+            }
             /* ユーザーアプリか確認 */
             if (packageInfo.applicationInfo.sourceDir.startsWith("/data/app/")) {
                 setPermissionGrantState(getBaseContext(), packageInfo.packageName);
             }
-        } catch (Exception ignored) {
+        } catch (PackageManager.NameNotFoundException ignored) {
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
     private void setPermissionGrantState(Context context, String packageName) {
-        if (Common.isDhizukuActive(context)) {
-            DhizukuUserServiceArgs dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
-            Dhizuku.bindUserService(dhizukuUserServiceArgs, new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                    IDhizukuService iDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
-                    try {
-                        for (String permission : getRuntimePermissions(context, packageName)) {
-                            iDhizukuService.setPermissionGrantState(packageName, permission, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
-                        }
-                    } catch (Exception ignored) {
-                    }
-
-                    try {
-                        Dhizuku.stopUserService(dhizukuUserServiceArgs);
-                    } catch (Exception ignored) {
-                    }
-
-                    try {
-                        Dhizuku.unbindUserService(this);
-                    } catch (Exception ignored) {
-                    }
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                }
-            });
-        } else {
-            DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-            for (String permission : getRuntimePermissions(context, packageName)) {
-                dpm.setPermissionGrantState(new ComponentName(context, DeviceAdminReceiver.class), packageName, permission, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
-            }
+        DevicePolicyManager dpm = Common.getDevicePolicyManager(context);
+        for (String permission : getRuntimePermissions(context, packageName)) {
+            dpm.setPermissionGrantState(Common.getDeviceAdminComponent(context), packageName, permission, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
         }
     }
 

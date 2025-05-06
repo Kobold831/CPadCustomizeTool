@@ -41,7 +41,10 @@ public class WebViewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_web_view);
         Toolbar toolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(view -> finish());
+        toolbar.setNavigationOnClickListener(view -> {
+            finish();
+            overridePendingTransition(0, 0);
+        });
         webView = findViewById(R.id.activity_web_view);
         webView.setWebViewClient(new WebViewClient() {
 

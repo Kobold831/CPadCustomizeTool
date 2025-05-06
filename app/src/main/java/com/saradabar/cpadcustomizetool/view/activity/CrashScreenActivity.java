@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +35,8 @@ public class CrashScreenActivity extends AppCompatActivity {
 
         btnMain.setOnClickListener(v -> {
             Preferences.save(this, Constants.KEY_FLAG_ERROR_CRASH, false);
+            View contentView = getWindow().getDecorView().findViewById(android.R.id.content);
+            contentView.setVisibility(View.GONE);
             startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             overridePendingTransition(0, 0);
             finish();

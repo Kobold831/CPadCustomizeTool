@@ -23,17 +23,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.data.task.IDchaUtilTask;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
-import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
-
 public class NormalActivity extends AppCompatActivity {
-
-    IDchaUtilService mUtilService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,24 +64,6 @@ public class NormalActivity extends AppCompatActivity {
                 finishAndRemoveTask();
                 break;
         }
-
-        new IDchaUtilTask().execute(this, new IDchaUtilTask.Listener() {
-            @Override
-            public void onSuccess(IDchaUtilService mDchaUtilService) {
-                mUtilService = mDchaUtilService;
-
-                if (mUtilService == null) {
-                    Toast.makeText(NormalActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
-                    finishAndRemoveTask();
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                Toast.makeText(NormalActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
-            }
-        });
     }
 
     private boolean run() {
@@ -123,11 +100,18 @@ public class NormalActivity extends AppCompatActivity {
         }
 
         // 解像度の修正
-        try {
-            //noinspection ResultOfMethodCallIgnored
-            BenesseExtension.putInt(Constants.BC_COMPATSCREEN, 0);
-        } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
-            new DchaUtilServiceUtil(mUtilService).setForcedDisplaySize(1280, 800);
+        if (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTX ||
+                Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTZ) {
+            // CTXとCTZ
+            try {
+                //noinspection ResultOfMethodCallIgnored
+                BenesseExtension.putInt(Constants.BC_COMPATSCREEN, 0);
+            } catch (Exception ignored) {
+            }
+        } else {
+            // CT2とCT3
+            new DchaUtilServiceUtil(this).setForcedDisplaySize(1280, 800, object -> {
+            });
         }
 
         // ホームを変更

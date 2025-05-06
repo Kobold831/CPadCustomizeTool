@@ -12,10 +12,13 @@
 
 package com.saradabar.cpadcustomizetool.util;
 
+import android.annotation.SuppressLint;
 import android.app.admin.DevicePolicyManager;
+import android.app.admin.IDevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.BenesseExtension;
@@ -31,8 +34,10 @@ import androidx.annotation.Nullable;
 
 import com.rosan.dhizuku.api.Dhizuku;
 
+import com.rosan.dhizuku.api.DhizukuBinderWrapper;
 import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.BuildConfig;
+import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,6 +49,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -54,8 +60,59 @@ import java.util.Objects;
 
 public class Common {
 
+    public static DevicePolicyManager getDevicePolicyManager(Context context) {
+        if (isDhizukuActive(context)) {
+            return binderWrapperDevicePolicyManager(context);
+        } else {
+            return (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        }
+    }
+
+    public static ComponentName getDeviceAdminComponent(Context context) {
+        if (isDhizukuActive(context)) {
+            return Constants.DHIZUKU_COMPONENT;
+        } else {
+            return new ComponentName(context, DeviceAdminReceiver.class);
+        }
+    }
+
+    public static DevicePolicyManager binderWrapperDevicePolicyManager(Context c) {
+        try {
+            Context context = c.createPackageContext(DhizukuVariables.OFFICIAL_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY);
+            DevicePolicyManager manager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            @SuppressLint("PrivateApi") Field field = manager.getClass().getDeclaredField("mService");
+            field.setAccessible(true);
+            IDevicePolicyManager oldInterface = (IDevicePolicyManager) field.get(manager);
+            if (oldInterface instanceof DhizukuBinderWrapper) return manager;
+            assert oldInterface != null;
+            IBinder oldBinder = oldInterface.asBinder();
+            IBinder newBinder = Dhizuku.binderWrapper(oldBinder);
+            IDevicePolicyManager newInterface = IDevicePolicyManager.Stub.asInterface(newBinder);
+            field.set(manager, newInterface);
+            return manager;
+        } catch (NoSuchFieldException |
+                 IllegalAccessException |
+                 PackageManager.NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static boolean isDchaActive(Context context) {
         return context.bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                context.unbindService(this);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                context.unbindService(this);
+            }
+        }, Context.BIND_AUTO_CREATE);
+    }
+
+    public static boolean isDchaUtilActive(Context context) {
+        return context.bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 context.unbindService(this);

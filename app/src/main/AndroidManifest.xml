@@ -176,6 +176,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".view.activity.CrashScreenActivity"
+            android:exported="false"
+            android:theme="@style/NoActionBarTheme" />
+
         <service
             android:name=".data.service.AccessibilityService"
             android:exported="true"
