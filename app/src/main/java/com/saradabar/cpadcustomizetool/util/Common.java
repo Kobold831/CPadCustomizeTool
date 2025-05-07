@@ -12,13 +12,19 @@
 
 package com.saradabar.cpadcustomizetool.util;
 
+import android.annotation.SuppressLint;
 import android.app.admin.DevicePolicyManager;
+import android.app.admin.IDevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Environment;
+import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.Log;
@@ -28,8 +34,10 @@ import androidx.annotation.Nullable;
 
 import com.rosan.dhizuku.api.Dhizuku;
 
+import com.rosan.dhizuku.api.DhizukuBinderWrapper;
 import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.BuildConfig;
+import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,6 +49,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,7 +58,72 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+/** @noinspection unused*/
 public class Common {
+
+    public static DevicePolicyManager getDevicePolicyManager(Context context) {
+        if (isDhizukuActive(context)) {
+            return binderWrapperDevicePolicyManager(context);
+        } else {
+            return (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        }
+    }
+
+    public static ComponentName getDeviceAdminComponent(Context context) {
+        if (isDhizukuActive(context)) {
+            return Constants.DHIZUKU_COMPONENT;
+        } else {
+            return new ComponentName(context, DeviceAdminReceiver.class);
+        }
+    }
+
+    public static DevicePolicyManager binderWrapperDevicePolicyManager(Context c) {
+        try {
+            Context context = c.createPackageContext(DhizukuVariables.OFFICIAL_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY);
+            DevicePolicyManager manager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            @SuppressLint("PrivateApi") Field field = manager.getClass().getDeclaredField("mService");
+            field.setAccessible(true);
+            IDevicePolicyManager oldInterface = (IDevicePolicyManager) field.get(manager);
+            if (oldInterface instanceof DhizukuBinderWrapper) return manager;
+            assert oldInterface != null;
+            IBinder oldBinder = oldInterface.asBinder();
+            IBinder newBinder = Dhizuku.binderWrapper(oldBinder);
+            IDevicePolicyManager newInterface = IDevicePolicyManager.Stub.asInterface(newBinder);
+            field.set(manager, newInterface);
+            return manager;
+        } catch (NoSuchFieldException | IllegalAccessException |
+                 PackageManager.NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean isDchaActive(Context context) {
+        return context.bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                context.unbindService(this);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                context.unbindService(this);
+            }
+        }, Context.BIND_AUTO_CREATE);
+    }
+
+    public static boolean isDchaUtilActive(Context context) {
+        return context.bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                context.unbindService(this);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                context.unbindService(this);
+            }
+        }, Context.BIND_AUTO_CREATE);
+    }
 
     public static ArrayList<String> exec(String str) {
         Process process = null;
@@ -206,30 +280,43 @@ public class Common {
     public static boolean isCTZ() {
         return getProductModelName().equals(Constants.PRODUCT_CTZ);
     }
-    
+
     public static boolean isBenesseExtensionExist() {
+        if (isCT2() || isCT3()) {
+            // CT2、CT3は確認ダイアログを表示しない
+            return false;
+        }
+
         try {
-            int status = BenesseExtension.getDchaState();
+            Class.forName("android.os.BenesseExtension", false, ClassLoader.getSystemClassLoader());
             return true;
-        } catch (NoClassDefFoundError ignored) {
+        } catch (Exception ignored) {
             return false;
         }
     }
     
     public static boolean getDchaCompletedPast() {
         // BenesseExtension が存在しない場合は配慮不要
-        if (!isBenesseExtensionExist()) return true;
+        if (!isBenesseExtensionExist()) {
+            return true;
+        }
         // IGNORE_DCHA_COMPLETED が存在している場合は COUNT_DCHA_COMPLETED を作成しても何ら問題ない
         return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists();
     }
 
-    /** @noinspection BooleanMethodIsAlwaysInverted*/
-    public static boolean isCfmDialog(Context context) {
-        if (!getDchaCompletedPast()) {
-            return Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, false);
-        } else {
-            return true;
+    public static boolean isShowCfmDialog(Context context) {
+        if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2 ||
+                Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT3) {
+            // CT2、CT3は確認ダイアログを表示しない
+            return false;
         }
+
+        if (getDchaCompletedPast()) {
+            // すでにdchaファイルが作成されている場合は確認ダイアログを表示しない
+            return false;
+        }
+        // すでにダイアログで確認している場合は、確認ダイアログを表示しない
+        return !Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, Constants.DEF_BOOL);
     }
 
     public static long getFileSize(final File file) {

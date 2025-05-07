@@ -17,12 +17,10 @@ import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.app.admin.DevicePolicyManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
@@ -64,11 +62,6 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             preClearCache,
             preClearData,
             preDebugForceCrash;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -141,8 +134,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             listView.setOnItemClickListener((parent, mView, position, id) -> {
                 switch (position) {
                     case 0:
-                        if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2 ||
-                                Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
+                        if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2 ||
+                                Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT3) {
                             Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
@@ -158,10 +151,18 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         break;
                     case 2:
                         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-                            if (tryBindDchaService() && Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
-                                Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                listView.invalidateViews();
-                            } else {
+                            try {
+                                if (Common.isDchaActive(requireActivity()) &&
+                                        requireActivity().getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode > 4) {
+                                    Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
+                                    listView.invalidateViews();
+                                } else {
+                                    new AlertDialog.Builder(requireActivity())
+                                            .setMessage(getString(R.string.dialog_error_no_mode))
+                                            .setPositiveButton(R.string.dialog_common_ok, null)
+                                            .show();
+                                }
+                            } catch (PackageManager.NameNotFoundException ignored) {
                                 new AlertDialog.Builder(requireActivity())
                                         .setMessage(getString(R.string.dialog_error_no_mode))
                                         .setPositiveButton(R.string.dialog_common_ok, null)
@@ -175,7 +176,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         }
                         break;
                     case 3:
-                        if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName()) && Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) != Constants.MODEL_CT2) {
+                        if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName()) &&
+                                Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
                             Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
@@ -186,7 +188,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         }
                         break;
                     case 4:
-                        if (isDhizukuActive(requireActivity())) {
+                        if (isDhizukuActive(requireActivity()) &&
+                                Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
                             try {
                                 if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
                                     new AlertDialog.Builder(requireActivity())
@@ -273,19 +276,5 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         if (BuildConfig.DEBUG) {
             catDebugRestriction.setVisible(true);
         }
-    }
-
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean tryBindDchaService() {
-        return requireActivity().bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
-
-            @Override
-            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName componentName) {
-            }
-        }, Context.BIND_AUTO_CREATE);
     }
 }

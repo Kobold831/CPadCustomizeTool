@@ -35,7 +35,7 @@ import java.util.ArrayList;
 public class CrashLogActivity extends AppCompatActivity {
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crash_log);
 
@@ -70,6 +70,7 @@ public class CrashLogActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
+            overridePendingTransition(0, 0);
             return true;
         }
         return super.onOptionsItemSelected(item);

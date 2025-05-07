@@ -38,11 +38,11 @@ public class XApkCopyTask {
         });
     }
 
-    void onPreExecute(@NonNull Listener listener) {
+    private void onPreExecute(@NonNull Listener listener) {
         listener.onShow();
     }
 
-    void onPostExecute(Context context, Listener listener, Object result) {
+    private void onPostExecute(Context context, Listener listener, Object result) {
         if (result == null) {
             totalByte = -1;
             listener.onError(context.getString(R.string.installer_status_unknown_error));
@@ -71,12 +71,12 @@ public class XApkCopyTask {
         listener.onError(result.toString());
     }
 
-    public void onProgressUpdate(@NonNull Listener listener, String message) {
+    private void onProgressUpdate(@NonNull Listener listener, String message) {
         listener.onProgressUpdate(message);
     }
 
     /** @noinspection SequencedCollectionMethodCanBeUsed*/
-    protected Object doInBackground(Context context, Listener listener, @NonNull ArrayList<String> splitInstallData) {
+    private Object doInBackground(Context context, Listener listener, @NonNull ArrayList<String> splitInstallData) {
         String zipFile = splitInstallData.get(0);
         File tmpFile = new File(Common.getTemporaryPath(context));
         totalByte = new File(zipFile).length();

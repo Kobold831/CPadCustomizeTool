@@ -22,6 +22,11 @@ import java.util.List;
 
 public class Constants {
 
+    // デフォルト値
+    public static final int DEF_INT = 0;
+    public static final String DEF_STR = "";
+    public static final boolean DEF_BOOL = false;
+
     // タブレットのモデル
     public static final String PRODUCT_CT2S = "TAB-A03-BS";
     public static final String PRODUCT_CT2K = "TAB-A03-BR";
@@ -78,6 +83,7 @@ public class Constants {
     public static final String BC_COMPATSCREEN = "bc:compatscreen";
 
     // 設定キー
+    public static final String KEY_FLAG_APP_WELCOME_COMPLETE = "key_flag_app_welcome_complete";
     public static final String KEY_FLAG_APP_SETTINGS_COMPLETE = "settings";
     public static final String KEY_FLAG_APP_START_UPDATE_CHECK = "update";
     public static final String KEY_FLAG_DCHA_FUNCTION = "dcha_service";

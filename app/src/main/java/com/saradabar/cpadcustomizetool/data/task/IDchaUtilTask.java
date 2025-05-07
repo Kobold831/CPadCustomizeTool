@@ -7,8 +7,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
-
 import com.saradabar.cpadcustomizetool.util.Constants;
 
 import java.util.concurrent.ExecutorService;
@@ -22,34 +20,31 @@ public class IDchaUtilTask {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
-            new Thread(() -> handler.post(() -> doInBackground(context, listener))).start();
+            new Thread(() ->
+                    handler.post(() ->
+                            doInBackground(context, listener))).start();
         });
     }
 
-    protected void doInBackground(Context context, Listener listener) {
-        if (!tryBindDchaUtilService(context, listener)) {
-            listener.onFailure();
-        }
-    }
-
-    public interface Listener {
-        void onSuccess(IDchaUtilService iDchaUtilService);
-
-        void onFailure();
-    }
-
-    public boolean tryBindDchaUtilService(@NonNull Context context, Listener listener) {
-        return context.bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
+    private void doInBackground(Context context, Listener listener) {
+        if (!context.bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
 
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 IDchaUtilService iDchaUtilService = IDchaUtilService.Stub.asInterface(iBinder);
-                listener.onSuccess(iDchaUtilService);
+                listener.onDo(iDchaUtilService);
             }
 
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
             }
-        }, Context.BIND_AUTO_CREATE);
+        }, Context.BIND_AUTO_CREATE)) {
+            // 失敗
+            listener.onDo(null);
+        }
+    }
+
+    public interface Listener {
+        void onDo(IDchaUtilService iDchaUtilService);
     }
 }

@@ -13,18 +13,14 @@
 package com.saradabar.cpadcustomizetool.data.service;
 
 import android.app.PendingIntent;
-import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.saradabar.cpadcustomizetool.util.Common;
-import com.saradabar.cpadcustomizetool.util.Constants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,30 +35,6 @@ public class DhizukuService extends IDhizukuService.Stub {
 
     public DhizukuService(Context context) {
         mContext = context;
-    }
-
-    @Override
-    public void setUninstallBlocked(String packageName, boolean uninstallBlocked) {
-        DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        dpm.setUninstallBlocked(Constants.DHIZUKU_COMPONENT, packageName, uninstallBlocked);
-    }
-
-    @Override
-    public boolean isUninstallBlocked(String packageName) {
-        DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        return dpm.isUninstallBlocked(Constants.DHIZUKU_COMPONENT, packageName);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    public void setPermissionPolicy(int policy) {
-        DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        dpm.setPermissionPolicy(Constants.DHIZUKU_COMPONENT, policy);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    public void setPermissionGrantState(String packageName, String permission, int grantState) {
-        DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        dpm.setPermissionGrantState(Constants.DHIZUKU_COMPONENT, packageName, permission, grantState);
     }
 
     @Override
@@ -109,12 +81,6 @@ public class DhizukuService extends IDhizukuService.Stub {
             mContext.getPackageManager().getPackageInstaller().abandonSession(sessionId);
             return false;
         }
-    }
-
-    @Override
-    public void clearDeviceOwnerApp(String packageName) {
-        DevicePolicyManager dpm = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        dpm.clearDeviceOwnerApp(packageName);
     }
 
     private int createSession(@NonNull PackageInstaller packageInstaller) throws IOException {

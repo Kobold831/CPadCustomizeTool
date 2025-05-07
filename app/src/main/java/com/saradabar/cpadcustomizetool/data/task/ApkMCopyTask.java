@@ -38,11 +38,11 @@ public class ApkMCopyTask {
         });
     }
 
-    void onPreExecute(@NonNull Listener listener) {
+    private void onPreExecute(@NonNull Listener listener) {
         listener.onShow();
     }
 
-    void onPostExecute(Context context, Listener listener, Object result) {
+    private void onPostExecute(Context context, Listener listener, Object result) {
         if (result == null) {
             totalByte = -1;
             listener.onError(context.getString(R.string.installer_status_unknown_error));
@@ -55,7 +55,6 @@ public class ApkMCopyTask {
             for (Object o : (Iterable<?>) result) {
                 stringArrayList.add((String) o);
             }
-
             totalByte = -1;
             listener.onSuccess(stringArrayList);
             return;
@@ -66,7 +65,6 @@ public class ApkMCopyTask {
             listener.onFailure();
             return;
         }
-
         totalByte = -1;
         listener.onError(result.toString());
     }
@@ -75,8 +73,10 @@ public class ApkMCopyTask {
         listener.onProgressUpdate(message);
     }
 
-    /** @noinspection SequencedCollectionMethodCanBeUsed*/
-    protected Object doInBackground(Context context, Listener listener, @NonNull ArrayList<String> splitInstallData) {
+    /**
+     * @noinspection SequencedCollectionMethodCanBeUsed
+     */
+    private Object doInBackground(Context context, Listener listener, @NonNull ArrayList<String> splitInstallData) {
         String zipFile = splitInstallData.get(0);
         File tmpFile = new File(Common.getTemporaryPath(context));
         totalByte = new File(zipFile).length();
@@ -92,7 +92,6 @@ public class ApkMCopyTask {
         } catch (Exception e) {
             return e.getMessage();
         }
-
         File[] zipListFiles = tmpFile.listFiles();
 
         if (zipListFiles != null) {

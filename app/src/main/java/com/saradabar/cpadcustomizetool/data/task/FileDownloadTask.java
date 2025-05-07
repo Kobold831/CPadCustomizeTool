@@ -46,12 +46,12 @@ public class FileDownloadTask {
 		});
 	}
 
-	void onPreExecute(DownloadEventListener downloadEventListener) {
+	private void onPreExecute(DownloadEventListener downloadEventListener) {
 		downloadEventListenerList = new DownloadEventListenerList();
 		downloadEventListenerList.addEventListener(downloadEventListener);
 	}
 
-	void onPostExecute(Boolean result, int reqCode) {
+	private void onPostExecute(Boolean result, int reqCode) {
 		if (result != null) {
 			if (result) {
 				totalByte = -1;
@@ -66,7 +66,7 @@ public class FileDownloadTask {
 		}
 	}
 
-	protected Boolean doInBackground(String downloadUrl, File outputFile) {
+	private Boolean doInBackground(String downloadUrl, File outputFile) {
 		BufferedInputStream bufferedInputStream;
 		FileOutputStream fileOutputStream;
 		byte[] buffer = new byte[1024];
@@ -101,7 +101,6 @@ public class FileDownloadTask {
 			bufferedInputStream.close();
 		} catch (IOException ignored) {
 		}
-
 		return true;
 	}
 
@@ -124,6 +123,6 @@ public class FileDownloadTask {
 	}
 
 	public boolean isFinish() {
-        return totalByte == -1;
+		return totalByte == -1;
 	}
 }
