@@ -282,6 +282,11 @@ public class Common {
     }
 
     public static boolean isBenesseExtensionExist() {
+        if (isCT2() || isCT3()) {
+            // CT2、CT3は確認ダイアログを表示しない
+            return false;
+        }
+
         try {
             Class.forName("android.os.BenesseExtension", false, ClassLoader.getSystemClassLoader());
             return true;

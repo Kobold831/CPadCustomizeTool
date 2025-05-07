@@ -12,6 +12,8 @@
 
 package com.saradabar.cpadcustomizetool;
 
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+
 import android.Manifest;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
@@ -193,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), new ArrayList<>(List.of(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                     case 4:
-                        if (!Common.isDhizukuActive(this) &&
+                        if (!isDhizukuActive(this) ||
                                 Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
@@ -352,12 +354,19 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                 listView.invalidateViews();
                                 break;
                             case 2:
-                                if (Common.isDchaActive(this) &&
-                                        Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
-                                    Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                    listView.invalidateViews();
-                                } else {
-                                    new AlertDialog.Builder(v.getContext())
+                                try {
+                                    if (Common.isDchaActive(this) &&
+                                            getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode > 4) {
+                                        Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, (int) id);
+                                        listView.invalidateViews();
+                                    } else {
+                                        new AlertDialog.Builder(this)
+                                                .setMessage(getString(R.string.dialog_error_no_mode))
+                                                .setPositiveButton(R.string.dialog_common_ok, null)
+                                                .show();
+                                    }
+                                } catch (PackageManager.NameNotFoundException ignored) {
+                                    new AlertDialog.Builder(this)
                                             .setMessage(getString(R.string.dialog_error_no_mode))
                                             .setPositiveButton(R.string.dialog_common_ok, null)
                                             .show();
@@ -376,8 +385,15 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                 }
                                 break;
                             case 4:
-                                if (Common.isDhizukuActive(this) &&
-                                        Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
+                                if (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2) {
+                                    new AlertDialog.Builder(v.getContext())
+                                            .setMessage(getString(R.string.dialog_error_no_mode))
+                                            .setPositiveButton(R.string.dialog_common_ok, null)
+                                            .show();
+                                    return;
+                                }
+
+                                if (Common.isDhizukuActive(v.getContext())) {
                                     try {
                                         if (getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
                                             new AlertDialog.Builder(v.getContext())

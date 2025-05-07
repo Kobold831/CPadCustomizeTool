@@ -12,11 +12,14 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+
 import android.app.ActivityManager;
 import android.app.Service;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AbsListView;
@@ -148,11 +151,18 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         break;
                     case 2:
                         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-                            if (Common.isDchaActive(requireActivity()) &&
-                                    Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
-                                Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                listView.invalidateViews();
-                            } else {
+                            try {
+                                if (Common.isDchaActive(requireActivity()) &&
+                                        requireActivity().getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode > 4) {
+                                    Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
+                                    listView.invalidateViews();
+                                } else {
+                                    new AlertDialog.Builder(requireActivity())
+                                            .setMessage(getString(R.string.dialog_error_no_mode))
+                                            .setPositiveButton(R.string.dialog_common_ok, null)
+                                            .show();
+                                }
+                            } catch (PackageManager.NameNotFoundException ignored) {
                                 new AlertDialog.Builder(requireActivity())
                                         .setMessage(getString(R.string.dialog_error_no_mode))
                                         .setPositiveButton(R.string.dialog_common_ok, null)
@@ -178,7 +188,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         }
                         break;
                     case 4:
-                        if (Common.isDhizukuActive(requireActivity()) &&
+                        if (isDhizukuActive(requireActivity()) &&
                                 Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
                             try {
                                 if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
