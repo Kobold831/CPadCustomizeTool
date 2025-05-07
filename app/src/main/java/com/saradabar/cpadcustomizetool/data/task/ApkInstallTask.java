@@ -28,8 +28,6 @@ import java.util.concurrent.Executors;
 
 public class ApkInstallTask {
 
-    final Object objLock = new Object();
-
     IDhizukuService mDhizukuService;
     DhizukuUserServiceArgs dhizukuUserServiceArgs;
     ServiceConnection dServiceConnection;
@@ -37,20 +35,16 @@ public class ApkInstallTask {
     public void execute(Context context, Listener listener, ArrayList<String> splitInstallData, int reqCode, InstallEventListener installEventListener) {
         onPreExecute(listener);
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() -> {
-            Handler handler = new Handler(Looper.getMainLooper());
-            new Thread(() -> {
-                Object result = doInBackground(context, splitInstallData, reqCode);
-                handler.post(() -> onPostExecute(context, listener, result, installEventListener));
-            }).start();
-        });
+        executorService.submit(() ->
+                new Thread(() ->
+                        doInBackground(context, listener, installEventListener, splitInstallData, reqCode)).start());
     }
 
-    void onPreExecute(@NonNull Listener listener) {
+    private void onPreExecute(@NonNull Listener listener) {
         listener.onShow();
     }
 
-    void onPostExecute(Context context, Listener listener, Object result, InstallEventListener installEventListener) {
+    private void onPostExecute(Context context, Listener listener, Object result, InstallEventListener installEventListener) {
         if (result == null) {
             listener.onError(context.getString(R.string.installer_status_unknown_error));
             return;
@@ -67,98 +61,123 @@ public class ApkInstallTask {
             listener.onFailure("");
             return;
         }
-
         listener.onError(result.toString());
     }
 
-    protected Object doInBackground(Context context, ArrayList<String> splitInstallData, int reqCode) {
+    private void doInBackground(Context context, Listener listener, InstallEventListener installEventListener, ArrayList<String> splitInstallData, int reqCode) {
         if (isDhizukuActive(context)) {
-            try {
-                dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
-                dServiceConnection = new ServiceConnection() {
-                    @Override
-                    public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                        mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
-                        iDhizukuTaskListener().onSuccess();
-                    }
-
-                    @Override
-                    public void onServiceDisconnected(ComponentName name) {
-                    }
-                };
-
-                // サービスに接続したら発火させる
-                if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
-                    // 失敗
-                    iDhizukuTaskListener().onFailure();
-                    return false;
-                }
-
-                synchronized (objLock) {
-                    objLock.wait();
-                }
-
-                if (mDhizukuService == null) {
-                    return false;
-                }
-
-                if (mDhizukuService.tryInstallPackages(splitInstallData, reqCode)) {
-                    if (dhizukuUserServiceArgs != null) {
-                        try {
-                            Dhizuku.stopUserService(dhizukuUserServiceArgs);
-                        } catch (IllegalStateException ignored) {
-                        }
-                    }
-
-                    if (dServiceConnection != null) {
-                        try {
-                            Dhizuku.unbindUserService(dServiceConnection);
-                        } catch (IllegalStateException ignored) {
-                        }
-                    }
-                    return true;
-                } else {
-                    return false;
-                }
-            } catch (Exception e) {
-                return e.getMessage();
-            }
+            // Dhizukuでセッションインストール
+            doDhizukuInstall(context, listener, installEventListener, splitInstallData, reqCode);
         } else {
-            SessionInstaller sessionInstaller = new SessionInstaller();
-            int sessionId;
+            // このアプリでセッションインストール
+            doSessionInstall(context, listener, installEventListener, splitInstallData, reqCode);
+        }
+    }
 
-            try {
-                sessionId = sessionInstaller.splitCreateSession(context);
+    private void doDhizukuInstall(Context context, Listener listener, InstallEventListener installEventListener, ArrayList<String> splitInstallData, int reqCode) {
+        try {
+            dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
+            dServiceConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                    mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
 
-                if (sessionId < 0) {
-                    return false;
-                }
-            } catch (Exception e) {
-                return e.getMessage();
-            }
+                    if (mDhizukuService == null) {
+                        // 失敗
+                        doListener().onPost(context, listener, false, installEventListener);
+                        return;
+                    }
 
-            /* インストールデータの長さ回数繰り返す */
-            for (String str : splitInstallData) {
-                /* 配列の中身を確認 */
-                if (str != null) {
                     try {
-                        if (!sessionInstaller.splitWriteSession(context, new File(str), sessionId)) {
-                            return false;
+                        if (mDhizukuService.tryInstallPackages(splitInstallData, reqCode)) {
+                            if (dhizukuUserServiceArgs != null) {
+                                try {
+                                    Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                                } catch (IllegalStateException ignored) {
+                                }
+                            }
+
+                            if (dServiceConnection != null) {
+                                try {
+                                    Dhizuku.unbindUserService(dServiceConnection);
+                                } catch (IllegalStateException ignored) {
+                                }
+                            }
+                            // 成功
+                            doListener().onPost(context, listener, true, installEventListener);
+                        } else {
+                            // 失敗
+                            doListener().onPost(context, listener, false, installEventListener);
                         }
                     } catch (Exception e) {
-                        return e.getMessage();
+                        // 例外処理
+                        doListener().onPost(context, listener, e.getMessage(), installEventListener);
                     }
-                } else {
-                    /* つぎの配列がnullなら終了 */
-                    break;
                 }
-            }
 
-            try {
-                return sessionInstaller.splitCommitSession(context, sessionId, reqCode);
-            } catch (Exception e) {
-                return e.getMessage();
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                }
+            };
+
+            // サービスに接続
+            if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
+                // 失敗
+                doListener().onPost(context, listener, false, installEventListener);
             }
+        } catch (Exception e) {
+            // 例外処理
+            doListener().onPost(context, listener, e.getMessage(), installEventListener);
+        }
+    }
+
+    private void doSessionInstall(Context context, Listener listener, InstallEventListener installEventListener, ArrayList<String> splitInstallData, int reqCode) {
+        SessionInstaller sessionInstaller = new SessionInstaller();
+        int sessionId;
+
+        try {
+            sessionId = sessionInstaller.splitCreateSession(context);
+
+            if (sessionId < 0) {
+                // 失敗
+                doListener().onPost(context, listener, false, installEventListener);
+                return;
+            }
+        } catch (Exception e) {
+            // 例外処理
+            doListener().onPost(context, listener, e.getMessage(), installEventListener);
+            return;
+        }
+
+        /* インストールデータの長さ回数繰り返す */
+        for (String str : splitInstallData) {
+            /* 配列の中身を確認 */
+            if (str != null) {
+                try {
+                    if (!sessionInstaller.splitWriteSession(context, new File(str), sessionId)) {
+                        // 失敗
+                        doListener().onPost(context, listener, false, installEventListener);
+                        return;
+                    }
+                } catch (Exception e) {
+                    // 例外処理
+                    doListener().onPost(context, listener, e.getMessage(), installEventListener);
+                    return;
+                }
+            } else {
+                /* つぎの配列の中身が空ならループ終了 */
+                break;
+            }
+        }
+
+        try {
+            if (!sessionInstaller.splitCommitSession(context, sessionId, reqCode)) {
+                // 失敗
+                doListener().onPost(context, listener, false, installEventListener);
+            }
+        } catch (Exception e) {
+            // 例外処理
+            doListener().onPost(context, listener, e.getMessage(), installEventListener);
         }
     }
 
@@ -172,28 +191,16 @@ public class ApkInstallTask {
         void onError(String message);
     }
 
-    @NonNull
-    private dListener iDhizukuTaskListener() {
-        return new dListener() {
-            @Override
-            public void onSuccess() {
-                synchronized (objLock) {
-                    objLock.notify();
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                synchronized (objLock) {
-                    objLock.notify();
-                }
-            }
+    private doListener doListener() {
+        return (context, listener, result, installEventListener) -> {
+            Handler handler = new Handler(Looper.getMainLooper());
+            new Thread(() ->
+                    handler.post(() ->
+                            onPostExecute(context, listener, result, installEventListener))).start();
         };
     }
 
-    public interface dListener {
-        void onSuccess();
-
-        void onFailure();
+    private interface doListener {
+        void onPost(Context context, Listener listener, Object result, InstallEventListener installEventListener);
     }
 }

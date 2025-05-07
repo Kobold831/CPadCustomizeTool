@@ -61,7 +61,8 @@ public class BootCompletedReceiver extends BroadcastReceiver {
             }
         }
 
-        if (!Common.isCfmDialog(context)) {
+        // 確認ダイアログが必要か
+        if (Common.isShowCfmDialog(context)) {
             Preferences.save(context, Constants.KEY_FLAG_AUTO_USB_DEBUG, false);
             return;
         }

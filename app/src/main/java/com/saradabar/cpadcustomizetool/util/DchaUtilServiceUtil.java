@@ -1,137 +1,233 @@
 package com.saradabar.cpadcustomizetool.util;
 
-import android.os.BenesseExtension;
+import android.content.Context;
+import android.os.RemoteException;
 
-import jp.co.benesse.dcha.dchautilservice.IDchaUtilService;
+import com.saradabar.cpadcustomizetool.data.task.IDchaUtilTask;
 
 /** @noinspection unused*/
 public class DchaUtilServiceUtil {
 
-    IDchaUtilService mUtilService;
+    Context mContext;
 
-    public DchaUtilServiceUtil(IDchaUtilService mDchaUtilService) {
-        mUtilService = mDchaUtilService;
+    public DchaUtilServiceUtil(Context context) {
+        mContext = context;
     }
 
-    public void clearDefaultPreferredApp(String packageName) {
-        try {
-            mUtilService.clearDefaultPreferredApp(packageName);
-        } catch (Exception ignored) {
-        }
+    public interface Listener {
+        void onResult(Object object);
     }
 
-    public boolean copyFile(String srcFilePath, String dstFilePath) {
-        try {
-            return mUtilService.copyFile(srcFilePath, dstFilePath);
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public boolean copyDirectory(String srcFilePath, String dstFilePath, boolean makeTopDir) {
-        try {
-            return mUtilService.copyDirectory(srcFilePath, dstFilePath, makeTopDir);
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public boolean deleteFile(String path) {
-        try {
-            return mUtilService.deleteFile(path);
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public boolean existsFile(String path) {
-        try {
-            return mUtilService.existsFile(path);
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public String getCanonicalExternalPath(String linkPath) {
-        try {
-            return mUtilService.getCanonicalExternalPath(linkPath);
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    public int[] getDisplaySize() {
-        try {
-            return mUtilService.getDisplaySize();
-        } catch (Exception ignored) {
-            return new int[] {1280, 800};
-        }
-    }
-
-    public int[] getLcdSize() {
-        try {
-            return mUtilService.getLcdSize();
-        } catch (Exception ignored) {
-            return new int[] {1280, 800};
-        }
-    }
-
-    public int getUserCount() {
-        try {
-            return mUtilService.getUserCount();
-        } catch (Exception ignored) {
-            return -1;
-        }
-    }
-
-    public void hideNavigationBar(boolean hide) {
-        try {
-            mUtilService.hideNavigationBar(hide);
-        } catch (Exception ignored) {
-        }
-    }
-
-    public String[] listFiles(String path) {
-        try {
-            return mUtilService.listFiles(path);
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    public boolean makeDir(String path, String dirname) {
-        try {
-            return mUtilService.makeDir(path, dirname);
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public void sdUnmount() {
-        try {
-            mUtilService.sdUnmount();
-        } catch (Exception ignored) {
-        }
-    }
-
-    public boolean setForcedDisplaySize(int width, int height) {
-        try {
-            if (mUtilService == null) {
-                if (Common.isBenesseExtensionExist() && Common.isCT3()) {
-                    try {
-                        // WRITE_SECURE_SETTINGS が必要
-                        return BenesseExtension.setForcedDisplaySize(width, height);
-                    } catch (SecurityException ignored) {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
+    public void clearDefaultPreferredApp(String packageName, Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
             }
-            mUtilService.setForcedDisplaySize(width, height);
-            return true;
-        } catch (Exception ignored) {
-            return false;
-        }
+
+            try {
+                iDchaUtilService.clearDefaultPreferredApp(packageName);
+                listener.onResult(true);
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void copyFile(String srcFilePath, String dstFilePath, Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
+            }
+
+            try {
+                listener.onResult(iDchaUtilService.copyFile(srcFilePath, dstFilePath));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void copyDirectory(String srcFilePath, String dstFilePath, boolean makeTopDir, Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
+            }
+
+            try {
+                listener.onResult(iDchaUtilService.copyDirectory(srcFilePath, dstFilePath, makeTopDir));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void deleteFile(String path, Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
+            }
+
+            try {
+                listener.onResult(iDchaUtilService.deleteFile(path));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void existsFile(String path, Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
+            }
+
+            try {
+                listener.onResult(iDchaUtilService.existsFile(path));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void getCanonicalExternalPath(String linkPath, Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
+            }
+
+            try {
+                listener.onResult(iDchaUtilService.getCanonicalExternalPath(linkPath));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void getDisplaySize(Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
+            }
+
+            try {
+                listener.onResult(iDchaUtilService.getDisplaySize());
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void getLcdSize(Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
+            }
+
+            try {
+                listener.onResult(iDchaUtilService.getLcdSize());
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void getUserCount(Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
+            }
+
+            try {
+                listener.onResult(iDchaUtilService.getUserCount());
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void hideNavigationBar(boolean hide, Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
+            }
+
+            try {
+                iDchaUtilService.hideNavigationBar(hide);
+                listener.onResult(true);
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void listFiles(String path, Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
+            }
+
+            try {
+                listener.onResult(iDchaUtilService.listFiles(path));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void makeDir(String path, String dirname, Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
+            }
+
+            try {
+                listener.onResult(iDchaUtilService.makeDir(path, dirname));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void sdUnmount(Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
+            }
+
+            try {
+                iDchaUtilService.sdUnmount();
+                listener.onResult(true);
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
+    }
+
+    public void setForcedDisplaySize(int width, int height, Listener listener) {
+        new IDchaUtilTask().execute(mContext, iDchaUtilService -> {
+            if (iDchaUtilService == null) {
+                listener.onResult(false);
+                return;
+            }
+
+            try {
+                listener.onResult(iDchaUtilService.setForcedDisplaySize(width, height));
+            } catch (RemoteException e) {
+                listener.onResult(e.getMessage());
+            }
+        });
     }
 }

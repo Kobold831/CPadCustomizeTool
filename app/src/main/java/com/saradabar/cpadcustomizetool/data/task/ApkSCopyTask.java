@@ -32,11 +32,11 @@ public class ApkSCopyTask {
         });
     }
 
-    void onPreExecute(@NonNull Listener listener) {
+    private void onPreExecute(@NonNull Listener listener) {
         listener.onShow();
     }
 
-    void onPostExecute(Context context, Listener listener, Object result) {
+    private void onPostExecute(Context context, Listener listener, Object result) {
         if (result == null) {
             totalByte = -1;
             listener.onError(context.getString(R.string.installer_status_unknown_error));
@@ -49,7 +49,6 @@ public class ApkSCopyTask {
             for (Object o : (Iterable<?>) result) {
                 stringArrayList.add((String) o);
             }
-
             totalByte = -1;
             listener.onSuccess(stringArrayList);
             return;
@@ -60,7 +59,6 @@ public class ApkSCopyTask {
             listener.onFailure();
             return;
         }
-
         totalByte = -1;
         listener.onError(result.toString());
     }
@@ -69,7 +67,7 @@ public class ApkSCopyTask {
         listener.onProgressUpdate(message);
     }
 
-    protected Object doInBackground(Context context, Listener listener, @NonNull ArrayList<String> splitInstallData) {
+    private Object doInBackground(Context context, Listener listener, @NonNull ArrayList<String> splitInstallData) {
         //noinspection SequencedCollectionMethodCanBeUsed
         String zipFile = splitInstallData.get(0);
         File tmpFile = new File(Common.getTemporaryPath(context));
@@ -89,7 +87,6 @@ public class ApkSCopyTask {
         } catch (Exception e) {
             return e.getMessage();
         }
-
         File[] zipListFiles = tmpFile.listFiles();
 
         if (zipListFiles != null) {
