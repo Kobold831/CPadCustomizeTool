@@ -22,6 +22,11 @@ public class DchaServiceUtil {
 
     public void cancelSetup(Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 iDchaService.cancelSetup();
                 listener.onResult(true);
@@ -33,6 +38,11 @@ public class DchaServiceUtil {
 
     public void checkPadRooted(Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 listener.onResult(iDchaService.checkPadRooted());
             } catch (RemoteException e) {
@@ -43,6 +53,11 @@ public class DchaServiceUtil {
 
     public void clearDefaultPreferredApp(String packageName, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 iDchaService.clearDefaultPreferredApp(packageName);
                 listener.onResult(true);
@@ -54,6 +69,11 @@ public class DchaServiceUtil {
 
     public void copyFile(String srcFilePath, String dstFilePath, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 listener.onResult(iDchaService.copyFile(srcFilePath, dstFilePath));
             } catch (RemoteException e) {
@@ -64,6 +84,11 @@ public class DchaServiceUtil {
 
     public void copyUpdateImage(String srcFilePath, String dstFilePath, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 listener.onResult(iDchaService.copyUpdateImage(srcFilePath, dstFilePath.startsWith("/cache") ? dstFilePath : "/cache/../" + dstFilePath));
             } catch (RemoteException e) {
@@ -74,6 +99,11 @@ public class DchaServiceUtil {
 
     public void deleteFile(String path, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 listener.onResult(iDchaService.deleteFile(path));
             } catch (RemoteException e) {
@@ -84,6 +114,11 @@ public class DchaServiceUtil {
 
     public void disableADB(Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 iDchaService.disableADB();
                 listener.onResult(true);
@@ -95,6 +130,11 @@ public class DchaServiceUtil {
 
     public void getCanonicalExternalPath(String linkPath, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 listener.onResult(iDchaService.getCanonicalExternalPath(linkPath));
             } catch (RemoteException e) {
@@ -105,6 +145,11 @@ public class DchaServiceUtil {
 
     public void getForegroundPackageName(Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 listener.onResult(iDchaService.getForegroundPackageName());
             } catch (RemoteException e) {
@@ -118,6 +163,11 @@ public class DchaServiceUtil {
             listener.onResult(BenesseExtension.getDchaState());
         } else {
             new IDchaTask().execute(mContext, iDchaService -> {
+                if (iDchaService == null) {
+                    listener.onResult(false);
+                    return;
+                }
+
                 try {
                     listener.onResult(iDchaService.getSetupStatus());
                 } catch (RemoteException e) {
@@ -129,6 +179,11 @@ public class DchaServiceUtil {
 
     public void getUserCount(Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 listener.onResult(iDchaService.getUserCount());
             } catch (RemoteException e) {
@@ -140,6 +195,11 @@ public class DchaServiceUtil {
     public void hideNavigationBar(boolean hide, Listener listener) {
         if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
             new IDchaTask().execute(mContext, iDchaService -> {
+                if (iDchaService == null) {
+                    listener.onResult(false);
+                    return;
+                }
+
                 try {
                     iDchaService.hideNavigationBar(hide);
                     listener.onResult(true);
@@ -154,6 +214,11 @@ public class DchaServiceUtil {
 
     public void installApp(String path, int installFlag, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 listener.onResult(iDchaService.installApp(path, installFlag));
             } catch (RemoteException e) {
@@ -164,6 +229,11 @@ public class DchaServiceUtil {
 
     public void isDeviceEncryptionEnabled(Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 listener.onResult(iDchaService.isDeviceEncryptionEnabled());
             } catch (RemoteException e) {
@@ -174,6 +244,11 @@ public class DchaServiceUtil {
 
     public void rebootPad(int rebootMode, String srcFile, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 iDchaService.rebootPad(rebootMode, srcFile);
                 listener.onResult(true);
@@ -185,6 +260,11 @@ public class DchaServiceUtil {
 
     public void removeTask(String packageName, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 iDchaService.removeTask(packageName);
                 listener.onResult(true);
@@ -196,6 +276,11 @@ public class DchaServiceUtil {
 
     public void sdUnmount(Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 iDchaService.sdUnmount();
                 listener.onResult(true);
@@ -207,6 +292,11 @@ public class DchaServiceUtil {
 
     public void setDefaultParam(Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 iDchaService.setDefaultParam();
                 listener.onResult(true);
@@ -218,6 +308,11 @@ public class DchaServiceUtil {
 
     public void setDefaultPreferredHomeApp(String packageName, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 iDchaService.setDefaultPreferredHomeApp(packageName);
                 listener.onResult(true);
@@ -229,6 +324,11 @@ public class DchaServiceUtil {
 
     public void setPermissionEnforced(boolean enforced, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 iDchaService.setPermissionEnforced(enforced);
                 listener.onResult(true);
@@ -251,6 +351,11 @@ public class DchaServiceUtil {
         // Dchaを使うかどうか
         if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
             new IDchaTask().execute(mContext, iDchaService -> {
+                if (iDchaService == null) {
+                    listener.onResult(false);
+                    return;
+                }
+
                 try {
                     iDchaService.setSetupStatus(status);
                     listener.onResult(true);
@@ -266,6 +371,11 @@ public class DchaServiceUtil {
 
     public void setSystemTime(String time, String timeFormat, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 iDchaService.setSystemTime(time, timeFormat);
                 listener.onResult(true);
@@ -277,6 +387,11 @@ public class DchaServiceUtil {
 
     public void uninstallApp(String packageName, int uninstallFlag, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 listener.onResult(iDchaService.uninstallApp(packageName, uninstallFlag));
             } catch (RemoteException e) {
@@ -287,6 +402,11 @@ public class DchaServiceUtil {
 
     public void verifyUpdateImage(String updateFile, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
+            if (iDchaService == null) {
+                listener.onResult(false);
+                return;
+            }
+
             try {
                 listener.onResult(iDchaService.verifyUpdateImage(updateFile));
             } catch (RemoteException e) {

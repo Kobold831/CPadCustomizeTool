@@ -262,7 +262,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     private void setListener() {
         swDchaState.setOnPreferenceChangeListener((preference, o) -> {
             // 確認ダイアログが必要か
-            if (Common.isCfmDialog(requireActivity())) {
+            if (Common.isShowCfmDialog(requireActivity())) {
                 cfmDialog();
                 return false;
             }
@@ -274,7 +274,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         swKeepDchaState.setOnPreferenceChangeListener((preference, o) -> {
             // 確認ダイアログが必要か
-            if (Common.isCfmDialog(requireActivity())) {
+            if (Common.isShowCfmDialog(requireActivity())) {
                 cfmDialog();
                 return false;
             }
@@ -344,7 +344,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             }
 
             // 確認ダイアログが必要か
-            if (Common.isCfmDialog(requireActivity())) {
+            if (Common.isShowCfmDialog(requireActivity())) {
                 cfmDialog();
                 return false;
             }
@@ -393,7 +393,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             }
 
             // 確認ダイアログが必要か
-            if (Common.isCfmDialog(requireActivity())) {
+            if (Common.isShowCfmDialog(requireActivity())) {
                 cfmDialog();
                 return false;
             }
@@ -441,7 +441,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             }
 
             // 確認ダイアログが必要か
-            if (Common.isCfmDialog(requireActivity())) {
+            if (Common.isShowCfmDialog(requireActivity())) {
                 cfmDialog();
                 return false;
             }
@@ -527,7 +527,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         preEnableDchaService.setOnPreferenceClickListener(preference -> {
             // 確認ダイアログが必要か
-            if (Common.isCfmDialog(requireActivity())) {
+            if (Common.isShowCfmDialog(requireActivity())) {
                 cfmDialog();
                 return false;
             }

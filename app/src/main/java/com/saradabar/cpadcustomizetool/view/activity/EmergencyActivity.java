@@ -12,6 +12,7 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
@@ -35,38 +36,46 @@ public class EmergencyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // 初期設定が完了していない場合は終了
-        if (!Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, false)) {
+        if (!Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
             Toast.makeText(this, R.string.toast_no_setting_app, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
         }
 
-        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
+        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
             Toast.makeText(this, R.string.toast_enable_dcha, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
         }
         // メイン処理
-        switch (PreferenceManager.getDefaultSharedPreferences(EmergencyActivity.this).getString("emergency_mode", "")) {
+        switch (PreferenceManager.getDefaultSharedPreferences(this).getString("emergency_mode", "")) {
+            // 小学講座
             case "1":
-                if (run(Constants.PKG_SHO_HOME, Constants.HOME_SHO)) {
-                    // 成功
-                    Toast.makeText(EmergencyActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                }
+                run(Constants.PKG_SHO_HOME, Constants.HOME_SHO);
+                Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
                 break;
+            // 中学講座
             case "2":
-                if (run(Constants.PKG_CHU_HOME, Constants.HOME_CHU)) {
-                    // 成功
-                    Toast.makeText(EmergencyActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                }
+                run(Constants.PKG_CHU_HOME, Constants.HOME_CHU);
+                Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
                 break;
         }
     }
 
-    private boolean run(String packageName, String className) {
-        // 維持サービスの無効化
+    private void run(String packageName, String className) {
+        disableKeepService();
+        startHomeApp(packageName, className);
+        setSetupStatus();
+        hideNavigationBar();
+        setDisplaySize();
+        setHomeApp(packageName);
+        removeTask();
+    }
+
+    // 維持サービスの無効化
+    private void disableKeepService() {
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 1)) {
             Preferences.save(this, Constants.KEY_FLAG_KEEP_DCHA_STATE, false);
         }
@@ -80,44 +89,67 @@ public class EmergencyActivity extends AppCompatActivity {
         }
         startService(new Intent(this, KeepService.class));
         startService(new Intent(this, ProtectKeepService.class));
+    }
 
-        // 勉強ホームを起動
+    // 勉強ホームを起動
+    private void startHomeApp(String packageName, String className) {
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 5)) {
             try {
                 startActivity(new Intent().setClassName(packageName, className));
-            } catch (Exception ignored) {
+            } catch (ActivityNotFoundException ignored) {
                 Toast.makeText(this, R.string.toast_no_course, Toast.LENGTH_SHORT).show();
-                return false;
+            } catch (Exception ignored) {
+                Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
             }
         }
+    }
 
-        // DchaState 変更
+    // DchaState 変更
+    private void setSetupStatus() {
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 1)) {
             new DchaServiceUtil(this).setSetupStatus(3, object -> {
+                if (!object.equals(true)) {
+                    Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
+                }
             });
         }
+    }
 
-        // ナビバー表示設定
+    // ナビバー表示設定
+    private void hideNavigationBar() {
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 2)) {
             new DchaServiceUtil(this).hideNavigationBar(true, object -> {
+                if (!object.equals(true)) {
+                    Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
+                }
             });
         }
-        // 解像度修正
+    }
+
+    // 解像度修正
+    private void setDisplaySize() {
         new DchaUtilServiceUtil(this).getLcdSize(object -> {
             if (object.getClass().equals(int[].class)) {
                 int[] lcdSize = (int[]) object;
                 new DchaUtilServiceUtil(this).setForcedDisplaySize(lcdSize[0], lcdSize[1], object1 -> {
+                    if (!object1.equals(true)) {
+                        Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
+                    }
                 });
+            } else {
+                Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
-        // ホームを変更
-        ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-
+    // ホームを変更
+    private void setHomeApp(String packageName) {
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 3)) {
+            ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
+
             if (resolveInfo == null) {
                 Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
-                return false;
+                return;
             }
             new DchaServiceUtil(this).setPreferredHomeApp(resolveInfo.activityInfo.packageName, packageName, object -> {
                 if (!object.equals(true)) {
@@ -126,22 +158,21 @@ public class EmergencyActivity extends AppCompatActivity {
                 }
             });
         }
+    }
 
-        // タスクの消去
+    // タスクの消去
+    private void removeTask() {
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 4)) {
-            try {
-                new DchaServiceUtil(this).removeTask(null, object -> {
-                });
-            } catch (Exception ignored) {
-                Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
-                return false;
-            }
+            new DchaServiceUtil(this).removeTask(null, object -> {
+                if (!object.equals(true)) {
+                    Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
-        return true;
     }
 
     @Override
-    public void onPause() {
+    protected void onPause() {
         super.onPause();
         finishAndRemoveTask();
     }

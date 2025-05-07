@@ -299,7 +299,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         }
     }
 
-    public ApkInstallTask.Listener apkInstallTaskListener() {
+    private ApkInstallTask.Listener apkInstallTaskListener() {
         return new ApkInstallTask.Listener() {
 
             /* プログレスバーの表示 */

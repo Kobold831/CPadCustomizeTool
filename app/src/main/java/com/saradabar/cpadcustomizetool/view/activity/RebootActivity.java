@@ -13,20 +13,15 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.app.AlertDialog;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-
-import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class RebootActivity extends AppCompatActivity {
 
@@ -34,33 +29,32 @@ public class RebootActivity extends AppCompatActivity {
     public final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
+        // 初期設定が完了していない場合は終了
+        if (!Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
+            Toast.makeText(this, R.string.toast_no_setting_app, Toast.LENGTH_SHORT).show();
+            finishAndRemoveTask();
+            return;
+        }
+
+        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
             Toast.makeText(this, R.string.toast_enable_dcha, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
         }
+        // メイン処理
         reboot();
     }
 
     private void reboot() {
         new AlertDialog.Builder(this)
                 .setMessage(R.string.dialog_question_reboot)
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
-                    @Override
-                    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                        try {
-                            IDchaService iDchaService = IDchaService.Stub.asInterface(iBinder);
-                            iDchaService.rebootPad(0, null);
-                        } catch (Exception ignored) {
-                            Toast.makeText(RebootActivity.this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
-                            finishAndRemoveTask();
-                        }
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) ->
+                        new DchaServiceUtil(this).rebootPad(0, null, object -> {
+                    if (!object.equals(true)) {
+                        Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                     }
-
-                    @Override
-                    public void onServiceDisconnected(ComponentName componentName) {
-                    }
-                }, Context.BIND_AUTO_CREATE))
+                    finishAndRemoveTask();
+                }))
                 .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> finishAndRemoveTask())
                 .setOnDismissListener(dialogInterface -> finishAndRemoveTask())
                 .show();
