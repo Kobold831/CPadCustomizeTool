@@ -218,7 +218,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     /* 初期化 */
     @SuppressLint("NewApi")
     private void initPre() {
-        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
+        DevicePolicyManager dpm = Common.getDevicePolicyManager(requireActivity());
 
         switch (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT)) {
             /* チャレンジパッド２ */
@@ -251,7 +251,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2 ||
                 dpm.isDeviceOwnerApp(DhizukuVariables.OFFICIAL_PACKAGE_NAME) &&
                         Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
-            switch (dpm.getPermissionPolicy(new ComponentName(requireActivity(), DeviceAdminReceiver.class))) {
+            switch (dpm.getPermissionPolicy(Common.getDeviceAdminComponent(requireActivity()))) {
                 case DevicePolicyManager.PERMISSION_POLICY_PROMPT:
                     swPrePermissionFrc.setChecked(false);
                     swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
@@ -261,7 +261,10 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_forced));
                     break;
             }
-        } else {
+        }
+
+        if (!dpm.isDeviceOwnerApp(requireActivity().getPackageName()) &&
+                !dpm.isDeviceOwnerApp(DhizukuVariables.OFFICIAL_PACKAGE_NAME)) {
             preUninstallBlock.setEnabled(false);
             preUninstallBlock.setSummary(getString(R.string.pre_owner_sum_not_use_function));
             preClrDevOwn.setEnabled(false);
