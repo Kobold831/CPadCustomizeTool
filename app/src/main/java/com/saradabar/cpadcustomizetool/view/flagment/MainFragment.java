@@ -169,8 +169,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preGetApp = findPreference("pre_get_app");
         preNotice = findPreference("pre_notice");
 
-        /* 初期化 */
-        initialize();
+        setListener();
     }
 
     /* アクティビティ破棄 */
@@ -193,13 +192,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         if (usbDebugObserver != null) {
             requireActivity().getContentResolver().unregisterContentObserver(usbDebugObserver);
         }
-    }
-
-    /* 表示 */
-    @Override
-    public void onStart() {
-        super.onStart();
-        setListener();
     }
 
     @Override
@@ -879,7 +871,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     }
 
     /* 初期化 */
-    public void initialize() {
+    private void initialize() {
         if (getPreferenceScreen() != null) {
             /* DchaServiceを使用するか */
             if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
@@ -1074,7 +1066,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         }
     }
 
-    public void showLoadingDialog(String message) {
+    private void showLoadingDialog(String message) {
         View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
         AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
         textView.setText(message);
@@ -1082,7 +1074,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         progressDialog.show();
     }
 
-    public void cancelLoadingDialog() {
+    private void cancelLoadingDialog() {
         if (progressDialog == null) {
             return;
         }
@@ -1096,7 +1088,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         new AlertDialog.Builder(requireActivity())
                 .setCancelable(false)
                 .setMessage(getString(R.string.dialog_dcha_warning))
-                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, true))
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) ->
+                        Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, true))
                 .setNegativeButton(R.string.dialog_common_cancel, null)
                 .show();
     }
@@ -1155,7 +1148,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             @Override
             public void onSuccess() {
                 cancelLoadingDialog();
-                new AlertDialog.Builder(requireActivity())
+                new AlertDialog.Builder(MainFragment.this.requireActivity())
                         .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
@@ -1166,7 +1159,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             @Override
             public void onFailure() {
                 cancelLoadingDialog();
-                new AlertDialog.Builder(requireActivity())
+                new AlertDialog.Builder(MainFragment.this.requireActivity())
                         .setMessage(R.string.dialog_failure_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, null)
@@ -1396,7 +1389,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         apkInstallTaskListener().onError(message);
     }
 
-    public ApkInstallTask.Listener apkInstallTaskListener() {
+    private ApkInstallTask.Listener apkInstallTaskListener() {
         return new ApkInstallTask.Listener() {
 
             /* プログレスバーの表示 */

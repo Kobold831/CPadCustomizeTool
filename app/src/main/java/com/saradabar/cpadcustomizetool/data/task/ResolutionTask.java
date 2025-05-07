@@ -40,7 +40,7 @@ public class ResolutionTask {
         }, 1500);
     }
 
-    protected void doInBackground(Context context, Listener listener, int width, int height) {
+    private void doInBackground(Context context, Listener listener, int width, int height) {
         if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTX ||
                 Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTZ) {
             if (width == 1024 && height == 768 || width == 1280 && height == 800 || width == 1920 && height == 1200) {

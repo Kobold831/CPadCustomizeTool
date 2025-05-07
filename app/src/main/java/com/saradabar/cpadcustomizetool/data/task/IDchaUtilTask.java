@@ -7,8 +7,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
-
 import com.saradabar.cpadcustomizetool.util.Constants;
 
 import java.util.concurrent.ExecutorService;
@@ -28,18 +26,8 @@ public class IDchaUtilTask {
         });
     }
 
-    protected void doInBackground(Context context, Listener listener) {
-        if (!tryBindDchaUtilService(context, listener)) {
-            listener.onDo(null);
-        }
-    }
-
-    public interface Listener {
-        void onDo(IDchaUtilService iDchaUtilService);
-    }
-
-    private boolean tryBindDchaUtilService(@NonNull Context context, Listener listener) {
-        return context.bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
+    private void doInBackground(Context context, Listener listener) {
+        if (!context.bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
 
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -50,6 +38,13 @@ public class IDchaUtilTask {
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
             }
-        }, Context.BIND_AUTO_CREATE);
+        }, Context.BIND_AUTO_CREATE)) {
+            // 失敗
+            listener.onDo(null);
+        }
+    }
+
+    public interface Listener {
+        void onDo(IDchaUtilService iDchaUtilService);
     }
 }

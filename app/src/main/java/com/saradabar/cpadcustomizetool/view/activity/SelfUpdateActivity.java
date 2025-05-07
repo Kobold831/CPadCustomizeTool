@@ -15,6 +15,7 @@ package com.saradabar.cpadcustomizetool.view.activity;
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
 
 import android.app.admin.DevicePolicyManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -44,11 +45,14 @@ import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /** @noinspection deprecation*/
 public class SelfUpdateActivity extends AppCompatActivity implements DownloadEventListener, InstallEventListener {
@@ -70,11 +74,9 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), Constants.CHECK_JSON), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
     }
 
-    /** @noinspection SequencedCollectionMethodCanBeUsed*/
     @Override
     public void onDownloadComplete(int reqCode) {
-        ArrayList<String> installFileArrayList = new ArrayList<>();
-
+        cancelLoadingDialog();
         switch (reqCode) {
             case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
                 try {
@@ -83,17 +85,15 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                     JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
 
                     if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
-                        cancelLoadingDialog();
                         showUpdateDialog(jsonObj3.getString("description"), jsonObj3.getString("url"));
                     } else {
-                        cancelLoadingDialog();
                         showNoUpdateDialog();
                     }
-                } catch (Exception ignored) {
+                } catch (JSONException | IOException ignored) {
+                    onDownloadError(reqCode);
                 }
                 break;
             case Constants.REQUEST_DOWNLOAD_APK:
-                cancelLoadingDialog();
                 switch (Preferences.load(this, Constants.KEY_INT_UPDATE_MODE, 1)) {
                     case 0:
                         startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
@@ -108,11 +108,10 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                                     .setCancelable(false)
                                     .setTitle(getString(R.string.dialog_title_error))
                                     .setMessage(getString(R.string.dialog_no_installer, jsonObj3.getString("url")))
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
                                     .show();
-                        } catch (Exception ignored) {
-                            Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
-                            finish();
+                        } catch (JSONException | IOException ignored) {
+                            onDownloadError(reqCode);
                         }
                         break;
                     case 2:
@@ -126,12 +125,11 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_installer))
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
                                     .show();
                             return;
                         }
-                        installFileArrayList.add(0, new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
-                        new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
+                        new ApkInstallTask().execute(this, apkInstallTaskListener(), new ArrayList<>(List.of(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                     case 4:
                         if (!isDhizukuActive(this)) {
@@ -139,16 +137,13 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_installer))
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
                                     .show();
                             return;
                         }
-                        installFileArrayList.add(0, new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
-                        new ApkInstallTask().execute(this, apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SELF_UPDATE, this);
+                        new ApkInstallTask().execute(this, apkInstallTaskListener(), new ArrayList<>(List.of(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                 }
-                break;
-            default:
                 break;
         }
     }
@@ -224,7 +219,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
             try {
                 startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_UPDATE_INFO).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            } catch (Exception ignored) {
+            } catch (ActivityNotFoundException ignored) {
                 Toast.makeText(this, R.string.toast_no_browser, Toast.LENGTH_SHORT).show();
             }
         });
@@ -318,9 +313,8 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
                     }
-                } catch (Exception ignored) {
+                } catch (IOException ignored) {
                 }
-
                 cancelLoadingDialog();
                 AlertDialog alertDialog = new AlertDialog.Builder(SelfUpdateActivity.this)
                         .setMessage(R.string.dialog_success_silent_install)
@@ -343,9 +337,8 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
                     }
-                } catch (Exception ignored) {
+                } catch (IOException ignored) {
                 }
-
                 cancelLoadingDialog();
                 new AlertDialog.Builder(SelfUpdateActivity.this)
                         .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
@@ -363,9 +356,8 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                     if (tmpFile != null) {
                         FileUtils.deleteDirectory(tmpFile);
                     }
-                } catch (Exception ignored) {
+                } catch (IOException ignored) {
                 }
-
                 cancelLoadingDialog();
                 new AlertDialog.Builder(SelfUpdateActivity.this)
                         .setTitle(getString(R.string.dialog_title_error))

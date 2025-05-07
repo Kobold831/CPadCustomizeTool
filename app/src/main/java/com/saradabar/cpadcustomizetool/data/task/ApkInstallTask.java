@@ -61,11 +61,10 @@ public class ApkInstallTask {
             listener.onFailure("");
             return;
         }
-
         listener.onError(result.toString());
     }
 
-    protected void doInBackground(Context context, Listener listener, InstallEventListener installEventListener, ArrayList<String> splitInstallData, int reqCode) {
+    private void doInBackground(Context context, Listener listener, InstallEventListener installEventListener, ArrayList<String> splitInstallData, int reqCode) {
         if (isDhizukuActive(context)) {
             // Dhizukuでセッションインストール
             doDhizukuInstall(context, listener, installEventListener, splitInstallData, reqCode);

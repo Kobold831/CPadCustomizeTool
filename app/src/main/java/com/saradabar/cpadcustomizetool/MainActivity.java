@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                     .setMessage(getString(R.string.dialog_no_installer, jsonObj3.getString("url")))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
                                     .show();
-                        } catch (Exception ignored) {
+                        } catch (JSONException | IOException ignored) {
                             Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                             init();
                         }
@@ -182,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         break;
                     case 3:
                         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+
                         if (!dpm.isDeviceOwnerApp(getPackageName())) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)

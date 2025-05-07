@@ -15,6 +15,7 @@ package com.saradabar.cpadcustomizetool.view.activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.os.BenesseExtension;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ import androidx.preference.PreferenceManager;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
@@ -52,14 +54,10 @@ public class EmergencyActivity extends AppCompatActivity {
             // 小学講座
             case "1":
                 run(Constants.PKG_SHO_HOME, Constants.HOME_SHO);
-                Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
                 break;
             // 中学講座
             case "2":
                 run(Constants.PKG_CHU_HOME, Constants.HOME_CHU);
-                Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
                 break;
         }
     }
@@ -67,11 +65,7 @@ public class EmergencyActivity extends AppCompatActivity {
     private void run(String packageName, String className) {
         disableKeepService();
         startHomeApp(packageName, className);
-        setSetupStatus();
-        hideNavigationBar();
-        setDisplaySize();
-        setHomeApp(packageName);
-        removeTask();
+        setSetupStatus(packageName);
     }
 
     // 維持サービスの無効化
@@ -105,41 +99,54 @@ public class EmergencyActivity extends AppCompatActivity {
     }
 
     // DchaState 変更
-    private void setSetupStatus() {
+    private void setSetupStatus(String packageName) {
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 1)) {
             new DchaServiceUtil(this).setSetupStatus(3, object -> {
                 if (!object.equals(true)) {
                     Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 }
+                hideNavigationBar(packageName);
             });
+        } else {
+            hideNavigationBar(packageName);
         }
     }
 
     // ナビバー表示設定
-    private void hideNavigationBar() {
+    private void hideNavigationBar(String packageName) {
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 2)) {
             new DchaServiceUtil(this).hideNavigationBar(true, object -> {
                 if (!object.equals(true)) {
                     Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 }
+                setDisplaySize(packageName);
             });
+        } else {
+            setDisplaySize(packageName);
         }
     }
 
     // 解像度修正
-    private void setDisplaySize() {
-        new DchaUtilServiceUtil(this).getLcdSize(object -> {
-            if (object.getClass().equals(int[].class)) {
-                int[] lcdSize = (int[]) object;
-                new DchaUtilServiceUtil(this).setForcedDisplaySize(lcdSize[0], lcdSize[1], object1 -> {
-                    if (!object1.equals(true)) {
-                        Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
-                    }
-                });
+    private void setDisplaySize(String packageName) {
+        if (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTX ||
+                Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTZ) {
+            // CTXとCTZ
+            if (Common.isBenesseExtensionExist()) {
+                //noinspection ResultOfMethodCallIgnored
+                BenesseExtension.putInt(Constants.BC_COMPATSCREEN, 0);
             } else {
                 Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
             }
-        });
+            setHomeApp(packageName);
+        } else {
+            // CT2とCT3
+            new DchaUtilServiceUtil(this).setForcedDisplaySize(1280, 800, object -> {
+                if (!object.equals(true)) {
+                    Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
+                }
+                setHomeApp(packageName);
+            });
+        }
     }
 
     // ホームを変更
@@ -149,6 +156,7 @@ public class EmergencyActivity extends AppCompatActivity {
 
             if (resolveInfo == null) {
                 Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
+                removeTask();
                 return;
             }
             new DchaServiceUtil(this).setPreferredHomeApp(resolveInfo.activityInfo.packageName, packageName, object -> {
@@ -156,7 +164,10 @@ public class EmergencyActivity extends AppCompatActivity {
                     // 失敗
                     Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
                 }
+                removeTask();
             });
+        } else {
+            removeTask();
         }
     }
 
@@ -167,7 +178,12 @@ public class EmergencyActivity extends AppCompatActivity {
                 if (!object.equals(true)) {
                     Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 }
+                Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
+                finishAndRemoveTask();
             });
+        } else {
+            Toast.makeText(this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
+            finishAndRemoveTask();
         }
     }
 

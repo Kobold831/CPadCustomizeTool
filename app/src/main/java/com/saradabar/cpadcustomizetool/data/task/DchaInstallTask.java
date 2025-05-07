@@ -33,7 +33,7 @@ public class DchaInstallTask {
         }
     }
 
-    protected void doInBackground(Context context, Listener listener, String installData) {
+    private void doInBackground(Context context, Listener listener, String installData) {
         new DchaServiceUtil(context).installApp(installData, 2, object ->
                 doListener().onPost(listener, object.equals(true)));
     }

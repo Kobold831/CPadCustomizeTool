@@ -83,7 +83,7 @@
             android:exported="true"
             android:icon="@android:drawable/ic_dialog_alert"
             android:label="@string/activity_emergency"
-            android:theme="@style/DialogNoActionBarTheme"
+            android:theme="@style/NoDisplayTheme"
             android:configChanges="keyboardHidden|screenSize|orientation"
             android:clearTaskOnLaunch="true"
             android:documentLaunchMode="always"
@@ -99,7 +99,7 @@
             android:exported="true"
             android:icon="@android:drawable/ic_menu_revert"
             android:label="@string/activity_normal"
-            android:theme="@style/DialogNoActionBarTheme"
+            android:theme="@style/NoDisplayTheme"
             android:configChanges="keyboardHidden|screenSize|orientation"
             android:clearTaskOnLaunch="true"
             android:documentLaunchMode="always"
@@ -115,7 +115,7 @@
             android:exported="true"
             android:icon="@android:drawable/ic_popup_sync"
             android:label="@string/activity_reboot"
-            android:theme="@style/DialogNoActionBarTheme"
+            android:theme="@style/NoDisplayTheme"
             android:configChanges="keyboardHidden|screenSize|orientation"
             android:clearTaskOnLaunch="true"
             android:documentLaunchMode="always"
@@ -169,7 +169,10 @@
             android:name=".view.activity.ForceCrashActivity"
             android:exported="true"
             android:label="強制クラッシュ (開発用)"
-            android:theme="@android:style/Theme.NoDisplay"
+            android:theme="@style/NoDisplayTheme"
+            android:clearTaskOnLaunch="true"
+            android:documentLaunchMode="always"
+            android:excludeFromRecents="true"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

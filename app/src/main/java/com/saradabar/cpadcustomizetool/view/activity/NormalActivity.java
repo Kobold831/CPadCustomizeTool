@@ -55,15 +55,11 @@ public class NormalActivity extends AppCompatActivity {
             case "1":
                 run();
                 activityManager.killBackgroundProcesses(Constants.PKG_SHO_HOME);
-                Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
                 break;
             // 中学講座
             case "2":
                 run();
                 activityManager.killBackgroundProcesses(Constants.PKG_CHU_HOME);
-                Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
                 break;
         }
     }
@@ -71,9 +67,6 @@ public class NormalActivity extends AppCompatActivity {
     private void run() {
         startHomeApp();
         setSetupStatus();
-        showNavigationBar();
-        setDisplaySize();
-        setHomeApp();
     }
 
     // ホームを起動
@@ -100,13 +93,17 @@ public class NormalActivity extends AppCompatActivity {
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 1)) {
             if (Common.isBenesseExtensionExist()) {
                 BenesseExtension.setDchaState(0);
+                showNavigationBar();
                 return;
             }
             new DchaServiceUtil(this).setSetupStatus(0, object -> {
                 if (!object.equals(true)) {
                     Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 }
+                showNavigationBar();
             });
+        } else {
+            showNavigationBar();
         }
     }
 
@@ -117,7 +114,10 @@ public class NormalActivity extends AppCompatActivity {
                 if (!object.equals(true)) {
                     Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 }
+                setDisplaySize();
             });
+        } else {
+            setDisplaySize();
         }
     }
 
@@ -132,12 +132,14 @@ public class NormalActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
             }
+            setHomeApp();
         } else {
             // CT2とCT3
             new DchaUtilServiceUtil(this).setForcedDisplaySize(1280, 800, object -> {
                 if (!object.equals(true)) {
                     Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                 }
+                setHomeApp();
             });
         }
     }
@@ -145,10 +147,17 @@ public class NormalActivity extends AppCompatActivity {
     // ホームを変更
     private void setHomeApp() {
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 3)) {
+            // 変更するホームが設定されているかチェック
+            if (Preferences.load(this, Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, "").isEmpty()) {
+                Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
+                finishAndRemoveTask();
+                return;
+            }
             ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
 
             if (resolveInfo == null) {
                 Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
+                finishAndRemoveTask();
                 return;
             }
             new DchaServiceUtil(this).setPreferredHomeApp(resolveInfo.activityInfo.packageName,
@@ -157,7 +166,12 @@ public class NormalActivity extends AppCompatActivity {
                             // 失敗
                             Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
                         }
+                        Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
+                        finishAndRemoveTask();
                     });
+        } else {
+            Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
+            finishAndRemoveTask();
         }
     }
 
