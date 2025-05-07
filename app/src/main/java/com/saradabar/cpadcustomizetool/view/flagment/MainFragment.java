@@ -946,7 +946,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
 
         /* 端末ごとにPreferenceの状態を設定 */
-        switch (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2)) {
+        switch (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT)) {
             case Constants.MODEL_CT2:
                 try {
                     if (requireActivity().getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode < 5) {
