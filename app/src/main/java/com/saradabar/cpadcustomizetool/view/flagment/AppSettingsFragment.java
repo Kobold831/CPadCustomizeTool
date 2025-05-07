@@ -12,8 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-
 import android.app.ActivityManager;
 import android.app.Service;
 import android.app.admin.DevicePolicyManager;
@@ -180,7 +178,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         }
                         break;
                     case 4:
-                        if (isDhizukuActive(requireActivity())) {
+                        if (Common.isDhizukuActive(requireActivity()) &&
+                                Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
                             try {
                                 if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
                                     new AlertDialog.Builder(requireActivity())

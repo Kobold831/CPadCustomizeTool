@@ -12,8 +12,6 @@
 
 package com.saradabar.cpadcustomizetool;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-
 import android.Manifest;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
@@ -195,7 +193,8 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), new ArrayList<>(List.of(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                     case 4:
-                        if (!isDhizukuActive(this)) {
+                        if (!Common.isDhizukuActive(this) &&
+                                Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
@@ -377,7 +376,8 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                 }
                                 break;
                             case 4:
-                                if (Common.isDhizukuActive(v.getContext())) {
+                                if (Common.isDhizukuActive(this) &&
+                                        Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
                                     try {
                                         if (getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
                                             new AlertDialog.Builder(v.getContext())

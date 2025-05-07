@@ -232,15 +232,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 break;
             /* チャレンジパッド３ */
             case Constants.MODEL_CT3:
-                swPrePermissionFrc.setEnabled(false);
-                swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preUninstallBlock.setEnabled(false);
-                preUninstallBlock.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preSessionInstall.setEnabled(false);
-                preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preAbandonSession.setEnabled(false);
-                preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                break;
             /* チャレンジパッドNEO・NEXT */
             case Constants.MODEL_CTX:
             case Constants.MODEL_CTZ:
