@@ -282,15 +282,11 @@ public class Common {
     }
 
     public static boolean isBenesseExtensionExist() {
-        if (isCT2() || isCT3()) {
-            // CT2、CT3は確認ダイアログを表示しない
-            return false;
-        }
-
         try {
-            Class.forName("android.os.BenesseExtension", false, ClassLoader.getSystemClassLoader());
+            Class<?> c = Class.forName("android.os.BenesseExtension", false, ClassLoader.getSystemClassLoader());
+            c.getMethod("setDchaState");
             return true;
-        } catch (Exception ignored) {
+        } catch (ClassNotFoundException | NoClassDefFoundError | NoSuchMethodException | SecurityException ignored) {
             return false;
         }
     }
@@ -305,8 +301,7 @@ public class Common {
     }
 
     public static boolean isShowCfmDialog(Context context) {
-        if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2 ||
-                Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT3) {
+        if (isCT2() || isCT3()) {
             // CT2、CT3は確認ダイアログを表示しない
             return false;
         }
