@@ -26,6 +26,7 @@
         android:name=".MyApplication"
         android:persistent="true"
         android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="false"
         tools:remove="android:appComponentFactory">
 
         <meta-data

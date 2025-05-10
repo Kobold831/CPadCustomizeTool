@@ -12,18 +12,10 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
-
 import android.app.ActivityManager;
 import android.app.Service;
-import android.app.admin.DevicePolicyManager;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AbsListView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -33,19 +25,15 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
-import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.service.AlwaysNotiService;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
+import com.saradabar.cpadcustomizetool.util.dialog.InstallerListDialogFragment;
 import com.saradabar.cpadcustomizetool.view.activity.CrashLogActivity;
 import com.saradabar.cpadcustomizetool.view.activity.ForceCrashActivity;
-import com.saradabar.cpadcustomizetool.view.views.UpdateModeListView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class AppSettingsFragment extends PreferenceFragmentCompat {
 
@@ -116,105 +104,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         });
 
         preUpdateMode.setOnPreferenceClickListener(preference -> {
-            View v = requireActivity().getLayoutInflater().inflate(R.layout.layout_update_list, null);
-            List<UpdateModeListView.AppData> dataList = new ArrayList<>();
-            int i = 0;
-
-            for (String str : Constants.LIST_UPDATE_MODE) {
-                UpdateModeListView.AppData data = new UpdateModeListView.AppData();
-                data.label = str;
-                data.updateMode = i;
-                dataList.add(data);
-                i++;
-            }
-
-            ListView listView = v.findViewById(R.id.update_list);
-            listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-            listView.setAdapter(new UpdateModeListView.AppListAdapter(requireActivity(), dataList));
-            listView.setOnItemClickListener((parent, mView, position, id) -> {
-                switch (position) {
-                    case 0:
-                        if (Common.isCT2() || Common.isCT3()) {
-                            Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                            listView.invalidateViews();
-                        } else {
-                            new AlertDialog.Builder(requireActivity())
-                                    .setMessage(getString(R.string.dialog_error_no_mode))
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                    .show();
-                        }
-                        break;
-                    case 1:
-                        Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                        listView.invalidateViews();
-                        break;
-                    case 2:
-                        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-                            try {
-                                if (Common.isDchaActive(requireActivity()) &&
-                                        requireActivity().getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode > 4) {
-                                    Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                    listView.invalidateViews();
-                                } else {
-                                    new AlertDialog.Builder(requireActivity())
-                                            .setMessage(getString(R.string.dialog_error_no_mode))
-                                            .setPositiveButton(R.string.dialog_common_ok, null)
-                                            .show();
-                                }
-                            } catch (PackageManager.NameNotFoundException ignored) {
-                                new AlertDialog.Builder(requireActivity())
-                                        .setMessage(getString(R.string.dialog_error_no_mode))
-                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                        .show();
-                            }
-                        } else {
-                            new AlertDialog.Builder(requireActivity())
-                                    .setMessage(getString(R.string.pre_app_sum_confirmation_dcha))
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                    .show();
-                        }
-                        break;
-                    case 3:
-                        if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName()) &&
-                                !Common.isCT2()) {
-                            Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                            listView.invalidateViews();
-                        } else {
-                            new AlertDialog.Builder(requireActivity())
-                                    .setMessage(getString(R.string.dialog_error_no_mode))
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                    .show();
-                        }
-                        break;
-                    case 4:
-                        if (isDhizukuActive(requireActivity()) && !Common.isCT2()) {
-                            try {
-                                if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
-                                    new AlertDialog.Builder(requireActivity())
-                                            .setCancelable(false)
-                                            .setMessage(getString(R.string.dialog_dhizuku_require_12))
-                                            .setPositiveButton(getString(R.string.dialog_common_ok), null)
-                                            .show();
-                                }
-                                Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                listView.invalidateViews();
-                            } catch (Exception ignored) {
-                            }
-                        } else {
-                            new AlertDialog.Builder(requireActivity())
-                                    .setMessage(getString(R.string.dialog_error_no_mode))
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                    .show();
-                        }
-                        break;
-                }
-            });
-
-            new AlertDialog.Builder(requireActivity())
-                    .setView(v)
-                    .setTitle(getString(R.string.dialog_title_select_mode))
-                    .setPositiveButton(R.string.dialog_common_ok, null)
-                    .show();
+            new InstallerListDialogFragment(1, () -> {
+            }).show(requireActivity().getSupportFragmentManager(), "");
             return false;
         });
 

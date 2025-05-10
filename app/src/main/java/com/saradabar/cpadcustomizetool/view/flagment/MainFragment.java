@@ -198,35 +198,40 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case Constants.REQUEST_ACTIVITY_INSTALL:
+            case Constants.REQUEST_ACTIVITY_INSTALL:// サイレントインストール要求
                 preSilentInstall.setEnabled(true);
 
                 if (data == null) {
+                    // 何も選択していない
                     return;
                 }
 
                 String installData = Common.getFilePath(requireActivity(), data.getData());
 
                 if (installData != null) {
+                    //　選択されたファイルの取得成功
                     new DchaInstallTask().execute(requireActivity(), dchaInstallTaskListener(), installData);
                     return;
                 } else {
+                    //　選択されたファイルの取得失敗
                     new AlertDialog.Builder(requireActivity())
                             .setMessage(getString(R.string.dialog_error_no_file_data))
                             .setPositiveButton(R.string.dialog_common_ok, null)
                             .show();
                 }
                 break;
-            case Constants.REQUEST_ACTIVITY_SYSTEM_UPDATE:
+            case Constants.REQUEST_ACTIVITY_SYSTEM_UPDATE:// システムアップデート要求
                 preSystemUpdate.setEnabled(true);
 
                 if (data == null) {
+                    // 何も選択していない
                     return;
                 }
 
                 String updateData = Common.getFilePath(requireActivity(), data.getData());
 
                 if (updateData != null) {
+                    //　選択されたファイルの取得成功
                     new DchaServiceUtil(requireActivity()).execSystemUpdate(updateData, 0, object -> {
                         if (!object.equals(true)) {
                             new AlertDialog.Builder(requireActivity())
@@ -236,9 +241,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         }
                     });
                 } else {
+                    //　選択されたファイルの取得失敗
                     new AlertDialog.Builder(requireActivity())
                             .setMessage(getString(R.string.dialog_error_no_file_data))
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> dialog.dismiss())
+                            .setPositiveButton(R.string.dialog_common_ok, null)
                             .show();
                 }
                 break;

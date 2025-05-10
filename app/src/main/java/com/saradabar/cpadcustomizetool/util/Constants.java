@@ -59,7 +59,7 @@ public class Constants {
     public static final int REQUEST_INSTALL_SILENT = 0;
     public static final int REQUEST_INSTALL_SELF_UPDATE = 1;
     public static final int REQUEST_INSTALL_GET_APP = 2;
-    
+
     //　アプリで使用しているURL
     // TODO: Check.json 参照先変更機能
     public static final String CHECK_JSON = "Check.json";
@@ -117,9 +117,9 @@ public class Constants {
 
     public static final List<String> LIST_UPDATE_MODE = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー", "Dhizuku");
 
-    public static final String[] LIST_MODEL = { PRODUCT_CT2S, PRODUCT_CT2K, PRODUCT_CT2L, PRODUCT_CT3, PRODUCT_CTX, PRODUCT_CTZ };
+    public static final List<String> LIST_MODEL = Arrays.asList(String.valueOf(PRODUCT_CT2), PRODUCT_CT3, PRODUCT_CTX, PRODUCT_CTZ);
 
     // Don't use Dhizuku.getOwnerComponent()
-    public static final ComponentName DHIZUKU_COMPONENT = new ComponentName(DhizukuVariables.OFFICIAL_PACKAGE_NAME, DhizukuVariables.OFFICIAL_PACKAGE_NAME + ".server.DhizukuDAReceiver");
-
+    public static final ComponentName DHIZUKU_COMPONENT =
+            new ComponentName(DhizukuVariables.OFFICIAL_PACKAGE_NAME, DhizukuVariables.OFFICIAL_PACKAGE_NAME + ".server.DhizukuDAReceiver");
 }

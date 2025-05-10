@@ -70,12 +70,13 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
         }
 
         if (supportModelCheck()) {
+            // サポート対象端末
             setLayoutParams();
         }
         transitionFragment(new MainFragment(), false);
 
-        /* アップデートチェックするか確認 */
         if (Preferences.load(this, Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
+            // アップデートチェックする設定
             new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), Constants.CHECK_JSON), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
         }
     }
@@ -92,22 +93,26 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.app_info_1) {
+            // アプリ情報
             startActivity(new Intent(this, AppInfoActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             return true;
         }
 
         if (item.getItemId() == R.id.app_info_2) {
+            // アップデートの確認
             startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             return true;
         }
 
         if (item.getItemId() == R.id.app_info_3) {
+            // アプリ設定
             menu.findItem(R.id.app_info_3).setVisible(false);
             transitionFragment(new AppSettingsFragment(), true);
             return true;
         }
 
         if (item.getItemId() == android.R.id.home) {
+            // 戻る
             menu.findItem(R.id.app_info_3).setVisible(true);
             //noinspection deprecation
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -140,12 +145,10 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     @Override
     public void onResume() {
         super.onResume();
-
-        // デバッグモードが無効かつ DchaService を使う設定かつ　DchaService と通信できないかどうか
         if (!Preferences.load(this, "debug_restriction", Constants.DEF_BOOL) &&
                 Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL) &&
                 !Common.isDchaActive(this)) {
-            // DchaService と通信できないならアプリを再起動
+            // デバッグモードが無効かつ DchaService を使う設定かつ　DchaService と通信できない
             Preferences.save(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
             startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             overridePendingTransition(0, 0);
@@ -155,8 +158,8 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
 
     @Override
     public void onDownloadComplete(int reqCode) {
-        /* アップデートチェック要求の場合 */
         if (reqCode == Constants.REQUEST_DOWNLOAD_UPDATE_CHECK) {
+            // アップデートチェック要求
             try {
                 JSONObject jsonObj1 = parseJson(new File(getExternalCacheDir(), Constants.CHECK_JSON));
                 JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
@@ -197,8 +200,8 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
     }
 
     private boolean supportModelCheck() {
-        for (String string : Constants.LIST_MODEL) {
-            if (Objects.equals(string, Build.MODEL)) {
+        for (String model : Constants.LIST_MODEL) {
+            if (Objects.equals(model, Build.MODEL)) {
                 return true;
             }
         }
@@ -309,17 +312,13 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             if (Common.isCT2() || Common.isCT3()) {
                 marginLayoutParams.setMargins(64, 0, 64, 0);
-            }
-
-            if (Common.isCTX() || Common.isCTZ()) {
+            } else if (Common.isCTX() || Common.isCTZ()) {
                 marginLayoutParams.setMargins(72, 0, 72, 0);
             }
         } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             if (Common.isCT2() || Common.isCT3()) {
                 marginLayoutParams.setMargins(112, 0, 112, 0);
-            }
-
-            if (Common.isCTX() || Common.isCTZ()) {
+            } else if (Common.isCTX() || Common.isCTZ()) {
                 marginLayoutParams.setMargins(144, 0, 144, 0);
             }
         }

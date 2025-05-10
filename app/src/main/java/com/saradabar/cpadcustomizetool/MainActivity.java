@@ -26,8 +26,6 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
-import android.widget.AbsListView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -36,10 +34,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 
-import com.rosan.dhizuku.api.Dhizuku;
-import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
-
-import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
@@ -49,18 +43,16 @@ import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
+import com.saradabar.cpadcustomizetool.util.dialog.InstallerListDialogFragment;
 import com.saradabar.cpadcustomizetool.view.activity.CrashScreenActivity;
 import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WelAppActivity;
-import com.saradabar.cpadcustomizetool.view.views.UpdateModeListView;
 
 import com.stephentuso.welcome.WelcomeHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -83,44 +75,35 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     private void init() {
-        /* 前回クラッシュしているかどうか */
+        // クラッシュしていたか判定
         if (Preferences.load(this, Constants.KEY_FLAG_ERROR_CRASH, Constants.DEF_BOOL)) {
-            // クラッシュ画面表示
             showCrashScreen();
             return;
         }
 
-        /* 初回起動が完了しているかどうか */
         if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
-            /* サポート端末か確認 */
-            if (supportModelCheck()) {
-                /* DchaServiceを確認 */
-                checkDchaService();
-            } else {
-                supportModelError();
-            }
+            // 初回起動完了
+            supportModelCheck();
         } else {
-            // 初回起動
+            // 初回起動未完了
             updateCheck();
         }
     }
 
+    // クラッシュ画面表示
     private void showCrashScreen() {
         startActivity(new Intent(this, CrashScreenActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
         overridePendingTransition(0, 0);
         finish();
     }
 
+    // Welcome画面表示
     private void showWelcome() {
         if (Preferences.load(this, Constants.KEY_FLAG_APP_WELCOME_COMPLETE, Constants.DEF_BOOL)) {
-            /* サポート端末か確認 */
-            if (supportModelCheck()) {
-                /* DchaServiceを確認 */
-                checkDchaService();
-            } else {
-                supportModelError();
-            }
+            // 初回起動完了
+            supportModelCheck();
         } else {
+            // 初回起動未完了
             new WelcomeHelper(this, WelAppActivity.class).forceShow();
             overridePendingTransition(0, 0);
             finish();
@@ -138,8 +121,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     public void onDownloadComplete(int reqCode) {
         cancelLoadingDialog();
         switch (reqCode) {
-            /* アップデートチェック要求の場合 */
-            case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
+            case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:// アップデートチェック要求
                 try {
                     JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), Constants.CHECK_JSON));
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
@@ -154,13 +136,12 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     onDownloadError(reqCode);
                 }
                 break;
-            /* APKダウンロード要求の場合 */
-            case Constants.REQUEST_DOWNLOAD_APK:
+            case Constants.REQUEST_DOWNLOAD_APK:// APKダウンロード要求
                 switch (Preferences.load(this, Constants.KEY_INT_UPDATE_MODE, 1)) {
-                    case 0:
+                    case 0:// パッケージインストーラー
                         startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
                         break;
-                    case 1:
+                    case 1:// Adb
                         try {
                             JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), Constants.CHECK_JSON));
                             JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
@@ -177,10 +158,10 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                             init();
                         }
                         break;
-                    case 2:
+                    case 2:// Dcha
                         new DchaInstallTask().execute(this, dchaInstallTaskListener(), new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
                         break;
-                    case 3:
+                    case 3:// デバイスオーナー
                         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 
                         if (!dpm.isDeviceOwnerApp(getPackageName())) {
@@ -194,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         }
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), new ArrayList<>(List.of(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
-                    case 4:
+                    case 4:// Dhizuku
                         if (!isDhizukuActive(this) || Common.isCT2()) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
@@ -303,133 +284,10 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     progressDialog.show();
                 })
                 .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> showWelcome())
-                .setNeutralButton("設定", (dialog, which) -> {
-                    View v = getLayoutInflater().inflate(R.layout.layout_update_list, null);
-                    List<UpdateModeListView.AppData> dataList = new ArrayList<>();
-                    int i = 0;
-
-                    for (String str1 : Constants.LIST_UPDATE_MODE) {
-                        UpdateModeListView.AppData data = new UpdateModeListView.AppData();
-                        data.label = str1;
-                        data.updateMode = i;
-                        dataList.add(data);
-                        i++;
-                    }
-                    ListView listView = v.findViewById(R.id.update_list);
-                    listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-                    listView.setAdapter(new UpdateModeListView.AppListAdapter(v.getContext(), dataList));
-                    listView.setOnItemClickListener((parent, mView, position, id) -> {
-                        switch (position) {
-                            case 0:
-                                if (Common.isCT2() || Common.isCT3()) {
-                                    Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                    listView.invalidateViews();
-                                } else {
-                                    new AlertDialog.Builder(v.getContext())
-                                            .setMessage(getString(R.string.dialog_error_no_mode))
-                                            .setPositiveButton(R.string.dialog_common_ok, null)
-                                            .show();
-                                }
-                                break;
-                            case 1:
-                                Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                listView.invalidateViews();
-                                break;
-                            case 2:
-                                try {
-                                    if (Common.isDchaActive(this) &&
-                                            getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode > 4) {
-                                        Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                        listView.invalidateViews();
-                                    } else {
-                                        new AlertDialog.Builder(this)
-                                                .setMessage(getString(R.string.dialog_error_no_mode))
-                                                .setPositiveButton(R.string.dialog_common_ok, null)
-                                                .show();
-                                    }
-                                } catch (PackageManager.NameNotFoundException ignored) {
-                                    new AlertDialog.Builder(this)
-                                            .setMessage(getString(R.string.dialog_error_no_mode))
-                                            .setPositiveButton(R.string.dialog_common_ok, null)
-                                            .show();
-                                }
-                                break;
-                            case 3:
-                                if (((DevicePolicyManager) v.getContext().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(v.getContext().getPackageName()) &&
-                                        !Common.isCT2()) {
-                                    Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                    listView.invalidateViews();
-                                } else {
-                                    new AlertDialog.Builder(v.getContext())
-                                            .setMessage(getString(R.string.dialog_error_no_mode))
-                                            .setPositiveButton(R.string.dialog_common_ok, null)
-                                            .show();
-                                }
-                                break;
-                            case 4:
-                                if (Common.isCT2()) {
-                                    new AlertDialog.Builder(v.getContext())
-                                            .setMessage(getString(R.string.dialog_error_no_mode))
-                                            .setPositiveButton(R.string.dialog_common_ok, null)
-                                            .show();
-                                    return;
-                                }
-
-                                if (Common.isDhizukuActive(v.getContext())) {
-                                    try {
-                                        if (getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
-                                            new AlertDialog.Builder(v.getContext())
-                                                    .setCancelable(false)
-                                                    .setMessage(getString(R.string.dialog_dhizuku_require_12))
-                                                    .setPositiveButton(getString(R.string.dialog_common_ok), null)
-                                                    .show();
-                                        }
-                                        Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                        listView.invalidateViews();
-                                    } catch (PackageManager.NameNotFoundException ignored) {
-                                        new AlertDialog.Builder(v.getContext())
-                                                .setMessage(getString(R.string.dialog_error_no_mode))
-                                                .setPositiveButton(R.string.dialog_common_ok, null)
-                                                .show();
-                                    }
-                                } else {
-                                    if (!Dhizuku.init(v.getContext())) {
-                                        new AlertDialog.Builder(v.getContext())
-                                                .setMessage(getString(R.string.dialog_error_no_mode))
-                                                .setPositiveButton(R.string.dialog_common_ok, null)
-                                                .show();
-                                        return;
-                                    }
-                                    Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
-                                        @Override
-                                        public void onRequestPermission(int grantResult) {
-                                            runOnUiThread(() -> {
-                                                if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                                                    Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                                    listView.invalidateViews();
-                                                } else {
-                                                    new AlertDialog.Builder(v.getContext())
-                                                            .setMessage(R.string.dialog_dhizuku_deny_permission)
-                                                            .setPositiveButton(R.string.dialog_common_ok, null)
-                                                            .show();
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                                break;
-                        }
-                    });
-
-                    new AlertDialog.Builder(v.getContext())
-                            .setCancelable(false)
-                            .setView(v)
-                            .setTitle(getString(R.string.dialog_title_select_mode))
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog1, which1) -> init())
-                            .show();
-                })
+                .setNeutralButton("設定", (dialog, which) -> new InstallerListDialogFragment(0, this::init).show(getSupportFragmentManager(), ""))
                 .show();
     }
+
 
     /* ローディングダイアログを表示する */
     private void showLoadingDialog(String message) {
@@ -452,14 +310,21 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     /* 端末チェック */
-    private boolean supportModelCheck() {
-        for (String string : Constants.LIST_MODEL) {
-            if (Objects.equals(string, Build.MODEL)) {
-                return true;
+    private void supportModelCheck() {
+        if (BuildConfig.DEBUG) {
+            // デバッグビルド
+            checkDchaService();
+        }
+
+        for (String model : Constants.LIST_MODEL) {
+            if (Objects.equals(model, Build.MODEL)) {
+                // サポートデバイス一致
+                checkDchaService();
+                return;
             }
         }
-        /* debuggable の時は確認しない */
-        return BuildConfig.DEBUG;
+        // すべて一致しなかったので、デバイスサポート対象外エラー
+        supportModelError();
     }
 
     /* 端末チェックエラー */
@@ -474,15 +339,16 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     /* DchaService動作チェック */
     private void checkDchaService() {
-        /* DchaServiceを使用する設定かどうか */
         if (Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
-            // dcha接続不可かどうか
+            // dchaを使用する設定
             if (!Common.isDchaActive(this)) {
+                // Dchaが動作していない
                 new AlertDialog.Builder(this)
                         .setCancelable(false)
                         .setTitle(R.string.dialog_title_error)
                         .setMessage(R.string.dialog_error_check_dcha)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            // Dchaを使用しない設定に変更
                             Preferences.save(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
                             init();
                         })
@@ -494,68 +360,16 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     private void confCheck() {
-        switch (Build.MODEL) {
-            case Constants.PRODUCT_CT3:
-                confCheckCT3();
-                break;
-            case Constants.PRODUCT_CTX:
-                confCheckCTX();
-                break;
-            case Constants.PRODUCT_CTZ:
-                confCheckCTZ();
-                break;
-            default:
-                confCheckCT2();
-                break;
-        }
-    }
-
-    /* Pad2起動設定チェック */
-    private void confCheckCT2() {
         if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
-            startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            overridePendingTransition(0, 0);
-            finish();
-        } else {
-            WarningDialog();
-        }
-    }
-
-    /* Pad3起動設定チェック */
-    private void confCheckCT3() {
-        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
+            // 初期設定完了
             if (isPermissionCheck()) {
+                // 権限チェックOK
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 overridePendingTransition(0, 0);
                 finish();
             }
         } else {
-            WarningDialog();
-        }
-    }
-
-    /* NEO起動設定チェック */
-    private void confCheckCTX() {
-        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
-            if (isPermissionCheck()) {
-                startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                overridePendingTransition(0, 0);
-                finish();
-            }
-        } else {
-            WarningDialog();
-        }
-    }
-
-    /* NEXT起動設定チェック */
-    private void confCheckCTZ() {
-        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
-            if (isPermissionCheck()) {
-                startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                overridePendingTransition(0, 0);
-                finish();
-            }
-        } else {
+            // 初期設定未完了
             WarningDialog();
         }
     }
@@ -714,15 +528,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             /* 成功 */
             @Override
             public void onSuccess() {
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (IOException ignored) {
-                }
+                Common.deleteDirectory(getExternalCacheDir());
                 cancelLoadingDialog();
                 AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
                         .setMessage(R.string.dialog_success_silent_install)
@@ -738,15 +544,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             /* 失敗 */
             @Override
             public void onFailure(String message) {
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (IOException ignored) {
-                }
+                Common.deleteDirectory(getExternalCacheDir());
                 cancelLoadingDialog();
                 new AlertDialog.Builder(MainActivity.this)
                         .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
@@ -757,15 +555,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
             @Override
             public void onError(String message) {
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (IOException ignored) {
-                }
+                Common.deleteDirectory(getExternalCacheDir());
                 cancelLoadingDialog();
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle(getString(R.string.dialog_title_error))

@@ -111,7 +111,9 @@ public class Common {
         }, Context.BIND_AUTO_CREATE);
     }
 
-    /** @noinspection BooleanMethodIsAlwaysInverted*/
+    /**
+     * @noinspection BooleanMethodIsAlwaysInverted
+     */
     public static boolean isDchaUtilActive(Context context) {
         return context.bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
             @Override
@@ -191,10 +193,10 @@ public class Common {
     public static void LogOverWrite(Context context, @NonNull Throwable throwable) {
         String message =
                 "Date: " + getNowDate() + System.lineSeparator() +
-                "Version: v" + BuildConfig.VERSION_NAME + System.lineSeparator() +
-                "Device: " + Build.MODEL + System.lineSeparator() +
-                "Build: " + Build.ID + System.lineSeparator() +
-                "Exception: " + throwable.getMessage();
+                        "Version: v" + BuildConfig.VERSION_NAME + System.lineSeparator() +
+                        "Device: " + Build.MODEL + System.lineSeparator() +
+                        "Build: " + Build.ID + System.lineSeparator() +
+                        "Exception: " + throwable.getMessage();
 
         ArrayList<String> arrayList = Preferences.load(context, Constants.KEY_LIST_CRASH_LOG);
 
@@ -273,11 +275,11 @@ public class Common {
     public static boolean isCT3() {
         return getProductModelName().equals(Constants.PRODUCT_CT3);
     }
-    
+
     public static boolean isCTX() {
         return getProductModelName().equals(Constants.PRODUCT_CTX);
     }
-    
+
     public static boolean isCTZ() {
         return getProductModelName().equals(Constants.PRODUCT_CTZ);
     }
@@ -295,7 +297,7 @@ public class Common {
             return false;
         }
     }
-    
+
     public static boolean getDchaCompletedPast() {
         // BenesseExtension が存在しない場合は配慮不要
         if (!isBenesseExtensionExist("getDchaState")) {
@@ -365,20 +367,30 @@ public class Common {
         return null;
     }
 
-    public static boolean deleteDirectory(File file) {
-        if (file != null && file.isDirectory()) {
-            String[] fileList = file.list();
-            if (fileList != null) {
-                for (String s : fileList) {
-                    File f = new File(file, s);
-                    if (!f.delete()) {
+    public static boolean deleteDirectory(File directory) {
+        if (directory == null || !directory.isDirectory()) {
+            return false;
+        }
+        File[] fs = directory.listFiles();
+
+        if (fs == null) {
+            return false;
+        }
+
+        try {
+            for (File file : fs) {
+                if (file.isDirectory()) {
+                    deleteDirectory(file);
+                } else {
+                    if (!file.delete()) {
                         return false;
                     }
                 }
-                return true;
             }
+            return directory.delete();
+        } catch (RuntimeException ignored) {
+            return false;
         }
-        return false;
     }
 
     @NonNull
