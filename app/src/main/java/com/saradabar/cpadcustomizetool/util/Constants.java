@@ -36,12 +36,6 @@ public class Constants {
     public static final String PRODUCT_CTX = "TAB-A05-BD";
     public static final String PRODUCT_CTZ = "TAB-A05-BA1";
 
-    // タブレットモデルの番号
-    public static final int MODEL_CT2 = 0;
-    public static final int MODEL_CT3 = 1;
-    public static final int MODEL_CTX = 2;
-    public static final int MODEL_CTZ = 3;
-
     // 設定変更フラグの番号
     public static final int FLAG_USB_DEBUG_TRUE = 6;
     public static final int FLAG_USB_DEBUG_FALSE = 7;
@@ -90,7 +84,6 @@ public class Constants {
     public static final String KEY_FLAG_APP_SETTING_DCHA = "settings_dcha";
     public static final String KEY_FLAG_DCHA_FUNCTION_CONFIRMATION = "confirmation";
     public static final String KEY_FLAG_ERROR_CRASH = "crash";
-    public static final String KEY_INT_MODEL_NUMBER = "model_name";
     public static final String KEY_INT_UPDATE_MODE = "update_mode";
     public static final String KEY_INT_GET_APP_TMP = "key_radio_tmp";
     public static final String KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE = "normal_launcher";

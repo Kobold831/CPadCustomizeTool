@@ -195,8 +195,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), new ArrayList<>(List.of(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                     case 4:
-                        if (!isDhizukuActive(this) ||
-                                Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2) {
+                        if (!isDhizukuActive(this) || Common.isCT2()) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
@@ -270,22 +269,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     /* アップデートダイアログ */
     private void showUpdateDialog(String str, String downloadFileUrl) {
-        /* モデルIDをセット */
-        switch (Build.MODEL) {
-            case Constants.PRODUCT_CT3:
-                Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT3);
-                break;
-            case Constants.PRODUCT_CTX:
-                Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CTX);
-                break;
-            case Constants.PRODUCT_CTZ:
-                Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CTZ);
-                break;
-            default:
-                Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2);
-                break;
-        }
-
         View view = getLayoutInflater().inflate(R.layout.view_update, null);
         AppCompatTextView tv = view.findViewById(R.id.update_information);
         tv.setText(str);
@@ -338,8 +321,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     listView.setOnItemClickListener((parent, mView, position, id) -> {
                         switch (position) {
                             case 0:
-                                if (Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2 ||
-                                        Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT3) {
+                                if (Common.isCT2() || Common.isCT3()) {
                                     Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 } else {
@@ -374,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                 break;
                             case 3:
                                 if (((DevicePolicyManager) v.getContext().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(v.getContext().getPackageName()) &&
-                                        Preferences.load(v.getContext(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
+                                        !Common.isCT2()) {
                                     Preferences.save(v.getContext(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                     listView.invalidateViews();
                                 } else {
@@ -385,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                                 }
                                 break;
                             case 4:
-                                if (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2) {
+                                if (Common.isCT2()) {
                                     new AlertDialog.Builder(v.getContext())
                                             .setMessage(getString(R.string.dialog_error_no_mode))
                                             .setPositiveButton(R.string.dialog_common_ok, null)
@@ -530,8 +512,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     /* Pad2起動設定チェック */
     private void confCheckCT2() {
-        Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2);
-
         if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
             startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             overridePendingTransition(0, 0);
@@ -543,8 +523,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     /* Pad3起動設定チェック */
     private void confCheckCT3() {
-        Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT3);
-
         if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
             if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
@@ -558,8 +536,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     /* NEO起動設定チェック */
     private void confCheckCTX() {
-        Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CTX);
-
         if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
             if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
@@ -573,8 +549,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     /* NEXT起動設定チェック */
     private void confCheckCTZ() {
-        Preferences.save(this, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CTZ);
-
         if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
             if (isPermissionCheck()) {
                 startActivity(new Intent(this, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));

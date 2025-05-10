@@ -33,7 +33,6 @@ import androidx.preference.PreferenceFragmentCompat;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
-import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.DeviceInfoActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
 import com.saradabar.cpadcustomizetool.view.views.LaunchAppListView;
@@ -235,7 +234,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2) {
+        if (Common.isCT2()) {
             preStartUiAdjustment.setEnabled(false);
             preStartUiAdjustment.setSummary(Build.MODEL + requireActivity().getString(R.string.pre_main_sum_message_1));
         }

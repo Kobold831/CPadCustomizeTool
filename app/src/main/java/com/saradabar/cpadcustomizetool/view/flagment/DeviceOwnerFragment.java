@@ -52,7 +52,6 @@ import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
 import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
-import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 
 import org.zeroturnaround.zip.commons.FileUtils;
@@ -220,29 +219,17 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     private void initPre() {
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
 
-        switch (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT)) {
-            /* チャレンジパッド２ */
-            case Constants.MODEL_CT2:
-                swPrePermissionFrc.setEnabled(false);
-                swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preSessionInstall.setEnabled(false);
-                preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preAbandonSession.setEnabled(false);
-                preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                break;
-            /* チャレンジパッド３ */
-            case Constants.MODEL_CT3:
-                break;
-            /* チャレンジパッドNEO・NEXT */
-            case Constants.MODEL_CTX:
-            case Constants.MODEL_CTZ:
-                break;
+        if (Common.isCT2()) {
+            swPrePermissionFrc.setEnabled(false);
+            swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            preSessionInstall.setEnabled(false);
+            preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            preAbandonSession.setEnabled(false);
+            preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
         }
 
-        if (dpm.isDeviceOwnerApp(requireActivity().getPackageName()) &&
-                Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2 ||
-                dpm.isDeviceOwnerApp(DhizukuVariables.OFFICIAL_PACKAGE_NAME) &&
-                        Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
+        if (dpm.isDeviceOwnerApp(requireActivity().getPackageName()) && !Common.isCT2() ||
+                dpm.isDeviceOwnerApp(DhizukuVariables.OFFICIAL_PACKAGE_NAME) && !Common.isCT2()) {
             switch (dpm.getPermissionPolicy(new ComponentName(requireActivity(), DeviceAdminReceiver.class))) {
                 case DevicePolicyManager.PERMISSION_POLICY_PROMPT:
                     swPrePermissionFrc.setChecked(false);

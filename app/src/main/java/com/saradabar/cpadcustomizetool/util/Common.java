@@ -111,6 +111,7 @@ public class Common {
         }, Context.BIND_AUTO_CREATE);
     }
 
+    /** @noinspection BooleanMethodIsAlwaysInverted*/
     public static boolean isDchaUtilActive(Context context) {
         return context.bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
             @Override
@@ -281,19 +282,23 @@ public class Common {
         return getProductModelName().equals(Constants.PRODUCT_CTZ);
     }
 
-    public static boolean isBenesseExtensionExist() {
+    public static boolean isBenesseExtensionExist(String method) {
         try {
             Class<?> c = Class.forName("android.os.BenesseExtension", false, ClassLoader.getSystemClassLoader());
-            c.getMethod("setDchaState");
+            c.getMethod(method);
             return true;
-        } catch (ClassNotFoundException | NoClassDefFoundError | NoSuchMethodException | SecurityException ignored) {
+        } catch (ClassNotFoundException |
+                 NoClassDefFoundError |
+                 NoSuchMethodException |
+                 SecurityException |
+                 NullPointerException ignored) {
             return false;
         }
     }
     
     public static boolean getDchaCompletedPast() {
         // BenesseExtension が存在しない場合は配慮不要
-        if (!isBenesseExtensionExist()) {
+        if (!isBenesseExtensionExist("getDchaState")) {
             return true;
         }
         // IGNORE_DCHA_COMPLETED が存在している場合は COUNT_DCHA_COMPLETED を作成しても何ら問題ない

@@ -68,22 +68,19 @@ public class BootCompletedReceiver extends BroadcastReceiver {
         }
 
         try {
-            if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                    Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+            if (Common.isCTX() || Common.isCTZ()) {
                 Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 3);
                 Thread.sleep(100);
             }
 
             Settings.Global.putInt(context.getContentResolver(), Settings.Global.ADB_ENABLED, 1);
 
-            if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                    Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+            if (Common.isCTX() || Common.isCTZ()) {
                 Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 0);
             }
         } catch (Exception ignored) {
             Preferences.save(context, Constants.KEY_FLAG_AUTO_USB_DEBUG, false);
-            if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                    Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+            if (Common.isCTX() || Common.isCTZ()) {
                 Settings.System.putInt(context.getContentResolver(), Constants.DCHA_STATE, 0);
             }
         }

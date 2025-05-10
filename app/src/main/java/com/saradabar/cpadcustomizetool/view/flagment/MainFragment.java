@@ -343,8 +343,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             if ((boolean) o) {
                 try {
-                    if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                            Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    if (Common.isCTX() || Common.isCTZ()) {
                         new DchaServiceUtil(requireActivity()).setSetupStatus(3, object -> {
                         });
                         Thread.sleep(100);
@@ -352,16 +351,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                     chgSetting(Constants.FLAG_USB_DEBUG_TRUE);
 
-                    if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                            Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    if (Common.isCTX() || Common.isCTZ()) {
                         new DchaServiceUtil(requireActivity()).setSetupStatus(0, object -> {
                         });
                     }
                 } catch (Exception ignored) {
                     Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
 
-                    if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                            Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    if (Common.isCTX() || Common.isCTZ()) {
                         new DchaServiceUtil(requireActivity()).setSetupStatus(0, object -> {
                         });
                     }
@@ -392,8 +389,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             if ((boolean) o) {
                 try {
-                    if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                            Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    if (Common.isCTX() || Common.isCTZ()) {
                         new DchaServiceUtil(requireActivity()).setSetupStatus(3, object -> {
                         });
                         Thread.sleep(100);
@@ -401,16 +397,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                     chgSetting(Constants.FLAG_USB_DEBUG_TRUE);
 
-                    if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                            Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    if (Common.isCTX() || Common.isCTZ()) {
                         new DchaServiceUtil(requireActivity()).setSetupStatus(0, object -> {
                         });
                     }
                 } catch (Exception ignored) {
                     Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
 
-                    if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                            Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                    if (Common.isCTX() || Common.isCTZ()) {
                         new DchaServiceUtil(requireActivity()).setSetupStatus(0, object -> {
                         });
                     }
@@ -439,8 +433,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             }
 
             try {
-                if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                        Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                if (Common.isCTX() || Common.isCTZ()) {
                     new DchaServiceUtil(requireActivity()).setSetupStatus(3, object -> {
                     });
                     Thread.sleep(100);
@@ -448,16 +441,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
                 chgSetting(Constants.FLAG_USB_DEBUG_TRUE);
 
-                if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                        Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                if (Common.isCTX() || Common.isCTZ()) {
                     new DchaServiceUtil(requireActivity()).setSetupStatus(0, object -> {
                     });
                 }
             } catch (Exception ignored) {
                 Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
 
-                if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTX ||
-                        Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CTZ) {
+                if (Common.isCTX() || Common.isCTZ()) {
                     new DchaServiceUtil(requireActivity()).setSetupStatus(0, object -> {
                     });
                 }
@@ -689,10 +680,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         preResolution.setOnPreferenceClickListener(preference -> {
             // CT2またはCT3かどうか
-            if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2 ||
-                    Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT3) {
+            if (Common.isCT2() || Common.isCT3()) {
                 // DchaUtilService が機能していないかどうか
-                if (!Common.isDchaUtilActive(requireActivity())) {
+                if (!isDchaUtilActive(requireActivity())) {
                     new AlertDialog.Builder(requireActivity())
                             .setMessage(R.string.dialog_error_no_dcha_util)
                             .setPositiveButton(R.string.dialog_common_ok, null)
@@ -779,7 +769,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         preResetResolution.setOnPreferenceClickListener(preference -> {
             /* DchaUtilService が機能しているか */
-            if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT2 || Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.MODEL_CT2) == Constants.MODEL_CT3) {
+            if (Common.isCT2() || Common.isCT3()) {
                 if (!isDchaUtilActive(requireActivity())) {
                     new AlertDialog.Builder(requireActivity())
                             .setMessage(R.string.dialog_error_no_dcha_util)
@@ -946,25 +936,21 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
 
         /* 端末ごとにPreferenceの状態を設定 */
-        switch (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT)) {
-            case Constants.MODEL_CT2:
-                try {
-                    if (requireActivity().getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode < 5) {
-                        preSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                        preSilentInstall.setEnabled(false);
-                    }
-                } catch (PackageManager.NameNotFoundException ignored) {
+        if (Common.isCT2()) {
+            try {
+                if (requireActivity().getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode < 5) {
+                    preSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                    preSilentInstall.setEnabled(false);
                 }
-                break;
-            case Constants.MODEL_CT3:
-                break;
-            case Constants.MODEL_CTX:
-            case Constants.MODEL_CTZ:
-                swKeepUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                swKeepUnkSrc.setEnabled(false);
-                swUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                swUnkSrc.setEnabled(false);
-                break;
+            } catch (PackageManager.NameNotFoundException ignored) {
+            }
+        }
+
+        if (Common.isCTX() || Common.isCTZ()) {
+            swKeepUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            swKeepUnkSrc.setEnabled(false);
+            swUnkSrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            swUnkSrc.setEnabled(false);
         }
 
         if (!requireActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN)) {
@@ -985,7 +971,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         swBypassAdbDisable.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_AUTO_USB_DEBUG, false));
 
-        if (!Common.isBenesseExtensionExist()) {
+        if (!Common.isBenesseExtensionExist("getDchaState")) {
             swBypassAdbDisable.setEnabled(false);
             swBypassAdbDisable.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
         }
@@ -1184,13 +1170,16 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                     JSONArray jsonArray = jsonObj2.getJSONArray("appList");
 
-                    String model;
-
-                    switch (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, 0)) {
-                        case Constants.MODEL_CT3 -> model = "CT3";
-                        case Constants.MODEL_CTX -> model = "CTX";
-                        case Constants.MODEL_CTZ -> model = "CTZ";
-                        default -> model = "CT2";
+                    String model = "";
+                    
+                    if (Common.isCT2()) {
+                        model = "CT2";
+                    } else if (Common.isCT3()) {
+                        model = "CT3";
+                    } else if (Common.isCTX()) {
+                        model = "CTX";
+                    } else if (Common.isCTZ()) {
+                        model = "CTZ";
                     }
 
                     for (int i = 0; i < jsonArray.length(); i++) {

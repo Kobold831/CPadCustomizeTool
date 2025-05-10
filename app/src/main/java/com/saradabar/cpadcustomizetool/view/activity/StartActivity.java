@@ -276,8 +276,7 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
 
     /* 解像度のリセット */
     public void resetResolution() {
-        if (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTX ||
-                Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTZ) {
+        if (Common.isCTX() || Common.isCTZ()) {
             // CTXとCTZ
             try {
                 //noinspection ResultOfMethodCallIgnored
@@ -308,26 +307,20 @@ public class StartActivity extends AppCompatActivity implements DownloadEventLis
         ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) layoutParams;
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT)) {
-                case Constants.MODEL_CT2:
-                case Constants.MODEL_CT3:
-                    marginLayoutParams.setMargins(64, 0, 64, 0);
-                    break;
-                case Constants.MODEL_CTX:
-                case Constants.MODEL_CTZ:
-                    marginLayoutParams.setMargins(72, 0, 72, 0);
-                    break;
+            if (Common.isCT2() || Common.isCT3()) {
+                marginLayoutParams.setMargins(64, 0, 64, 0);
+            }
+
+            if (Common.isCTX() || Common.isCTZ()) {
+                marginLayoutParams.setMargins(72, 0, 72, 0);
             }
         } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            switch (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT)) {
-                case Constants.MODEL_CT2:
-                case Constants.MODEL_CT3:
-                    marginLayoutParams.setMargins(112, 0, 112, 0);
-                    break;
-                case Constants.MODEL_CTX:
-                case Constants.MODEL_CTZ:
-                    marginLayoutParams.setMargins(144, 0, 144, 0);
-                    break;
+            if (Common.isCT2() || Common.isCT3()) {
+                marginLayoutParams.setMargins(112, 0, 112, 0);
+            }
+
+            if (Common.isCTX() || Common.isCTZ()) {
+                marginLayoutParams.setMargins(144, 0, 144, 0);
             }
         }
         frameLayout.setLayoutParams(marginLayoutParams);

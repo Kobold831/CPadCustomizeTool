@@ -128,10 +128,9 @@ public class EmergencyActivity extends AppCompatActivity {
 
     // 解像度修正
     private void setDisplaySize(String packageName) {
-        if (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTX ||
-                Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTZ) {
+        if (Common.isCTX() || Common.isCTZ()) {
             // CTXとCTZ
-            if (Common.isBenesseExtensionExist()) {
+            if (Common.isBenesseExtensionExist("putInt")) {
                 //noinspection ResultOfMethodCallIgnored
                 BenesseExtension.putInt(Constants.BC_COMPATSCREEN, 0);
             } else {

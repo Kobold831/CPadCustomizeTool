@@ -134,8 +134,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             listView.setOnItemClickListener((parent, mView, position, id) -> {
                 switch (position) {
                     case 0:
-                        if (Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2 ||
-                                Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT3) {
+                        if (Common.isCT2() || Common.isCT3()) {
                             Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
@@ -177,7 +176,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         break;
                     case 3:
                         if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName()) &&
-                                Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
+                                !Common.isCT2()) {
                             Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } else {
@@ -188,8 +187,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                         }
                         break;
                     case 4:
-                        if (isDhizukuActive(requireActivity()) &&
-                                Preferences.load(requireActivity(), Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT2) {
+                        if (isDhizukuActive(requireActivity()) && !Common.isCT2()) {
                             try {
                                 if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
                                     new AlertDialog.Builder(requireActivity())
