@@ -12,7 +12,7 @@
 
 package com.saradabar.cpadcustomizetool;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuAllActive;
 
 import android.Manifest;
 import android.app.admin.DevicePolicyManager;
@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), new ArrayList<>(List.of(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                     case 4:// Dhizuku
-                        if (!isDhizukuActive(this) || Common.isCT2()) {
+                        if (!isDhizukuAllActive(this) || Common.isCT2()) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)

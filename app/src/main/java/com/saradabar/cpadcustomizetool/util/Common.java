@@ -62,7 +62,7 @@ import java.util.Objects;
 public class Common {
 
     public static DevicePolicyManager getDevicePolicyManager(Context context) {
-        if (isDhizukuActive(context)) {
+        if (isDhizukuAllActive(context)) {
             return binderWrapperDevicePolicyManager(context);
         } else {
             return (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -70,7 +70,7 @@ public class Common {
     }
 
     public static ComponentName getDeviceAdminComponent(Context context) {
-        if (isDhizukuActive(context)) {
+        if (isDhizukuAllActive(context)) {
             return Constants.DHIZUKU_COMPONENT;
         } else {
             return new ComponentName(context, DeviceAdminReceiver.class);
@@ -255,8 +255,19 @@ public class Common {
     }
 
     public static boolean isDhizukuActive(@NonNull Context context) {
-        if (Dhizuku.init(context)) {
-            return Dhizuku.isPermissionGranted();
+        try {
+            return Dhizuku.init(context);
+        } catch (AssertionError ignored) {
+        }
+        return false;
+    }
+
+    public static boolean isDhizukuAllActive(Context context) {
+        try {
+            if (isDhizukuActive(context)) {
+                return Dhizuku.isPermissionGranted();
+            }
+        } catch (RuntimeException ignored) {
         }
         return false;
     }

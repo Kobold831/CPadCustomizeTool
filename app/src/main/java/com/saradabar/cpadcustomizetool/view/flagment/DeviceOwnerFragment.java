@@ -187,7 +187,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     .setMessage(R.string.dialog_question_owner)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         DevicePolicyManager dpm = Common.getDevicePolicyManager(requireActivity());
-                        if (Common.isDhizukuActive(requireActivity())) {
+                        if (Common.isDhizukuAllActive(requireActivity())) {
                             dpm.clearDeviceOwnerApp(DhizukuVariables.OFFICIAL_PACKAGE_NAME);
                         } else {
                             dpm.clearDeviceOwnerApp(requireActivity().getPackageName());
@@ -276,7 +276,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     }
 
     private void init() {
-        if (Dhizuku.init(requireActivity()) && !Dhizuku.isPermissionGranted()) {
+        if (Common.isDhizukuActive(requireActivity()) && !Dhizuku.isPermissionGranted()) {
             // Dhizukuが動作かつDhizukuへの権限がない
             Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
                 @Override
@@ -292,7 +292,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                             new AlertDialog.Builder(requireActivity())
                                     .setCancelable(false)
                                     .setMessage(R.string.dialog_dhizuku_deny_permission)
-                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> setListener())
+                                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
                                     .show();
                         }
                     });
@@ -301,7 +301,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             return;
         }
 
-        if (Dhizuku.init(requireActivity())) {
+        if (Common.isDhizukuActive(requireActivity())) {
             // Dhizukuが動作
             try {
                 if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {

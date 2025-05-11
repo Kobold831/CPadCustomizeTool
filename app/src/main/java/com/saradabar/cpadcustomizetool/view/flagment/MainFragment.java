@@ -13,7 +13,7 @@
 package com.saradabar.cpadcustomizetool.view.flagment;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDchaUtilActive;
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuAllActive;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -1245,7 +1245,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), new ArrayList<>(List.of(new File(requireActivity().getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_GET_APP, this);
                         break;
                     case 4:
-                        if (!isDhizukuActive(requireActivity())) {
+                        if (!isDhizukuAllActive(requireActivity())) {
                             Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(requireActivity())
                                     .setCancelable(false)

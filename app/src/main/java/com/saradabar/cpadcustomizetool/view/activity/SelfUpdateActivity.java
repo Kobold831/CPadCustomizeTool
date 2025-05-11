@@ -12,7 +12,7 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuAllActive;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
@@ -132,7 +132,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), new ArrayList<>(List.of(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                     case 4:
-                        if (!isDhizukuActive(this) || Common.isCT2()) {
+                        if (!isDhizukuAllActive(this) || Common.isCT2()) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)

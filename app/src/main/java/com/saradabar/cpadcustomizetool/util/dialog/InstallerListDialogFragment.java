@@ -114,7 +114,7 @@ public class InstallerListDialogFragment extends DialogFragment {
                     }
                     break;
                 case 4://  Dhizuku
-                    if (Common.isCT2() || !Dhizuku.init(requireActivity())) {
+                    if (Common.isCT2() || !Common.isDhizukuActive(requireActivity())) {
                         // CT2またはDhizuku が動作していない
                         new AlertDialog.Builder(requireActivity())
                                 .setMessage(getString(R.string.dialog_error_no_mode))
@@ -144,7 +144,7 @@ public class InstallerListDialogFragment extends DialogFragment {
                         return;
                     }
 
-                    if (Common.isDhizukuActive(requireActivity())) {
+                    if (Common.isDhizukuAllActive(requireActivity())) {
                         // Dhizukuが動作していて権限あり
                         try {
                             if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
