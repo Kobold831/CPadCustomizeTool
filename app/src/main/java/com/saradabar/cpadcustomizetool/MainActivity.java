@@ -314,6 +314,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         if (BuildConfig.DEBUG) {
             // デバッグビルド
             checkDchaService();
+            return;
         }
 
         for (String model : Constants.LIST_MODEL) {
