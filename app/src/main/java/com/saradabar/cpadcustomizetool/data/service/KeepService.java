@@ -226,7 +226,7 @@ public class KeepService extends Service {
                 if (Settings.Global.getInt(getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) == 0)
                     Settings.Global.putInt(getBaseContext().getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 1);
             } catch (Exception ignored) {
-                Preferences.save(getBaseContext(), Constants.KEY_FLAG_AUTO_USB_DEBUG, false);
+                Preferences.save(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
                 if (Common.isCTX() || Common.isCTZ()) {
                     Settings.System.putInt(getContentResolver(), Constants.DCHA_STATE, 0);
                 }

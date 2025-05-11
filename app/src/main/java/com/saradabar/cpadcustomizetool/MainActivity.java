@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     case 3:// デバイスオーナー
                         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 
-                        if (!dpm.isDeviceOwnerApp(getPackageName())) {
+                        if (!dpm.isDeviceOwnerApp(getPackageName()) || Common.isCT2()) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)

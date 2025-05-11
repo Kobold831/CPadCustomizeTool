@@ -120,7 +120,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                     case 3:
                         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 
-                        if (!dpm.isDeviceOwnerApp(getPackageName())) {
+                        if (!dpm.isDeviceOwnerApp(getPackageName()) || Common.isCT2()) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)
@@ -132,7 +132,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), new ArrayList<>(List.of(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
                     case 4:
-                        if (!isDhizukuActive(this)) {
+                        if (!isDhizukuActive(this) || Common.isCT2()) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
                             new AlertDialog.Builder(this)
                                     .setCancelable(false)

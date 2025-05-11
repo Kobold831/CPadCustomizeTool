@@ -54,10 +54,7 @@ import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 
-import org.zeroturnaround.zip.commons.FileUtils;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -103,8 +100,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
 
         if (dpm.isDeviceOwnerApp(requireActivity().getPackageName())
-                && !dpm.isAdminActive(new ComponentName(requireActivity(), DeviceAdminReceiver.class))
-                && !dpm.isAdminActive(new ComponentName(requireActivity(), "com.saradabar.cpadcustomizetool.Receiver.AdministratorReceiver"))) {
+                && !dpm.isAdminActive(new ComponentName(requireActivity(), DeviceAdminReceiver.class))) {
+            // このアプリがデバイスオーナーかつDeviceAdminReceiverのAdminコンポーネントがアクティブでない
             new AlertDialog.Builder(requireActivity())
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_error)
@@ -279,11 +276,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     }
 
     private void init() {
-        DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
-
-        if (dpm.isDeviceOwnerApp(DhizukuVariables.OFFICIAL_PACKAGE_NAME) &&
-                Dhizuku.init(requireActivity()) &&
-                !Dhizuku.isPermissionGranted()) {
+        if (Dhizuku.init(requireActivity()) && !Dhizuku.isPermissionGranted()) {
+            // Dhizukuが動作かつDhizukuへの権限がない
             Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
                 @Override
                 public void onRequestPermission(int grantResult) {
@@ -307,9 +301,11 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             return;
         }
 
-        if (Common.isDhizukuActive(requireActivity())) {
+        if (Dhizuku.init(requireActivity())) {
+            // Dhizukuが動作
             try {
                 if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
+                    // Dhizukuのバージョンコードが12未満
                     new AlertDialog.Builder(requireActivity())
                             .setCancelable(false)
                             .setMessage(getString(R.string.dialog_dhizuku_require_12))
@@ -325,10 +321,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == Constants.REQUEST_ACTIVITY_INSTALL) {
-            ArrayList<String> installFileArrayList = new ArrayList<>();
-
             preSessionInstall.setEnabled(true);
 
             try {
@@ -336,6 +329,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     init();
                     return;
                 }
+                ArrayList<String> installFileArrayList = new ArrayList<>();
 
                 if (trySetInstallData(data, installFileArrayList)) {
                     //noinspection SequencedCollectionMethodCanBeUsed
@@ -384,9 +378,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 if (stringArrayList.get(0) == null) {
                     return false;
                 }
-
                 String installFileName = new File(stringArrayList.get(0)).getName();
-
                 /* ファイルの拡張子 */
                 /* 未対応またはインストールファイルでないなら終了 */
                 return installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk")
@@ -418,16 +410,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             /* 成功 */
             @Override
             public void onSuccess() {
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = requireActivity().getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (Exception ignored) {
-                }
-
+                Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
                 AlertDialog alertDialog = new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setMessage(R.string.dialog_success_silent_install)
@@ -446,16 +429,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             /* 失敗 */
             @Override
             public void onFailure(String message) {
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = requireActivity().getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (Exception ignored) {
-                }
-
+                Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
@@ -469,16 +443,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
             @Override
             public void onError(String message) {
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = requireActivity().getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (Exception ignored) {
-                }
-
+                Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
@@ -505,10 +470,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 ProgressBar progressBar = view.findViewById(R.id.progress);
                 AppCompatTextView textPercent = view.findViewById(R.id.progress_percent);
                 AppCompatTextView textByte = view.findViewById(R.id.progress_byte);
-
                 progressBar.setProgress(0);
                 textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
-
                 alertDialog = new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setView(view)
                         .setMessage("")
@@ -518,7 +481,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 if (!alertDialog.isShowing()) {
                     alertDialog.show();
                 }
-
                 progressHandler = new ByteProgressHandler(Looper.getMainLooper());
                 progressHandler.progressBar = progressBar;
                 progressHandler.textPercent = textPercent;
@@ -537,16 +499,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onFailure() {
                 alertDialog.dismiss();
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = requireActivity().getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (IOException ignored) {
-                }
-
+                Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(getString(R.string.dialog_failure))
@@ -561,16 +514,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onError(String message) {
                 alertDialog.dismiss();
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = requireActivity().getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (IOException ignored) {
-                }
-
+                Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
@@ -601,10 +545,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 ProgressBar progressBar = view.findViewById(R.id.progress);
                 AppCompatTextView textPercent = view.findViewById(R.id.progress_percent);
                 AppCompatTextView textByte = view.findViewById(R.id.progress_byte);
-
                 progressBar.setProgress(0);
                 textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
-
                 alertDialog = new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setView(view)
                         .setMessage("")
@@ -614,7 +556,6 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 if (!alertDialog.isShowing()) {
                     alertDialog.show();
                 }
-
                 progressHandler = new ByteProgressHandler(Looper.getMainLooper());
                 progressHandler.progressBar = progressBar;
                 progressHandler.textPercent = textPercent;
@@ -633,16 +574,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onFailure() {
                 alertDialog.dismiss();
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = requireActivity().getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (IOException ignored) {
-                }
-
+                Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(getString(R.string.dialog_failure))
@@ -657,16 +589,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onError(String message) {
                 alertDialog.dismiss();
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = requireActivity().getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (IOException ignored) {
-                }
-
+                Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
@@ -697,10 +620,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 ProgressBar progressBar = view.findViewById(R.id.progress);
                 AppCompatTextView textPercent = view.findViewById(R.id.progress_percent);
                 AppCompatTextView textByte = view.findViewById(R.id.progress_byte);
-
                 progressBar.setProgress(0);
                 textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
-
                 alertDialog = new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setView(view)
                         .setMessage("")
@@ -710,12 +631,11 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 if (!alertDialog.isShowing()) {
                     alertDialog.show();
                 }
-
                 progressHandler = new ByteProgressHandler(Looper.getMainLooper());
                 progressHandler.progressBar = progressBar;
                 progressHandler.textPercent = textPercent;
                 progressHandler.textByte = textByte;
-                progressHandler.apkMCopyTask = apkMCopyTask;
+                progressHandler.apkSCopyTask = apkSCopyTask;
                 progressHandler.sendEmptyMessage(0);
             }
 
@@ -729,16 +649,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onFailure() {
                 alertDialog.dismiss();
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = requireActivity().getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (IOException ignored) {
-                }
-
+                Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(getString(R.string.dialog_failure))
@@ -753,16 +664,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onError(String message) {
                 alertDialog.dismiss();
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = requireActivity().getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (IOException ignored) {
-                }
-
+                Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 new AlertDialog.Builder(DeviceOwnerFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)

@@ -115,7 +115,7 @@ public class InstallerListDialogFragment extends DialogFragment {
                     break;
                 case 4://  Dhizuku
                     if (Common.isCT2() || !Dhizuku.init(requireActivity())) {
-                        // CT2またはDhizuku がインストールされていないか動いていない
+                        // CT2またはDhizuku が動作していない
                         new AlertDialog.Builder(requireActivity())
                                 .setMessage(getString(R.string.dialog_error_no_mode))
                                 .setPositiveButton(R.string.dialog_common_ok, null)
@@ -123,8 +123,29 @@ public class InstallerListDialogFragment extends DialogFragment {
                         return;
                     }
 
+                    if (Dhizuku.init() && !Dhizuku.isPermissionGranted()) {
+                        // Dhizukuが動作しているが、権限なし
+                        Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
+                            @Override
+                            public void onRequestPermission(int grantResult) {
+                                requireActivity().runOnUiThread(() -> {
+                                    if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                                        Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
+                                        listView.invalidateViews();
+                                    } else {
+                                        new AlertDialog.Builder(requireActivity())
+                                                .setMessage(R.string.dialog_dhizuku_deny_permission)
+                                                .setPositiveButton(R.string.dialog_common_ok, null)
+                                                .show();
+                                    }
+                                });
+                            }
+                        });
+                        return;
+                    }
+
                     if (Common.isDhizukuActive(requireActivity())) {
-                        // Dhizukuが機能
+                        // Dhizukuが動作していて権限あり
                         try {
                             if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
                                 // Dhizukuのバージョンコードが12未満
@@ -142,24 +163,6 @@ public class InstallerListDialogFragment extends DialogFragment {
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                         }
-                    } else {
-                        // Dhizukuへの権限がない
-                        Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
-                            @Override
-                            public void onRequestPermission(int grantResult) {
-                                requireActivity().runOnUiThread(() -> {
-                                    if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                                        Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                                        listView.invalidateViews();
-                                    } else {
-                                        new AlertDialog.Builder(requireActivity())
-                                                .setMessage(R.string.dialog_dhizuku_deny_permission)
-                                                .setPositiveButton(R.string.dialog_common_ok, null)
-                                                .show();
-                                    }
-                                });
-                            }
-                        });
                     }
                     break;
             }

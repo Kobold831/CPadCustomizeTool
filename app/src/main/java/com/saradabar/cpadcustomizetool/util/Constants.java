@@ -36,12 +36,6 @@ public class Constants {
     public static final String PRODUCT_CTX = "TAB-A05-BD";
     public static final String PRODUCT_CTZ = "TAB-A05-BA1";
 
-    // 設定変更フラグの番号
-    public static final int FLAG_USB_DEBUG_TRUE = 6;
-    public static final int FLAG_USB_DEBUG_FALSE = 7;
-    public static final int FLAG_MARKET_APP_TRUE = 8;
-    public static final int FLAG_MARKET_APP_FALSE = 9;
-
     // アクティビティコールバックの番号
     public static final int REQUEST_ACTIVITY_UPDATE = 0;
     public static final int REQUEST_ACTIVITY_ADMIN = 1;
@@ -98,7 +92,6 @@ public class Constants {
     public static final String KEY_FLAG_KEEP_USB_DEBUG = "enabled_keep_usb_debug";
     public static final String KEY_FLAG_KEEP_HOME = "enabled_keep_home";
     public static final String KEY_STRINGS_KEEP_HOME_APP_PACKAGE = "save_keep_home";
-    public static final String KEY_FLAG_AUTO_USB_DEBUG = "enabled_auto_usb_debug";
 
     public static final String PKG_COMMON_DCHA = "jp.co.benesse.dcha";
     public static final String PKG_DCHA_SERVICE = PKG_COMMON_DCHA + ".dchaservice";
