@@ -73,7 +73,7 @@ import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NormalActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NoticeActivity;
 import com.saradabar.cpadcustomizetool.view.activity.RebootActivity;
-import com.saradabar.cpadcustomizetool.view.activity.StartActivity;
+import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.view.views.GetAppListView;
 import com.saradabar.cpadcustomizetool.view.views.HomeAppListView;
 import com.saradabar.cpadcustomizetool.view.views.NormalModeHomeAppListView;
@@ -133,7 +133,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        addPreferencesFromResource(R.xml.pre_main);
+        setPreferencesFromResource(R.xml.pre_main, rootKey);
 
         swDchaState = findPreference("pre_dcha_state");
         swKeepDchaState = findPreference("pre_keep_dcha_state");
@@ -489,7 +489,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         preOtherSettings.setOnPreferenceClickListener(preference -> {
-            ((StartActivity) requireActivity()).transitionFragment(new OtherFragment(), true);
+            ((MainActivity) requireActivity()).transitionFragment(new OtherFragment(), true);
             return false;
         });
 
@@ -717,7 +717,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                 Toast.makeText(requireActivity(), R.string.toast_not_selected, Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            new ResolutionTask().execute(requireActivity(), ((StartActivity) requireActivity()).resolutionTaskListener(), width, height);
+                            new ResolutionTask().execute(requireActivity(), ((MainActivity) requireActivity()).resolutionTaskListener(), width, height);
                         })
                         .setNegativeButton(R.string.dialog_common_cancel, null)
                         .show();
@@ -745,7 +745,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                         .setPositiveButton(R.string.dialog_common_ok, null)
                                         .show();
                             } else {
-                                new ResolutionTask().execute(requireActivity(), ((StartActivity) requireActivity()).resolutionTaskListener(), width, height);
+                                new ResolutionTask().execute(requireActivity(), ((MainActivity) requireActivity()).resolutionTaskListener(), width, height);
                             }
                         } catch (NumberFormatException ignored) {
                             new AlertDialog.Builder(requireActivity())
@@ -772,7 +772,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     return false;
                 }
             }
-            ((StartActivity) requireActivity()).resetResolution();
+            ((MainActivity) requireActivity()).resetResolution();
             return false;
         });
 
@@ -795,7 +795,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         preDeviceOwnerFn.setOnPreferenceClickListener(preference -> {
             requireActivity().runOnUiThread(() ->
-                    ((StartActivity) requireActivity()).transitionFragment(new DeviceOwnerFragment(), true));
+                    ((MainActivity) requireActivity()).transitionFragment(new DeviceOwnerFragment(), true));
             return false;
         });
 
@@ -1271,7 +1271,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         preNotice.setTitle("＜＜アプリのお知らせが " + jsonArray.length() + " 件あります＞＞");
                         preNotice.setSummary("タップして確認してください。");
                     }
-                } catch (JSONException | IOException ignored) {
+                } catch (JSONException | IOException | IllegalStateException ignored) {
                 }
                 break;
         }

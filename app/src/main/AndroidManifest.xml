@@ -39,7 +39,7 @@
             android:theme="@style/WelcomeTheme" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".view.activity.CheckActivity"
             android:exported="true"
             android:label="@string/activity_main"
             android:theme="@style/NoActionBarTheme"
@@ -59,7 +59,7 @@
         </activity>
 
         <activity
-            android:name=".view.activity.StartActivity"
+            android:name=".MainActivity"
             android:exported="false"
             android:label="@string/activity_start"
             android:theme="@style/ActionBarTheme"

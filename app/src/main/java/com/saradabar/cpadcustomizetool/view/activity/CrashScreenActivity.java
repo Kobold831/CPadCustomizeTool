@@ -13,7 +13,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
-import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
@@ -37,7 +36,7 @@ public class CrashScreenActivity extends AppCompatActivity {
             Preferences.save(this, Constants.KEY_FLAG_ERROR_CRASH, false);
             View contentView = getWindow().getDecorView().findViewById(android.R.id.content);
             contentView.setVisibility(View.GONE);
-            startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            startActivity(new Intent(this, CheckActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             overridePendingTransition(0, 0);
             finish();
         });
