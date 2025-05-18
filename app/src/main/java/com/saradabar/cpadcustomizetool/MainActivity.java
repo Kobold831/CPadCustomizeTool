@@ -39,6 +39,7 @@ import com.saradabar.cpadcustomizetool.data.task.ResolutionTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.AppInfoActivity;
 import com.saradabar.cpadcustomizetool.view.activity.CheckActivity;
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
 
                 if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
-                    new AlertDialog.Builder(this)
+                    new DialogUtil(this)
                             .setMessage(R.string.dialog_new_version_available)
                             .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) ->
                                     startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
@@ -224,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             @Override
             public void onSuccess() {
                 /* 設定変更カウントダウンダイアログ表示 */
-                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
+                AlertDialog alertDialog = new DialogUtil(MainActivity.this)
                         .setTitle(R.string.dialog_apply_resolution)
                         .setCancelable(false)
                         .setMessage("")
@@ -267,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             /* 失敗 */
             @Override
             public void onFailure() {
-                new AlertDialog.Builder(MainActivity.this)
+                new DialogUtil(MainActivity.this)
                         .setMessage(getString(R.string.dialog_error))
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
@@ -275,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
             @Override
             public void onError(String message) {
-                new AlertDialog.Builder(MainActivity.this)
+                new DialogUtil(MainActivity.this)
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
                         .setPositiveButton(R.string.dialog_common_ok, null)
@@ -292,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 //noinspection ResultOfMethodCallIgnored
                 BenesseExtension.putInt(Constants.BC_COMPATSCREEN, 0);
             } catch (Exception e) {
-                new AlertDialog.Builder(this)
+                new DialogUtil(this)
                         .setTitle(R.string.dialog_title_error)
                         .setMessage(e.getMessage())
                         .setPositiveButton(R.string.dialog_common_ok, null)
@@ -302,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             // CT2とCT3
             new DchaUtilServiceUtil(this).setForcedDisplaySize(1280, 800, object -> {
                 if (object.equals(false)) {
-                    new AlertDialog.Builder(MainActivity.this)
+                    new DialogUtil(MainActivity.this)
                             .setMessage(R.string.dialog_error)
                             .setPositiveButton(R.string.dialog_common_ok, null)
                             .show();

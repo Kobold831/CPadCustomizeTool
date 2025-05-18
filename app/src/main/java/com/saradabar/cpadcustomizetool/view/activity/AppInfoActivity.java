@@ -62,11 +62,11 @@ public class AppInfoActivity extends AppCompatActivity {
                 text4 = findViewById(R.id.menu_text_4),
                 text5 = findViewById(R.id.menu_text_5);
 
-        text1.setText(new StringBuilder("アプリ名：").append(getApplicationInfo().loadLabel(getPackageManager())));
-        text2.setText(new StringBuilder("パッケージ名：").append(BuildConfig.APPLICATION_ID));
-        text3.setText(new StringBuilder("バージョン：Ver.").append(BuildConfig.VERSION_NAME));
-        text4.setText(new StringBuilder("バージョンコード：").append(BuildConfig.VERSION_CODE));
-        text5.setText(getString(R.string.info_app_state, BuildConfig.BUILD_TYPE));
+        text1.setText(getApplicationInfo().loadLabel(getPackageManager()));
+        text2.setText(BuildConfig.APPLICATION_ID);
+        text3.setText(BuildConfig.VERSION_NAME);
+        text4.setText(String.valueOf(BuildConfig.VERSION_CODE));
+        text5.setText(BuildConfig.BUILD_TYPE);
     }
 
     @Override

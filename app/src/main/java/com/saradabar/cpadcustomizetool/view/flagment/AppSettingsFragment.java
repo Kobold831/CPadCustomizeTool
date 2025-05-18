@@ -18,7 +18,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
@@ -30,8 +29,9 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.service.AlwaysNotiService;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.util.dialog.InstallerListDialogFragment;
+import com.saradabar.cpadcustomizetool.view.flagment.dialog.InstallerListDialogFragment;
 import com.saradabar.cpadcustomizetool.view.activity.CrashLogActivity;
 import com.saradabar.cpadcustomizetool.view.activity.ForceCrashActivity;
 
@@ -92,7 +92,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         });
 
         preDelCrashLog.setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(requireActivity())
+            new DialogUtil(requireActivity())
                     .setMessage(R.string.dialog_check_delete)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         Preferences.delete(requireActivity(), Constants.KEY_LIST_CRASH_LOG);
@@ -115,7 +115,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         });
 
         preClearCache.setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(requireActivity())
+            new DialogUtil(requireActivity())
                     .setMessage(R.string.dialog_check_delete)
                     .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> {
                         if (requireActivity().getCacheDir().delete()) {
@@ -132,7 +132,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         });
 
         preClearData.setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(requireActivity())
+            new DialogUtil(requireActivity())
                     .setMessage(R.string.dialog_confirm_delete)
                     .setPositiveButton(getString(R.string.dialog_common_yes), (dialog, which) -> {
                         ActivityManager activityManager = (ActivityManager) requireActivity().getSystemService(Service.ACTIVITY_SERVICE);

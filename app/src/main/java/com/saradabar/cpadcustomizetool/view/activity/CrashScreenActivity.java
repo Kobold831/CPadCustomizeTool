@@ -9,12 +9,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class CrashScreenActivity extends AppCompatActivity {
             finish();
         });
 
-        btnClearAppData.setOnClickListener(v -> new AlertDialog.Builder(this)
+        btnClearAppData.setOnClickListener(v -> new DialogUtil(this)
                 .setMessage(R.string.dialog_confirm_delete)
                 .setPositiveButton(getString(R.string.dialog_common_yes), (dialog, which) -> {
                     ActivityManager activityManager = (ActivityManager) getSystemService(Service.ACTIVITY_SERVICE);
@@ -57,7 +57,7 @@ public class CrashScreenActivity extends AppCompatActivity {
                 ArrayList<String> arrayList = Preferences.load(this, Constants.KEY_LIST_CRASH_LOG);
 
                 if (arrayList == null) {
-                    new AlertDialog.Builder(this)
+                    new DialogUtil(this)
                             .setMessage(R.string.dialog_error)
                             .setPositiveButton(R.string.dialog_common_ok, null)
                             .show();
@@ -67,12 +67,12 @@ public class CrashScreenActivity extends AppCompatActivity {
                 //noinspection SequencedCollectionMethodCanBeUsed
                 clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(arrayList.size() - 1)));
                 startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK));
-                new AlertDialog.Builder(this)
+                new DialogUtil(this)
                         .setMessage("ご協力ありがとうございます。")
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             } catch (Exception e) {
-                new AlertDialog.Builder(this)
+                new DialogUtil(this)
                         .setTitle(R.string.dialog_title_error)
                         .setMessage(e.getMessage())
                         .setPositiveButton(R.string.dialog_common_ok, null)

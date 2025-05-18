@@ -12,7 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -28,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class CrashLogActivity extends AppCompatActivity {
         ArrayList<String> arrayList = Preferences.load(this, Constants.KEY_LIST_CRASH_LOG);
 
         if (arrayList == null) {
-            new AlertDialog.Builder(this)
+            new DialogUtil(this)
                     .setCancelable(false)
                     .setMessage(getString(R.string.no_log))
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
@@ -58,7 +58,7 @@ public class CrashLogActivity extends AppCompatActivity {
         listView.setOnItemClickListener((parent, view, position, id) -> {
             ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(position)));
-            new AlertDialog.Builder(this)
+            new DialogUtil(this)
                     .setMessage("対象データをコピーしました。")
                     .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();

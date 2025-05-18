@@ -43,6 +43,7 @@ import com.saradabar.cpadcustomizetool.data.task.DchaInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import org.json.JSONException;
@@ -104,7 +105,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                             JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                             JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
 
-                            new AlertDialog.Builder(this)
+                            new DialogUtil(this)
                                     .setCancelable(false)
                                     .setTitle(getString(R.string.dialog_title_error))
                                     .setMessage(getString(R.string.dialog_no_installer, jsonObj3.getString("url")))
@@ -122,7 +123,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
 
                         if (!dpm.isDeviceOwnerApp(getPackageName()) || Common.isCT2()) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
-                            new AlertDialog.Builder(this)
+                            new DialogUtil(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_installer))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
@@ -134,7 +135,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                     case 4:
                         if (!isDhizukuAllActive(this) || Common.isCT2()) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
-                            new AlertDialog.Builder(this)
+                            new DialogUtil(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_installer))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
@@ -151,7 +152,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     @Override
     public void onDownloadError(int reqCode) {
         cancelLoadingDialog();
-        new AlertDialog.Builder(this)
+        new DialogUtil(this)
                 .setCancelable(false)
                 .setTitle(getString(R.string.dialog_title_error))
                 .setMessage(getString(R.string.dialog_error_download))
@@ -162,7 +163,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     @Override
     public void onConnectionError(int reqCode) {
         cancelLoadingDialog();
-        new AlertDialog.Builder(this)
+        new DialogUtil(this)
                 .setCancelable(false)
                 .setTitle(getString(R.string.dialog_title_error))
                 .setMessage(R.string.dialog_error_connection)
@@ -192,7 +193,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
             @Override
             public void onSuccess() {
                 cancelLoadingDialog();
-                new AlertDialog.Builder(SelfUpdateActivity.this)
+                new DialogUtil(SelfUpdateActivity.this)
                         .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
@@ -203,7 +204,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
             @Override
             public void onFailure() {
                 cancelLoadingDialog();
-                new AlertDialog.Builder(SelfUpdateActivity.this)
+                new DialogUtil(SelfUpdateActivity.this)
                         .setMessage(R.string.dialog_failure_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
@@ -224,7 +225,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
             }
         });
 
-        new AlertDialog.Builder(this)
+        new DialogUtil(this)
                 .setView(view)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
@@ -241,7 +242,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                     progressByteText.setText("");
                     dialogProgressBar = progressView.findViewById(R.id.progress);
                     dialogProgressBar.setProgress(0);
-                    progressDialog = new AlertDialog.Builder(this).setCancelable(false).setView(progressView).create();
+                    progressDialog = new DialogUtil(this).setCancelable(false).setView(progressView).create();
                     progressDialog.setMessage("");
                     progressDialog.show();
                 })
@@ -250,7 +251,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     }
 
     private void showNoUpdateDialog() {
-        new AlertDialog.Builder(this)
+        new DialogUtil(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_update)
                 .setMessage(R.string.dialog_no_update)
@@ -262,7 +263,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
         AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
         textView.setText(message);
-        progressDialog = new AlertDialog.Builder(this).setCancelable(false).setView(view).create();
+        progressDialog = new DialogUtil(this).setCancelable(false).setView(view).create();
         progressDialog.show();
     }
 
@@ -316,7 +317,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 } catch (IOException ignored) {
                 }
                 cancelLoadingDialog();
-                AlertDialog alertDialog = new AlertDialog.Builder(SelfUpdateActivity.this)
+                AlertDialog alertDialog = new DialogUtil(SelfUpdateActivity.this)
                         .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
@@ -340,7 +341,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 } catch (IOException ignored) {
                 }
                 cancelLoadingDialog();
-                new AlertDialog.Builder(SelfUpdateActivity.this)
+                new DialogUtil(SelfUpdateActivity.this)
                         .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
@@ -359,7 +360,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 } catch (IOException ignored) {
                 }
                 cancelLoadingDialog();
-                new AlertDialog.Builder(SelfUpdateActivity.this)
+                new DialogUtil(SelfUpdateActivity.this)
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
                         .setCancelable(false)

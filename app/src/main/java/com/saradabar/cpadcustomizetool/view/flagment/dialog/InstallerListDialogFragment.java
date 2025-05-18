@@ -1,4 +1,4 @@
-package com.saradabar.cpadcustomizetool.util.dialog;
+package com.saradabar.cpadcustomizetool.view.flagment.dialog;
 
 import android.app.Dialog;
 import android.app.admin.DevicePolicyManager;
@@ -10,7 +10,6 @@ import android.widget.AbsListView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.rosan.dhizuku.api.Dhizuku;
@@ -19,6 +18,7 @@ import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.views.UpdateModeListView;
 
@@ -64,7 +64,7 @@ public class InstallerListDialogFragment extends DialogFragment {
                         Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                         listView.invalidateViews();
                     } else {
-                        new AlertDialog.Builder(requireActivity())
+                        new DialogUtil(requireActivity())
                                 .setMessage(getString(R.string.dialog_error_no_mode))
                                 .setPositiveButton(R.string.dialog_common_ok, null)
                                 .show();
@@ -78,7 +78,7 @@ public class InstallerListDialogFragment extends DialogFragment {
                     if (reqCode != 0 &&
                             !Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
                         // reqCodeが0以外(MainActivityからの要求以外)かつDcha機能を使用する設定が無効
-                        new AlertDialog.Builder(requireActivity())
+                        new DialogUtil(requireActivity())
                                 .setMessage(getString(R.string.pre_app_sum_confirmation_dcha))
                                 .setPositiveButton(R.string.dialog_common_ok, null)
                                 .show();
@@ -95,7 +95,7 @@ public class InstallerListDialogFragment extends DialogFragment {
                         }
                     } catch (PackageManager.NameNotFoundException ignored) {
                     }
-                    new AlertDialog.Builder(requireActivity())
+                    new DialogUtil(requireActivity())
                             .setMessage(getString(R.string.dialog_error_no_mode))
                             .setPositiveButton(R.string.dialog_common_ok, null)
                             .show();
@@ -107,7 +107,7 @@ public class InstallerListDialogFragment extends DialogFragment {
                         Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                         listView.invalidateViews();
                     } else {
-                        new AlertDialog.Builder(requireActivity())
+                        new DialogUtil(requireActivity())
                                 .setMessage(getString(R.string.dialog_error_no_mode))
                                 .setPositiveButton(R.string.dialog_common_ok, null)
                                 .show();
@@ -116,7 +116,7 @@ public class InstallerListDialogFragment extends DialogFragment {
                 case 4://  Dhizuku
                     if (Common.isCT2() || !Common.isDhizukuActive(requireActivity())) {
                         // CT2またはDhizuku が動作していない
-                        new AlertDialog.Builder(requireActivity())
+                        new DialogUtil(requireActivity())
                                 .setMessage(getString(R.string.dialog_error_no_mode))
                                 .setPositiveButton(R.string.dialog_common_ok, null)
                                 .show();
@@ -133,7 +133,7 @@ public class InstallerListDialogFragment extends DialogFragment {
                                         Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                                         listView.invalidateViews();
                                     } else {
-                                        new AlertDialog.Builder(requireActivity())
+                                        new DialogUtil(requireActivity())
                                                 .setMessage(R.string.dialog_dhizuku_deny_permission)
                                                 .setPositiveButton(R.string.dialog_common_ok, null)
                                                 .show();
@@ -149,7 +149,7 @@ public class InstallerListDialogFragment extends DialogFragment {
                         try {
                             if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
                                 // Dhizukuのバージョンコードが12未満
-                                new AlertDialog.Builder(requireActivity())
+                                new DialogUtil(requireActivity())
                                         .setCancelable(false)
                                         .setMessage(getString(R.string.dialog_dhizuku_require_12))
                                         .setPositiveButton(getString(R.string.dialog_common_ok), null)
@@ -158,7 +158,7 @@ public class InstallerListDialogFragment extends DialogFragment {
                             Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                         } catch (PackageManager.NameNotFoundException ignored) {
-                            new AlertDialog.Builder(requireActivity())
+                            new DialogUtil(requireActivity())
                                     .setMessage(getString(R.string.dialog_error_no_mode))
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
@@ -167,7 +167,7 @@ public class InstallerListDialogFragment extends DialogFragment {
                     break;
             }
         });
-        return new AlertDialog.Builder(requireActivity())
+        return new DialogUtil(requireActivity())
                 .setCancelable(false)
                 .setView(viewInstallerList)
                 .setTitle(getString(R.string.dialog_title_select_mode))

@@ -3,42 +3,53 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        app:allowDividerAbove="false">
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false">
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_start_settings"
             android:title="@string/pre_other_title_settings" />
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_start_dev_settings"
             android:title="@string/pre_other_title_development" />
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_start_ui_adjustment"
             android:title="@string/pre_other_title_adjustment" />
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_screen_off_time"
             android:summary="スクリーンがタイムアウトするまでの時間を変更します。"
             android:title="@string/pre_other_title_screen_off_time" />
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_sleep_timeout"
             android:title="sleep_timeout"
             app:isPreferenceVisible="false" />
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_web_view"
             android:summary="セキュリティのため HTTP 接続、ファイルアクセス機能は使用できません。"
             android:title="アプリ内ブラウザを起動" />
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_launch_app"
             android:summary="インストールされている任意のアプリを起動します。"
             android:title="アプリランチャー" />
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_start_device_info"
             android:title="デバイス情報" />
+
     </PreferenceCategory>
+
 </PreferenceScreen>

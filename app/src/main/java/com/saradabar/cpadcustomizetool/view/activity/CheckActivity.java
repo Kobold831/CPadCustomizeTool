@@ -45,8 +45,9 @@ import com.saradabar.cpadcustomizetool.data.task.DchaInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
-import com.saradabar.cpadcustomizetool.util.dialog.InstallerListDialogFragment;
+import com.saradabar.cpadcustomizetool.view.flagment.dialog.InstallerListDialogFragment;
 
 import com.stephentuso.welcome.WelcomeHelper;
 
@@ -146,7 +147,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
                             JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
                             JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
 
-                            new AlertDialog.Builder(this)
+                            new DialogUtil(this)
                                     .setCancelable(false)
                                     .setTitle(getString(R.string.dialog_title_error))
                                     .setMessage(getString(R.string.dialog_no_installer, jsonObj3.getString("url")))
@@ -165,7 +166,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
 
                         if (!dpm.isDeviceOwnerApp(getPackageName()) || Common.isCT2()) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
-                            new AlertDialog.Builder(this)
+                            new DialogUtil(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_installer))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
@@ -177,7 +178,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
                     case 4:// Dhizuku
                         if (!isDhizukuAllActive(this) || Common.isCT2()) {
                             Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
-                            new AlertDialog.Builder(this)
+                            new DialogUtil(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_installer))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
@@ -205,7 +206,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             @Override
             public void onSuccess() {
                 cancelLoadingDialog();
-                new AlertDialog.Builder(CheckActivity.this)
+                new DialogUtil(CheckActivity.this)
                         .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
@@ -216,7 +217,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             @Override
             public void onFailure() {
                 cancelLoadingDialog();
-                new AlertDialog.Builder(CheckActivity.this)
+                new DialogUtil(CheckActivity.this)
                         .setMessage(R.string.dialog_failure_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
@@ -260,7 +261,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             }
         });
 
-        new AlertDialog.Builder(this)
+        new DialogUtil(this)
                 .setTitle(R.string.dialog_title_update)
                 .setMessage(R.string.dialog_install_mode)
                 .setView(view)
@@ -278,7 +279,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
                     progressByteText.setText("");
                     dialogProgressBar = progressView.findViewById(R.id.progress);
                     dialogProgressBar.setProgress(0);
-                    progressDialog = new AlertDialog.Builder(this).setCancelable(false).setView(progressView).create();
+                    progressDialog = new DialogUtil(this).setCancelable(false).setView(progressView).create();
                     progressDialog.setMessage("");
                     progressDialog.show();
                 })
@@ -293,7 +294,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
         View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
         AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
         textView.setText(message);
-        progressDialog = new AlertDialog.Builder(this).setCancelable(false).setView(view).create();
+        progressDialog = new DialogUtil(this).setCancelable(false).setView(view).create();
         progressDialog.show();
     }
 
@@ -329,7 +330,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
 
     /* 端末チェックエラー */
     private void supportModelError() {
-        new AlertDialog.Builder(this)
+        new DialogUtil(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_error)
                 .setMessage(R.string.dialog_error_check_device)
@@ -343,7 +344,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             // dchaを使用する設定
             if (!Common.isDchaActive(this)) {
                 // Dchaが動作していない
-                new AlertDialog.Builder(this)
+                new DialogUtil(this)
                         .setCancelable(false)
                         .setTitle(R.string.dialog_title_error)
                         .setMessage(R.string.dialog_error_check_dcha)
@@ -376,7 +377,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
 
     /* 初回起動お知らせ */
     private void WarningDialog() {
-        new AlertDialog.Builder(this)
+        new DialogUtil(this)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_title_notice_start)
                 .setMessage(R.string.dialog_app_start_message)
@@ -392,7 +393,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
     /* システム設定変更権限か付与されているか確認 */
     private boolean isPermissionCheck() {
         if (!isWriteSystemPermissionCheck()) {
-            new AlertDialog.Builder(this)
+            new DialogUtil(this)
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_grant_permission)
                     .setMessage(R.string.dialog_error_check_permission)
@@ -466,7 +467,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
         if (requestCode == 0 && grantResults.length > 0) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    new AlertDialog.Builder(this)
+                    new DialogUtil(this)
                             .setCancelable(false)
                             .setMessage(R.string.dialog_request_storage_permission)
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
@@ -484,7 +485,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
         if (requestCode == 1 && grantResults.length > 0) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") != PackageManager.PERMISSION_GRANTED) {
-                    new AlertDialog.Builder(this)
+                    new DialogUtil(this)
                             .setCancelable(false)
                             .setMessage("jp.co.benesse.dcha.permission.ACCESS_SYSTEM 権限を付与してください。権限を付与される場合は OK を押下してください。")
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
@@ -530,7 +531,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             public void onSuccess() {
                 Common.deleteDirectory(getExternalCacheDir());
                 cancelLoadingDialog();
-                AlertDialog alertDialog = new AlertDialog.Builder(CheckActivity.this)
+                AlertDialog alertDialog = new DialogUtil(CheckActivity.this)
                         .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
@@ -546,7 +547,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             public void onFailure(String message) {
                 Common.deleteDirectory(getExternalCacheDir());
                 cancelLoadingDialog();
-                new AlertDialog.Builder(CheckActivity.this)
+                new DialogUtil(CheckActivity.this)
                         .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
@@ -557,7 +558,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             public void onError(String message) {
                 Common.deleteDirectory(getExternalCacheDir());
                 cancelLoadingDialog();
-                new AlertDialog.Builder(CheckActivity.this)
+                new DialogUtil(CheckActivity.this)
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
                         .setCancelable(false)

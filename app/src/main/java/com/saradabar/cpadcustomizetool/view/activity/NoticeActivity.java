@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.saradabar.cpadcustomizetool.R;
@@ -16,6 +15,7 @@ import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.view.views.NoticeListView;
 
 import org.json.JSONArray;
@@ -51,7 +51,7 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
                 JSONArray jsonArray = jsonObj2.getJSONArray("noticeList");
 
                 if (jsonArray.length() == 0) {
-                    new AlertDialog.Builder(this)
+                    new DialogUtil(this)
                             .setMessage(R.string.dialog_no_notice)
                             .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> finish())
                             .show();

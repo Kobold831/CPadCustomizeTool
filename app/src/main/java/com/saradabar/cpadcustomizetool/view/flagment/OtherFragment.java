@@ -12,6 +12,7 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
+import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -24,7 +25,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.preference.Preference;
@@ -33,6 +33,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.view.activity.DeviceInfoActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
 import com.saradabar.cpadcustomizetool.view.views.LaunchAppListView;
@@ -107,11 +108,11 @@ public class OtherFragment extends PreferenceFragmentCompat {
         });
 
         preScreenOffTimeOut.setOnPreferenceClickListener(preference -> {
-            View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
+            @SuppressLint("InflateParams") View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
             AppCompatEditText editText = view.findViewById(R.id.time_out_edit);
             editText.setHint(getString(R.string.time_out_hint, String.valueOf(Integer.MAX_VALUE)));
             setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
-            new AlertDialog.Builder(requireActivity())
+            new DialogUtil(requireActivity())
                     .setView(view)
                     .setCancelable(false)
                     .setTitle("スクリーンのタイムアウト")
@@ -121,7 +122,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                             Settings.System.putInt(requireActivity().getContentResolver(), "screen_off_timeout", Integer.parseInt(editText.getText().toString()));
                             setSummaryScreenOffTimeConvert();
                         } catch (Exception e) {
-                            new AlertDialog.Builder(requireActivity())
+                            new DialogUtil(requireActivity())
                                     .setTitle(R.string.dialog_title_error)
                                     .setMessage(e.getMessage())
                                     .setPositiveButton(R.string.dialog_common_ok, null)
@@ -137,7 +138,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                     setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
                     setSummaryScreenOffTimeConvert();
                 } catch (Exception e) {
-                    new AlertDialog.Builder(requireActivity())
+                    new DialogUtil(requireActivity())
                             .setTitle(R.string.dialog_title_error)
                             .setMessage(e.getMessage())
                             .setPositiveButton(R.string.dialog_common_ok, null)
@@ -148,11 +149,11 @@ public class OtherFragment extends PreferenceFragmentCompat {
         });
 
         preSleepTimeout.setOnPreferenceClickListener(preference -> {
-            View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
+            @SuppressLint("InflateParams") View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
             AppCompatEditText editText = view.findViewById(R.id.time_out_edit);
             editText.setHint(getString(R.string.time_out_hint, String.valueOf(Integer.MAX_VALUE)));
             setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
-            new AlertDialog.Builder(requireActivity())
+            new DialogUtil(requireActivity())
                     .setView(view)
                     .setCancelable(false)
                     .setTitle("sleep_timeout")
@@ -161,7 +162,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                             //noinspection DataFlowIssue
                             Settings.Secure.putInt(requireActivity().getContentResolver(), "sleep_timeout", Integer.parseInt(editText.getText().toString()));
                         } catch (Exception e) {
-                            new AlertDialog.Builder(requireActivity())
+                            new DialogUtil(requireActivity())
                                     .setTitle(R.string.dialog_title_error)
                                     .setMessage(e.getMessage())
                                     .setPositiveButton(R.string.dialog_common_ok, null)
@@ -176,7 +177,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                     Settings.Secure.putInt(requireActivity().getContentResolver(), "sleep_timeout", Integer.MAX_VALUE);
                     setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
                 } catch (Exception e) {
-                    new AlertDialog.Builder(requireActivity())
+                    new DialogUtil(requireActivity())
                             .setTitle(R.string.dialog_title_error)
                             .setMessage(e.getMessage())
                             .setPositiveButton(R.string.dialog_common_ok, null)
@@ -192,7 +193,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
         });
 
         preLaunchApp.setOnPreferenceClickListener(preference -> {
-            View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_launch_app_list, null);
+            @SuppressLint("InflateParams") View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_launch_app_list, null);
             List<ApplicationInfo> installedAppList = requireActivity().getPackageManager().getInstalledApplications(0);
             List<LaunchAppListView.AppData> dataList = new ArrayList<>();
 
@@ -213,7 +214,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                 try {
                     startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(dataList.get(position).packName));
                 } catch (Exception e) {
-                    new AlertDialog.Builder(requireActivity())
+                    new DialogUtil(requireActivity())
                             .setTitle(R.string.dialog_title_error)
                             .setMessage(e.getMessage())
                             .setPositiveButton(R.string.dialog_common_ok, null)
@@ -221,7 +222,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
                 }
             });
 
-            new AlertDialog.Builder(requireActivity())
+            new DialogUtil(requireActivity())
                     .setView(view)
                     .setTitle("アプリを選択")
                     .setPositiveButton(R.string.dialog_common_cancel, null)

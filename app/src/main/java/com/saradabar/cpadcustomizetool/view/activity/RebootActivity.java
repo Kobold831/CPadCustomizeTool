@@ -12,7 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -21,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 public class RebootActivity extends AppCompatActivity {
@@ -46,7 +46,7 @@ public class RebootActivity extends AppCompatActivity {
     }
 
     private void reboot() {
-        new AlertDialog.Builder(this)
+        new DialogUtil(this)
                 .setMessage(R.string.dialog_question_reboot)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) ->
                         new DchaServiceUtil(this).rebootPad(0, null, object -> {
