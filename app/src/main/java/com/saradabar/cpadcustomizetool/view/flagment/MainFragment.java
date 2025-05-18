@@ -50,6 +50,7 @@ import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
@@ -86,7 +87,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -109,10 +109,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swAdb,
             swKeepAdb,
             swKeepLauncher,
-            swDeviceAdmin;
+            swDeviceAdmin,
+            swEnableDchaService;
 
-    private Preference preEnableDchaService,
-            preEmgManual,
+    private Preference preEmgManual,
             preEmgExecute,
             preEmgShortcut,
             preSelNorLauncher,
@@ -132,6 +132,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preGetApp,
             preNotice;
 
+    PreferenceCategory catEmergency,
+            catNormal;
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_main, rootKey);
@@ -147,7 +150,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preLauncher = findPreference("pre_launcher");
         swKeepLauncher = findPreference("pre_keep_launcher");
         preOtherSettings = findPreference("pre_other_settings");
-        preEnableDchaService = findPreference("pre_enable_dcha_service");
+        swEnableDchaService = findPreference("pre_enable_dcha_service");
         preEmgManual = findPreference("pre_emg_manual");
         preEmgExecute = findPreference("pre_emg_execute");
         preEmgShortcut = findPreference("pre_emg_shortcut");
@@ -166,6 +169,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         swDeviceAdmin = findPreference("pre_device_admin");
         preGetApp = findPreference("pre_get_app");
         preNotice = findPreference("pre_notice");
+        catEmergency = findPreference("category_emergency");
+        catNormal = findPreference("category_normal");
 
         setListener();
     }
@@ -248,12 +253,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 initialize();
                 break;
         }
-    }
-
-    private void restart() {
-        requireActivity().startActivity(requireActivity().getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-        requireActivity().overridePendingTransition(0, 0);
-        requireActivity().finish();
     }
 
     private void setListener() {
@@ -497,32 +496,30 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             return false;
         });
 
-        preEnableDchaService.setOnPreferenceClickListener(preference -> {
-            if (Common.isShowCfmDialog(requireActivity())) {
-                // 確認ダイアログが必要
-                cfmDialog();
-                return false;
-            }
+        swEnableDchaService.setOnPreferenceChangeListener((preference, o) -> {
+            if ((boolean) o) {
+                if (Common.isShowCfmDialog(requireActivity())) {
+                    // 確認ダイアログが必要
+                    cfmDialog();
+                    return false;
+                }
 
-            if (!Preferences.load(requireActivity(), "debug_restriction", false) &&
-                    !Common.isDchaActive(requireActivity())) {
-                // デバッグモードが無効かつdcha接続失敗
-                new DialogUtil(requireActivity())
-                        .setMessage(R.string.dialog_error_no_dcha)
-                        .setPositiveButton(R.string.dialog_common_ok, null)
-                        .show();
-                return false;
+                if (!Preferences.load(requireActivity(), "debug_restriction", false) &&
+                        !Common.isDchaActive(requireActivity())) {
+                    // デバッグモードが無効かつdcha接続失敗
+                    new DialogUtil(requireActivity())
+                            .setMessage(R.string.dialog_error_no_dcha)
+                            .setPositiveButton(R.string.dialog_common_ok, null)
+                            .show();
+                    return false;
+                }
+                Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, true);
+                initialize();
+            } else {
+                Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
+                initialize();
             }
-
-            new DialogUtil(requireActivity())
-                    .setMessage(R.string.dialog_question_dcha)
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                        Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, true);
-                        restart();
-                    })
-                    .setNegativeButton(R.string.dialog_common_cancel, null)
-                    .show();
-            return false;
+            return true;
         });
 
         preEmgManual.setOnPreferenceClickListener(preference -> {
@@ -850,28 +847,30 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     /* 初期化 */
     private void initialize() {
-        if (getPreferenceScreen() != null) {
-            if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-                // DchaServiceの機能を使用しない
-                for (Object preference : Arrays.asList(
-                        findPreference("pre_silent_install"),
-                        findPreference("pre_launcher"),
-                        findPreference("pre_keep_launcher"),
-                        findPreference("category_emergency"),
-                        findPreference("category_normal"),
-                        findPreference("pre_reboot"),
-                        findPreference("pre_reboot_shortcut"),
-                        findPreference("pre_resolution"),
-                        findPreference("pre_reset_resolution"),
-                        findPreference("pre_system_update")
-                )) {
-                    if (preference != null) {
-                        getPreferenceScreen().removePreference((Preference) preference);
-                    }
-                }
-            } else {
-                getPreferenceScreen().removePreference(preEnableDchaService);
-            }
+        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
+            swEnableDchaService.setChecked(true);
+            preSilentInstall.setVisible(true);
+            preLauncher.setVisible(true);
+            swKeepLauncher.setVisible(true);
+            catEmergency.setVisible(true);
+            catNormal.setVisible(true);
+            preReboot.setVisible(true);
+            preRebootShortcut.setVisible(true);
+            preResolution.setVisible(true);
+            preResetResolution.setVisible(true);
+            preSystemUpdate.setVisible(true);
+        } else {
+            swEnableDchaService.setChecked(false);
+            preSilentInstall.setVisible(false);
+            preLauncher.setVisible(false);
+            swKeepLauncher.setVisible(false);
+            catEmergency.setVisible(false);
+            catNormal.setVisible(false);
+            preReboot.setVisible(false);
+            preRebootShortcut.setVisible(false);
+            preResolution.setVisible(false);
+            preResetResolution.setVisible(false);
+            preSystemUpdate.setVisible(false);
         }
         /* オブサーバーを有効化 */
         requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, dchaStateObserver);

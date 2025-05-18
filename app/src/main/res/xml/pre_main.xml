@@ -168,7 +168,7 @@
         app:allowDividerAbove="false"
         app:iconSpaceReserved="false" />
 
-    <Preference
+    <SwitchPreferenceCompat
         android:key="pre_enable_dcha_service"
         android:summary="@string/pre_main_sum_use_dcha"
         android:title="@string/pre_main_title_use_dcha"
