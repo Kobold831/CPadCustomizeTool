@@ -146,14 +146,12 @@ public class Common {
 
             String data;
 
-            if (bufferedReaderInput.readLine() != null) {
-                while ((data = bufferedReaderInput.readLine()) != null) {
-                    stringArrayList.add(data);
-                }
-            } else if (bufferedReaderError.readLine() != null) {
-                while ((data = bufferedReaderError.readLine()) != null) {
-                    stringArrayList.add(data);
-                }
+            while ((data = bufferedReaderInput.readLine()) != null) {
+                stringArrayList.add(data);
+            }
+
+            while ((data = bufferedReaderError.readLine()) != null) {
+                stringArrayList.add(data);
             }
         } catch (Exception ignored) {
         } finally {

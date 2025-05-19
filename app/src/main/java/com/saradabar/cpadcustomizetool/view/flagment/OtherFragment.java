@@ -29,6 +29,7 @@ import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -57,10 +58,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
             preLaunchApp,
             preDeviceInfo;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    SwitchPreferenceCompat swUiModeNight;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -74,6 +72,7 @@ public class OtherFragment extends PreferenceFragmentCompat {
         preWebView = findPreference("pre_other_web_view");
         preLaunchApp = findPreference("pre_other_launch_app");
         preDeviceInfo = findPreference("pre_other_start_device_info");
+        swUiModeNight = findPreference("pre_other_ui_mode_night");
 
         preOtherStartSettings.setOnPreferenceClickListener(preference -> {
             try {
@@ -235,18 +234,37 @@ public class OtherFragment extends PreferenceFragmentCompat {
             return false;
         });
 
+        swUiModeNight.setOnPreferenceChangeListener((preference, o) -> {
+            if ((boolean) o) {
+                Common.exec("cmd uimode night yes");
+                swUiModeNight.setSummary("外観モードは、”ダークモード”に設定されています。");
+            } else {
+                Common.exec("cmd uimode night no");
+                swUiModeNight.setSummary("外観モードは、”ライトモード”に設定されています。");
+            }
+            return true;
+        });
+        initPre();
+    }
+
+    /** @noinspection SequencedCollectionMethodCanBeUsed*/
+    private void initPre() {
         if (Common.isCT2()) {
             preStartUiAdjustment.setEnabled(false);
             preStartUiAdjustment.setSummary(Build.MODEL + requireActivity().getString(R.string.pre_main_sum_message_1));
         }
         setSummaryScreenOffTimeConvert();
-    }
+        ArrayList<String> stringArrayList = Common.exec("cmd uimode night");
 
-    /* 再表示 */
-    @Override
-    public void onResume() {
-        super.onResume();
-        setSummaryScreenOffTimeConvert();
+        if (!stringArrayList.isEmpty()) {
+            if (String.valueOf(stringArrayList.get(0)).equals("Night mode: yes")) {
+                swUiModeNight.setChecked(true);
+                swUiModeNight.setSummary("外観モードは、”ダークモード”に設定されています。");
+            } else if (String.valueOf(stringArrayList.get(0)).equals("Night mode: no")) {
+                swUiModeNight.setChecked(false);
+                swUiModeNight.setSummary("外観モードは、”ライトモード”に設定されています。");
+            }
+        }
     }
 
     private void setTextScreenOffTimeConvert(@NonNull AppCompatTextView textView) {

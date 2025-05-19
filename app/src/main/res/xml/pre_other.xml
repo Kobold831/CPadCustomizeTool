@@ -50,6 +50,15 @@
             android:key="pre_other_start_device_info"
             android:title="デバイス情報" />
 
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:key="pre_other_ui_mode_night"
+            android:title="ダークモード" />
+
+        <Preference
+            android:icon="@drawable/ic_info_outline_24"
+            android:summary="ダークモードは、アプリにより適用されない場合があります。" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

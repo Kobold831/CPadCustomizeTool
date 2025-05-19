@@ -28,10 +28,10 @@ public class WelAppActivity extends WelcomeActivity {
     protected WelcomeConfiguration configuration() {
         return new WelcomeConfiguration.Builder(this)
                 .bottomLayout(WelcomeConfiguration.BottomLayout.INDICATOR_ONLY)
-                .defaultBackgroundColor(android.R.color.white)
-                .page(new TitlePage(R.drawable.cpad_grid_icon_v2, getString(R.string.wel_title_page_1)).titleColor(getResources().getColor(android.R.color.black)))
-                .page(new BasicPage(R.drawable.navigationbar, getString(R.string.wel_title_page_2), getString(R.string.wel_description_page_2)).descriptionColor(getResources().getColor(android.R.color.black)).headerColor(getResources().getColor(android.R.color.black)))
-                .page(new BasicPage(R.drawable.ex, getString(R.string.wel_title_page_3), getString(R.string.wel_description_page_3)).descriptionColor(getResources().getColor(android.R.color.black)).headerColor(getResources().getColor(android.R.color.black)))
+                .defaultBackgroundColor(R.color.colorPrimary)
+                .page(new TitlePage(R.drawable.cpad_grid_icon_v2, getString(R.string.wel_title_page_1)).titleColor(getResources().getColor(R.color.textColor)))
+                .page(new BasicPage(R.drawable.navigationbar, getString(R.string.wel_title_page_2), getString(R.string.wel_description_page_2)).descriptionColor(getResources().getColor(R.color.textColor)).headerColor(getResources().getColor(R.color.textColor)))
+                .page(new BasicPage(R.drawable.ex, getString(R.string.wel_title_page_3), getString(R.string.wel_description_page_3)).descriptionColor(getResources().getColor(R.color.textColor)).headerColor(getResources().getColor(R.color.textColor)))
                 .page(new FragmentWelcomePage() {
                     @Override
                     protected Fragment fragment() {
