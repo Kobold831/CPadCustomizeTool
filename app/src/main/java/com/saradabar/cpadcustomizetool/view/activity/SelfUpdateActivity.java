@@ -14,6 +14,7 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuAllActive;
 
+import android.annotation.SuppressLint;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -214,7 +215,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     }
 
     private void showUpdateDialog(String str, String downloadFileUrl) {
-        View view = getLayoutInflater().inflate(R.layout.view_update, null);
+        @SuppressLint("InflateParams") View view = getLayoutInflater().inflate(R.layout.view_update, null);
         AppCompatTextView tv = view.findViewById(R.id.update_information);
         tv.setText(str);
         view.findViewById(R.id.update_info_button).setOnClickListener(v -> {

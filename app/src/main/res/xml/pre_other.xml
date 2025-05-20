@@ -4,7 +4,8 @@
 
     <PreferenceCategory
         app:allowDividerAbove="false"
-        app:iconSpaceReserved="false">
+        app:iconSpaceReserved="false"
+        android:title="一般">
 
         <Preference
             app:iconSpaceReserved="false"
@@ -23,18 +24,6 @@
 
         <Preference
             app:iconSpaceReserved="false"
-            android:key="pre_other_screen_off_time"
-            android:summary="スクリーンがタイムアウトするまでの時間を変更します。"
-            android:title="@string/pre_other_title_screen_off_time" />
-
-        <Preference
-            app:iconSpaceReserved="false"
-            android:key="pre_other_sleep_timeout"
-            android:title="sleep_timeout"
-            app:isPreferenceVisible="false" />
-
-        <Preference
-            app:iconSpaceReserved="false"
             android:key="pre_other_web_view"
             android:summary="セキュリティのため HTTP 接続、ファイルアクセス機能は使用できません。"
             android:title="アプリ内ブラウザを起動" />
@@ -45,10 +34,24 @@
             android:summary="インストールされている任意のアプリを起動します。"
             android:title="アプリランチャー" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="情報">
+
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_other_start_device_info"
             android:title="デバイス情報" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="画面表示と明るさ">
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
@@ -58,6 +61,18 @@
         <Preference
             android:icon="@drawable/ic_info_outline_24"
             android:summary="ダークモードは、アプリにより適用されない場合があります。" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_other_screen_off_time"
+            android:summary="スクリーンがタイムアウトするまでの時間を変更します。"
+            android:title="@string/pre_other_title_screen_off_time" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false"
+            android:key="pre_other_sleep_timeout"
+            android:title="sleep_timeout" />
 
     </PreferenceCategory>
 

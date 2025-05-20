@@ -4,7 +4,8 @@
 
     <Preference
         android:key="pre_notice"
-        android:icon="@drawable/ic_info_outline_24" />
+        android:icon="@drawable/ic_info_outline_24"
+        android:title="" />
 
     <PreferenceCategory
         android:key="1"
@@ -108,6 +109,7 @@
         <Preference
             android:key="pre_emg_manual"
             android:title="@string/pre_main_title_manual"
+            android:summary="使用するにあたり、注意することを確認できます。"
             app:iconSpaceReserved="false" />
 
         <Preference
@@ -210,7 +212,7 @@
         app:iconSpaceReserved="false" />
 
     <PreferenceCategory
-        android:title="デバイス管理者設定"
+        android:title="@string/pre_main_category_device_admin"
         app:allowDividerAbove="false"
         app:iconSpaceReserved="false" />
 
@@ -234,7 +236,7 @@
 
     <PreferenceCategory
         android:key="pre_cat_assist"
-        android:title="アシスト機能"
+        android:title="@string/pre_main_category_assist"
         app:allowDividerAbove="false"
         app:iconSpaceReserved="false" />
 
