@@ -10,7 +10,7 @@ import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
 /** @noinspection unused*/
 public class DchaServiceUtil {
 
-    Context mContext;
+    final Context mContext;
 
     public DchaServiceUtil(Context context) {
         mContext = context;

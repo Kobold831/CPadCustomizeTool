@@ -9,7 +9,9 @@
      * Any use, reproduction, or distribution of this software beyond the scope of Apache License 2.0 is prohibited.
      *
      * -->
+
 <resources>
+
     <!-- アプリ、アクティビティの名前 -->
     <string name="app_name">CPad Customize Tool</string>
     <string name="activity_main">カスタマイズツール</string>
@@ -103,29 +105,45 @@
     <string name="pre_main_title_select_course">受講中の講座を選択</string>
     <string name="pre_main_title_change_settings">緊急モードの設定</string>
     <string name="pre_main_title_manual">緊急モードの説明</string>
+    <string name="pre_main_title_emg_execute">緊急モードを起動</string>
+    <string name="pre_main_title_emg_shortcut">緊急モードのショートカットをホームに追加</string>
     <string name="pre_main_title_change_to_normal_mode_settings">通常モードの設定</string>
+    <string name="pre_main_title_launcher">変更するホーム</string>
     <string name="pre_main_title_normal_mode_manual">通常モードの説明</string>
+    <string name="pre_main_title_nor_execute">通常モードを起動</string>
+    <string name="pre_main_title_nor_shortcut">通常モードのショートカットをホームに追加</string>
+    <string name="pre_main_title_use_dcha">DchaService 機能を有効</string>
     <string name="pre_main_title_reboot">再起動</string>
     <string name="pre_main_title_reboot_shortcut">再起動のショートカットをホームに追加</string>
     <string name="pre_main_title_silent_install">サイレントインストール</string>
     <string name="pre_main_title_resolution">解像度の変更</string>
     <string name="pre_main_title_resolution_reset">解像度のリセット</string>
-    <string name="pre_main_title_use_dcha">DchaService 機能を有効</string>
-    <string name="pre_main_title_device_admin">デバイス管理者</string>
-    <string name="pre_main_title_launcher">変更するホーム</string>
-    <string name="pre_main_title_device_owner">デバイスオーナーの機能</string>
     <string name="pre_main_title_system_update">システムアップデート</string>
+    <string name="pre_main_title_device_owner">デバイスオーナーの機能</string>
+    <string name="pre_main_title_device_admin">デバイス管理者</string>
+    <string name="pre_main_title_get_app">アプリを取得</string>
 
     <string name="pre_main_sum_message_1"> ではこの機能は使用できません。</string>
     <string name="pre_main_sum_message_2">ホームは [%1$s] に設定されています。</string>
-    <string name="pre_main_sum_keep_home">現在のホームを維持します。</string>
-    <string name="pre_main_sum_change_settings">デフォルト設定はすべて変更します。</string>
-    <string name="pre_main_sum_change_to_normal_mode_settings">デフォルトはすべて変更されます。</string>
-    <string name="pre_main_sum_use_dcha">有効化するには、タップしてください。</string>
-    <string name="pre_main_sum_device_admin">このアプリがアンインストールされないようにします。</string>
-    <string name="pre_main_sum_silent_install">単一APK のインストールに対応しています。\n分割APK は [デバイスオーナーの機能] -> [サイレントインストール] からインストールできます。</string>
     <string name="pre_main_sum_already_device_owner">デバイスオーナーのため変更できません。</string>
     <string name="pre_main_sum_no_setting_launcher">ホームは設定されていません。</string>
+
+    <string name="pre_main_sum_keep_home">現在のホームを維持します。</string>
+    <string name="pre_main_sum_other">システム設定、ブラウザ、アプリ起動</string>
+    <string name="pre_main_sum_emg_course">緊急モードを使用するときは、受講中の講座に設定されていることを確認してください。</string>
+    <string name="pre_main_sum_change_settings">デフォルト設定はすべて変更します。</string>
+    <string name="pre_main_sum_emg_manual">使用するにあたり、注意することを確認できます。</string>
+    <string name="pre_main_sum_emg_execute">"起動すると、学習環境に変更します。</string>
+    <string name="pre_main_sum_change_to_normal_mode_settings">デフォルトはすべて変更されます。</string>
+    <string name="pre_main_sum_nor_execute">起動すると、通常環境に変更します。</string>
+    <string name="pre_main_sum_use_dcha">有効化するには、タップしてください。</string>
+    <string name="pre_main_sum_reboot">デバイスを再起動します。</string>
+    <string name="pre_main_sum_silent_install">単一APK のインストールに対応しています。\n分割APK は [デバイスオーナーの機能] -> [サイレントインストール] からインストールできます。</string>
+    <string name="pre_main_sum_res">画面解像度を任意の値に変更できます。</string>
+    <string name="pre_main_sum_res_reset">画面解像度をデフォルト値に変更します。</string>
+    <string name="pre_main_sum_system_update">デバイスのシステムをアップデートします。</string>
+    <string name="pre_main_sum_device_owner">アンインストールブロック、サイレントインストール</string>
+    <string name="pre_main_sum_device_admin">このアプリがアンインストールされないようにします。</string>
     <string name="pre_main_sum_get_app">表示されるダイアログからアプリを選択してください。\nインストーラーは、[アプリ設定] -> [インストールモード] から変更できます。</string>
 
     <!-- アプリ設定 -->
@@ -185,7 +203,6 @@
 
     <!-- ダイアログメッセージ -->
     <string name="dialog_app_start_message">ウイルス対策アプリなどに脅威として検知される場合があります。\n検知された場合は、除外設定してください。\nこのダイアログは以降表示されません。</string>
-    <string name="dialog_emergency_select_course">受講中の講座を選択してください。</string>
     <string name="dialog_mode_select_settings">変更する設定を選択してください。\n設定後は OK を押してください。</string>
     <string name="dialog_emergency_manual">この機能はアクティビティを呼び出すアプリで使用できます。\nアクティビティ一覧から、｢<b>緊急モード (.view.activity.EmergencyActivity)</b>｣ を追加して起動してください。\n</string>
     <string name="dialog_emergency_manual_red">システムUIを変更するためアクティビティや他のアプリを起動させるアプリをインストールしておかないと初期化以外に勉強ホームから抜け出すことができなくなります。\nアプリ履歴を全消去はナビゲーションバーの□ボタンを押すと表示されるアプリ履歴のアプリを終了します。</string>
@@ -249,9 +266,7 @@
 
     <!-- アプリ情報 -->
     <string name="info_app_info">アプリの情報</string>
-    <string name="info_app_state">アプリの状態</string>
     <string name="info_development">開発者</string>
-    <string name="info_development_label">こぼるど / しゅーご</string>
     <string name="info_library">外部ライブラリーと謝辞</string>
     <string name="info_library_wel_label">・welcome-android\nCopyright 2015\-2017 Stephen Tuso</string>
     <string name="info_library_zip_label">・ZeroTurnaround ZIP Library\nCopyright 2012 ZeroTurnaround LLC.</string>
@@ -286,7 +301,6 @@
     <!-- 進行バー -->
     <string name="progress_state_connecting">サーバーと通信しています。\n画面を切り替えないでください。</string>
     <string name="progress_state_download_file">ファイルをダウンロードしています。\n画面を切り替えないでください。</string>
-    <string name="progress_state_rename">拡張子を変更しています。\n画面を切り替えないでください。</string>
     <string name="progress_state_unpack">圧縮ファイルを展開しています。\n画面を切り替えないでください。</string>
     <string name="progress_state_copy_file">データをコピーしています。\n画面を切り替えないでください。</string>
     <string name="progress_state_check_file">データを確認しています。\n画面を切り替えないでください。</string>
@@ -302,4 +316,5 @@
     <string name="installer_status_failure">インストールに失敗しました。</string>s
     <string name="installer_status_no_allocatable_space">ストレージの空き容量が不足している可能性があります。\n</string>
     <string name="installer_status_unknown_error">不明なエラーが発生しました。</string>
+
 </resources>

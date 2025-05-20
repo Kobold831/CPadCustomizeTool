@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <color name="colorPrimary">@color/m3_sys_color_light_background</color>
     <color name="textColor">@color/m3_sys_color_light_on_background</color>
+
 </resources>

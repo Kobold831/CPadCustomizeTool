@@ -23,7 +23,9 @@ import java.util.List;
 public class Constants {
 
     // デフォルト値
+    /** @noinspection unused*/
     public static final int DEF_INT = 0;
+    /** @noinspection unused*/
     public static final String DEF_STR = "";
     public static final boolean DEF_BOOL = false;
 

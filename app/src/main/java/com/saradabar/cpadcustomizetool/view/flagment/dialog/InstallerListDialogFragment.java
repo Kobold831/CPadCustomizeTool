@@ -31,8 +31,8 @@ public class InstallerListDialogFragment extends DialogFragment {
         void onPositiveButton();
     }
 
-    int reqCode;
-    InstallerListDialogListener installerListDialogListener;
+    final int reqCode;
+    final InstallerListDialogListener installerListDialogListener;
 
     public InstallerListDialogFragment(int reqCode, InstallerListDialogListener installerListDialogListener) {
         this.reqCode = reqCode;

@@ -270,24 +270,20 @@ public class Common {
         return false;
     }
 
-    private static String getProductModelName() {
-        return Build.MODEL;
-    }
-
     public static boolean isCT2() {
-        return Constants.PRODUCT_CT2.contains(getProductModelName());
+        return Constants.PRODUCT_CT2.contains(Build.MODEL);
     }
 
     public static boolean isCT3() {
-        return getProductModelName().equals(Constants.PRODUCT_CT3);
+        return Build.MODEL.equals(Constants.PRODUCT_CT3);
     }
 
     public static boolean isCTX() {
-        return getProductModelName().equals(Constants.PRODUCT_CTX);
+        return Build.MODEL.equals(Constants.PRODUCT_CTX);
     }
 
     public static boolean isCTZ() {
-        return getProductModelName().equals(Constants.PRODUCT_CTZ);
+        return Build.MODEL.equals(Constants.PRODUCT_CTZ);
     }
 
     public static boolean isBenesseExtensionExist(String method) {

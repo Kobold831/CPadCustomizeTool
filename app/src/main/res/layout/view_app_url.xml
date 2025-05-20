@@ -13,4 +13,5 @@
         android:layout_marginHorizontal="20dp"
         android:gravity="center"
         android:inputType="textUri" />
+
 </LinearLayout>

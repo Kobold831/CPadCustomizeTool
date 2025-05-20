@@ -21,8 +21,7 @@ public class CrashLogListView {
 
     public static class AppListAdapter extends ArrayAdapter<AppData> {
 
-        public View view;
-        LayoutInflater mInflater;
+        final LayoutInflater mInflater;
 
         public AppListAdapter(Context context, List<AppData> dataList) {
             super(context, R.layout.view_crash_log_list_item);
@@ -42,7 +41,6 @@ public class CrashLogListView {
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-            view = convertView;
             final AppData data = getItem(position);
 
             if (data != null) {

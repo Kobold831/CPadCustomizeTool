@@ -8,7 +8,7 @@ import com.saradabar.cpadcustomizetool.data.task.IDchaUtilTask;
 /** @noinspection unused*/
 public class DchaUtilServiceUtil {
 
-    Context mContext;
+    final Context mContext;
 
     public DchaUtilServiceUtil(Context context) {
         mContext = context;

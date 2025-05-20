@@ -36,7 +36,7 @@ import jp.co.benesse.dcha.dchaservice.IDchaService;
 
 public class KeepService extends Service {
 
-    Binder binder = new Binder();
+    final Binder binder = new Binder();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -155,7 +155,7 @@ public class KeepService extends Service {
     }
 
     /* DchaStateオブサーバー */
-    ContentObserver dchaStateObserver = new ContentObserver(new Handler()) {
+    final ContentObserver dchaStateObserver = new ContentObserver(new Handler()) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -170,7 +170,7 @@ public class KeepService extends Service {
     };
 
     /* ナビゲーションバーオブサーバー */
-    ContentObserver navigationBarObserver = new ContentObserver(new Handler()) {
+    final ContentObserver navigationBarObserver = new ContentObserver(new Handler()) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -185,7 +185,7 @@ public class KeepService extends Service {
     };
 
     /* 提供元不明オブサーバー */
-    ContentObserver marketObserver = new ContentObserver(new Handler()) {
+    final ContentObserver marketObserver = new ContentObserver(new Handler()) {
 
         /** @noinspection deprecation*/
         @Override
@@ -202,7 +202,7 @@ public class KeepService extends Service {
     };
 
     /* UDBデバッグオブサーバー */
-    ContentObserver usbDebugObserver = new ContentObserver(new Handler()) {
+    final ContentObserver usbDebugObserver = new ContentObserver(new Handler()) {
 
         @Override
         public void onChange(boolean selfChange) {

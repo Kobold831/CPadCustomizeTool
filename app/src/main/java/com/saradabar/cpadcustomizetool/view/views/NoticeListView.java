@@ -22,8 +22,7 @@ public class NoticeListView {
 
     public static class AppListAdapter extends ArrayAdapter<AppData> {
 
-        View view;
-        LayoutInflater mInflater;
+        final LayoutInflater mInflater;
 
         public AppListAdapter(Context context, List<AppData> dataList) {
             super(context, R.layout.view_notice_item);
@@ -44,15 +43,12 @@ public class NoticeListView {
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-
-            view = convertView;
             final AppData data = getItem(position);
 
             if (data != null) {
                 holder.textTitle.setText(data.title);
                 holder.textMessage.setText(data.message);
             }
-
             return convertView;
         }
     }

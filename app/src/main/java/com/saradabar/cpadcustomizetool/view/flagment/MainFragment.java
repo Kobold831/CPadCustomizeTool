@@ -179,22 +179,10 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        if (dchaStateObserver != null) {
-            requireActivity().getContentResolver().unregisterContentObserver(dchaStateObserver);
-        }
-
-        if (navigationBarObserver != null) {
-            requireActivity().getContentResolver().unregisterContentObserver(navigationBarObserver);
-        }
-
-        if (marketObserver != null) {
-            requireActivity().getContentResolver().unregisterContentObserver(marketObserver);
-        }
-
-        if (usbDebugObserver != null) {
-            requireActivity().getContentResolver().unregisterContentObserver(usbDebugObserver);
-        }
+        requireActivity().getContentResolver().unregisterContentObserver(dchaStateObserver);
+        requireActivity().getContentResolver().unregisterContentObserver(navigationBarObserver);
+        requireActivity().getContentResolver().unregisterContentObserver(marketObserver);
+        requireActivity().getContentResolver().unregisterContentObserver(usbDebugObserver);
     }
 
     @Override
@@ -949,7 +937,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     }
 
     /* システムUIオブザーバー */
-    ContentObserver dchaStateObserver = new ContentObserver(new Handler()) {
+    final ContentObserver dchaStateObserver = new ContentObserver(new Handler()) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -962,7 +950,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     };
 
     /* ナビゲーションバーオブザーバー */
-    ContentObserver navigationBarObserver = new ContentObserver(new Handler()) {
+    final ContentObserver navigationBarObserver = new ContentObserver(new Handler()) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -975,7 +963,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     };
 
     /* 提供元オブザーバー */
-    ContentObserver marketObserver = new ContentObserver(new Handler()) {
+    final ContentObserver marketObserver = new ContentObserver(new Handler()) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -988,7 +976,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     };
 
     /* USBデバッグオブザーバー */
-    ContentObserver usbDebugObserver = new ContentObserver(new Handler()) {
+    final ContentObserver usbDebugObserver = new ContentObserver(new Handler()) {
 
         @Override
         public void onChange(boolean selfChange) {
