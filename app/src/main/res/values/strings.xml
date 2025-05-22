@@ -97,8 +97,8 @@
     <string name="pre_main_title_keep_navigation_bar">ナビゲーションバーの表示を維持</string>
     <string name="pre_main_title_usb_debug">USB デバッグ</string>
     <string name="pre_main_title_keep_usb_debug">USB デバッグを維持</string>
-    <string name="pre_main_title_non_market">提供元不明のアプリを許可</string>
-    <string name="pre_main_title_keep_non_market">提供元不明のアプリの許可を維持</string>
+    <string name="pre_main_title_non_market">不明なアプリのインストール</string>
+    <string name="pre_main_title_keep_non_market">不明なアプリのインストールを維持</string>
     <string name="pre_main_title_change_home">ホームアプリ</string>
     <string name="pre_main_title_keep_home">ホームアプリを維持</string>
     <string name="pre_main_title_other_settings">その他の設定</string>

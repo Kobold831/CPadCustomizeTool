@@ -45,8 +45,10 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
@@ -411,5 +413,22 @@ public class Common {
 
     public static void debugLog(String msg) {
         if (BuildConfig.DEBUG) Log.e("DEBUG", msg);
+    }
+
+    public static boolean copyAssetsFile(Context context) {
+        try {
+            InputStream inputStream = context.getAssets().open("base.apk");
+            FileOutputStream fileOutputStream = new FileOutputStream(context.getExternalCacheDir() + "/" + "base.apk", false);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) >= 0) {
+                fileOutputStream.write(buffer, 0, length);
+            }
+            fileOutputStream.close();
+            inputStream.close();
+        } catch (IOException ignored) {
+            return false;
+        }
+        return true;
     }
 }

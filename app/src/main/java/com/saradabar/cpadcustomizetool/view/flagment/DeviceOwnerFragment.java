@@ -22,9 +22,11 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
+import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.os.UserManager;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -52,6 +54,7 @@ import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
 import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 
@@ -75,7 +78,8 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             preNowSetOwnPkg,
             preSessionInstallNotice;
 
-    private SwitchPreferenceCompat swPrePermissionFrc;
+    private SwitchPreferenceCompat swPrePermissionFrc,
+            swPreInstallUnknownSource;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -88,6 +92,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
         preClrDevOwn = findPreference("pre_owner_clr_dev_own");
         preNowSetOwnPkg = findPreference("pre_owner_now_set_own_pkg");
         preSessionInstallNotice = findPreference("pre_owner_session_install_notice");
+        swPreInstallUnknownSource = findPreference("pre_owner_install_unknown_source");
 
         if (adminComponentMeasures()) {
             // Admin Component エラー
@@ -208,6 +213,70 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             return false;
         });
 
+        swPreInstallUnknownSource.setOnPreferenceChangeListener((preference, o) -> {
+            UserManager userManager = (UserManager) requireActivity().getSystemService(Context.USER_SERVICE);
+
+            if (userManager != null && Common.isDchaActive(requireActivity())) {
+                try {
+                    if ((boolean) o) {
+                        if (userManager.hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
+                            userManager.setUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES, false);
+                            swPreInstallUnknownSource.setSummary("提供元不明のアプリは許可されています。");
+                        }
+                    } else {
+                        userManager.setUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES, true);
+                        swPreInstallUnknownSource.setSummary("提供元不明のアプリは許可されていません。");
+                    }
+                    return true;
+                } catch (SecurityException ignored) {
+                    new DialogUtil(requireActivity())
+                            .setTitle("機能を使用するために権限を付与しますか？")
+                            .setMessage("権限がないため、設定を変更できません。”OK”を押すと、権限設定を行います。処理は数秒で終わります。")
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                                if (Common.copyAssetsFile(requireActivity())) {
+                                    BenesseExtension.setDchaState(3);
+                                    new DchaServiceUtil(requireActivity()).installApp(requireActivity().getExternalCacheDir() + "/" + "base.apk", 2, object -> {
+                                        if (object.equals(true)) {
+                                            new DchaServiceUtil(requireActivity()).uninstallApp("a.a", 0, object1 -> {
+                                                if (object1.equals(true)) {
+                                                    BenesseExtension.setDchaState(0);
+                                                    new DialogUtil(requireActivity())
+                                                            .setTitle("処理完了")
+                                                            .setMessage("権限設定は完了しました。もう一度操作すれば、設定を変更できます。")
+                                                            .setPositiveButton(R.string.dialog_common_ok, null)
+                                                            .show();
+                                                } else {
+                                                    new DialogUtil(requireActivity())
+                                                            .setMessage(R.string.dialog_error)
+                                                            .setPositiveButton(R.string.dialog_common_ok, null)
+                                                            .show();
+                                                }
+                                            });
+                                        } else {
+                                            new DialogUtil(requireActivity())
+                                                    .setMessage(R.string.dialog_error)
+                                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                                    .show();
+                                        }
+                                    });
+                                } else {
+                                    new DialogUtil(requireActivity())
+                                            .setMessage(R.string.dialog_error)
+                                            .setPositiveButton(R.string.dialog_common_ok, null)
+                                            .show();
+                                }
+                            })
+                            .show();
+                }
+            } else {
+                new DialogUtil(requireActivity())
+                        .setMessage(R.string.dialog_error + "UserManager の取得に失敗したか、DchaService が動作していません。")
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            }
+            return false;
+        });
+
         /* 初期化 */
         initPre();
     }
@@ -224,6 +293,19 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
             preAbandonSession.setEnabled(false);
             preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+        }
+
+        if (Common.isCTZ()) {
+            UserManager userManager = (UserManager) requireActivity().getSystemService(Context.USER_SERVICE);
+
+            if (userManager.hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
+                swPreInstallUnknownSource.setSummary("提供元不明のアプリは許可されていません。");
+            } else {
+                swPreInstallUnknownSource.setSummary("提供元不明のアプリは許可されています。");
+            }
+        } else {
+            swPreInstallUnknownSource.setEnabled(false);
+            swPreInstallUnknownSource.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
         }
 
         if (dpm.isDeviceOwnerApp(requireActivity().getPackageName()) && !Common.isCT2() ||

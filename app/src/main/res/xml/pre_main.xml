@@ -41,6 +41,12 @@
         android:key="2"
         android:title="@string/pre_main_category_system">
 
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_main_request_install_packages"
+            android:title="不明なアプリのインストールを許可"
+            android:summary="シェルコマンドを実行して、すべてのアプリで不明なアプリのインストール権限を許可します。" />
+
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_unk_src"
