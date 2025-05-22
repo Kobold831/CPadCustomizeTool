@@ -848,6 +848,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         userManager.setUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES, true);
                         swPreInstallUnknownSource.setSummary("提供元不明のアプリは許可されていません。");
                     }
+                    initialize();
                     return true;
                 } catch (SecurityException ignored) {
                     new DialogUtil(requireActivity())
@@ -1039,8 +1040,15 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         if (((UserManager) requireActivity().getSystemService(Context.USER_SERVICE)).hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
             swKeepUnkSrc.setVisible(false);
             swUnkSrc.setVisible(false);
+            swPreInstallUnknownSource.setSummary("不明なアプリは許可されていません。");
             preRequestInstallPackages.setEnabled(false);
             preRequestInstallPackages.setSummary("この機能を使用するには、”不明なアプリのユーザー制限を解除”から許可してください。");
+        } else {
+            swKeepUnkSrc.setVisible(true);
+            swUnkSrc.setVisible(true);
+            swPreInstallUnknownSource.setSummary("不明なアプリは許可されています。");
+            preRequestInstallPackages.setEnabled(true);
+            preRequestInstallPackages.setSummary("シェルコマンドを実行して、すべてのアプリで不明なアプリのインストール権限を許可します。");
         }
 
         if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName())) {
@@ -1061,15 +1069,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             }
         }
 
-        if (Common.isCTZ()) {
-            UserManager userManager = (UserManager) requireActivity().getSystemService(Context.USER_SERVICE);
-
-            if (userManager.hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
-                swPreInstallUnknownSource.setSummary("不明なアプリは許可されていません。");
-            } else {
-                swPreInstallUnknownSource.setSummary("不明なアプリは許可されています。");
-            }
-        } else {
+        if (!Common.isCTZ()) {
             swPreInstallUnknownSource.setEnabled(false);
             swPreInstallUnknownSource.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
             preRequestInstallPackages.setEnabled(false);
