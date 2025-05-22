@@ -111,7 +111,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swKeepAdb,
             swKeepLauncher,
             swDeviceAdmin,
-            swEnableDchaService;
+            swEnableDchaService,
+            swPreInstallUnknownSource;
 
     private Preference preEmgManual,
             preEmgExecute,
@@ -173,6 +174,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preNotice = findPreference("pre_notice");
         catEmergency = findPreference("category_emergency");
         catNormal = findPreference("category_normal");
+        swPreInstallUnknownSource = findPreference("pre_owner_install_unknown_source");
         preRequestInstallPackages = findPreference("pre_main_request_install_packages");
 
         setListener();
@@ -832,6 +834,70 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             return false;
         });
 
+        swPreInstallUnknownSource.setOnPreferenceChangeListener((preference, o) -> {
+            UserManager userManager = (UserManager) requireActivity().getSystemService(Context.USER_SERVICE);
+
+            if (userManager != null && Common.isDchaActive(requireActivity())) {
+                try {
+                    if ((boolean) o) {
+                        if (userManager.hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
+                            userManager.setUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES, false);
+                            swPreInstallUnknownSource.setSummary("提供元不明のアプリは許可されています。");
+                        }
+                    } else {
+                        userManager.setUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES, true);
+                        swPreInstallUnknownSource.setSummary("提供元不明のアプリは許可されていません。");
+                    }
+                    return true;
+                } catch (SecurityException ignored) {
+                    new DialogUtil(requireActivity())
+                            .setTitle("機能を使用するために権限を付与しますか？")
+                            .setMessage("権限がないため、設定を変更できません。”OK”を押すと、権限設定を行います。処理は数秒で終わります。")
+                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                                if (Common.copyAssetsFile(requireActivity())) {
+                                    BenesseExtension.setDchaState(3);
+                                    new DchaServiceUtil(requireActivity()).installApp(requireActivity().getExternalCacheDir() + "/" + "base.apk", 2, object -> {
+                                        if (object.equals(true)) {
+                                            new DchaServiceUtil(requireActivity()).uninstallApp("a.a", 0, object1 -> {
+                                                if (object1.equals(true)) {
+                                                    BenesseExtension.setDchaState(0);
+                                                    new DialogUtil(requireActivity())
+                                                            .setTitle("処理完了")
+                                                            .setMessage("権限設定は完了しました。もう一度操作すれば、設定を変更できます。")
+                                                            .setPositiveButton(R.string.dialog_common_ok, null)
+                                                            .show();
+                                                } else {
+                                                    new DialogUtil(requireActivity())
+                                                            .setMessage(R.string.dialog_error)
+                                                            .setPositiveButton(R.string.dialog_common_ok, null)
+                                                            .show();
+                                                }
+                                            });
+                                        } else {
+                                            new DialogUtil(requireActivity())
+                                                    .setMessage(R.string.dialog_error)
+                                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                                    .show();
+                                        }
+                                    });
+                                } else {
+                                    new DialogUtil(requireActivity())
+                                            .setMessage(R.string.dialog_error)
+                                            .setPositiveButton(R.string.dialog_common_ok, null)
+                                            .show();
+                                }
+                            })
+                            .show();
+                }
+            } else {
+                new DialogUtil(requireActivity())
+                        .setMessage(R.string.dialog_error + "UserManager の取得に失敗したか、DchaService が動作していません。")
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            }
+            return false;
+        });
+
         preRequestInstallPackages.setOnPreferenceClickListener(preference -> {
             ArrayList<String> stringArrayList = Common.exec("appops query-op REQUEST_INSTALL_PACKAGES allow");
             StringBuilder stringBuilder = new StringBuilder();
@@ -974,7 +1040,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swKeepUnkSrc.setVisible(false);
             swUnkSrc.setVisible(false);
             preRequestInstallPackages.setEnabled(false);
-            preRequestInstallPackages.setSummary("この機能を使用するには、”デバイスオーナの機能 -> 提供元不明のアプリ”から許可してください。");
+            preRequestInstallPackages.setSummary("この機能を使用するには、”不明なアプリのユーザー制限を解除”から許可してください。");
         }
 
         if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName())) {
@@ -995,7 +1061,17 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             }
         }
 
-        if (!Common.isCTZ()) {
+        if (Common.isCTZ()) {
+            UserManager userManager = (UserManager) requireActivity().getSystemService(Context.USER_SERVICE);
+
+            if (userManager.hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
+                swPreInstallUnknownSource.setSummary("不明なアプリは許可されていません。");
+            } else {
+                swPreInstallUnknownSource.setSummary("不明なアプリは許可されています。");
+            }
+        } else {
+            swPreInstallUnknownSource.setEnabled(false);
+            swPreInstallUnknownSource.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
             preRequestInstallPackages.setEnabled(false);
             preRequestInstallPackages.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
         }

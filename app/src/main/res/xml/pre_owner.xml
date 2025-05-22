@@ -31,16 +31,6 @@
             android:summary="@string/pre_owner_sum_permission_forced"
             android:title="@string/pre_owner_title_permission" />
 
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
-            android:key="pre_owner_install_unknown_source"
-            android:title="提供元不明のアプリ"
-            android:summary="提供元不明のアプリは許可されていません。" />
-
-        <Preference
-            android:icon="@drawable/ic_info_outline_24"
-            android:summary="デフォルトの状態は、システムのユーザー制限で提供元不明のアプリは許可されていません。" />
-
     </PreferenceCategory>
 
     <PreferenceCategory

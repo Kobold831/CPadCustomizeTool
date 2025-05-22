@@ -41,6 +41,16 @@
         android:key="2"
         android:title="@string/pre_main_category_system">
 
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:key="pre_owner_install_unknown_source"
+            android:title="不明なアプリのユーザー制限を解除"
+            android:summary="不明なアプリは許可されていません。" />
+
+        <Preference
+            android:icon="@drawable/ic_info_outline_24"
+            android:summary="デフォルトの状態は、システムのユーザー制限で不明なアプリは許可されていません。有効にするとユーザー制限を解除します。" />
+
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_main_request_install_packages"
@@ -50,12 +60,14 @@
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_unk_src"
-            android:title="@string/pre_main_title_non_market" />
+            android:title="@string/pre_main_title_non_market"
+            android:summary="この機能は、チャレンジパッド2または3で有効です。" />
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_keep_unk_src"
-            android:title="@string/pre_main_title_keep_non_market" />
+            android:title="@string/pre_main_title_keep_non_market"
+            android:summary="この機能は、チャレンジパッド2または3で有効です。" />
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
