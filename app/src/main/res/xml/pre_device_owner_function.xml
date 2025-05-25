@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
+        app:selectable="false"
         android:key="pre_owner_now_set_own_pkg"
-        android:icon="@drawable/ic_info_outline_24"
-        app:selectable="false" />
+        android:icon="@drawable/ic_info_outline_24" />
 
     <PreferenceCategory
         android:title="アンインストール設定"

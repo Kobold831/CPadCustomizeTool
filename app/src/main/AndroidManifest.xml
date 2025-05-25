@@ -39,7 +39,7 @@
             android:value="2.4" />
 
         <activity
-            android:name=".view.activity.WelAppActivity"
+            android:name=".view.activity.WelcomeAppActivity"
             android:exported="false"
             android:theme="@style/WelcomeTheme" />
 

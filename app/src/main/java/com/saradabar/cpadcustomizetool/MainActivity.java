@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         }
 
         if (savedInstanceState == null) {
-            transitionFragment(new MainFragment(), false);
+            transitionFragment(new MainFragment(), false, null);
 
             if (Preferences.load(this, Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
                 // アップデートチェックする設定
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         if (item.getItemId() == R.id.app_info_3) {
             // アプリ設定
             menu.findItem(R.id.app_info_3).setVisible(false);
-            transitionFragment(new AppSettingsFragment(), true);
+            transitionFragment(new AppSettingsFragment(), true, getString(R.string.menu_app_settings));
             return true;
         }
 
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             menu.findItem(R.id.app_info_3).setVisible(true);
             //noinspection deprecation
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            transitionFragment(new MainFragment(), false);
+            transitionFragment(new MainFragment(), false, null);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -134,11 +134,11 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         if (!(getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof MainFragment)) {
             menu.findItem(R.id.app_info_3).setVisible(true);
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            transitionFragment(new MainFragment(), false);
+            transitionFragment(new MainFragment(), false, null);
         }
     }
 
-    public void transitionFragment(PreferenceFragmentCompat preferenceFragmentCompat, boolean showHomeAsUp) {
+    public void transitionFragment(PreferenceFragmentCompat preferenceFragmentCompat, boolean showHomeAsUp, String title) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container_view, preferenceFragmentCompat)
@@ -146,6 +146,11 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showHomeAsUp);
+
+            if (title == null || title.isEmpty()) {
+                title = getString(R.string.activity_start);
+            }
+            getSupportActionBar().setTitle(title);
         }
     }
 

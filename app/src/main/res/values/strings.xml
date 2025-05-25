@@ -87,7 +87,7 @@
     <string name="pre_main_category_system">システム設定</string>
     <string name="pre_main_category_emergency_mode">緊急モード</string>
     <string name="pre_main_category_change_to_normal_mode">通常モード</string>
-    <string name="pre_main_category_other_settings">DchaService 機能</string>
+    <string name="pre_main_category_other_settings">Dcha アプリ機能</string>
     <string name="pre_main_category_device_admin">デバイス管理者設定</string>
     <string name="pre_main_category_assist">アシスト機能</string>
 
@@ -101,7 +101,7 @@
     <string name="pre_main_title_keep_non_market">不明なアプリのインストールを維持</string>
     <string name="pre_main_title_change_home">ホームアプリ</string>
     <string name="pre_main_title_keep_home">ホームアプリを維持</string>
-    <string name="pre_main_title_other_settings">その他の設定</string>
+    <string name="pre_main_title_other_settings">デバイスの設定</string>
     <string name="pre_main_title_select_course">受講中の講座を選択</string>
     <string name="pre_main_title_change_settings">緊急モードの設定</string>
     <string name="pre_main_title_manual">緊急モードの説明</string>
@@ -128,8 +128,8 @@
     <string name="pre_main_sum_already_device_owner">デバイスオーナーのため変更できません。</string>
     <string name="pre_main_sum_no_setting_launcher">ホームは設定されていません。</string>
 
-    <string name="pre_main_sum_keep_home">現在のホームを維持します。</string>
-    <string name="pre_main_sum_other">システム設定、ブラウザ、アプリ起動</string>
+    <string name="pre_main_sum_keep_home">現在のホームを維持します。バッテリーの消耗を防ぐために、およそ 10 秒間隔で監視します。</string>
+    <string name="pre_main_sum_other">画面表示と明るさ</string>
     <string name="pre_main_sum_emg_course">緊急モードを使用するときは、受講中の講座に設定されていることを確認してください。</string>
     <string name="pre_main_sum_change_settings">デフォルト設定はすべて変更します。</string>
     <string name="pre_main_sum_emg_manual">使用するにあたり、注意することを確認できます。</string>

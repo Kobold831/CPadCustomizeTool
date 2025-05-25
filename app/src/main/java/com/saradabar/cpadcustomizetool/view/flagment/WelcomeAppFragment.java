@@ -28,7 +28,7 @@ import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.stephentuso.welcome.WelcomePage;
 
-public class WelcomeFragment extends Fragment implements WelcomePage.OnChangeListener {
+public class WelcomeAppFragment extends Fragment implements WelcomePage.OnChangeListener {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

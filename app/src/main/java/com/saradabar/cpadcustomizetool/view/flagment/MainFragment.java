@@ -12,7 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isDchaUtilActive;
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuAllActive;
 
 import android.Manifest;
@@ -39,7 +38,6 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -48,7 +46,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatEditText;
-import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
@@ -65,7 +62,6 @@ import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 import com.saradabar.cpadcustomizetool.data.task.ApkInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.DchaInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
-import com.saradabar.cpadcustomizetool.data.task.ResolutionTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
@@ -75,10 +71,8 @@ import com.saradabar.cpadcustomizetool.view.activity.EditAdminActivity;
 import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NormalActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NoticeActivity;
-import com.saradabar.cpadcustomizetool.view.activity.RebootActivity;
 import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.view.views.GetAppListView;
-import com.saradabar.cpadcustomizetool.view.views.HomeAppListView;
 import com.saradabar.cpadcustomizetool.view.views.NormalModeHomeAppListView;
 
 import org.json.JSONArray;
@@ -99,9 +93,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     AppCompatTextView progressByteText;
     ProgressBar dialogProgressBar;
 
-    private String downloadFileUrl;
+    String downloadFileUrl;
 
-    private SwitchPreferenceCompat swDchaState,
+    SwitchPreferenceCompat swDchaState,
             swKeepDchaState,
             swNavigation,
             swKeepNavigation,
@@ -109,76 +103,29 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swKeepUnkSrc,
             swAdb,
             swKeepAdb,
-            swKeepLauncher,
             swDeviceAdmin,
             swEnableDchaService,
             swPreInstallUnknownSource;
 
-    private Preference preEmgManual,
+    Preference preEmgManual,
             preEmgExecute,
             preEmgShortcut,
             preSelNorLauncher,
             preNorManual,
             preNorExecute,
             preNorShortcut,
+            preUtil,
             preOtherSettings,
-            preReboot,
-            preRebootShortcut,
-            preSilentInstall,
-            preLauncher,
-            preResolution,
-            preResetResolution,
             preDeviceOwnerFn,
             preEditAdmin,
-            preSystemUpdate,
             preGetApp,
             preNotice,
-            preRequestInstallPackages;
+            preRequestInstallPackages,
+            preDchaFunction,
+            preInstallUnknownSourceInfo;
 
     PreferenceCategory catEmergency,
             catNormal;
-
-    @Override
-    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.pre_main, rootKey);
-
-        swDchaState = findPreference("pre_dcha_state");
-        swKeepDchaState = findPreference("pre_keep_dcha_state");
-        swNavigation = findPreference("pre_navigation");
-        swKeepNavigation = findPreference("pre_keep_navigation");
-        swUnkSrc = findPreference("pre_unk_src");
-        swKeepUnkSrc = findPreference("pre_keep_unk_src");
-        swAdb = findPreference("pre_adb");
-        swKeepAdb = findPreference("pre_keep_adb");
-        preLauncher = findPreference("pre_launcher");
-        swKeepLauncher = findPreference("pre_keep_launcher");
-        preOtherSettings = findPreference("pre_other_settings");
-        swEnableDchaService = findPreference("pre_enable_dcha_service");
-        preEmgManual = findPreference("pre_emg_manual");
-        preEmgExecute = findPreference("pre_emg_execute");
-        preEmgShortcut = findPreference("pre_emg_shortcut");
-        preSelNorLauncher = findPreference("pre_sel_nor_launcher");
-        preNorManual = findPreference("pre_nor_manual");
-        preNorExecute = findPreference("pre_nor_execute");
-        preNorShortcut = findPreference("pre_nor_shortcut");
-        preReboot = findPreference("pre_reboot");
-        preRebootShortcut = findPreference("pre_reboot_shortcut");
-        preSilentInstall = findPreference("pre_silent_install");
-        preResolution = findPreference("pre_resolution");
-        preResetResolution = findPreference("pre_reset_resolution");
-        preSystemUpdate = findPreference("pre_system_update");
-        preDeviceOwnerFn = findPreference("pre_device_owner_fn");
-        preEditAdmin = findPreference("pre_edit_admin");
-        swDeviceAdmin = findPreference("pre_device_admin");
-        preGetApp = findPreference("pre_get_app");
-        preNotice = findPreference("pre_notice");
-        catEmergency = findPreference("category_emergency");
-        catNormal = findPreference("category_normal");
-        swPreInstallUnknownSource = findPreference("pre_owner_install_unknown_source");
-        preRequestInstallPackages = findPreference("pre_main_request_install_packages");
-
-        setListener();
-    }
 
     /* アクティビティ破棄 */
     @Override
@@ -193,62 +140,45 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case Constants.REQUEST_ACTIVITY_INSTALL:// サイレントインストール要求
-                preSilentInstall.setEnabled(true);
-
-                if (data == null) {
-                    // 何も選択していない
-                    return;
-                }
-                String installData = Common.getFilePath(requireActivity(), data.getData());
-
-                if (installData != null) {
-                    //　選択されたファイルの取得成功
-                    new DchaInstallTask().execute(requireActivity(), dchaInstallTaskListener(), installData);
-                    return;
-                } else {
-                    //　選択されたファイルの取得失敗
-                    new DialogUtil(requireActivity())
-                            .setMessage(getString(R.string.dialog_error_no_file_data))
-                            .setPositiveButton(R.string.dialog_common_ok, null)
-                            .show();
-                }
-                break;
-            case Constants.REQUEST_ACTIVITY_SYSTEM_UPDATE:// システムアップデート要求
-                preSystemUpdate.setEnabled(true);
-
-                if (data == null) {
-                    // 何も選択していない
-                    return;
-                }
-                String updateData = Common.getFilePath(requireActivity(), data.getData());
-
-                if (updateData != null) {
-                    //　選択されたファイルの取得成功
-                    new DchaServiceUtil(requireActivity()).execSystemUpdate(updateData, 0, object -> {
-                        if (!object.equals(true)) {
-                            new DialogUtil(requireActivity())
-                                    .setMessage(R.string.dialog_error)
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                    .show();
-                        }
-                    });
-                } else {
-                    //　選択されたファイルの取得失敗
-                    new DialogUtil(requireActivity())
-                            .setMessage(getString(R.string.dialog_error_no_file_data))
-                            .setPositiveButton(R.string.dialog_common_ok, null)
-                            .show();
-                }
-                break;
-            case Constants.REQUEST_ACTIVITY_ADMIN:
-                initialize();
-                break;
+        if (requestCode == Constants.REQUEST_ACTIVITY_ADMIN) {
+            initPreference();
         }
     }
 
-    private void setListener() {
+    @Override
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        setPreferencesFromResource(R.xml.pre_main, rootKey);
+
+        swDchaState = findPreference("pre_dcha_state");
+        swKeepDchaState = findPreference("pre_keep_dcha_state");
+        swNavigation = findPreference("pre_navigation");
+        swKeepNavigation = findPreference("pre_keep_navigation");
+        swUnkSrc = findPreference("pre_unk_src");
+        swKeepUnkSrc = findPreference("pre_keep_unk_src");
+        swAdb = findPreference("pre_adb");
+        swKeepAdb = findPreference("pre_keep_adb");
+        preUtil = findPreference("pre_util");
+        preOtherSettings = findPreference("pre_other_settings");
+        swEnableDchaService = findPreference("pre_enable_dcha_service");
+        preEmgManual = findPreference("pre_emg_manual");
+        preEmgExecute = findPreference("pre_emg_execute");
+        preEmgShortcut = findPreference("pre_emg_shortcut");
+        preSelNorLauncher = findPreference("pre_sel_nor_launcher");
+        preNorManual = findPreference("pre_nor_manual");
+        preNorExecute = findPreference("pre_nor_execute");
+        preNorShortcut = findPreference("pre_nor_shortcut");
+        preDeviceOwnerFn = findPreference("pre_device_owner_fn");
+        preEditAdmin = findPreference("pre_edit_admin");
+        swDeviceAdmin = findPreference("pre_device_admin");
+        preGetApp = findPreference("pre_get_app");
+        preNotice = findPreference("pre_notice");
+        catEmergency = findPreference("category_emergency");
+        catNormal = findPreference("category_normal");
+        swPreInstallUnknownSource = findPreference("pre_owner_install_unknown_source");
+        preRequestInstallPackages = findPreference("pre_main_request_install_packages");
+        preDchaFunction = findPreference("pre_dcha_function");
+        preInstallUnknownSourceInfo = findPreference("pre_install_unknown_source_info");
+
         swDchaState.setOnPreferenceChangeListener((preference, o) -> {
             if (Common.isShowCfmDialog(requireActivity())) {
                 // 確認ダイアログが必要
@@ -444,48 +374,13 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             return true;
         });
 
-        preLauncher.setOnPreferenceClickListener(preference -> {
-            @SuppressLint("InflateParams") View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_launcher_list, null);
-            List<ResolveInfo> installedAppList = requireActivity().getPackageManager().queryIntentActivities(new Intent().setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-            List<HomeAppListView.AppData> dataList = new ArrayList<>();
-
-            for (ResolveInfo resolveInfo : installedAppList) {
-                HomeAppListView.AppData data = new HomeAppListView.AppData();
-                data.label = resolveInfo.loadLabel(requireActivity().getPackageManager()).toString();
-                data.icon = resolveInfo.loadIcon(requireActivity().getPackageManager());
-                data.packName = resolveInfo.activityInfo.packageName;
-                dataList.add(data);
-            }
-            ListView listView = view.findViewById(R.id.launcher_list);
-            listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-            listView.setAdapter(new HomeAppListView.AppListAdapter(requireActivity(), dataList));
-            listView.setOnItemClickListener((parent, mView, position, id) ->
-                    new DchaServiceUtil(requireActivity()).setPreferredHomeApp(getLauncherPackage(requireActivity()), Uri.fromParts("package",
-                            installedAppList.get(position).activityInfo.packageName, null).toString().replace("package:", ""), object -> {
-                        listView.invalidateViews();
-                        initialize();
-                    })
-            );
-            new DialogUtil(requireActivity())
-                    .setView(view)
-                    .setTitle(R.string.dialog_title_launcher)
-                    .setPositiveButton(R.string.dialog_common_ok, null)
-                    .show();
+        preUtil.setOnPreferenceClickListener(preference -> {
+            ((MainActivity) requireActivity()).transitionFragment(new UtilFragment(), true, "ユーティリティー");
             return false;
         });
 
-        swKeepLauncher.setOnPreferenceChangeListener((preference, o) -> {
-            if ((boolean) o) {
-                Preferences.save(requireActivity(), Constants.KEY_STRINGS_KEEP_HOME_APP_PACKAGE, getLauncherPackage(requireActivity()));
-            }
-            Preferences.save(requireActivity(), Constants.KEY_FLAG_KEEP_HOME, (boolean) o);
-            requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-            requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
-            return true;
-        });
-
         preOtherSettings.setOnPreferenceClickListener(preference -> {
-            ((MainActivity) requireActivity()).transitionFragment(new OtherFragment(), true);
+            ((MainActivity) requireActivity()).transitionFragment(new DeviceSettingsFragment(), true, "デバイスの設定");
             return false;
         });
 
@@ -507,12 +402,17 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     return false;
                 }
                 Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, true);
-                initialize();
+                initPreference();
             } else {
                 Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
-                initialize();
+                initPreference();
             }
             return true;
+        });
+
+        preDchaFunction.setOnPreferenceClickListener(preference -> {
+            ((MainActivity) requireActivity()).transitionFragment(new DchaFunctionFragment(), true, "Dcha アプリの機能");
+            return false;
         });
 
         preEmgManual.setOnPreferenceClickListener(preference -> {
@@ -576,7 +476,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 Preferences.save(requireActivity(), Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, Uri.fromParts("package", installedAppList.get(position).activityInfo.packageName, null).toString().replace("package:", ""));
                 /* listviewの更新 */
                 listView.invalidateViews();
-                initialize();
+                initPreference();
             });
             new DialogUtil(requireActivity())
                     .setView(view)
@@ -622,174 +522,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             return false;
         });
 
-        preReboot.setOnPreferenceClickListener(preference -> {
-            new DialogUtil(requireActivity())
-                    .setMessage(R.string.dialog_question_reboot)
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) ->
-                            new DchaServiceUtil(requireActivity()).rebootPad(0, "", object -> {
-                            }))
-                    .setNegativeButton(R.string.dialog_common_cancel, null)
-                    .show();
-            return false;
-        });
-
-        preRebootShortcut.setOnPreferenceClickListener(preference -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.reboot))
-                        .setShortLabel(getString(R.string.reboot))
-                        .setIcon(Icon.createWithResource(requireActivity(), android.R.drawable.ic_popup_sync))
-                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), RebootActivity.class.getName()))
-                        .build(), null);
-            } else {
-                requireActivity().sendBroadcast(new Intent(Constants.ACTION_INSTALL_SHORTCUT)
-                        .putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), RebootActivity.class.getName()))
-                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), android.R.drawable.ic_popup_sync))
-                        .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_reboot));
-                Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
-            }
-            return false;
-        });
-
-        preSilentInstall.setOnPreferenceClickListener(preference -> {
-            try {
-                preSilentInstall.setEnabled(false);
-                startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT)
-                        .setType("application/vnd.android.package-archive")
-                        .addCategory(Intent.CATEGORY_OPENABLE)
-                        .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false), ""), Constants.REQUEST_ACTIVITY_INSTALL);
-            } catch (RuntimeException ignored) {
-                preSilentInstall.setEnabled(true);
-                new DialogUtil(requireActivity())
-                        .setMessage(getString(R.string.dialog_error_no_file_browse))
-                        .setPositiveButton(R.string.dialog_common_ok, null)
-                        .show();
-            }
-            return false;
-        });
-
-        preResolution.setOnPreferenceClickListener(preference -> {
-            if (Common.isCT2() || Common.isCT3()) {
-                // CT2またはCT3
-                if (!isDchaUtilActive(requireActivity())) {
-                    // DchaUtilService が機能していない
-                    new DialogUtil(requireActivity())
-                            .setMessage(R.string.dialog_error_no_dcha_util)
-                            .setPositiveButton(R.string.dialog_common_ok, null)
-                            .show();
-                    return false;
-                }
-            }
-            @SuppressLint("InflateParams") View view = requireActivity().getLayoutInflater().inflate(R.layout.view_resolution, null);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                    requireActivity().checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
-                // sdk23以上かつWRITE_SECURE_SETTINGSが付与されていない
-                LinearLayout linearLayoutAny = view.findViewById(R.id.v_resolution_linearlayout_any);
-                LinearLayout linearLayoutBenesse = view.findViewById(R.id.v_resolution_linearlayout_benesse);
-                linearLayoutAny.setVisibility(View.GONE);
-                linearLayoutBenesse.setVisibility(View.VISIBLE);
-                new DialogUtil(requireActivity())
-                        .setView(view)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                            AppCompatRadioButton rb1024 = view.findViewById(R.id.v_resolution_radio_1024);
-                            AppCompatRadioButton rb1280 = view.findViewById(R.id.v_resolution_radio_1280);
-                            AppCompatRadioButton rb1920 = view.findViewById(R.id.v_resolution_radio_1920);
-
-                            int width, height;
-
-                            if (rb1024.isChecked()) {
-                                width = 1024;
-                                height = 768;
-                            } else if (rb1280.isChecked()) {
-                                width = 1280;
-                                height = 800;
-                            } else if (rb1920.isChecked()) {
-                                width = 1920;
-                                height = 1200;
-                            } else {
-                                Toast.makeText(requireActivity(), R.string.toast_not_selected, Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            new ResolutionTask().execute(requireActivity(), ((MainActivity) requireActivity()).resolutionTaskListener(), width, height);
-                        })
-                        .setNegativeButton(R.string.dialog_common_cancel, null)
-                        .show();
-                return false;
-            }
-            new DialogUtil(requireActivity())
-                    .setView(view)
-                    .setCancelable(false)
-                    .setTitle(R.string.dialog_title_resolution)
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                        ((InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(view.getWindowToken(), 0);
-                        AppCompatEditText editTextWidth = view.findViewById(R.id.edit_text_1);
-                        AppCompatEditText editTextHeight = view.findViewById(R.id.edit_text_2);
-
-                        try {
-                            //noinspection DataFlowIssue
-                            int width = Integer.parseInt(editTextWidth.getText().toString());
-                            //noinspection DataFlowIssue
-                            int height = Integer.parseInt(editTextHeight.getText().toString());
-
-                            if (width < 0 || height < 0) {
-                                new DialogUtil(requireActivity())
-                                        .setTitle(R.string.dialog_title_error)
-                                        .setMessage(R.string.dialog_error_illegal_value)
-                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                        .show();
-                            } else {
-                                new ResolutionTask().execute(requireActivity(), ((MainActivity) requireActivity()).resolutionTaskListener(), width, height);
-                            }
-                        } catch (NumberFormatException ignored) {
-                            new DialogUtil(requireActivity())
-                                    .setTitle(R.string.dialog_title_error)
-                                    .setMessage(R.string.dialog_error_illegal_value)
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                    .show();
-                        }
-                    })
-                    .setNegativeButton(R.string.dialog_common_cancel, null)
-                    .show();
-            return false;
-        });
-
-        preResetResolution.setOnPreferenceClickListener(preference -> {
-            if (Common.isCT2() || Common.isCT3()) {
-                // CT2またはCT3
-                if (!isDchaUtilActive(requireActivity())) {
-                    // DchaUtilService が機能していない
-                    new DialogUtil(requireActivity())
-                            .setMessage(R.string.dialog_error_no_dcha_util)
-                            .setPositiveButton(R.string.dialog_common_ok, null)
-                            .show();
-                    return false;
-                }
-            }
-            ((MainActivity) requireActivity()).resetResolution();
-            return false;
-        });
-
-        preSystemUpdate.setOnPreferenceClickListener(preference -> {
-            try {
-                preSystemUpdate.setEnabled(false);
-                startActivityForResult(Intent.createChooser(new Intent(Intent.ACTION_OPEN_DOCUMENT)
-                        .setType("application/zip")
-                        .addCategory(Intent.CATEGORY_OPENABLE)
-                        .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false), ""), Constants.REQUEST_ACTIVITY_SYSTEM_UPDATE);
-            } catch (RuntimeException ignored) {
-                preSystemUpdate.setEnabled(true);
-                new DialogUtil(requireActivity())
-                        .setMessage(getString(R.string.dialog_error_no_file_browse))
-                        .setPositiveButton(R.string.dialog_common_ok, null)
-                        .show();
-            }
-            return false;
-        });
-
         preDeviceOwnerFn.setOnPreferenceClickListener(preference -> {
             requireActivity().runOnUiThread(() ->
-                    ((MainActivity) requireActivity()).transitionFragment(new DeviceOwnerFragment(), true));
+                    ((MainActivity) requireActivity()).transitionFragment(new DeviceOwnerFunctionFragment(), true, "デバイスオーナーの機能"));
             return false;
         });
 
@@ -848,7 +583,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         userManager.setUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES, true);
                         swPreInstallUnknownSource.setSummary("提供元不明のアプリは許可されていません。");
                     }
-                    initialize();
+                    initPreference();
                     return true;
                 } catch (SecurityException ignored) {
                     new DialogUtil(requireActivity())
@@ -954,38 +689,29 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     .show();
             return false;
         });
-
         /* 一括変更 */
-        initialize();
+        initPreference();
     }
 
     /* 初期化 */
-    private void initialize() {
-        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
-            swEnableDchaService.setChecked(true);
-            preSilentInstall.setVisible(true);
-            preLauncher.setVisible(true);
-            swKeepLauncher.setVisible(true);
-            catEmergency.setVisible(true);
-            catNormal.setVisible(true);
-            preReboot.setVisible(true);
-            preRebootShortcut.setVisible(true);
-            preResolution.setVisible(true);
-            preResetResolution.setVisible(true);
-            preSystemUpdate.setVisible(true);
-        } else {
-            swEnableDchaService.setChecked(false);
-            preSilentInstall.setVisible(false);
-            preLauncher.setVisible(false);
-            swKeepLauncher.setVisible(false);
-            catEmergency.setVisible(false);
-            catNormal.setVisible(false);
-            preReboot.setVisible(false);
-            preRebootShortcut.setVisible(false);
-            preResolution.setVisible(false);
-            preResetResolution.setVisible(false);
-            preSystemUpdate.setVisible(false);
+    private void initPreference() {
+        swDeviceAdmin.setChecked(((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), DeviceAdminReceiver.class)));
+        swKeepNavigation.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false));
+        swKeepUnkSrc.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_MARKET_APP, false));
+        swKeepDchaState.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false));
+        swKeepAdb.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false));
+
+        try {
+            // "com.android.launcher" + (Build.VERSION.SDK_INT == 22 ? "2" : "3");
+            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_message_2, requireActivity().getPackageManager().getApplicationLabel(requireActivity()
+                    .getPackageManager().getApplicationInfo(Preferences.load(requireActivity(), Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, ""), 0))));
+        } catch (PackageManager.NameNotFoundException ignored) {
+            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_no_setting_launcher));
         }
+        // サービス起動(必要ないときは自動終了)
+        requireActivity().startService(new Intent(requireActivity(), KeepService.class));
+        requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
+
         /* オブサーバーを有効化 */
         requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, dchaStateObserver);
         requireActivity().getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, navigationBarObserver);
@@ -1012,30 +738,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
         } catch (Settings.SettingNotFoundException ignored) {
         }
-        swDeviceAdmin.setChecked(((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isAdminActive(new ComponentName(requireActivity(), DeviceAdminReceiver.class)));
-        swKeepNavigation.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false));
-        swKeepUnkSrc.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_MARKET_APP, false));
-        swKeepDchaState.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false));
-        swKeepAdb.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false));
-        swKeepLauncher.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_HOME, false));
-        preLauncher.setSummary(getLauncherName(requireActivity()));
-
-        try {
-            // "com.android.launcher" + (Build.VERSION.SDK_INT == 22 ? "2" : "3");
-            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_message_2, requireActivity().getPackageManager().getApplicationLabel(requireActivity()
-                    .getPackageManager().getApplicationInfo(Preferences.load(requireActivity(), Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, ""), 0))));
-        } catch (PackageManager.NameNotFoundException ignored) {
-            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_no_setting_launcher));
-        }
-        // サービス起動(必要ないときは自動終了)
-        requireActivity().startService(new Intent(requireActivity(), KeepService.class));
-        requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
-
-        if (!requireActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN)) {
-            preDeviceOwnerFn.setEnabled(false);
-            preDeviceOwnerFn.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-            swDeviceAdmin.setVisible(false);
-        }
 
         if (((UserManager) requireActivity().getSystemService(Context.USER_SERVICE)).hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
             swKeepUnkSrc.setVisible(false);
@@ -1043,12 +745,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swPreInstallUnknownSource.setSummary("不明なアプリは許可されていません。");
             preRequestInstallPackages.setEnabled(false);
             preRequestInstallPackages.setSummary("この機能を使用するには、”不明なアプリのユーザー制限を解除”から許可してください。");
+            preInstallUnknownSourceInfo.setEnabled(false);
         } else {
             swKeepUnkSrc.setVisible(true);
             swUnkSrc.setVisible(true);
             swPreInstallUnknownSource.setSummary("不明なアプリは許可されています。");
             preRequestInstallPackages.setEnabled(true);
             preRequestInstallPackages.setSummary("シェルコマンドを実行して、すべてのアプリで不明なアプリのインストール権限を許可します。");
+            preInstallUnknownSourceInfo.setEnabled(true);
         }
 
         if (((DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(requireActivity().getPackageName())) {
@@ -1056,24 +760,33 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swDeviceAdmin.setSummary(getString(R.string.pre_main_sum_already_device_owner));
         }
 
-        /* 端末ごとにPreferenceの状態を設定 */
-        if (Common.isCT2()) {
-            try {
-                if (requireActivity().getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode < 5) {
-                    preSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                    preSilentInstall.setEnabled(false);
-                }
-            } catch (PackageManager.NameNotFoundException ignored) {
-                preSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
-                preSilentInstall.setEnabled(false);
-            }
+        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
+            swEnableDchaService.setChecked(true);
+            catEmergency.setVisible(true);
+            catNormal.setVisible(true);
+            preDchaFunction.setEnabled(true);
+        } else {
+            swEnableDchaService.setChecked(false);
+            catEmergency.setVisible(false);
+            catNormal.setVisible(false);
+            preDchaFunction.setEnabled(false);
         }
 
-        if (!Common.isCTZ()) {
+        if (!requireActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN)) {
+            preDeviceOwnerFn.setEnabled(false);
+            preDeviceOwnerFn.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            swDeviceAdmin.setVisible(false);
+        }
+
+        if (Common.isCTZ()) {
+            swUnkSrc.setVisible(false);
+            swKeepUnkSrc.setVisible(false);
+        } else {
             swPreInstallUnknownSource.setEnabled(false);
             swPreInstallUnknownSource.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
             preRequestInstallPackages.setEnabled(false);
             preRequestInstallPackages.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            preInstallUnknownSourceInfo.setVisible(false);
         }
         new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(requireActivity().getExternalCacheDir(), Constants.NOTICE_JSON), Constants.REQUEST_DOWNLOAD_NOTICE);
     }
@@ -1194,28 +907,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         progressDialog = new DialogUtil(requireActivity()).setCancelable(false).setView(view).create();
         progressDialog.setMessage("");
         progressDialog.show();
-    }
-
-    /* ランチャーのパッケージ名を取得 */
-    @Nullable
-    private String getLauncherPackage(@NonNull Context context) {
-        ResolveInfo resolveInfo = context.getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-
-        if (resolveInfo != null) {
-            return resolveInfo.activityInfo.packageName;
-        }
-        return null;
-    }
-
-    /* ランチャーのアプリ名を取得 */
-    @Nullable
-    private String getLauncherName(@NonNull Context context) {
-        ResolveInfo resolveInfo = context.getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-
-        if (resolveInfo != null) {
-            return resolveInfo.activityInfo.loadLabel(context.getPackageManager()).toString();
-        }
-        return null;
     }
 
     @NonNull

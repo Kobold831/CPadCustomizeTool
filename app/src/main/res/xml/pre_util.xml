@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         app:allowDividerAbove="false"
         app:iconSpaceReserved="false"
-        android:title="一般">
+        android:title="機能">
 
         <Preference
             app:iconSpaceReserved="false"
@@ -48,32 +48,4 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        app:allowDividerAbove="false"
-        app:iconSpaceReserved="false"
-        android:title="画面表示と明るさ">
-
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
-            android:key="pre_other_ui_mode_night"
-            android:title="ダークモード" />
-
-        <Preference
-            android:icon="@drawable/ic_info_outline_24"
-            android:summary="ダークモードは、アプリにより適用されない場合があります。" />
-
-        <Preference
-            app:iconSpaceReserved="false"
-            android:key="pre_other_screen_off_time"
-            android:summary="スクリーンがタイムアウトするまでの時間を変更します。"
-            android:title="@string/pre_other_title_screen_off_time" />
-
-        <Preference
-            app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false"
-            android:key="pre_other_sleep_timeout"
-            android:title="sleep_timeout" />
-
-    </PreferenceCategory>
-
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>

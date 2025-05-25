@@ -17,42 +17,45 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
 
 public class AppInfoActivity extends AppCompatActivity {
 
+    public AppInfoActivity() {
+        super(R.layout.activity_app_info);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_app_info);
-
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
         initialize();
-        findViewById(R.id.download_button).setOnClickListener(view -> {
-            try {
-                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_GITHUB).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            } catch (Exception ignored) {
-                Toast.makeText(this, R.string.toast_no_browser, Toast.LENGTH_SHORT).show();
-            }
-        });
-        findViewById(R.id.act_app_info_button_feedback).setOnClickListener(v -> {
-            try {
-                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            } catch (Exception ignored) {
-                Toast.makeText(this, R.string.toast_no_browser, Toast.LENGTH_SHORT).show();
-            }
-        });
+        MaterialButton buttonDownload = findViewById(R.id.download_button);
+        MaterialButton buttonFeedBack = findViewById(R.id.act_app_info_button_feedback);
+
+        buttonDownload.setOnClickListener(view ->
+                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_GITHUB).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)));
+        buttonFeedBack.setOnClickListener(v ->
+                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)));
+        MaterialCardView cardViewDev1 = findViewById(R.id.act_app_info_card_dev_1);
+        MaterialCardView cardViewDev2 = findViewById(R.id.act_app_info_card_dev_2);
+
+        cardViewDev1.setOnClickListener(v ->
+                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", "https://github.com/Kobold831").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)));
+        cardViewDev2.setOnClickListener(v ->
+                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", "https://github.com/s1204IT").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)));
     }
 
     private void initialize() {

@@ -60,7 +60,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /** @noinspection deprecation*/
-public class DeviceOwnerFragment extends PreferenceFragmentCompat implements InstallEventListener {
+public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implements InstallEventListener {
 
     AlertDialog progressDialog;
 
@@ -79,7 +79,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        addPreferencesFromResource(R.xml.pre_owner);
+        setPreferencesFromResource(R.xml.pre_device_owner_function, rootKey);
 
         preUninstallBlock = findPreference("pre_owner_uninstall_block");
         swPrePermissionFrc = findPreference("pre_owner_permission_frc");
@@ -207,14 +207,13 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                     .show();
             return false;
         });
-
         /* 初期化 */
-        initPre();
+        initPreference();
     }
 
     /* 初期化 */
     @SuppressLint("NewApi")
-    private void initPre() {
+    private void initPreference() {
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
 
         if (Common.isCT2()) {
@@ -413,7 +412,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onSuccess() {
                 Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
-                AlertDialog alertDialog = new DialogUtil(DeviceOwnerFragment.this.requireActivity())
+                AlertDialog alertDialog = new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setMessage(R.string.dialog_success_silent_install)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
@@ -432,7 +431,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onFailure(String message) {
                 Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
-                new DialogUtil(DeviceOwnerFragment.this.requireActivity())
+                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
@@ -446,7 +445,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onError(String message) {
                 Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
-                new DialogUtil(DeviceOwnerFragment.this.requireActivity())
+                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
                         .setCancelable(false)
@@ -473,7 +472,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 AppCompatTextView textByte = view.findViewById(R.id.progress_byte);
                 progressBar.setProgress(0);
                 textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
-                alertDialog = new DialogUtil(DeviceOwnerFragment.this.requireActivity())
+                alertDialog = new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setView(view)
                         .setMessage("")
                         .setCancelable(false)
@@ -493,7 +492,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onSuccess(ArrayList<String> stringArrayList) {
                 alertDialog.dismiss();
-                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFragment.this);
+                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFunctionFragment.this);
                 // インストール処理でdhizukuに接続するのでここでは再接続しない
             }
 
@@ -501,7 +500,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onFailure() {
                 alertDialog.dismiss();
                 Common.deleteDirectory(requireActivity().getExternalCacheDir());
-                new DialogUtil(DeviceOwnerFragment.this.requireActivity())
+                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(getString(R.string.dialog_failure))
                         .setCancelable(false)
@@ -516,7 +515,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onError(String message) {
                 alertDialog.dismiss();
                 Common.deleteDirectory(requireActivity().getExternalCacheDir());
-                new DialogUtil(DeviceOwnerFragment.this.requireActivity())
+                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
                         .setCancelable(false)
@@ -548,7 +547,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 AppCompatTextView textByte = view.findViewById(R.id.progress_byte);
                 progressBar.setProgress(0);
                 textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
-                alertDialog = new DialogUtil(DeviceOwnerFragment.this.requireActivity())
+                alertDialog = new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setView(view)
                         .setMessage("")
                         .setCancelable(false)
@@ -568,7 +567,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onSuccess(ArrayList<String> stringArrayList) {
                 alertDialog.dismiss();
-                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFragment.this);
+                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFunctionFragment.this);
                 // インストール処理でdhizukuに接続するのでここでは再接続しない
             }
 
@@ -576,7 +575,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onFailure() {
                 alertDialog.dismiss();
                 Common.deleteDirectory(requireActivity().getExternalCacheDir());
-                new DialogUtil(DeviceOwnerFragment.this.requireActivity())
+                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(getString(R.string.dialog_failure))
                         .setCancelable(false)
@@ -591,7 +590,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onError(String message) {
                 alertDialog.dismiss();
                 Common.deleteDirectory(requireActivity().getExternalCacheDir());
-                new DialogUtil(DeviceOwnerFragment.this.requireActivity())
+                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
                         .setCancelable(false)
@@ -623,7 +622,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
                 AppCompatTextView textByte = view.findViewById(R.id.progress_byte);
                 progressBar.setProgress(0);
                 textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
-                alertDialog = new DialogUtil(DeviceOwnerFragment.this.requireActivity())
+                alertDialog = new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setView(view)
                         .setMessage("")
                         .setCancelable(false)
@@ -643,7 +642,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             @Override
             public void onSuccess(ArrayList<String> stringArrayList) {
                 alertDialog.dismiss();
-                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFragment.this);
+                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFunctionFragment.this);
                 // インストール処理でdhizukuに接続するのでここでは再接続しない
             }
 
@@ -651,7 +650,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onFailure() {
                 alertDialog.dismiss();
                 Common.deleteDirectory(requireActivity().getExternalCacheDir());
-                new DialogUtil(DeviceOwnerFragment.this.requireActivity())
+                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(getString(R.string.dialog_failure))
                         .setCancelable(false)
@@ -666,7 +665,7 @@ public class DeviceOwnerFragment extends PreferenceFragmentCompat implements Ins
             public void onError(String message) {
                 alertDialog.dismiss();
                 Common.deleteDirectory(requireActivity().getExternalCacheDir());
-                new DialogUtil(DeviceOwnerFragment.this.requireActivity())
+                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
                         .setCancelable(false)

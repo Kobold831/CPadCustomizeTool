@@ -104,7 +104,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             supportModelCheck();
         } else {
             // 初回起動未完了
-            new WelcomeHelper(this, WelAppActivity.class).forceShow();
+            new WelcomeHelper(this, WelcomeAppActivity.class).forceShow();
             overridePendingTransition(0, 0);
             finish();
         }

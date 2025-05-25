@@ -15,14 +15,14 @@ package com.saradabar.cpadcustomizetool.view.activity;
 import androidx.fragment.app.Fragment;
 
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.view.flagment.WelcomeFragment;
+import com.saradabar.cpadcustomizetool.view.flagment.WelcomeAppFragment;
 import com.stephentuso.welcome.BasicPage;
 import com.stephentuso.welcome.FragmentWelcomePage;
 import com.stephentuso.welcome.TitlePage;
 import com.stephentuso.welcome.WelcomeActivity;
 import com.stephentuso.welcome.WelcomeConfiguration;
 
-public class WelAppActivity extends WelcomeActivity {
+public class WelcomeAppActivity extends WelcomeActivity {
 
     @Override
     protected WelcomeConfiguration configuration() {
@@ -35,7 +35,7 @@ public class WelAppActivity extends WelcomeActivity {
                 .page(new FragmentWelcomePage() {
                     @Override
                     protected Fragment fragment() {
-                        return new WelcomeFragment();
+                        return new WelcomeAppFragment();
                     }
                 })
                 .swipeToDismiss(false)

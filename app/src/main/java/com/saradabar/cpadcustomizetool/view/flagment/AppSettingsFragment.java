@@ -53,7 +53,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        addPreferencesFromResource(R.xml.pre_app);
+        setPreferencesFromResource(R.xml.pre_app_settings, rootKey);
 
         swUpdateCheck = findPreference("pre_app_update_check");
         swNotiAlways = findPreference("pre_app_noti_always");
@@ -147,11 +147,10 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             startActivity(new Intent(requireActivity(), ForceCrashActivity.class));
             return false;
         });
-
-        initialize();
+        initPreference();
     }
 
-    private void initialize() {
+    private void initPreference() {
         swUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true));
         swUseDcha.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_SETTING_DCHA, false));
 
