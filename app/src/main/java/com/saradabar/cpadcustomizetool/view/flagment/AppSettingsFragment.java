@@ -16,8 +16,10 @@ import android.app.ActivityManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
@@ -39,7 +41,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
     PreferenceCategory catDebugRestriction;
 
-    SwitchPreferenceCompat swUpdateCheck,
+    SwitchPreferenceCompat swDisableUpdateCheck,
             swNotiAlways,
             swUseDcha,
             swDebugRestriction;
@@ -49,13 +51,14 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             preUpdateMode,
             preClearCache,
             preClearData,
-            preDebugForceCrash;
+            preDebugForceCrash,
+            preDebugDevice;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_app_settings, rootKey);
 
-        swUpdateCheck = findPreference("pre_app_update_check");
+        swDisableUpdateCheck = findPreference("pre_app_update_check");
         swNotiAlways = findPreference("pre_app_noti_always");
         swUseDcha = findPreference("pre_app_use_dcha");
         preCrashLog = findPreference("pre_app_crash_log");
@@ -66,8 +69,14 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         preClearCache = findPreference("pre_app_clear_cache");
         preClearData = findPreference("pre_app_clear_data");
         preDebugForceCrash = findPreference("pre_app_debug_force_crash");
+        preDebugDevice = findPreference("pre_app_debug_device");
 
-        swUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
+        swDisableUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
+            if ((boolean) newValue) {
+                swDisableUpdateCheck.setSummary("アプリを起動したときに、更新を確認しません。");
+            } else {
+                swDisableUpdateCheck.setSummary("アプリを起動したときに、更新を確認します。");
+            }
             Preferences.save(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, !((boolean) newValue));
             return true;
         });
@@ -147,12 +156,35 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             startActivity(new Intent(requireActivity(), ForceCrashActivity.class));
             return false;
         });
+
+        preDebugDevice.setOnPreferenceClickListener(preference -> {
+            AppCompatEditText editText = new AppCompatEditText(requireActivity());
+            editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+            editText.setHint(String.valueOf(Preferences.load(requireActivity(), Constants.KEY_INT_DEBUG_DEVICE, 0)));
+            new DialogUtil(requireActivity())
+                    .setView(editText)
+                    .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> {
+                        if (editText.getText() == null || editText.length() != 1) {
+                            return;
+                        }
+                        Preferences.save(requireActivity(), Constants.KEY_INT_DEBUG_DEVICE, Integer.parseInt(editText.getText().toString()));
+                    })
+                    .setNegativeButton(getString(R.string.dialog_common_cancel), null)
+                    .show();
+            return false;
+        });
         initPreference();
     }
 
     private void initPreference() {
-        swUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true));
+        swDisableUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true));
         swUseDcha.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_SETTING_DCHA, false));
+
+        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
+            swDisableUpdateCheck.setSummary("アプリを起動したときに、更新を確認します。");
+        } else {
+            swDisableUpdateCheck.setSummary("アプリを起動したときに、更新を確認しません。");
+        }
 
         if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
             Preferences.save(requireActivity(), Constants.KEY_FLAG_APP_SETTING_DCHA, false);

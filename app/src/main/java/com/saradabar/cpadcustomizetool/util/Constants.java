@@ -94,6 +94,7 @@ public class Constants {
     public static final String KEY_FLAG_KEEP_USB_DEBUG = "enabled_keep_usb_debug";
     public static final String KEY_FLAG_KEEP_HOME = "enabled_keep_home";
     public static final String KEY_STRINGS_KEEP_HOME_APP_PACKAGE = "save_keep_home";
+    public static final String KEY_INT_DEBUG_DEVICE = "key_int_debug_device";
 
     public static final String PKG_COMMON_DCHA = "jp.co.benesse.dcha";
     public static final String PKG_DCHA_SERVICE = PKG_COMMON_DCHA + ".dchaservice";

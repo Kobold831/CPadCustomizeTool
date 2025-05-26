@@ -21,12 +21,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.content.pm.ShortcutInfo;
-import android.content.pm.ShortcutManager;
 import android.database.ContentObserver;
-import android.graphics.Color;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.BenesseExtension;
 import android.os.Build;
@@ -48,7 +43,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
@@ -68,12 +62,9 @@ import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.EditAdminActivity;
-import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
-import com.saradabar.cpadcustomizetool.view.activity.NormalActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NoticeActivity;
 import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.view.views.GetAppListView;
-import com.saradabar.cpadcustomizetool.view.views.NormalModeHomeAppListView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -107,14 +98,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swEnableDchaService,
             swPreInstallUnknownSource;
 
-    Preference preEmgManual,
-            preEmgExecute,
-            preEmgShortcut,
-            preSelNorLauncher,
-            preNorManual,
-            preNorExecute,
-            preNorShortcut,
-            preUtil,
+    Preference preUtil,
             preOtherSettings,
             preDeviceOwnerFn,
             preEditAdmin,
@@ -122,10 +106,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preNotice,
             preRequestInstallPackages,
             preDchaFunction,
-            preInstallUnknownSourceInfo;
-
-    PreferenceCategory catEmergency,
-            catNormal;
+            preInstallUnknownSourceInfo,
+            preAppFunction;
 
     /* アクティビティ破棄 */
     @Override
@@ -160,24 +142,16 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preUtil = findPreference("pre_util");
         preOtherSettings = findPreference("pre_other_settings");
         swEnableDchaService = findPreference("pre_enable_dcha_service");
-        preEmgManual = findPreference("pre_emg_manual");
-        preEmgExecute = findPreference("pre_emg_execute");
-        preEmgShortcut = findPreference("pre_emg_shortcut");
-        preSelNorLauncher = findPreference("pre_sel_nor_launcher");
-        preNorManual = findPreference("pre_nor_manual");
-        preNorExecute = findPreference("pre_nor_execute");
-        preNorShortcut = findPreference("pre_nor_shortcut");
         preDeviceOwnerFn = findPreference("pre_device_owner_fn");
         preEditAdmin = findPreference("pre_edit_admin");
         swDeviceAdmin = findPreference("pre_device_admin");
         preGetApp = findPreference("pre_get_app");
         preNotice = findPreference("pre_notice");
-        catEmergency = findPreference("category_emergency");
-        catNormal = findPreference("category_normal");
         swPreInstallUnknownSource = findPreference("pre_owner_install_unknown_source");
         preRequestInstallPackages = findPreference("pre_main_request_install_packages");
         preDchaFunction = findPreference("pre_dcha_function");
         preInstallUnknownSourceInfo = findPreference("pre_install_unknown_source_info");
+        preAppFunction = findPreference("pre_app_function");
 
         swDchaState.setOnPreferenceChangeListener((preference, o) -> {
             if (Common.isShowCfmDialog(requireActivity())) {
@@ -415,113 +389,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             return false;
         });
 
-        preEmgManual.setOnPreferenceClickListener(preference -> {
-            AppCompatTextView textView = new AppCompatTextView(requireActivity());
-            textView.setText(R.string.dialog_emergency_manual_red);
-            textView.setTextSize(16);
-            textView.setTextColor(Color.RED);
-            textView.setPadding(32, 0, 32, 0);
-            new DialogUtil(requireActivity())
-                    .setTitle(R.string.dialog_title_emergency_manual)
-                    .setMessage(R.string.dialog_emergency_manual)
-                    .setView(textView)
-                    .setPositiveButton(R.string.dialog_common_ok, null)
-                    .show();
-            return false;
-        });
-
-        preEmgExecute.setOnPreferenceClickListener(preference -> {
-            new DialogUtil(requireActivity())
-                    .setMessage(R.string.note_start_emergency_mode)
-                    .setNeutralButton(R.string.dialog_common_yes, (dialog, which) ->
-                            startActivity(new Intent(requireActivity(), EmergencyActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
-                    .setPositiveButton(R.string.dialog_common_cancel, null)
-                    .show();
-            return false;
-        });
-
-        preEmgShortcut.setOnPreferenceClickListener(preference -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.activity_emergency))
-                        .setShortLabel(getString(R.string.activity_emergency))
-                        .setIcon(Icon.createWithResource(requireActivity(), android.R.drawable.ic_dialog_alert))
-                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), EmergencyActivity.class.getName()))
-                        .build(), null);
-            } else {
-                requireActivity().sendBroadcast(new Intent(Constants.ACTION_INSTALL_SHORTCUT)
-                        .putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), EmergencyActivity.class.getName()))
-                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), android.R.drawable.ic_dialog_alert))
-                        .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_emergency));
-                Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
-            }
-            return false;
-        });
-
-        preSelNorLauncher.setOnPreferenceClickListener(preference -> {
-            @SuppressLint("InflateParams") View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_normal_launcher_list, null);
-            List<ResolveInfo> installedAppList = requireActivity().getPackageManager().queryIntentActivities(new Intent().setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-            List<NormalModeHomeAppListView.AppData> dataList = new ArrayList<>();
-
-            for (ResolveInfo resolveInfo : installedAppList) {
-                NormalModeHomeAppListView.AppData data = new NormalModeHomeAppListView.AppData();
-                data.label = resolveInfo.loadLabel(requireActivity().getPackageManager()).toString();
-                data.icon = resolveInfo.loadIcon(requireActivity().getPackageManager());
-                data.packName = resolveInfo.activityInfo.packageName;
-                dataList.add(data);
-            }
-            ListView listView = view.findViewById(R.id.normal_launcher_list);
-            listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-            listView.setAdapter(new NormalModeHomeAppListView.AppListAdapter(requireActivity(), dataList));
-            listView.setOnItemClickListener((parent, mView, position, id) -> {
-                Preferences.save(requireActivity(), Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, Uri.fromParts("package", installedAppList.get(position).activityInfo.packageName, null).toString().replace("package:", ""));
-                /* listviewの更新 */
-                listView.invalidateViews();
-                initPreference();
-            });
-            new DialogUtil(requireActivity())
-                    .setView(view)
-                    .setTitle(R.string.dialog_title_launcher)
-                    .setPositiveButton(R.string.dialog_common_ok, null)
-                    .show();
-            return false;
-        });
-
-        preNorManual.setOnPreferenceClickListener(preference -> {
-            new DialogUtil(requireActivity())
-                    .setTitle(R.string.dialog_title_normal_manual)
-                    .setMessage(R.string.dialog_normal_manual)
-                    .setPositiveButton(R.string.dialog_common_ok, null)
-                    .show();
-            return false;
-        });
-
-        preNorExecute.setOnPreferenceClickListener(preference -> {
-            new DialogUtil(requireActivity())
-                    .setMessage(R.string.note_start_normal_mode)
-                    .setNeutralButton(R.string.dialog_common_yes, (dialog, which) ->
-                            startActivity(new Intent(requireActivity(), NormalActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)))
-                    .setPositiveButton(R.string.dialog_common_cancel, null)
-                    .show();
-            return false;
-        });
-
-        preNorShortcut.setOnPreferenceClickListener(preference -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.activity_normal))
-                        .setShortLabel(getString(R.string.activity_normal))
-                        .setIcon(Icon.createWithResource(requireActivity(), android.R.drawable.ic_menu_revert))
-                        .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), NormalActivity.class.getName()))
-                        .build(), null);
-            } else {
-                requireActivity().sendBroadcast(new Intent(Constants.ACTION_INSTALL_SHORTCUT)
-                        .putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), NormalActivity.class.getName()))
-                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), android.R.drawable.ic_menu_revert))
-                        .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_normal));
-                Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
-            }
-            return false;
-        });
-
         preDeviceOwnerFn.setOnPreferenceClickListener(preference -> {
             requireActivity().runOnUiThread(() ->
                     ((MainActivity) requireActivity()).transitionFragment(new DeviceOwnerFunctionFragment(), true, "デバイスオーナーの機能"));
@@ -689,6 +556,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     .show();
             return false;
         });
+
+        preAppFunction.setOnPreferenceClickListener(preference -> {
+            ((MainActivity) requireActivity()).transitionFragment(new AppFunctionFragment(), true, "アプリの機能");
+            return false;
+        });
         /* 一括変更 */
         initPreference();
     }
@@ -701,13 +573,6 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         swKeepDchaState.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false));
         swKeepAdb.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false));
 
-        try {
-            // "com.android.launcher" + (Build.VERSION.SDK_INT == 22 ? "2" : "3");
-            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_message_2, requireActivity().getPackageManager().getApplicationLabel(requireActivity()
-                    .getPackageManager().getApplicationInfo(Preferences.load(requireActivity(), Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, ""), 0))));
-        } catch (PackageManager.NameNotFoundException ignored) {
-            preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_no_setting_launcher));
-        }
         // サービス起動(必要ないときは自動終了)
         requireActivity().startService(new Intent(requireActivity(), KeepService.class));
         requireActivity().startService(new Intent(requireActivity(), ProtectKeepService.class));
@@ -762,19 +627,19 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
             swEnableDchaService.setChecked(true);
-            catEmergency.setVisible(true);
-            catNormal.setVisible(true);
+            swEnableDchaService.setSummary("DchaService 機能は、有効です。");
             preDchaFunction.setEnabled(true);
+            preAppFunction.setEnabled(true);
         } else {
             swEnableDchaService.setChecked(false);
-            catEmergency.setVisible(false);
-            catNormal.setVisible(false);
+            swEnableDchaService.setSummary("DchaService 機能は、無効です。");
             preDchaFunction.setEnabled(false);
+            preAppFunction.setEnabled(false);
         }
 
         if (!requireActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN)) {
             preDeviceOwnerFn.setEnabled(false);
-            preDeviceOwnerFn.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            preDeviceOwnerFn.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
             swDeviceAdmin.setVisible(false);
         }
 
@@ -783,9 +648,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swKeepUnkSrc.setVisible(false);
         } else {
             swPreInstallUnknownSource.setEnabled(false);
-            swPreInstallUnknownSource.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            swPreInstallUnknownSource.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
             preRequestInstallPackages.setEnabled(false);
-            preRequestInstallPackages.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            preRequestInstallPackages.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
             preInstallUnknownSourceInfo.setVisible(false);
         }
         new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(requireActivity().getExternalCacheDir(), Constants.NOTICE_JSON), Constants.REQUEST_DOWNLOAD_NOTICE);

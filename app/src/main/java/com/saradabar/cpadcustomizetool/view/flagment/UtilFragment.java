@@ -132,7 +132,7 @@ public class UtilFragment extends PreferenceFragmentCompat {
     private void initPreference() {
         if (Common.isCT2()) {
             preStartUiAdjustment.setEnabled(false);
-            preStartUiAdjustment.setSummary(Build.MODEL + requireActivity().getString(R.string.pre_main_sum_message_1));
+            preStartUiAdjustment.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
         }
     }
 }

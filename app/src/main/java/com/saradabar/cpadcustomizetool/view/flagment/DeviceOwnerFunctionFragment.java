@@ -218,11 +218,11 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
 
         if (Common.isCT2()) {
             swPrePermissionFrc.setEnabled(false);
-            swPrePermissionFrc.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            swPrePermissionFrc.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
             preSessionInstall.setEnabled(false);
-            preSessionInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            preSessionInstall.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
             preAbandonSession.setEnabled(false);
-            preAbandonSession.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            preAbandonSession.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
         }
 
         if (dpm.isDeviceOwnerApp(requireActivity().getPackageName()) && !Common.isCT2() ||

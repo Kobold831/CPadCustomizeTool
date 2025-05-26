@@ -3,29 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        android:title="@string/pre_app_category_start_settings"
         app:allowDividerAbove="false"
-        app:iconSpaceReserved="false">
+        app:iconSpaceReserved="false"
+        android:title="@string/pre_app_category_start_settings">
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_app_update_check"
-            android:summary="アプリ起動時にアップデートを確認します。"
             android:title="@string/pre_app_title_update_check" />
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/pre_app_category_settings"
         app:allowDividerAbove="false"
-        app:iconSpaceReserved="false">
+        app:iconSpaceReserved="false"
+        android:title="@string/pre_app_category_settings">
 
         <SwitchPreferenceCompat
+            app:singleLineTitle="false"
             app:iconSpaceReserved="false"
             android:key="pre_app_use_dcha"
             android:summary="@string/pre_app_sum_dcha"
-            android:title="@string/pre_app_title_dcha"
-            app:singleLineTitle="false" />
+            android:title="@string/pre_app_title_dcha" />
 
         <Preference
             app:iconSpaceReserved="false"
@@ -42,9 +41,9 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/pre_app_category_update"
         app:allowDividerAbove="false"
-        app:iconSpaceReserved="false">
+        app:iconSpaceReserved="false"
+        android:title="@string/pre_app_category_update">
 
         <Preference
             app:iconSpaceReserved="false"
@@ -55,9 +54,9 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/pre_app_category_log"
         app:allowDividerAbove="false"
-        app:iconSpaceReserved="false">
+        app:iconSpaceReserved="false"
+        android:title="@string/pre_app_category_log">
 
         <Preference
             app:iconSpaceReserved="false"
@@ -73,9 +72,9 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/pre_app_category_noti"
         app:allowDividerAbove="false"
-        app:iconSpaceReserved="false">
+        app:iconSpaceReserved="false"
+        android:title="@string/pre_app_category_noti">
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
@@ -86,21 +85,26 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="pre_app_category_debug"
-        android:title="デバッグ"
         app:isPreferenceVisible="false"
         app:allowDividerAbove="false"
-        app:iconSpaceReserved="false">
+        app:iconSpaceReserved="false"
+        android:key="pre_app_category_debug"
+        android:title="デバッグ">
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_app_debug_restriction"
-            android:title="デバッグモード" />
+            android:title="制限の解除" />
 
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_app_debug_force_crash"
             android:title="クラッシュ" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_app_debug_device"
+            android:title="デバイス" />
 
     </PreferenceCategory>
 

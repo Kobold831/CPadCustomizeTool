@@ -37,6 +37,7 @@ import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuBinderWrapper;
 import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.BuildConfig;
+import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
 
 import org.json.JSONException;
@@ -273,19 +274,31 @@ public class Common {
     }
 
     public static boolean isCT2() {
-        return Constants.PRODUCT_CT2.contains(Build.MODEL);
+        if (Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 0) {
+            return Constants.PRODUCT_CT2.contains(Build.MODEL);
+        }
+        return Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 1;
     }
 
     public static boolean isCT3() {
-        return Build.MODEL.equals(Constants.PRODUCT_CT3);
+        if (Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 0) {
+            return Build.MODEL.equals(Constants.PRODUCT_CT3);
+        }
+        return Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 2;
     }
 
     public static boolean isCTX() {
-        return Build.MODEL.equals(Constants.PRODUCT_CTX);
+        if (Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 0) {
+            return Build.MODEL.equals(Constants.PRODUCT_CTX);
+        }
+        return Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 3;
     }
 
     public static boolean isCTZ() {
-        return Build.MODEL.equals(Constants.PRODUCT_CTZ);
+        if (Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 0) {
+            return Build.MODEL.equals(Constants.PRODUCT_CTZ);
+        }
+        return Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 4;
     }
 
     public static boolean isBenesseExtensionExist(String method) {

@@ -346,11 +346,11 @@ public class DchaFunctionFragment extends PreferenceFragmentCompat {
         if (Common.isCT2()) {
             try {
                 if (requireActivity().getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode < 5) {
-                    preSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                    preSilentInstall.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
                     preSilentInstall.setEnabled(false);
                 }
             } catch (PackageManager.NameNotFoundException ignored) {
-                preSilentInstall.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+                preSilentInstall.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
                 preSilentInstall.setEnabled(false);
             }
         }

@@ -161,7 +161,7 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
 
         if (Common.isCT2()) {
             swUiModeNight.setEnabled(false);
-            swUiModeNight.setSummary(Build.MODEL + getString(R.string.pre_main_sum_message_1));
+            swUiModeNight.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
         }
     }
 
