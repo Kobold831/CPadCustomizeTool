@@ -16,6 +16,8 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -38,8 +40,7 @@ import java.util.Locale;
 
 public class DeviceSettingsFragment extends PreferenceFragmentCompat {
 
-    Preference preScreenOffTimeOut,
-            preSleepTimeout;
+    Preference preScreenOffTimeOut;
 
     SwitchPreferenceCompat swUiModeNight;
 
@@ -48,22 +49,68 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.pre_device_settings, rootKey);
 
         preScreenOffTimeOut = findPreference("pre_other_screen_off_time");
-        preSleepTimeout = findPreference("pre_other_sleep_timeout");
         swUiModeNight = findPreference("pre_other_ui_mode_night");
 
         preScreenOffTimeOut.setOnPreferenceClickListener(preference -> {
             @SuppressLint("InflateParams") View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
             AppCompatEditText editText = view.findViewById(R.id.time_out_edit);
             editText.setHint(getString(R.string.time_out_hint, String.valueOf(Integer.MAX_VALUE)));
-            setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
+            editText.addTextChangedListener(new TextWatcher() {
+
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label), editText);
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                }
+            });
+            setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label), editText);
             new DialogUtil(requireActivity())
                     .setView(view)
                     .setCancelable(false)
                     .setTitle("スクリーンのタイムアウト")
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                        //noinspection SizeReplaceableByIsEmpty
+                        if (editText.getText() == null || editText.getText().length() == 0) {
+                            new DialogUtil(requireActivity())
+                                    .setTitle(R.string.dialog_title_error)
+                                    .setMessage("数値を入力してください。")
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .show();
+                            return;
+                        }
+
                         try {
-                            //noinspection DataFlowIssue
+                            Integer.parseInt(editText.getText().toString());
+                        } catch (NumberFormatException ignored) {
+                            new DialogUtil(requireActivity())
+                                    .setTitle(R.string.dialog_title_error)
+                                    .setMessage("数値が、”2147483647” より大きいため、変更できません。")
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .show();
+                            return;
+                        }
+
+                        try {
+                            Settings.Secure.putInt(requireActivity().getContentResolver(), "sleep_timeout", Integer.parseInt(editText.getText().toString()));
+                        } catch (Exception e) {
+                            new DialogUtil(requireActivity())
+                                    .setTitle(R.string.dialog_title_error)
+                                    .setMessage("”android.permission.WRITE_SECURE_SETTINGS” 権限が必要です。")
+                                    .setPositiveButton(R.string.dialog_common_ok, null)
+                                    .show();
+                            return;
+                        }
+
+                        try {
                             Settings.System.putInt(requireActivity().getContentResolver(), "screen_off_timeout", Integer.parseInt(editText.getText().toString()));
+                            Settings.System.putInt(requireActivity().getContentResolver(), "screen_dim_timeout", Integer.parseInt(editText.getText().toString()));
                             setSummaryScreenOffTimeConvert();
                         } catch (Exception e) {
                             new DialogUtil(requireActivity())
@@ -76,57 +123,8 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
                     .setNegativeButton(R.string.dialog_common_cancel, null)
                     .show();
             view.findViewById(R.id.time_out_button).setOnClickListener(view1 -> {
-                try {
-                    editText.setText(String.valueOf(Integer.MAX_VALUE));
-                    Settings.System.putInt(requireActivity().getContentResolver(), "screen_off_timeout", Integer.MAX_VALUE);
-                    setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
-                    setSummaryScreenOffTimeConvert();
-                } catch (Exception e) {
-                    new DialogUtil(requireActivity())
-                            .setTitle(R.string.dialog_title_error)
-                            .setMessage(e.getMessage())
-                            .setPositiveButton(R.string.dialog_common_ok, null)
-                            .show();
-                }
-            });
-            return false;
-        });
-
-        preSleepTimeout.setOnPreferenceClickListener(preference -> {
-            @SuppressLint("InflateParams") View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
-            AppCompatEditText editText = view.findViewById(R.id.time_out_edit);
-            editText.setHint(getString(R.string.time_out_hint, String.valueOf(Integer.MAX_VALUE)));
-            setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
-            new DialogUtil(requireActivity())
-                    .setView(view)
-                    .setCancelable(false)
-                    .setTitle("sleep_timeout")
-                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                        try {
-                            //noinspection DataFlowIssue
-                            Settings.Secure.putInt(requireActivity().getContentResolver(), "sleep_timeout", Integer.parseInt(editText.getText().toString()));
-                        } catch (Exception e) {
-                            new DialogUtil(requireActivity())
-                                    .setTitle(R.string.dialog_title_error)
-                                    .setMessage(e.getMessage())
-                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                    .show();
-                        }
-                    })
-                    .setNegativeButton(R.string.dialog_common_cancel, null)
-                    .show();
-            view.findViewById(R.id.time_out_button).setOnClickListener(view1 -> {
-                try {
-                    editText.setText(String.valueOf(Integer.MAX_VALUE));
-                    Settings.Secure.putInt(requireActivity().getContentResolver(), "sleep_timeout", Integer.MAX_VALUE);
-                    setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label));
-                } catch (Exception e) {
-                    new DialogUtil(requireActivity())
-                            .setTitle(R.string.dialog_title_error)
-                            .setMessage(e.getMessage())
-                            .setPositiveButton(R.string.dialog_common_ok, null)
-                            .show();
-                }
+                editText.setText(String.valueOf(Integer.MAX_VALUE));
+                setTextScreenOffTimeConvert(view.findViewById(R.id.time_out_label), editText);
             });
             return false;
         });
@@ -165,10 +163,21 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         }
     }
 
-    private void setTextScreenOffTimeConvert(@NonNull AppCompatTextView textView) {
+    private void setTextScreenOffTimeConvert(@NonNull AppCompatTextView textView, AppCompatEditText editText) {
         long time, sec, min, hour, day;
+        int editTime;
 
-        time = Settings.System.getInt(requireActivity().getContentResolver(), "screen_off_timeout", 60) / 1000;
+        //noinspection SizeReplaceableByIsEmpty
+        if (editText.getText() == null || editText.getText().length() == 0) {
+            editTime = 0;
+        } else {
+            try {
+                editTime = Integer.parseInt(editText.getText().toString());
+            } catch (NumberFormatException ignored) {
+                editTime = 0;
+            }
+        }
+        time = editTime / 1000;
         sec = time % 60;
         min = (time / 60) % 60;
         hour = (time / 3600) % 24;
@@ -182,7 +191,7 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         date = calendar.getTime();
         DateFormat df = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss", Locale.JAPAN);
 
-        textView.setText(getString(R.string.time_out_label, Settings.System.getInt(requireActivity().getContentResolver(), "screen_off_timeout", 60) + "（" + time + "）", day + "日" + hour + "時間" + min + "分" + sec + "秒", df.format(date)));
+        textView.setText(getString(R.string.time_out_label, editTime + " ミリ秒" + "（" + time + " 秒" + "）", day + "日" + hour + "時間" + min + "分" + sec + "秒", df.format(date)));
     }
 
     private void setSummaryScreenOffTimeConvert() {

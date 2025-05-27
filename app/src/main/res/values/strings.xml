@@ -294,7 +294,7 @@
     <string name="reboot">再起動</string>
     <string name="no_log">ログはありません。</string>
     <string name="time_out_hint">最大値：%1$s</string>
-    <string name="time_out_label">単位：ミリ秒（1秒1000ミリ秒）\n設定値：%1$s\n推定時間：%2$s\n推定時刻：%3$s</string>
+    <string name="time_out_label">単位：ミリ秒（秒）※1秒は、1000ミリ秒\n設定値：%1$s\n推定時間：%2$s\n推定時刻：%3$s</string>
     <string name="time_out_button">最大値</string>
     <string name="device_admin_detail">｢端末管理アプリ｣を有効にする事で､ アンインストールをブロックします｡</string>
 
