@@ -64,7 +64,8 @@ public class CrashLogActivity extends AppCompatActivity {
         }
         CrashLogListView.AppListAdapter appListAdapter = new CrashLogListView.AppListAdapter(this, appDataList);
         listView.setAdapter(appListAdapter);
-        listView.setOnItemClickListener((parent, view, position, id) -> {
+        listView.setSelection(stringArrayList.size() - 1);
+        appListAdapter.setOnItemClickListener((view, position) -> {
             ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             clipboardManager.setPrimaryClip(ClipData.newPlainText("", stringArrayList.get(position)));
             new DialogUtil(this)
@@ -72,7 +73,6 @@ public class CrashLogActivity extends AppCompatActivity {
                     .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
         });
-        listView.setSelection(stringArrayList.size() - 1);
     }
 
     @Override

@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatTextView;
 
+import com.google.android.material.card.MaterialCardView;
 import com.saradabar.cpadcustomizetool.R;
 
 import java.util.List;
@@ -22,12 +23,21 @@ public class NoticeListView {
 
     public static class AppListAdapter extends ArrayAdapter<AppData> {
 
+        private OnClickListener listener;
         final LayoutInflater mInflater;
 
         public AppListAdapter(Context context, List<AppData> dataList) {
             super(context, R.layout.view_notice_item);
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             addAll(dataList);
+        }
+
+        public interface OnClickListener {
+            void onClick(View view, int position);
+        }
+
+        public void setOnItemClickListener(OnClickListener listener) {
+            this.listener = listener;
         }
 
         @NonNull
@@ -37,6 +47,7 @@ public class NoticeListView {
 
             if (convertView == null) {
                 convertView = mInflater.inflate(R.layout.view_notice_item, parent, false);
+                holder.cardView = convertView.findViewById(R.id.notice_card);
                 holder.textTitle = convertView.findViewById(R.id.notice_text_title);
                 holder.textMessage = convertView.findViewById(R.id.notice_text_message);
                 convertView.setTag(holder);
@@ -46,6 +57,7 @@ public class NoticeListView {
             final AppData data = getItem(position);
 
             if (data != null) {
+                holder.cardView.setOnClickListener(view -> listener.onClick(view, position));
                 holder.textTitle.setText(data.title);
                 holder.textMessage.setText(data.message);
             }
@@ -54,6 +66,7 @@ public class NoticeListView {
     }
 
     private static class ViewHolder {
+        MaterialCardView cardView;
         AppCompatTextView textTitle;
         AppCompatTextView textMessage;
     }

@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatTextView;
 
+import com.google.android.material.card.MaterialCardView;
 import com.saradabar.cpadcustomizetool.R;
 
 import java.util.List;
@@ -21,12 +22,21 @@ public class CrashLogListView {
 
     public static class AppListAdapter extends ArrayAdapter<AppData> {
 
+        private OnClickListener listener;
         final LayoutInflater mInflater;
 
         public AppListAdapter(Context context, List<AppData> dataList) {
             super(context, R.layout.view_crash_log_list_item);
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             addAll(dataList);
+        }
+
+        public interface OnClickListener {
+            void onClick(View view, int position);
+        }
+
+        public void setOnItemClickListener(OnClickListener listener) {
+            this.listener = listener;
         }
 
         @NonNull
@@ -36,6 +46,7 @@ public class CrashLogListView {
 
             if (convertView == null) {
                 convertView = mInflater.inflate(R.layout.view_crash_log_list_item, parent, false);
+                holder.cardView = convertView.findViewById(R.id.view_crash_log_list_item_card);
                 holder.textMessage = convertView.findViewById(R.id.view_crash_log_list_item_text);
                 convertView.setTag(holder);
             } else {
@@ -44,6 +55,7 @@ public class CrashLogListView {
             final AppData data = getItem(position);
 
             if (data != null) {
+                holder.cardView.setOnClickListener(view -> listener.onClick(view, position));
                 holder.textMessage.setText(data.strMessage);
             }
             return convertView;
@@ -51,6 +63,7 @@ public class CrashLogListView {
     }
 
     private static class ViewHolder {
+        MaterialCardView cardView;
         AppCompatTextView textMessage;
     }
 }
