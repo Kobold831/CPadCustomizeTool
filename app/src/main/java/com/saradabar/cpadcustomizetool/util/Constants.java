@@ -17,15 +17,20 @@ import android.content.Intent;
 
 import com.rosan.dhizuku.shared.DhizukuVariables;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Constants {
 
     // デフォルト値
-    /** @noinspection unused*/
+    /**
+     * @noinspection unused
+     */
     public static final int DEF_INT = 0;
-    /** @noinspection unused*/
+    /**
+     * @noinspection unused
+     */
     public static final String DEF_STR = "";
     public static final boolean DEF_BOOL = false;
 
@@ -33,7 +38,7 @@ public class Constants {
     public static final String PRODUCT_CT2S = "TAB-A03-BS";
     public static final String PRODUCT_CT2K = "TAB-A03-BR";
     public static final String PRODUCT_CT2L = "TAB-A03-BR2";
-    public static final List<String> PRODUCT_CT2 = Arrays.asList(PRODUCT_CT2S, PRODUCT_CT2K, PRODUCT_CT2L);
+    public static final ArrayList<String> PRODUCT_CT2 = new ArrayList<>(Arrays.asList(PRODUCT_CT2S, PRODUCT_CT2K, PRODUCT_CT2L));
     public static final String PRODUCT_CT3 = "TAB-A03-BR3";
     public static final String PRODUCT_CTX = "TAB-A05-BD";
     public static final String PRODUCT_CTZ = "TAB-A05-BA1";
@@ -113,7 +118,14 @@ public class Constants {
 
     public static final List<String> LIST_UPDATE_MODE = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー", "Dhizuku");
 
-    public static final List<String> LIST_MODEL = Arrays.asList(String.valueOf(PRODUCT_CT2), PRODUCT_CT3, PRODUCT_CTX, PRODUCT_CTZ);
+    public static final ArrayList<String> LIST_MODEL = new ArrayList<>() {
+        {
+            addAll(PRODUCT_CT2);
+            add(PRODUCT_CT3);
+            add(PRODUCT_CTX);
+            add(PRODUCT_CTZ);
+        }
+    };
 
     // Don't use Dhizuku.getOwnerComponent()
     public static final ComponentName DHIZUKU_COMPONENT =
