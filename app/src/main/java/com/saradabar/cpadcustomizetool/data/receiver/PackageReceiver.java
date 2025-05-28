@@ -16,14 +16,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.provider.Settings;
 
 import androidx.annotation.NonNull;
 
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.PermissionIntentService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
-import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import java.util.Objects;
@@ -58,16 +56,9 @@ public class PackageReceiver extends BroadcastReceiver {
 
         /* サービス開始 */
         if (intent.getData().toString().replace("package:", "").equals(context.getPackageName())) {
-            /* 維持スイッチが有効のときサービスを起動 */
-            if (Preferences.load(context, Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false) ||
-                    Preferences.load(context, Constants.KEY_FLAG_KEEP_DCHA_STATE, false) ||
-                    Preferences.load(context, Constants.KEY_FLAG_KEEP_MARKET_APP, false) ||
-                    Preferences.load(context, Constants.KEY_FLAG_KEEP_USB_DEBUG, false) ||
-                    Preferences.load(context, Constants.KEY_FLAG_KEEP_HOME, false)) {
-                Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
-                context.startService(new Intent(context, KeepService.class));
-                context.startService(new Intent(context, ProtectKeepService.class));
-            }
+            // サービスを起動
+            context.startService(new Intent(context, KeepService.class));
+            context.startService(new Intent(context, ProtectKeepService.class));
         }
 
         /* ランタイム権限を強制付与が有効な場合 */
@@ -75,7 +66,6 @@ public class PackageReceiver extends BroadcastReceiver {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                 return;
             }
-
             context.startService(new Intent(context, PermissionIntentService.class).putExtra("packageName", intent.getData().toString().replace("package:", "")));
         }
     }
