@@ -161,6 +161,11 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
             swUiModeNight.setEnabled(false);
             swUiModeNight.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
         }
+
+        if (Common.isCT3()) {
+            swUiModeNight.setEnabled(false);
+            swUiModeNight.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
+        }
     }
 
     private void setTextScreenOffTimeConvert(@NonNull AppCompatTextView textView, AppCompatEditText editText) {
