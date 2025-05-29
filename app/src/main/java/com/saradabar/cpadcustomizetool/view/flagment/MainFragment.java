@@ -20,10 +20,10 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.net.Uri;
-import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -64,7 +64,9 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.EditAdminActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NoticeActivity;
 import com.saradabar.cpadcustomizetool.MainActivity;
+import com.saradabar.cpadcustomizetool.view.flagment.dialog.BypassPermissionDialogFragment;
 import com.saradabar.cpadcustomizetool.view.views.GetAppListView;
+import com.saradabar.cpadcustomizetool.view.views.LaunchAppListView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -453,44 +455,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     initPreference();
                     return true;
                 } catch (SecurityException ignored) {
-                    new DialogUtil(requireActivity())
-                            .setTitle("機能を使用するために権限を付与しますか？")
-                            .setMessage("権限がないため、設定を変更できません。”OK”を押すと、権限設定を行います。処理は数秒で終わります。")
-                            .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                                if (Common.copyAssetsFile(requireActivity())) {
-                                    BenesseExtension.setDchaState(3);
-                                    new DchaServiceUtil(requireActivity()).installApp(requireActivity().getExternalCacheDir() + "/" + "base.apk", 2, object -> {
-                                        if (object.equals(true)) {
-                                            new DchaServiceUtil(requireActivity()).uninstallApp("a.a", 0, object1 -> {
-                                                if (object1.equals(true)) {
-                                                    BenesseExtension.setDchaState(0);
-                                                    new DialogUtil(requireActivity())
-                                                            .setTitle("処理完了")
-                                                            .setMessage("権限設定は完了しました。もう一度操作すれば、設定を変更できます。")
-                                                            .setPositiveButton(R.string.dialog_common_ok, null)
-                                                            .show();
-                                                } else {
-                                                    new DialogUtil(requireActivity())
-                                                            .setMessage(R.string.dialog_error)
-                                                            .setPositiveButton(R.string.dialog_common_ok, null)
-                                                            .show();
-                                                }
-                                            });
-                                        } else {
-                                            new DialogUtil(requireActivity())
-                                                    .setMessage(R.string.dialog_error)
-                                                    .setPositiveButton(R.string.dialog_common_ok, null)
-                                                    .show();
-                                        }
-                                    });
-                                } else {
-                                    new DialogUtil(requireActivity())
-                                            .setMessage(R.string.dialog_error)
-                                            .setPositiveButton(R.string.dialog_common_ok, null)
-                                            .show();
-                                }
-                            })
-                            .show();
+                    new BypassPermissionDialogFragment().show(requireActivity().getSupportFragmentManager(), "");
                 }
             } else {
                 new DialogUtil(requireActivity())
@@ -502,57 +467,46 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         preRequestInstallPackages.setOnPreferenceClickListener(preference -> {
-            ArrayList<String> stringArrayList = Common.exec("appops query-op REQUEST_INSTALL_PACKAGES allow");
-            StringBuilder stringBuilder = new StringBuilder();
+            @SuppressLint("InflateParams") View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_launch_app_list, null);
+            List<ApplicationInfo> installedAppList = requireActivity().getPackageManager().getInstalledApplications(0);
+            List<LaunchAppListView.AppData> dataList = new ArrayList<>();
 
-            for (int i = 0; i < stringArrayList.size(); i++) {
-                stringBuilder.append(stringArrayList.get(i));
+            for (ApplicationInfo app : installedAppList) {
+                if(requireActivity().getPackageManager().getLaunchIntentForPackage(app.packageName) != null) {
+                    LaunchAppListView.AppData data = new LaunchAppListView.AppData();
+                    data.icon = app.loadIcon(requireActivity().getPackageManager());
+                    data.label = app.loadLabel(requireActivity().getPackageManager()).toString();
+                    data.packName = app.packageName;
+                    dataList.add(data);
+                }
             }
 
-            if (String.valueOf(stringBuilder).contains("Security exception")) {
-                new DialogUtil(requireActivity())
-                        .setTitle("機能を使用するために権限を付与しますか？")
-                        .setMessage("権限がないため、設定を変更できません。”OK”を押すと、権限設定を行います。処理は数秒で終わります。")
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                            if (Common.copyAssetsFile(requireActivity())) {
-                                BenesseExtension.setDchaState(3);
-                                new DchaServiceUtil(requireActivity()).installApp(requireActivity().getExternalCacheDir() + "/" + "base.apk", 2, object -> {
-                                    if (object.equals(true)) {
-                                        new DchaServiceUtil(requireActivity()).uninstallApp("a.a", 0, object1 -> {
-                                            if (object1.equals(true)) {
-                                                BenesseExtension.setDchaState(0);
-                                                new DialogUtil(requireActivity())
-                                                        .setTitle("処理完了")
-                                                        .setMessage("権限設定は完了しました。もう一度操作すれば、設定を変更できます。")
-                                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                                        .show();
-                                            } else {
-                                                new DialogUtil(requireActivity())
-                                                        .setMessage(R.string.dialog_error)
-                                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                                        .show();
-                                            }
-                                        });
-                                    } else {
-                                        new DialogUtil(requireActivity())
-                                                .setMessage(R.string.dialog_error)
-                                                .setPositiveButton(R.string.dialog_common_ok, null)
-                                                .show();
-                                    }
-                                });
-                            } else {
-                                new DialogUtil(requireActivity())
-                                        .setMessage(R.string.dialog_error)
-                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                        .show();
-                            }
-                        })
-                        .show();
-                return false;
-            }
+            ListView listView = view.findViewById(R.id.launch_app_list);
+            listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+            listView.setAdapter(new LaunchAppListView.LaunchAppAdapter(requireActivity(), dataList));
+            listView.setOnItemClickListener((parent, mView, position, id) -> {
+                ArrayList<String> stringArrayList = Common.exec("appops set " + dataList.get(position).packName + " REQUEST_INSTALL_PACKAGES allow");
+                StringBuilder stringBuilder = new StringBuilder();
+
+                for (int i = 0; i < stringArrayList.size(); i++) {
+                    stringBuilder.append(stringArrayList.get(i));
+                }
+
+                if (String.valueOf(stringBuilder).contains("Security exception")) {
+                    // 権限なし
+                    new BypassPermissionDialogFragment().show(requireActivity().getSupportFragmentManager(), "");
+                } else {
+                    new DialogUtil(requireActivity())
+                            .setMessage("このアプリで、不明なアプリのインストールは許可されました。")
+                            .setPositiveButton(R.string.dialog_common_ok, null)
+                            .show();
+                }
+            });
+
             new DialogUtil(requireActivity())
-                    .setMessage("すべてのアプリで、不明なアプリのインストールは許可されました。")
-                    .setPositiveButton(R.string.dialog_common_ok, null)
+                    .setView(view)
+                    .setTitle("アプリの選択")
+                    .setPositiveButton(R.string.dialog_common_cancel, null)
                     .show();
             return false;
         });
@@ -616,7 +570,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swUnkSrc.setVisible(true);
             swPreInstallUnknownSource.setSummary("不明なアプリは許可されています。");
             preRequestInstallPackages.setEnabled(true);
-            preRequestInstallPackages.setSummary("シェルコマンドを実行して、すべてのアプリで不明なアプリのインストール権限を許可します。");
+            preRequestInstallPackages.setSummary("シェルコマンドを実行して、選択したアプリで不明なアプリのインストール権限を許可します。");
             preInstallUnknownSourceInfo.setEnabled(true);
         }
 

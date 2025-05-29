@@ -59,16 +59,8 @@ public class InstallerListDialogFragment extends DialogFragment {
         listView.setOnItemClickListener((parent, mView, position, id) -> {
             switch (position) {
                 case 0:// パッケージインストーラー
-                    if (Common.isCT2() || Common.isCT3()) {
-                        // CT2とCT3
-                        Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                        listView.invalidateViews();
-                    } else {
-                        new DialogUtil(requireActivity())
-                                .setMessage(getString(R.string.dialog_error_no_mode))
-                                .setPositiveButton(R.string.dialog_common_ok, null)
-                                .show();
-                    }
+                    Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
+                    listView.invalidateViews();
                     break;
                 case 1:// Adb
                     Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);

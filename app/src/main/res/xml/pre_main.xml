@@ -57,7 +57,7 @@
             app:iconSpaceReserved="false"
             android:key="pre_main_request_install_packages"
             android:title="不明なアプリのインストールを許可"
-            android:summary="シェルコマンドを実行して、すべてのアプリで不明なアプリのインストール権限を許可します。" />
+            android:summary="シェルコマンドを実行して、選択したアプリで不明なアプリのインストール権限を許可します。" />
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
