@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -22,6 +23,7 @@ import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.view.activity.DeviceInfoActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
+import com.saradabar.cpadcustomizetool.view.flagment.dialog.BypassPermissionDialogFragment;
 import com.saradabar.cpadcustomizetool.view.views.LaunchAppListView;
 
 import java.util.ArrayList;
@@ -34,7 +36,8 @@ public class UtilFragment extends PreferenceFragmentCompat {
             preStartDevSettings,
             preWebView,
             preLaunchApp,
-            preDeviceInfo;
+            preDeviceInfo,
+            preReEnableSystemApps;
 
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
@@ -46,6 +49,7 @@ public class UtilFragment extends PreferenceFragmentCompat {
         preWebView = findPreference("pre_other_web_view");
         preLaunchApp = findPreference("pre_other_launch_app");
         preDeviceInfo = findPreference("pre_other_start_device_info");
+        preReEnableSystemApps = findPreference("pre_util_re-enable_system-apps");
 
         preOtherStartSettings.setOnPreferenceClickListener(preference -> {
             try {
@@ -122,6 +126,25 @@ public class UtilFragment extends PreferenceFragmentCompat {
             return false;
         });
 
+        preReEnableSystemApps.setOnPreferenceClickListener(preference -> {
+            try {
+                PackageManager packageManager = requireActivity().getPackageManager();
+                packageManager.setApplicationEnabledSetting("com.android.browser", PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
+                //noinspection SpellCheckingInspection
+                packageManager.setApplicationEnabledSetting("com.android.quicksearchbox", PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
+                packageManager.setApplicationEnabledSetting("com.android.traceur", PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
+
+                new DialogUtil(requireActivity())
+                        .setMessage("システムアプリ (ブラウザ、検索、トレース) は、有効になりました。")
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            } catch (SecurityException ignored) {
+                // 権限なし
+                new BypassPermissionDialogFragment().show(requireActivity().getSupportFragmentManager(), "");
+            }
+            return false;
+        });
+
         preDeviceInfo.setOnPreferenceClickListener(preference -> {
             startActivity(new Intent(requireActivity(), DeviceInfoActivity.class));
             return false;
@@ -133,6 +156,11 @@ public class UtilFragment extends PreferenceFragmentCompat {
         if (Common.isCT2()) {
             preStartUiAdjustment.setEnabled(false);
             preStartUiAdjustment.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
+        }
+
+        if (!Common.isCTZ()) {
+            preReEnableSystemApps.setEnabled(false);
+            preReEnableSystemApps.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
         }
     }
 }

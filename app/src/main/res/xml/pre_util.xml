@@ -34,6 +34,12 @@
             android:summary="インストールされている任意のアプリを起動します。"
             android:title="アプリランチャー" />
 
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_util_re-enable_system-apps"
+            android:title="システムアプリの有効化"
+            android:summary="ブラウザ、検索、トレースを有効にします。" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

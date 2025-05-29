@@ -561,6 +561,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         if (((UserManager) requireActivity().getSystemService(Context.USER_SERVICE)).hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
             swKeepUnkSrc.setVisible(false);
             swUnkSrc.setVisible(false);
+            swPreInstallUnknownSource.setChecked(false);
             swPreInstallUnknownSource.setSummary("不明なアプリは許可されていません。");
             preRequestInstallPackages.setEnabled(false);
             preRequestInstallPackages.setSummary("この機能を使用するには、”不明なアプリのユーザー制限を解除”から許可してください。");
@@ -568,6 +569,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         } else {
             swKeepUnkSrc.setVisible(true);
             swUnkSrc.setVisible(true);
+            swPreInstallUnknownSource.setChecked(true);
             swPreInstallUnknownSource.setSummary("不明なアプリは許可されています。");
             preRequestInstallPackages.setEnabled(true);
             preRequestInstallPackages.setSummary("シェルコマンドを実行して、選択したアプリで不明なアプリのインストール権限を許可します。");
