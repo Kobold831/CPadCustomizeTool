@@ -1,5 +1,5 @@
 [versions]
-agp = "8.10.0"
+agp = "8.10.1"
 benesse = "1.0.0"
 androidx-preference = "1.2.1"
 google-material = "1.12.0"
