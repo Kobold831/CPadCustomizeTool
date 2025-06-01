@@ -47,6 +47,14 @@ public class KeepService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        /* オブザーバーの初期化 */
+        initRegisterContentObserver();
+
+        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
+            // ホームアプリ維持
+            runKeepHomeApp();
+        }
+
         if (!Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false) &&
                 !Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false) &&
                 !Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false) &&
@@ -56,7 +64,6 @@ public class KeepService extends Service {
             stopSelf();
             return START_NOT_STICKY;
         }
-
         /* ProtectKeepServiceにバインド */
         bindService(new Intent(getBaseContext(), ProtectKeepService.class), new ServiceConnection() {
             @Override
@@ -75,14 +82,6 @@ public class KeepService extends Service {
                 }
             }
         }, Context.BIND_AUTO_CREATE);
-
-        /* オブザーバーを有効化 */
-        initRegisterContentObserver();
-
-        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
-            // ホームアプリ維持
-            runKeepHomeApp();
-        }
         return START_STICKY;
     }
 
