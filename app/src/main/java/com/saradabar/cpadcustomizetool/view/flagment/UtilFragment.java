@@ -146,7 +146,8 @@ public class UtilFragment extends PreferenceFragmentCompat {
         });
 
         preDeviceInfo.setOnPreferenceClickListener(preference -> {
-            startActivity(new Intent(requireActivity(), DeviceInfoActivity.class));
+            startActivity(new Intent(requireActivity(), DeviceInfoActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            requireActivity().overridePendingTransition(0, 0);
             return false;
         });
         initPreference();

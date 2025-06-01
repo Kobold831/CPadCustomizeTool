@@ -380,10 +380,16 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, true);
                 initPreference();
             } else {
-                Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
-                initPreference();
+                new DialogUtil(requireActivity())
+                        .setMessage("DchaSerivce 機能を無効にしますか？")
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
+                            initPreference();
+                        })
+                        .setNegativeButton(R.string.dialog_common_cancel, null)
+                        .show();
             }
-            return true;
+            return false;
         });
 
         preDchaFunction.setOnPreferenceClickListener(preference -> {
