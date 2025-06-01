@@ -238,8 +238,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             }
 
             if ((boolean) o) {
-                if (Common.isCTX() || Common.isCTZ()) {
-                    // CTXまたはCTZ
+                if (Common.getDchaCompletedPast()) {
+                    // COUNT_DCHA_COMPLETED 存在
                     new DchaServiceUtil(requireActivity()).setSetupStatus(3, object -> {
                         if (object.equals(true)) {
                             try {
@@ -264,7 +264,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         }
                     });
                 } else {
-                    // CT2またはCT3
+                    // COUNT_DCHA_COMPLETED 存在しない
                     if (!adbEnabled(true)) {
                         // 設定変更失敗
                         Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
@@ -294,8 +294,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             }
 
             if ((boolean) o) {
-                if (Common.isCTX() || Common.isCTZ()) {
-                    // CTXまたはCTZ
+                if (Common.getDchaCompletedPast()) {
+                    // COUNT_DCHA_COMPLETED 存在
                     new DchaServiceUtil(requireActivity()).setSetupStatus(3, object -> {
                         if (object.equals(true)) {
                             try {
@@ -331,7 +331,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         }
                     });
                 } else {
-                    // CT2またはCT3
+                    // COUNT_DCHA_COMPLETED 存在しない
                     if (adbEnabled(true)) {
                         Preferences.save(requireActivity(), Constants.KEY_FLAG_KEEP_USB_DEBUG, true);
                         requireActivity().startService(new Intent(requireActivity(), KeepService.class));
