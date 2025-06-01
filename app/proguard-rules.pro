@@ -21,3 +21,5 @@
 # ZT Zip
 -dontwarn org.slf4j.**
 -keep class * implements org.zeroturnaround.zip.extra.ZipExtraField { public <init>(); }
+
+-dontwarn android.app.ActivityThread
