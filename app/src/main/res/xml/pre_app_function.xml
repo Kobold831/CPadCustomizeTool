@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="@string/pre_main_category_emergency_mode">
+
+        <ListPreference
+            app:iconSpaceReserved="false"
+            android:key="emergency_mode"
+            android:title="@string/pre_main_title_select_course"
+            android:summary="@string/pre_main_sum_emg_course"
+            android:defaultValue="1"
+            android:dialogTitle="@string/pre_main_title_select_course"
+            android:entries="@array/mode_text"
+            android:entryValues="@array/mode_value" />
+
+        <MultiSelectListPreference
+            app:iconSpaceReserved="false"
+            android:key="emergency_settings"
+            android:title="@string/pre_main_title_change_settings"
+            android:summary="@string/pre_main_sum_change_settings"
+            android:defaultValue="@array/emergency_def_value"
+            android:dialogTitle="@string/dialog_mode_select_settings"
+            android:entries="@array/emergency_settings_text"
+            android:entryValues="@array/emergency_settings_value" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_emg_manual"
+            android:title="@string/pre_main_title_manual"
+            android:summary="@string/pre_main_sum_emg_manual" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_emg_execute"
+            android:title="@string/pre_main_title_emg_execute"
+            android:summary="@string/pre_main_sum_emg_execute" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_emg_shortcut"
+            android:title="@string/pre_main_title_emg_shortcut" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="@string/pre_main_category_change_to_normal_mode">
+
+        <MultiSelectListPreference
+            app:iconSpaceReserved="false"
+            android:key="normal_settings"
+            android:title="@string/pre_main_title_change_to_normal_mode_settings"
+            android:summary="@string/pre_main_sum_change_to_normal_mode_settings"
+            android:defaultValue="@array/normal_def_value"
+            android:dialogTitle="@string/dialog_mode_select_settings"
+            android:entries="@array/normal_mode_text"
+            android:entryValues="@array/normal_mode_value" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_sel_nor_launcher"
+            android:title="@string/pre_main_title_launcher" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_nor_manual"
+            android:title="@string/pre_main_title_normal_mode_manual" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_nor_execute"
+            android:title="@string/pre_main_title_nor_execute"
+            android:summary="@string/pre_main_sum_nor_execute" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_nor_shortcut"
+            android:title="@string/pre_main_title_nor_shortcut" />
+
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item
         android:id="@+id/app_info_3"
         android:orderInCategory="100"
@@ -12,4 +13,5 @@
         android:id="@+id/app_info_2"
         android:orderInCategory="300"
         android:title="@string/menu_app_update" />
+
 </menu>

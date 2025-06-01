@@ -19,40 +19,59 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Properties;
 
 public class DeviceInfoActivity extends AppCompatActivity {
 
+    public DeviceInfoActivity() {
+        super(R.layout.activity_device_info);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_device_info);
-
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            getSupportActionBar().setTitle("デバイス情報");
         }
+        init();
+
         AppCompatButton button1 = findViewById(R.id.act_device_info_button_1);
         AppCompatButton button2 = findViewById(R.id.act_device_info_button_2);
-        AppCompatButton button3 = findViewById(R.id.act_device_info_button_3);
-
         button1.setOnClickListener(view -> {
-            ListView listView = findViewById(R.id.act_device_info_list);
-            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, getSystemProperties()));
-            listView.invalidateViews();
+            finish();
+            overridePendingTransition(0, 0);
         });
+        button2.setOnClickListener(view -> init());
+    }
 
-        button2.setOnClickListener(view -> {
-            ListView listView = findViewById(R.id.act_device_info_list);
-            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, Common.exec("getprop")));
-            listView.invalidateViews();
-        });
-
-        button3.setOnClickListener(view -> {
-            ListView listView = findViewById(R.id.act_device_info_list);
-            listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, getBatteryInfo()));
-            listView.invalidateViews();
+    private void init() {
+        ListView listView = findViewById(R.id.act_device_info_list);
+        listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>(Arrays.asList(
+                "システムプロパティ情報",
+                "システム情報",
+                "バッテリー情報"))));
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            switch (position) {
+                case 0:
+                    listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, getSystemProperties()));
+                    listView.setOnItemClickListener(null);
+                    listView.invalidateViews();
+                    break;
+                case 1:
+                    listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, Common.exec("getprop")));
+                    listView.setOnItemClickListener(null);
+                    listView.invalidateViews();
+                    break;
+                case 2:
+                    listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, getBatteryInfo()));
+                    listView.setOnItemClickListener(null);
+                    listView.invalidateViews();
+                    break;
+            }
         });
     }
 

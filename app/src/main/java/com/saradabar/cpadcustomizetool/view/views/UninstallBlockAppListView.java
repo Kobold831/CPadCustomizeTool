@@ -13,6 +13,7 @@ import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.AppCompatTextView;
 
+import com.google.android.material.card.MaterialCardView;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 
@@ -28,11 +29,19 @@ public class UninstallBlockAppListView {
 
     public static class AppListAdapter extends ArrayAdapter<AppData> {
 
-        public View view;
+        private OnClickListener listener;
 
         public AppListAdapter(Context context, List<AppData> dataList) {
             super(context, R.layout.view_uninstall_item);
             addAll(dataList);
+        }
+
+        public interface OnClickListener {
+            void onClick(View view, int position);
+        }
+
+        public void setOnItemClickListener(OnClickListener listener) {
+            this.listener = listener;
         }
 
         @NonNull
@@ -43,26 +52,28 @@ public class UninstallBlockAppListView {
             if (convertView == null) {
                 LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = mInflater.inflate(R.layout.view_uninstall_item, parent, false);
+                holder.cardView = convertView.findViewById(R.id.view_uninstall_item_card);
                 holder.textLabel = convertView.findViewById(R.id.un_label);
                 holder.imageIcon = convertView.findViewById(R.id.un_icon);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-            view = convertView;
             final AppData data = getItem(position);
             DevicePolicyManager dpm = Common.getDevicePolicyManager(getContext());
 
             if (data != null) {
+                holder.cardView.setOnClickListener(view -> listener.onClick(view, position));
                 holder.textLabel.setText(data.label);
                 holder.imageIcon.setImageDrawable(data.icon);
-                ((SwitchCompat) view.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(Common.getDeviceAdminComponent(getContext()), data.packName));
+                ((SwitchCompat) convertView.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(Common.getDeviceAdminComponent(getContext()), data.packName));
             }
             return convertView;
         }
     }
 
     private static class ViewHolder {
+        MaterialCardView cardView;
         AppCompatTextView textLabel;
         AppCompatImageView imageIcon;
     }

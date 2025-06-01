@@ -3,55 +3,71 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
+        app:selectable="false"
         android:key="pre_owner_now_set_own_pkg"
-        app:selectable="false" />
+        android:icon="@drawable/ic_info_outline_24" />
 
     <PreferenceCategory
         android:title="アンインストール設定"
-        app:allowDividerAbove="false">
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false">
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_owner_uninstall_block"
             android:summary="@string/pre_owner_sum_uninstall_block"
             android:title="@string/pre_owner_title_uninstall_block" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
         android:title="権限設定"
-        app:allowDividerAbove="false">
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false">
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             android:key="pre_owner_permission_frc"
             android:summary="@string/pre_owner_sum_permission_forced"
             android:title="@string/pre_owner_title_permission" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
         android:title="インストール"
-        app:allowDividerAbove="false">
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false">
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_owner_session_install_notice"
             android:summary="タップして内容を確認してください。正しい手順で操作しないとエラーの可能性があります！"
             android:title="サイレントインストールの注意事項" />
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_owner_session_install"
             android:summary="@string/pre_owner_sum_silent_install"
             android:title="@string/pre_owner_title_silent_install" />
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_owner_abandon_session"
             android:summary="インストールで問題が発生した場合に使用してください。"
             android:title="インストールセッション破棄" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
         android:title="デバイスオーナー設定"
-        app:allowDividerAbove="false">
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false">
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_owner_clr_dev_own"
             android:title="@string/pre_owner_title_device_owner" />
+
     </PreferenceCategory>
+
 </PreferenceScreen>

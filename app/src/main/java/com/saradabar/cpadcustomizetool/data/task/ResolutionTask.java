@@ -9,9 +9,9 @@ import android.os.ServiceManager;
 import android.view.Display;
 import android.view.IWindowManager;
 
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
-import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,8 +41,7 @@ public class ResolutionTask {
     }
 
     private void doInBackground(Context context, Listener listener, int width, int height) {
-        if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTX ||
-                Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTZ) {
+        if (Common.isCTX() || Common.isCTZ()) {
             if (width == 1024 && height == 768 || width == 1280 && height == 800 || width == 1920 && height == 1200) {
                 doListener().onPost(listener, BenesseExtension.putInt(Constants.BC_COMPATSCREEN,
                         width == 1024 ? 1 : width == 1280 ? 2 : 0 // 1920x1200

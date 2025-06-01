@@ -3,205 +3,158 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
-        android:key="pre_notice" />
+        android:key="pre_notice"
+        android:icon="@drawable/ic_info_outline_24"
+        android:title="" />
 
     <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
         android:key="1"
-        android:title="@string/pre_main_category_system_ui"
-        app:allowDividerAbove="false">
+        android:title="@string/pre_main_category_system_ui">
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             android:key="pre_dcha_state"
             android:title="@string/pre_main_title_system_ui" />
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             android:key="pre_keep_dcha_state"
             android:title="@string/pre_main_title_keep_system_ui" />
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             android:key="pre_navigation"
             android:title="@string/pre_main_title_navigation_bar" />
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             android:key="pre_keep_navigation"
             android:title="@string/pre_main_title_keep_navigation_bar" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
         android:key="2"
-        android:title="@string/pre_main_category_system"
-        app:allowDividerAbove="false">
+        android:title="@string/pre_main_category_system">
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:key="pre_owner_install_unknown_source"
+            android:title="不明なアプリのユーザー制限を解除"
+            android:summary="不明なアプリは許可されていません。" />
+
+        <Preference
+            app:selectable="false"
+            android:key="pre_install_unknown_source_info"
+            android:icon="@drawable/ic_info_outline_24"
+            android:summary="デフォルトの状態は、システムのユーザー制限で不明なアプリは許可されていません。有効にするとユーザー制限を解除します。" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_main_request_install_packages"
+            android:title="不明なアプリのインストールを許可"
+            android:summary="シェルコマンドを実行して、選択したアプリで不明なアプリのインストール権限を許可します。" />
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             android:key="pre_unk_src"
             android:title="@string/pre_main_title_non_market" />
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             android:key="pre_keep_unk_src"
             android:title="@string/pre_main_title_keep_non_market" />
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             android:key="pre_adb"
             android:title="@string/pre_main_title_usb_debug" />
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             android:key="pre_keep_adb"
             android:title="@string/pre_main_title_keep_usb_debug" />
 
-        <SwitchPreferenceCompat
-            android:key="pre_app_adb"
-            android:summary="@string/pre_app_sum_usb"
-            android:title="@string/pre_app_title_usb" />
-    </PreferenceCategory>
-
-    <Preference
-        android:key="pre_launcher"
-        android:title="@string/pre_main_title_change_home" />
-
-    <SwitchPreferenceCompat
-        android:key="pre_keep_launcher"
-        android:summary="@string/pre_main_sum_keep_home"
-        android:title="@string/pre_main_title_keep_home" />
-
-    <Preference
-        android:key="pre_other_settings"
-        android:summary="システム設定、ブラウザ、アプリ起動"
-        android:title="@string/pre_main_title_other_settings" />
-
-    <PreferenceCategory
-        android:key="category_emergency"
-        android:title="@string/pre_main_category_emergency_mode"
-        app:allowDividerAbove="false">
-
-        <ListPreference
-            android:defaultValue="1"
-            android:dialogTitle="@string/pre_main_title_select_course"
-            android:entries="@array/mode_text"
-            android:entryValues="@array/mode_value"
-            android:key="emergency_mode"
-            android:summary="緊急モードを使用するときは、受講中の講座に設定されていることを確認してください。"
-            android:title="@string/pre_main_title_select_course" />
-
-        <MultiSelectListPreference
-            android:defaultValue="@array/emergency_def_value"
-            android:dialogTitle="@string/dialog_mode_select_settings"
-            android:entries="@array/emergency_settings_text"
-            android:entryValues="@array/emergency_settings_value"
-            android:key="emergency_settings"
-            android:summary="@string/pre_main_sum_change_settings"
-            android:title="@string/pre_main_title_change_settings" />
-
         <Preference
-            android:key="pre_emg_manual"
-            android:title="@string/pre_main_title_manual" />
+            app:iconSpaceReserved="false"
+            android:key="pre_other_settings"
+            android:title="@string/pre_main_title_other_settings"
+            android:summary="@string/pre_main_sum_other" />
 
-        <Preference
-            android:key="pre_emg_execute"
-            android:summary="起動すると、学習環境に変更します。"
-            android:title="緊急モードを起動" />
-
-        <Preference
-            android:key="pre_emg_shortcut"
-            android:title="緊急モードのショートカットをホームに追加" />
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="category_normal"
-        android:title="@string/pre_main_category_change_to_normal_mode"
-        app:allowDividerAbove="false">
-
-        <MultiSelectListPreference
-            android:defaultValue="@array/normal_def_value"
-            android:dialogTitle="@string/dialog_mode_select_settings"
-            android:entries="@array/normal_mode_text"
-            android:entryValues="@array/normal_mode_value"
-            android:key="normal_settings"
-            android:summary="@string/pre_main_sum_change_to_normal_mode_settings"
-            android:title="@string/pre_main_title_change_to_normal_mode_settings" />
-
-        <Preference
-            android:key="pre_sel_nor_launcher"
-            android:title="@string/pre_main_title_launcher" />
-
-        <Preference
-            android:key="pre_nor_manual"
-            android:title="@string/pre_main_title_normal_mode_manual" />
-
-        <Preference
-            android:key="pre_nor_execute"
-            android:summary="起動すると、通常環境に変更します。"
-            android:title="通常モードを起動" />
-
-        <Preference
-            android:key="pre_nor_shortcut"
-            android:title="通常モードのショートカットをホームに追加" />
-    </PreferenceCategory>
-
-    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
         android:key="category_other"
-        android:title="@string/pre_main_category_other_settings"
-        app:allowDividerAbove="false" />
+        android:title="@string/pre_main_category_other_settings">
 
-    <Preference
-        android:key="pre_enable_dcha_service"
-        android:summary="@string/pre_main_sum_use_dcha"
-        android:title="@string/pre_main_title_use_dcha" />
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:key="pre_enable_dcha_service"
+            android:title="@string/pre_main_title_use_dcha" />
 
-    <Preference
-        android:key="pre_reboot"
-        android:summary="デバイスを再起動します。"
-        android:title="@string/pre_main_title_reboot" />
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_dcha_function"
+            android:title="Dcha アプリの機能"
+            android:summary="@string/pre_main_sum_dcha_function" />
 
-    <Preference
-        android:key="pre_reboot_shortcut"
-        android:title="@string/pre_main_title_reboot_shortcut" />
-
-    <Preference
-        android:key="pre_silent_install"
-        android:summary="@string/pre_main_sum_silent_install"
-        android:title="@string/pre_main_title_silent_install" />
-
-    <Preference
-        android:key="pre_resolution"
-        android:summary="画面解像度を任意の値に変更できます。"
-        android:title="@string/pre_main_title_resolution" />
-
-    <Preference
-        android:key="pre_reset_resolution"
-        android:summary="画面解像度をデフォルト値に変更します。"
-        android:title="@string/pre_main_title_resolution_reset" />
-
-    <Preference
-        android:key="pre_system_update"
-        android:summary="デバイスのシステムをアップデートします。"
-        android:title="@string/pre_main_title_system_update" />
+    </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="デバイス管理者設定"
-        app:allowDividerAbove="false" />
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="@string/pre_main_category_device_admin">
 
-    <Preference
-        android:key="pre_device_owner_fn"
-        android:summary="アンインストールブロック、サイレントインストール"
-        android:title="@string/pre_main_title_device_owner" />
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_device_owner_fn"
+            android:title="@string/pre_main_title_device_owner"
+            android:summary="@string/pre_main_sum_device_owner" />
 
-    <Preference
-        android:key="pre_edit_admin"
-        android:title="デバイス管理者の編集"
-        app:isPreferenceVisible="false" />
+        <Preference
+            app:isPreferenceVisible="false"
+            app:iconSpaceReserved="false"
+            android:key="pre_edit_admin"
+            android:title="デバイス管理者の編集" />
 
-    <SwitchPreferenceCompat
-        android:key="pre_device_admin"
-        android:summary="@string/pre_main_sum_device_admin"
-        android:title="@string/pre_main_title_device_admin" />
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:key="pre_device_admin"
+            android:title="@string/pre_main_title_device_admin"
+            android:summary="@string/pre_main_sum_device_admin" />
+
+    </PreferenceCategory>
 
     <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
         android:key="pre_cat_assist"
-        android:title="アシスト機能"
-        app:allowDividerAbove="false" />
+        android:title="@string/pre_main_category_assist">
 
-    <Preference
-        android:key="pre_get_app"
-        android:summary="@string/pre_main_sum_get_app"
-        android:title="アプリを取得" />
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_app_function"
+            android:title="アプリの機能"
+            android:summary="@string/pre_main_sum_app_function" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_util"
+            android:title="ユーティリティー"
+            android:summary="機能、情報" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_get_app"
+            android:title="@string/pre_main_title_get_app"
+            android:summary="@string/pre_main_sum_get_app" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

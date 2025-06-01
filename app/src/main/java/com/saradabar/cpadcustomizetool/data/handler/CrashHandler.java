@@ -22,8 +22,8 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 
 public class CrashHandler implements Thread.UncaughtExceptionHandler {
 
-    Context mContext;
-    Thread.UncaughtExceptionHandler mDefaultUncaughtExceptionHandler;
+    final Context mContext;
+    final Thread.UncaughtExceptionHandler mDefaultUncaughtExceptionHandler;
 
     public CrashHandler(Context context) {
         mContext = context;

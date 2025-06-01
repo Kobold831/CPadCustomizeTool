@@ -91,7 +91,7 @@ public class NormalActivity extends AppCompatActivity {
     // DchaState 変更
     private void setSetupStatus() {
         if (Preferences.loadMultiList(this, Constants.KEY_EMERGENCY_SETTINGS, 1)) {
-            if (Common.isBenesseExtensionExist()) {
+            if (Common.isBenesseExtensionExist("setDchaState")) {
                 BenesseExtension.setDchaState(0);
                 showNavigationBar();
                 return;
@@ -123,10 +123,9 @@ public class NormalActivity extends AppCompatActivity {
 
     // 解像度の修正
     private void setDisplaySize() {
-        if (Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTX ||
-                Preferences.load(this, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CTZ) {
+        if (Common.isCTX() || Common.isCTZ()) {
             // CTXとCTZ
-            if (Common.isBenesseExtensionExist()) {
+            if (Common.isBenesseExtensionExist("putInt")) {
                 //noinspection ResultOfMethodCallIgnored
                 BenesseExtension.putInt(Constants.BC_COMPATSCREEN, 0);
             } else {

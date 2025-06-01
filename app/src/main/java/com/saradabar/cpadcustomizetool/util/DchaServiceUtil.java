@@ -10,7 +10,7 @@ import com.saradabar.cpadcustomizetool.data.task.IDchaTask;
 /** @noinspection unused*/
 public class DchaServiceUtil {
 
-    Context mContext;
+    final Context mContext;
 
     public DchaServiceUtil(Context context) {
         mContext = context;
@@ -159,7 +159,7 @@ public class DchaServiceUtil {
     }
 
     public void getSetupStatus(Listener listener) {
-        if (Common.isBenesseExtensionExist()) {
+        if (Common.isBenesseExtensionExist("getDchaState")) {
             listener.onResult(BenesseExtension.getDchaState());
         } else {
             new IDchaTask().execute(mContext, iDchaService -> {
@@ -340,8 +340,7 @@ public class DchaServiceUtil {
 
     public void setSetupStatus(int status, Listener listener) {
         // BenesseExtensionが存在してかつCT3ではないか
-        if (Common.isBenesseExtensionExist() &&
-                Preferences.load(mContext, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) != Constants.MODEL_CT3) {
+        if (Common.isBenesseExtensionExist("setDchaState") && !Common.isCT3()) {
             BenesseExtension.setDchaState(status);
             listener.onResult(true);
             return;

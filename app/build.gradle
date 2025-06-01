@@ -10,8 +10,8 @@ android {
         minSdk = 22
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 22
-        versionCode = 272
-        versionName = "2.7.2"
+        versionCode = 273
+        versionName = "2.7.3"
         proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
 
@@ -52,25 +52,20 @@ android {
 
 dependencies {
     // Custom Libraries
-    compileOnly(libs.benesse.extension)
-    implementation(libs.benesse.dchaservice)
-    implementation(libs.benesse.dchautilservice)
-    compileOnly project(':hidden-api')
-
+    compileOnly libs.benesse.extension
+    implementation libs.benesse.dchaservice
+    implementation libs.benesse.dchautilservice
+    compileOnly project(":hidden-api")
     // AndroidX
-    implementation(libs.androidx.preference)
-
+    implementation libs.preference
     // Google Material You
-    implementation(libs.google.material)
-
+    implementation libs.material
     // Welcome
-    implementation(libs.welcome)
-
+    implementation libs.welcome
     // ZIP
-    implementation(libs.zt.zip)
-
+    implementation libs.zt.zip
     // Dhizuku
-    implementation(libs.dhizuku.api)
+    implementation libs.dhizuku.api
 }
 
 tasks.withType(JavaCompile).configureEach {

@@ -5,7 +5,10 @@ import android.os.IBinder;
 import android.os.IInterface;
 
 public interface IDevicePolicyManager extends IInterface {
+
     abstract class Stub extends Binder implements IDevicePolicyManager {
+
+        /** @noinspection unused*/
         public static IDevicePolicyManager asInterface(IBinder obj) {
             throw new UnsupportedOperationException();
         }

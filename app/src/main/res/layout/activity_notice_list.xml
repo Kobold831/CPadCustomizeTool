@@ -9,5 +9,8 @@
         style="@style/Widget.AppCompat.ListView"
         android:id="@+id/list_notice"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:divider="@drawable/divider_transparent"
+        android:dividerHeight="16dp" />
+
 </FrameLayout>

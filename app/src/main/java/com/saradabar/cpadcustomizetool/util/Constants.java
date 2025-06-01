@@ -17,13 +17,20 @@ import android.content.Intent;
 
 import com.rosan.dhizuku.shared.DhizukuVariables;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Constants {
 
     // デフォルト値
+    /**
+     * @noinspection unused
+     */
     public static final int DEF_INT = 0;
+    /**
+     * @noinspection unused
+     */
     public static final String DEF_STR = "";
     public static final boolean DEF_BOOL = false;
 
@@ -31,22 +38,10 @@ public class Constants {
     public static final String PRODUCT_CT2S = "TAB-A03-BS";
     public static final String PRODUCT_CT2K = "TAB-A03-BR";
     public static final String PRODUCT_CT2L = "TAB-A03-BR2";
-    public static final List<String> PRODUCT_CT2 = Arrays.asList(PRODUCT_CT2S, PRODUCT_CT2K, PRODUCT_CT2L);
+    public static final ArrayList<String> PRODUCT_CT2 = new ArrayList<>(Arrays.asList(PRODUCT_CT2S, PRODUCT_CT2K, PRODUCT_CT2L));
     public static final String PRODUCT_CT3 = "TAB-A03-BR3";
     public static final String PRODUCT_CTX = "TAB-A05-BD";
     public static final String PRODUCT_CTZ = "TAB-A05-BA1";
-
-    // タブレットモデルの番号
-    public static final int MODEL_CT2 = 0;
-    public static final int MODEL_CT3 = 1;
-    public static final int MODEL_CTX = 2;
-    public static final int MODEL_CTZ = 3;
-
-    // 設定変更フラグの番号
-    public static final int FLAG_USB_DEBUG_TRUE = 6;
-    public static final int FLAG_USB_DEBUG_FALSE = 7;
-    public static final int FLAG_MARKET_APP_TRUE = 8;
-    public static final int FLAG_MARKET_APP_FALSE = 9;
 
     // アクティビティコールバックの番号
     public static final int REQUEST_ACTIVITY_UPDATE = 0;
@@ -65,7 +60,7 @@ public class Constants {
     public static final int REQUEST_INSTALL_SILENT = 0;
     public static final int REQUEST_INSTALL_SELF_UPDATE = 1;
     public static final int REQUEST_INSTALL_GET_APP = 2;
-    
+
     //　アプリで使用しているURL
     // TODO: Check.json 参照先変更機能
     public static final String CHECK_JSON = "Check.json";
@@ -90,7 +85,6 @@ public class Constants {
     public static final String KEY_FLAG_APP_SETTING_DCHA = "settings_dcha";
     public static final String KEY_FLAG_DCHA_FUNCTION_CONFIRMATION = "confirmation";
     public static final String KEY_FLAG_ERROR_CRASH = "crash";
-    public static final String KEY_INT_MODEL_NUMBER = "model_name";
     public static final String KEY_INT_UPDATE_MODE = "update_mode";
     public static final String KEY_INT_GET_APP_TMP = "key_radio_tmp";
     public static final String KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE = "normal_launcher";
@@ -105,7 +99,7 @@ public class Constants {
     public static final String KEY_FLAG_KEEP_USB_DEBUG = "enabled_keep_usb_debug";
     public static final String KEY_FLAG_KEEP_HOME = "enabled_keep_home";
     public static final String KEY_STRINGS_KEEP_HOME_APP_PACKAGE = "save_keep_home";
-    public static final String KEY_FLAG_AUTO_USB_DEBUG = "enabled_auto_usb_debug";
+    public static final String KEY_INT_DEBUG_DEVICE = "key_int_debug_device";
 
     public static final String PKG_COMMON_DCHA = "jp.co.benesse.dcha";
     public static final String PKG_DCHA_SERVICE = PKG_COMMON_DCHA + ".dchaservice";
@@ -124,9 +118,16 @@ public class Constants {
 
     public static final List<String> LIST_UPDATE_MODE = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー", "Dhizuku");
 
-    public static final String[] LIST_MODEL = { PRODUCT_CT2S, PRODUCT_CT2K, PRODUCT_CT2L, PRODUCT_CT3, PRODUCT_CTX, PRODUCT_CTZ };
+    public static final ArrayList<String> LIST_MODEL = new ArrayList<>() {
+        {
+            addAll(PRODUCT_CT2);
+            add(PRODUCT_CT3);
+            add(PRODUCT_CTX);
+            add(PRODUCT_CTZ);
+        }
+    };
 
     // Don't use Dhizuku.getOwnerComponent()
-    public static final ComponentName DHIZUKU_COMPONENT = new ComponentName(DhizukuVariables.OFFICIAL_PACKAGE_NAME, DhizukuVariables.OFFICIAL_PACKAGE_NAME + ".server.DhizukuDAReceiver");
-
+    public static final ComponentName DHIZUKU_COMPONENT =
+            new ComponentName(DhizukuVariables.OFFICIAL_PACKAGE_NAME, DhizukuVariables.OFFICIAL_PACKAGE_NAME + ".server.DhizukuDAReceiver");
 }

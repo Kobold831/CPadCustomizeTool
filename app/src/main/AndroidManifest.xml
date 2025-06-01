@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
+    
     <uses-permission android:name="jp.co.benesse.dcha.permission.ACCESS_SYSTEM" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
@@ -13,6 +13,13 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <!-- 不明なアプリの許可機能用 -->
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_INSTALL_UNKNOWN_SOURCES"/>
+    <uses-permission android:name="android.permission.MANAGE_USERS" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
+    <uses-permission android:name="android.permission.MANAGE_APP_OPS_MODES" />
+    <!-- システムアプリの有効機能用 -->
+    <uses-permission android:name="android.permission.CHANGE_COMPONENT_ENABLED_STATE" />
 
     <uses-feature
         android:name="android.software.device_admin"
@@ -26,6 +33,7 @@
         android:name=".MyApplication"
         android:persistent="true"
         android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="false"
         tools:remove="android:appComponentFactory">
 
         <meta-data
@@ -33,12 +41,12 @@
             android:value="2.4" />
 
         <activity
-            android:name=".view.activity.WelAppActivity"
+            android:name=".view.activity.WelcomeAppActivity"
             android:exported="false"
             android:theme="@style/WelcomeTheme" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".view.activity.CheckActivity"
             android:exported="true"
             android:label="@string/activity_main"
             android:theme="@style/NoActionBarTheme"
@@ -58,7 +66,7 @@
         </activity>
 
         <activity
-            android:name=".view.activity.StartActivity"
+            android:name=".MainActivity"
             android:exported="false"
             android:label="@string/activity_start"
             android:theme="@style/ActionBarTheme"
@@ -263,5 +271,7 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
+
     </application>
+
 </manifest>
