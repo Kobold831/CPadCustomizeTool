@@ -9,7 +9,9 @@
      * Any use, reproduction, or distribution of this software beyond the scope of Apache License 2.0 is prohibited.
      *
      * -->
+
 <resources>
+
     <!-- アプリ、アクティビティの名前 -->
     <string name="app_name">CPad Customize Tool</string>
     <string name="activity_main">カスタマイズツール</string>
@@ -85,44 +87,66 @@
     <string name="pre_main_category_system">システム設定</string>
     <string name="pre_main_category_emergency_mode">緊急モード</string>
     <string name="pre_main_category_change_to_normal_mode">通常モード</string>
-    <string name="pre_main_category_other_settings">DchaService 機能</string>
+    <string name="pre_main_category_other_settings">Dcha アプリ機能</string>
+    <string name="pre_main_category_device_admin">デバイス管理者設定</string>
+    <string name="pre_main_category_assist">アシスト機能</string>
+
     <string name="pre_main_title_system_ui">システム UI の学習モード</string>
     <string name="pre_main_title_keep_system_ui">システム UI の通常モードを維持</string>
     <string name="pre_main_title_navigation_bar">ナビゲーションバーの非表示</string>
     <string name="pre_main_title_keep_navigation_bar">ナビゲーションバーの表示を維持</string>
     <string name="pre_main_title_usb_debug">USB デバッグ</string>
     <string name="pre_main_title_keep_usb_debug">USB デバッグを維持</string>
-    <string name="pre_main_title_non_market">提供元不明のアプリを許可</string>
-    <string name="pre_main_title_keep_non_market">提供元不明のアプリの許可を維持</string>
+    <string name="pre_main_title_non_market">不明なアプリのインストール</string>
+    <string name="pre_main_title_keep_non_market">不明なアプリのインストールを維持</string>
     <string name="pre_main_title_change_home">ホームアプリ</string>
     <string name="pre_main_title_keep_home">ホームアプリを維持</string>
-    <string name="pre_main_title_other_settings">その他の設定</string>
-    <string name="pre_main_title_select_course">受講中の講座を選択</string>
+    <string name="pre_main_title_other_settings">デバイスの設定</string>
+    <string name="pre_main_title_select_course">受講中の講座</string>
     <string name="pre_main_title_change_settings">緊急モードの設定</string>
     <string name="pre_main_title_manual">緊急モードの説明</string>
+    <string name="pre_main_title_emg_execute">緊急モードを起動</string>
+    <string name="pre_main_title_emg_shortcut">緊急モードのショートカットをホームに追加</string>
     <string name="pre_main_title_change_to_normal_mode_settings">通常モードの設定</string>
+    <string name="pre_main_title_launcher">変更するホーム</string>
     <string name="pre_main_title_normal_mode_manual">通常モードの説明</string>
+    <string name="pre_main_title_nor_execute">通常モードを起動</string>
+    <string name="pre_main_title_nor_shortcut">通常モードのショートカットをホームに追加</string>
+    <string name="pre_main_title_use_dcha">DchaService 機能</string>
     <string name="pre_main_title_reboot">再起動</string>
     <string name="pre_main_title_reboot_shortcut">再起動のショートカットをホームに追加</string>
     <string name="pre_main_title_silent_install">サイレントインストール</string>
-    <string name="pre_main_title_resolution">解像度の変更</string>
+    <string name="pre_main_title_resolution">解像度</string>
     <string name="pre_main_title_resolution_reset">解像度のリセット</string>
-    <string name="pre_main_title_use_dcha">DchaService 機能を有効</string>
-    <string name="pre_main_title_device_admin">デバイス管理者</string>
-    <string name="pre_main_title_launcher">変更するホーム</string>
-    <string name="pre_main_title_device_owner">デバイスオーナーの機能</string>
     <string name="pre_main_title_system_update">システムアップデート</string>
-    <string name="pre_main_title_dhizuku_permission_req">Dhizuku アクセス権限リクエスト</string>
-    <string name="pre_main_sum_message_1"> ではこの機能は使用できません。</string>
-    <string name="pre_main_sum_message_2">ホームは [%1$s] に設定されています。</string>
-    <string name="pre_main_sum_keep_home">現在のホームを維持します。</string>
-    <string name="pre_main_sum_change_settings">デフォルト設定はすべて変更します。</string>
-    <string name="pre_main_sum_change_to_normal_mode_settings">デフォルトはすべて変更されます。</string>
+    <string name="pre_main_title_device_owner">デバイスオーナーの機能</string>
+    <string name="pre_main_title_device_admin">デバイス管理者</string>
+    <string name="pre_main_title_get_app">アプリを取得</string>
+
+    <string name="pre_main_sum_message_1">%1$s は、この機能を使用できません。</string>
+    <string name="pre_main_sum_message_2">ホームは、[%1$s] に設定されています。</string>
+    <string name="pre_main_sum_already_device_owner">デバイスオーナーのため、変更できません。</string>
+    <string name="pre_main_sum_no_setting_launcher">ホームは、設定されていません。</string>
+    <string name="pre_main_sum_check_enabled">この機能を使用するには、”%1$s” を有効にしてください。</string>
+
+    <string name="pre_main_sum_keep_home">現在のホームを維持します。バッテリーの消耗を防ぐために、およそ 10 秒間隔で監視します。</string>
+    <string name="pre_main_sum_other">画面表示と明るさ</string>
+    <string name="pre_main_sum_emg_course">緊急モードを使用するときは、受講中の講座に設定してください。</string>
+    <string name="pre_main_sum_change_settings">デフォルトは、すべての設定を変更します。</string>
+    <string name="pre_main_sum_emg_manual">使用するにあたり、注意することを確認してください。</string>
+    <string name="pre_main_sum_emg_execute">"起動すると、学習環境に変更します。</string>
+    <string name="pre_main_sum_change_to_normal_mode_settings">デフォルトは、すべての設定を変更します。</string>
+    <string name="pre_main_sum_nor_execute">起動すると、通常環境に変更します。</string>
     <string name="pre_main_sum_use_dcha">有効化するには、タップしてください。</string>
-    <string name="pre_main_sum_device_admin">このアプリがアンインストールされないようにします。</string>
+    <string name="pre_main_sum_reboot">デバイスを再起動します。</string>
     <string name="pre_main_sum_silent_install">単一APK のインストールに対応しています。\n分割APK は [デバイスオーナーの機能] -> [サイレントインストール] からインストールできます。</string>
-    <string name="pre_main_sum_already_device_owner">デバイスオーナーのため変更できません。</string>
-    <string name="pre_main_sum_no_setting_launcher">ホームは設定されていません。</string>
+    <string name="pre_main_sum_res">画面解像度を任意の値に変更します。</string>
+    <string name="pre_main_sum_res_reset">画面解像度をリセットします。</string>
+    <string name="pre_main_sum_system_update">デバイスのシステムをアップデートします。</string>
+    <string name="pre_main_sum_dcha_function">再起動、インストール、解像度、システム更新</string>
+    <string name="pre_main_sum_device_owner">アンインストールブロック、サイレントインストール</string>
+    <string name="pre_main_sum_device_admin">このアプリがアンインストールされないようにします。</string>
+    <string name="pre_main_sum_app_function">緊急モード、通常モード</string>
     <string name="pre_main_sum_get_app">表示されるダイアログからアプリを選択してください。\nインストーラーは、[アプリ設定] -> [インストールモード] から変更できます。</string>
 
     <!-- アプリ設定 -->
@@ -134,20 +158,18 @@
     <string name="pre_app_title_update_check">アップデートチェックを無効</string>
     <string name="pre_app_title_noti_always">通知を常駐</string>
     <string name="pre_app_title_dcha">内部設定の変更に DchaService を使用</string>
-    <string name="pre_app_title_usb">デバイス起動時の USB デバッグ</string>
     <string name="pre_app_title_update">インストールモード</string>
     <string name="pre_app_title_crash_history">クラッシュ履歴</string>
     <string name="pre_app_title_delete_crash_history">クラッシュ履歴の消去</string>
     <string name="pre_app_sum_dcha">既定では DchaService を使用しません。</string>
-    <string name="pre_app_sum_usb">デバイス起動時に USBデバッグ の無効を阻止します。</string>
-    <string name="pre_app_sum_confirmation_dcha">この機能を使用するには、DchaService 機能を有効 から内容を確認してください。</string>
+    <string name="pre_app_sum_confirmation_dcha">この機能を使用するには、DchaService 機能を有効にしてください。</string>
     
     <!-- デバイスオーナー設定 -->
     <string name="pre_owner_title_uninstall_block">アンインストールブロッカー</string>
     <string name="pre_owner_title_permission">ランタイム権限の強制付与</string>
     <string name="pre_owner_title_silent_install">サイレントインストール</string>
     <string name="pre_owner_title_device_owner">デバイスオーナーの解除</string>
-    <string name="pre_owner_sum_message_1">デバイスオーナーは <b>%1$s</b> に設定されています。</string>
+    <string name="pre_owner_sum_message_1">デバイスオーナーは、 <b>%1$s</b> に設定されています。</string>
     <string name="pre_owner_sum_no_device_owner">デバイスオーナーは設定されていません。</string>
     <string name="pre_owner_sum_not_use_function">デバイスオーナーが設定されていないため、この機能は使用できません。</string>
     <string name="pre_owner_sum_uninstall_block">ユーザーアプリのアンインストールをブロックします。</string>
@@ -184,13 +206,11 @@
 
     <!-- ダイアログメッセージ -->
     <string name="dialog_app_start_message">ウイルス対策アプリなどに脅威として検知される場合があります。\n検知された場合は、除外設定してください。\nこのダイアログは以降表示されません。</string>
-    <string name="dialog_emergency_select_course">受講中の講座を選択してください。</string>
     <string name="dialog_mode_select_settings">変更する設定を選択してください。\n設定後は OK を押してください。</string>
     <string name="dialog_emergency_manual">この機能はアクティビティを呼び出すアプリで使用できます。\nアクティビティ一覧から、｢<b>緊急モード (.view.activity.EmergencyActivity)</b>｣ を追加して起動してください。\n</string>
     <string name="dialog_emergency_manual_red">システムUIを変更するためアクティビティや他のアプリを起動させるアプリをインストールしておかないと初期化以外に勉強ホームから抜け出すことができなくなります。\nアプリ履歴を全消去はナビゲーションバーの□ボタンを押すと表示されるアプリ履歴のアプリを終了します。</string>
     <string name="dialog_normal_manual">この機能はアクティビティを呼び出すアプリで使用できます。\nアクティビティ一覧から、｢<b>通常モード (.view.activity.NormalActivity)</b>｣ を追加して起動してください。</string>
     <string name="dialog_dcha_warning">このデバイスのシステム領域を DchaService が変更していないことを検知しました。\n続行すると一部の動作がシステムで制限される可能性があります。</string>
-    <string name="dialog_dcha_failed">DchaService との通信に失敗しました。</string>
     <string name="dialog_failure">失敗しました。</string>
     <string name="dialog_no_update">アップデートはありません。</string>
     <string name="dialog_disable_device_admin">デバイス管理者を無効にしますか？</string>
@@ -200,10 +220,7 @@
     <string name="dialog_dhizuku_grant_permission">Dhizuku へのアクセス権限は付与されました。</string>
     <string name="dialog_dhizuku_deny_permission">Dhizuku へのアクセス権限は拒否されました。</string>
     <string name="dialog_dhizuku_require_12">Dhizuku を更新することを推奨します。\nv2.9 の Dhizuku をインストールしてください。\n現在の状態でも機能を使用できますが完全に動作しない可能性があります。\nメイン画面の アプリを取得 から Dhizuku を選択することで最新に更新できます。</string>
-    <string name="dialog_dhizuku_already_grant_permission">Dhizuku へのアクセス権限は付与されています。</string>
-    <string name="dialog_service_connecting">サービスへの接続を待機しています。\n画面を切り替えないでください。</string>
     <string name="dialog_question_reboot">デバイスを再起動しますか？</string>
-    <string name="dialog_question_dcha">DchaService の機能を使用しますか？</string>
     <string name="dialog_question_owner">デバイスオーナーを解除しますか？</string>
     <string name="dialog_question_admin">この操作を行うと学習環境のときに、アプリがアンインストールされる可能性があります。</string>
     <string name="dialog_check_delete">消去しますか？</string>
@@ -223,12 +240,11 @@
     <string name="dialog_error_check_permission">システム設定権限を付与してください。\n権限を付与される場合は <b>OK</b> を押下してください。</string>
     <string name="dialog_error_no_dcha">DchaService が動作していないため、この機能は使用できません。</string>
     <string name="dialog_error_no_dcha_util">DchaUtilService が動作していないため、この機能は使用できません。</string>
-    <string name="dialog_error_illegal_value">値が不正なため変更できません。\n入力した値が極端ではないことを確認してください。</string>
+    <string name="dialog_error_illegal_value">値が極端なため変更できません。\n入力した値が極端ではないことを確認してください。</string>
     <string name="dialog_error_no_file_browse">ファイルブラウザがインストールされていません。</string>
     <string name="dialog_error_no_file_data">ファイルデータを取得できませんでした。</string>
     <string name="dialog_error_no_mode">選択されたモードは機能していません。</string>
     <string name="dialog_error_reset_installer">エラーが発生しました。\nインストールモードをリセットしました。</string>
-    <string name="dialog_error_no_dhizuku">Dhizuku との通信に失敗しました。</string>
 
     <!-- サービス -->
     <string name="service_activity">ホームアプリ 切り替えサービス</string>
@@ -237,25 +253,23 @@
     <string name="note_start_normal_mode"><b>通常モード</b>を起動してもよろしいですか？\nよろしければ <b>はい</b> を押下してください。</string>
     
     <!-- トースト -->
-    <string name="toast_success">成功しました</string>
-    <string name="toast_execution">実行しました</string>
-    <string name="toast_no_course">講座が存在しません</string>
-    <string name="toast_no_home">ホームが存在しません</string>
-    <string name="toast_enable_dcha">DchaService 機能を有効にしてください</string>
-    <string name="toast_no_setting_app">初期設定をしてください</string>
-    <string name="toast_no_permission">権限を付与してください</string>
-    <string name="toast_no_browser">ブラウザを開けませんでした</string>
-    <string name="toast_no_debug_option">開発者向けオプションを有効にしてください</string>
-    <string name="toast_not_selected">選択されなかったため、キャンセルしました</string>
+    <string name="toast_success">成功しました。</string>
+    <string name="toast_execution">実行しました。</string>
+    <string name="toast_no_course">講座が存在しません。</string>
+    <string name="toast_no_home">ホームが存在しません。</string>
+    <string name="toast_enable_dcha">DchaService 機能を有効にしてください。</string>
+    <string name="toast_no_setting_app">初期設定をしてください。</string>
+    <string name="toast_no_permission">権限を付与してください。</string>
+    <string name="toast_no_browser">ブラウザを開けませんでした。</string>
+    <string name="toast_no_debug_option">開発者向けオプションを有効にしてください。</string>
+    <string name="toast_not_selected">選択されなかったため、キャンセルしました。</string>
     <string name="toast_session_dest">セッションを破棄しました。</string>
     <string name="toast_deleted">消去しました。</string>
-    <string name="toast_not_deleted">不要ファイルがないため消去できませんでした。</string>
+    <string name="toast_not_deleted">不要ファイルはありません。</string>
 
     <!-- アプリ情報 -->
     <string name="info_app_info">アプリの情報</string>
-    <string name="info_app_state">アプリの状態：%1$s</string>
     <string name="info_development">開発者</string>
-    <string name="info_development_label">こぼるど / しゅーご</string>
     <string name="info_library">外部ライブラリーと謝辞</string>
     <string name="info_library_wel_label">・welcome-android\nCopyright 2015\-2017 Stephen Tuso</string>
     <string name="info_library_zip_label">・ZeroTurnaround ZIP Library\nCopyright 2012 ZeroTurnaround LLC.</string>
@@ -283,27 +297,27 @@
     <string name="reboot">再起動</string>
     <string name="no_log">ログはありません。</string>
     <string name="time_out_hint">最大値：%1$s</string>
-    <string name="time_out_label">単位：ミリ秒（1秒1000ミリ秒）\n設定値：%1$s\n推定時間：%2$s\n推定時刻：%3$s</string>
+    <string name="time_out_label">単位：ミリ秒（秒）※1秒は、1000ミリ秒\n設定値：%1$s\n推定時間：%2$s\n推定時刻：%3$s</string>
     <string name="time_out_button">最大値</string>
     <string name="device_admin_detail">｢端末管理アプリ｣を有効にする事で､ アンインストールをブロックします｡</string>
 
     <!-- 進行バー -->
     <string name="progress_state_connecting">サーバーと通信しています。\n画面を切り替えないでください。</string>
     <string name="progress_state_download_file">ファイルをダウンロードしています。\n画面を切り替えないでください。</string>
-    <string name="progress_state_rename">拡張子を変更しています。\n画面を切り替えないでください。</string>
     <string name="progress_state_unpack">圧縮ファイルを展開しています。\n画面を切り替えないでください。</string>
     <string name="progress_state_copy_file">データをコピーしています。\n画面を切り替えないでください。</string>
     <string name="progress_state_check_file">データを確認しています。\n画面を切り替えないでください。</string>
     <string name="progress_state_installing">インストールしています。\n画面を切り替えないでください。</string>
 
     <!-- インストーラー -->
-    <string name="installer_status_user_action">ユーザの確認が必要です。</string>
-    <string name="installer_status_failure_storage">ストレージの空き領域が不足しています。</string>
-    <string name="installer_status_failure_invalid">APK ファイルが無効か破損しています。</string>
-    <string name="installer_status_failure_incompatible">非対応アプリです。</string>
-    <string name="installer_status_failure_conflict">衝突するアプリが存在します。</string>
-    <string name="installer_status_failure_blocked">インストールがブロックされました。</string>
+    <string name="installer_status_user_action">インストールするには、ユーザーによる操作が必要です。</string>
+    <string name="installer_status_failure_storage">ストレージの空き容量が不足しています。</string>
+    <string name="installer_status_failure_invalid">インストールするアプリのファイルが、無効または破損しています。</string>
+    <string name="installer_status_failure_incompatible">インストールするアプリはこのデバイスに対応していません。</string>
+    <string name="installer_status_failure_conflict">署名が異なるか何らかの理由により衝突するアプリが存在します。</string>
+    <string name="installer_status_failure_blocked">インストールは、何らかの理由によりブロックされました。</string>
     <string name="installer_status_failure">インストールに失敗しました。</string>s
-    <string name="installer_status_no_allocatable_space">ストレージの空き領域が不足している可能性があります。\n</string>
+    <string name="installer_status_no_allocatable_space">ストレージの空き容量が不足している可能性があります。\n</string>
     <string name="installer_status_unknown_error">不明なエラーが発生しました。</string>
+
 </resources>

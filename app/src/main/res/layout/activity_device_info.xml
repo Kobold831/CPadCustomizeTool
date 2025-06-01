@@ -23,7 +23,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="システムプロパティ情報" />
+            android:text="終了" />
 
         <com.google.android.material.button.MaterialButton
             style="?android:attr/buttonBarButtonStyle"
@@ -31,14 +31,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="システム情報" />
+            android:text="メインメニュー" />
 
-        <com.google.android.material.button.MaterialButton
-            style="?android:attr/buttonBarButtonStyle"
-            android:id="@+id/act_device_info_button_3"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="バッテリー情報" />
     </LinearLayout>
+
 </LinearLayout>

@@ -1,44 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        app:allowDividerAbove="false">
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="機能">
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_start_settings"
             android:title="@string/pre_other_title_settings" />
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_start_dev_settings"
             android:title="@string/pre_other_title_development" />
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_start_ui_adjustment"
             android:title="@string/pre_other_title_adjustment" />
 
         <Preference
-            android:key="pre_other_screen_off_time"
-            android:summary="スクリーンがタイムアウトするまでの時間を変更します。"
-            android:title="@string/pre_other_title_screen_off_time" />
-
-        <Preference
-            android:key="pre_other_sleep_timeout"
-            android:title="sleep_timeout"
-            app:isPreferenceVisible="false" />
-
-        <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_web_view"
             android:summary="セキュリティのため HTTP 接続、ファイルアクセス機能は使用できません。"
             android:title="アプリ内ブラウザを起動" />
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_launch_app"
             android:summary="インストールされている任意のアプリを起動します。"
             android:title="アプリランチャー" />
 
         <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_util_re-enable_system-apps"
+            android:title="システムアプリの有効化"
+            android:summary="ブラウザ、検索、トレースを有効にします。" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="情報">
+
+        <Preference
+            app:iconSpaceReserved="false"
             android:key="pre_other_start_device_info"
             android:title="デバイス情報" />
+
     </PreferenceCategory>
-</PreferenceScreen>
+
+</androidx.preference.PreferenceScreen>

@@ -1,6 +1,6 @@
 package com.saradabar.cpadcustomizetool.data.task;
 
-import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuActive;
+import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuAllActive;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -65,7 +65,7 @@ public class ApkInstallTask {
     }
 
     private void doInBackground(Context context, Listener listener, InstallEventListener installEventListener, ArrayList<String> splitInstallData, int reqCode) {
-        if (isDhizukuActive(context)) {
+        if (isDhizukuAllActive(context)) {
             // Dhizukuでセッションインストール
             doDhizukuInstall(context, listener, installEventListener, splitInstallData, reqCode);
         } else {

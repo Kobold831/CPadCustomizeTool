@@ -24,7 +24,6 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.SwitchCompat;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -35,19 +34,18 @@ import java.util.List;
 
 public class UninstallBlockActivity extends AppCompatActivity {
 
+    public UninstallBlockActivity() {
+        super(R.layout.layout_uninstall_list);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_uninstall_list);
-
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
         List<UninstallBlockAppListView.AppData> dataList = new ArrayList<>();
-        ListView listView = findViewById(R.id.un_list);
-        AppCompatButton unDisableButton = findViewById(R.id.un_button_disable);
-        AppCompatButton unEnableButton = findViewById(R.id.un_button_enable);
 
         for (ApplicationInfo app : getPackageManager().getInstalledApplications(0)) {
             /* ユーザーアプリか確認 */
@@ -59,17 +57,12 @@ public class UninstallBlockActivity extends AppCompatActivity {
                 dataList.add(data);
             }
         }
-        UninstallBlockAppListView.AppListAdapter appListAdapter = new UninstallBlockAppListView.AppListAdapter(this, dataList);
-        listView.setAdapter(appListAdapter);
-        setListener(dataList, listView, unDisableButton, unEnableButton, appListAdapter);
-    }
-
-    private void setListener(List<UninstallBlockAppListView.AppData> dataList, @NonNull ListView listView, @NonNull AppCompatButton unDisableButton, @NonNull AppCompatButton unEnableButton, UninstallBlockAppListView.AppListAdapter appListAdapter) {
         DevicePolicyManager dpm = Common.getDevicePolicyManager(this);
-
-        listView.setOnItemClickListener((parent, view, position, id) -> {
+        UninstallBlockAppListView.AppListAdapter appListAdapter = new UninstallBlockAppListView.AppListAdapter(this, dataList);
+        ListView listView = findViewById(R.id.un_list);
+        listView.setAdapter(appListAdapter);
+        appListAdapter.setOnItemClickListener((view, position) -> {
             String selectPackage = Uri.fromParts("package", dataList.get(position).packName, null).toString();
-
             dpm.setUninstallBlocked(Common.getDeviceAdminComponent(this), selectPackage.replace("package:", ""),
                     !dpm.isUninstallBlocked(Common.getDeviceAdminComponent(this), selectPackage.replace("package:", "")));
             /* listviewの更新 */
@@ -77,24 +70,21 @@ public class UninstallBlockActivity extends AppCompatActivity {
         });
 
         /* ボタンが押されたならスイッチ一括変更 */
+        AppCompatButton unDisableButton = findViewById(R.id.un_button_disable);
+        AppCompatButton unEnableButton = findViewById(R.id.un_button_enable);
         /* 無効 */
         unDisableButton.setOnClickListener(v -> {
             for (UninstallBlockAppListView.AppData appData : dataList) {
                 dpm.setUninstallBlocked(Common.getDeviceAdminComponent(this), appData.packName, false);
             }
-
-            ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(false);
             /* listviewの更新 */
             listView.invalidateViews();
         });
-
         /* 有効 */
         unEnableButton.setOnClickListener(v -> {
             for (UninstallBlockAppListView.AppData appData : dataList) {
                 dpm.setUninstallBlocked(Common.getDeviceAdminComponent(this), appData.packName, true);
             }
-
-            ((SwitchCompat) appListAdapter.view.findViewById(R.id.un_switch)).setChecked(true);
             /* listviewの更新 */
             listView.invalidateViews();
         });

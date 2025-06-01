@@ -52,25 +52,20 @@ android {
 
 dependencies {
     // Custom Libraries
-    compileOnly(libs.benesse.extension)
-    implementation(libs.benesse.dchaservice)
-    implementation(libs.benesse.dchautilservice)
-    compileOnly project(':hidden-api')
-
+    compileOnly libs.benesse.extension
+    implementation libs.benesse.dchaservice
+    implementation libs.benesse.dchautilservice
+    compileOnly project(":hidden-api")
     // AndroidX
-    implementation(libs.androidx.preference)
-
+    implementation libs.preference
     // Google Material You
-    implementation(libs.google.material)
-
+    implementation libs.material
     // Welcome
-    implementation(libs.welcome)
-
+    implementation libs.welcome
     // ZIP
-    implementation(libs.zt.zip)
-
+    implementation libs.zt.zip
     // Dhizuku
-    implementation(libs.dhizuku.api)
+    implementation libs.dhizuku.api
 }
 
 tasks.withType(JavaCompile).configureEach {

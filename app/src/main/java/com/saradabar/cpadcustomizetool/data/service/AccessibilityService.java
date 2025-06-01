@@ -24,13 +24,7 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
     }
 
     @Override
-    protected void onServiceConnected() {
-        super.onServiceConnected();
-    }
-
-    @Override
     public boolean onKeyEvent(@NonNull KeyEvent event) {
-
         if (event.getKeyCode() == KeyEvent.KEYCODE_HOME) {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 isHomeButtonPressed = true;
@@ -64,7 +58,6 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
             startActivity(new Intent(this, EmergencyActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             return true;
         }
-
         return super.onKeyEvent(event);
     }
 }

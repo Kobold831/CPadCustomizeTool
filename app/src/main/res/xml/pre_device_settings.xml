@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="画面表示と明るさ">
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:key="pre_other_ui_mode_night"
+            android:title="ダークモード" />
+
+        <Preference
+            app:selectable="false"
+            android:icon="@drawable/ic_info_outline_24"
+            android:summary="ダークモードは、アプリにより適用されない場合があります。" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_other_screen_off_time"
+            android:title="@string/pre_other_title_screen_off_time"
+            android:summary="スクリーンのタイムアウト、およびデバイスがスリープするまでの時間を変更します。" />
+
+        <Preference
+            app:selectable="false"
+            android:icon="@drawable/ic_info_outline_24"
+            android:summary="変更するには、”android.permission.WRITE_SECURE_SETTINGS” 権限が付与されている必要があります。小さい時間に変更すると、操作に支障が発生する可能性があります。" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

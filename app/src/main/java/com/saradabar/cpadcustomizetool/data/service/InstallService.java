@@ -27,7 +27,7 @@ import com.saradabar.cpadcustomizetool.data.event.InstallEventListenerList;
 
 public class InstallService extends Service {
 
-    Binder binder = new Binder();
+    final Binder binder = new Binder();
 
     @Override
     public IBinder onBind(Intent intent) {

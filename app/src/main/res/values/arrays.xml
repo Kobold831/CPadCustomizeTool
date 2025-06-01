@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string-array name="mode_text">
         <item>小学講座</item>
         <item>中学講座・その他</item>
@@ -54,4 +55,5 @@
         <item>3</item>
         <item>4</item>
     </string-array>
+
 </resources>

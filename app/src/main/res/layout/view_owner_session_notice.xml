@@ -79,5 +79,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="７．インストールしたいアプリファイルを選択するとインストールを開始します。" />
+
     </LinearLayout>
+
 </ScrollView>

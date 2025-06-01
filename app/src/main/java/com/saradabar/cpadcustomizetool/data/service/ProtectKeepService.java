@@ -25,7 +25,7 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 
 public class ProtectKeepService extends Service {
 
-    Binder binder = new Binder();
+    final Binder binder = new Binder();
 
     @Override
     public IBinder onBind(Intent intent) {

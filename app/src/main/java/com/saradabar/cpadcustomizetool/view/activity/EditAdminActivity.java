@@ -2,10 +2,10 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.os.Bundle;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -39,7 +39,7 @@ public class EditAdminActivity extends AppCompatActivity {
             element.appendChild(element2);
             writeXML(new File("/sdcard/device_owner_02.xml"), document);
         } catch (Exception e) {
-            new AlertDialog.Builder(this)
+            new DialogUtil(this)
                     .setCancelable(false)
                     .setTitle(R.string.dialog_error)
                     .setMessage(e.getMessage())
@@ -48,7 +48,7 @@ public class EditAdminActivity extends AppCompatActivity {
             return;
         }
 
-        new AlertDialog.Builder(this)
+        new DialogUtil(this)
                 .setCancelable(false)
                 .setMessage(R.string.toast_success)
                 .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> finish())

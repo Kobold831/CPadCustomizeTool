@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="ホームアプリの設定">
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_launcher"
+            android:title="@string/pre_main_title_change_home" />
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:key="pre_keep_launcher"
+            android:title="@string/pre_main_title_keep_home"
+            android:summary="@string/pre_main_sum_keep_home" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="デバイスの再起動">
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_reboot"
+            android:title="@string/pre_main_title_reboot"
+            android:summary="@string/pre_main_sum_reboot" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_reboot_shortcut"
+            android:title="@string/pre_main_title_reboot_shortcut" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="アプリのインストール">
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_silent_install"
+            android:title="@string/pre_main_title_silent_install"
+            android:summary="@string/pre_main_sum_silent_install" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="解像度の設定">
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_resolution"
+            android:title="@string/pre_main_title_resolution"
+            android:summary="@string/pre_main_sum_res" />
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_reset_resolution"
+            android:title="@string/pre_main_title_resolution_reset"
+            android:summary="@string/pre_main_sum_res_reset" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="システムの更新">
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_system_update"
+            android:title="@string/pre_main_title_system_update"
+            android:summary="@string/pre_main_sum_system_update" />
+
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

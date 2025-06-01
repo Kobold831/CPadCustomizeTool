@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.saradabar.cpadcustomizetool.R;
@@ -16,12 +15,15 @@ import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.view.views.NoticeListView;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +53,7 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
                 JSONArray jsonArray = jsonObj2.getJSONArray("noticeList");
 
                 if (jsonArray.length() == 0) {
-                    new AlertDialog.Builder(this)
+                    new DialogUtil(this)
                             .setMessage(R.string.dialog_no_notice)
                             .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> finish())
                             .show();
@@ -66,16 +68,16 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
                 }
                 NoticeListView.AppListAdapter appListAdapter = new NoticeListView.AppListAdapter(this, appDataList);
                 listView.setAdapter(appListAdapter);
-                listView.setOnItemClickListener((parent, view, position, id) -> {
+                appListAdapter.setOnItemClickListener((view, position) -> {
                     try {
                         String url = jsonArray.getJSONObject(position).getString("url");
                         if (!url.isEmpty()) {
                             startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", url).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         }
-                    } catch (Exception ignored) {
+                    } catch (JSONException ignored) {
                     }
                 });
-            } catch (Exception ignored) {
+            } catch (JSONException | IOException ignored) {
             }
         }
     }

@@ -12,7 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.activity;
 
-import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -20,7 +19,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -28,9 +26,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
+import com.saradabar.cpadcustomizetool.view.views.CrashLogListView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CrashLogActivity extends AppCompatActivity {
 
@@ -43,27 +44,35 @@ public class CrashLogActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-        ArrayList<String> arrayList = Preferences.load(this, Constants.KEY_LIST_CRASH_LOG);
+        List<CrashLogListView.AppData> appDataList = new ArrayList<>();
+        ListView listView = findViewById(R.id.act_crash_log_list);
+        ArrayList<String> stringArrayList = Preferences.load(this, Constants.KEY_LIST_CRASH_LOG);
 
-        if (arrayList == null) {
-            new AlertDialog.Builder(this)
+        if (stringArrayList == null) {
+            new DialogUtil(this)
                     .setCancelable(false)
                     .setMessage(getString(R.string.no_log))
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
                     .show();
             return;
         }
-        ListView listView = findViewById(R.id.act_crash_log_list);
-        listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayList));
-        listView.setOnItemClickListener((parent, view, position, id) -> {
+
+        for (int i = 0; i < stringArrayList.size(); i++) {
+            CrashLogListView.AppData appData = new CrashLogListView.AppData();
+            appData.strMessage = stringArrayList.get(i);
+            appDataList.add(appData);
+        }
+        CrashLogListView.AppListAdapter appListAdapter = new CrashLogListView.AppListAdapter(this, appDataList);
+        listView.setAdapter(appListAdapter);
+        listView.setSelection(stringArrayList.size() - 1);
+        appListAdapter.setOnItemClickListener((view, position) -> {
             ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(position)));
-            new AlertDialog.Builder(this)
+            clipboardManager.setPrimaryClip(ClipData.newPlainText("", stringArrayList.get(position)));
+            new DialogUtil(this)
                     .setMessage("対象データをコピーしました。")
                     .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
         });
-        listView.setSelection(arrayList.size() - 1);
     }
 
     @Override

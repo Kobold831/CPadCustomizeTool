@@ -37,6 +37,7 @@ import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuBinderWrapper;
 import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.BuildConfig;
+import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
 
 import org.json.JSONException;
@@ -45,9 +46,13 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.text.DateFormat;
@@ -62,7 +67,7 @@ import java.util.Objects;
 public class Common {
 
     public static DevicePolicyManager getDevicePolicyManager(Context context) {
-        if (isDhizukuActive(context)) {
+        if (isDhizukuAllActive(context)) {
             return binderWrapperDevicePolicyManager(context);
         } else {
             return (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -70,7 +75,7 @@ public class Common {
     }
 
     public static ComponentName getDeviceAdminComponent(Context context) {
-        if (isDhizukuActive(context)) {
+        if (isDhizukuAllActive(context)) {
             return Constants.DHIZUKU_COMPONENT;
         } else {
             return new ComponentName(context, DeviceAdminReceiver.class);
@@ -111,6 +116,9 @@ public class Common {
         }, Context.BIND_AUTO_CREATE);
     }
 
+    /**
+     * @noinspection BooleanMethodIsAlwaysInverted
+     */
     public static boolean isDchaUtilActive(Context context) {
         return context.bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
             @Override
@@ -143,14 +151,12 @@ public class Common {
 
             String data;
 
-            if (bufferedReaderInput.readLine() != null) {
-                while ((data = bufferedReaderInput.readLine()) != null) {
-                    stringArrayList.add(data);
-                }
-            } else if (bufferedReaderError.readLine() != null) {
-                while ((data = bufferedReaderError.readLine()) != null) {
-                    stringArrayList.add(data);
-                }
+            while ((data = bufferedReaderInput.readLine()) != null) {
+                stringArrayList.add(data);
+            }
+
+            while ((data = bufferedReaderError.readLine()) != null) {
+                stringArrayList.add(data);
             }
         } catch (Exception ignored) {
         } finally {
@@ -190,10 +196,10 @@ public class Common {
     public static void LogOverWrite(Context context, @NonNull Throwable throwable) {
         String message =
                 "Date: " + getNowDate() + System.lineSeparator() +
-                "Version: v" + BuildConfig.VERSION_NAME + System.lineSeparator() +
-                "Device: " + Build.MODEL + System.lineSeparator() +
-                "Build: " + Build.ID + System.lineSeparator() +
-                "Exception: " + throwable.getMessage();
+                        "Version: v" + BuildConfig.VERSION_NAME + System.lineSeparator() +
+                        "Device: " + Build.MODEL + System.lineSeparator() +
+                        "Build: " + Build.ID + System.lineSeparator() +
+                        "Exception: " + throwable.getMessage();
 
         ArrayList<String> arrayList = Preferences.load(context, Constants.KEY_LIST_CRASH_LOG);
 
@@ -252,52 +258,68 @@ public class Common {
     }
 
     public static boolean isDhizukuActive(@NonNull Context context) {
-        DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        if (dpm.isDeviceOwnerApp(DhizukuVariables.OFFICIAL_PACKAGE_NAME)) {
-            if (Dhizuku.init(context)) {
-                return Dhizuku.isPermissionGranted();
-            }
+        try {
+            return Dhizuku.init(context);
+        } catch (AssertionError ignored) {
         }
         return false;
     }
 
-    private static String getProductModelName() {
-        return Build.MODEL;
+    public static boolean isDhizukuAllActive(Context context) {
+        try {
+            if (isDhizukuActive(context)) {
+                return Dhizuku.isPermissionGranted();
+            }
+        } catch (RuntimeException ignored) {
+        }
+        return false;
     }
 
     public static boolean isCT2() {
-        return Constants.PRODUCT_CT2.contains(getProductModelName());
+        if (Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 0) {
+            return Constants.PRODUCT_CT2.contains(Build.MODEL);
+        }
+        return Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 1;
     }
 
     public static boolean isCT3() {
-        return getProductModelName().equals(Constants.PRODUCT_CT3);
+        if (Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 0) {
+            return Build.MODEL.equals(Constants.PRODUCT_CT3);
+        }
+        return Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 2;
     }
-    
+
     public static boolean isCTX() {
-        return getProductModelName().equals(Constants.PRODUCT_CTX);
+        if (Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 0) {
+            return Build.MODEL.equals(Constants.PRODUCT_CTX);
+        }
+        return Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 3;
     }
-    
+
     public static boolean isCTZ() {
-        return getProductModelName().equals(Constants.PRODUCT_CTZ);
+        if (Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 0) {
+            return Build.MODEL.equals(Constants.PRODUCT_CTZ);
+        }
+        return Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 4;
     }
 
-    public static boolean isBenesseExtensionExist() {
-        if (isCT2() || isCT3()) {
-            // CT2、CT3は確認ダイアログを表示しない
-            return false;
-        }
-
+    public static boolean isBenesseExtensionExist(String method) {
         try {
-            Class.forName("android.os.BenesseExtension", false, ClassLoader.getSystemClassLoader());
+            Class<?> c = Class.forName("android.os.BenesseExtension", false, ClassLoader.getSystemClassLoader());
+            c.getMethod(method);
             return true;
-        } catch (Exception ignored) {
+        } catch (ClassNotFoundException |
+                 NoClassDefFoundError |
+                 NoSuchMethodException |
+                 SecurityException |
+                 NullPointerException ignored) {
             return false;
         }
     }
-    
+
     public static boolean getDchaCompletedPast() {
         // BenesseExtension が存在しない場合は配慮不要
-        if (!isBenesseExtensionExist()) {
+        if (!isBenesseExtensionExist("getDchaState")) {
             return true;
         }
         // IGNORE_DCHA_COMPLETED が存在している場合は COUNT_DCHA_COMPLETED を作成しても何ら問題ない
@@ -305,8 +327,7 @@ public class Common {
     }
 
     public static boolean isShowCfmDialog(Context context) {
-        if (Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT2 ||
-                Preferences.load(context, Constants.KEY_INT_MODEL_NUMBER, Constants.DEF_INT) == Constants.MODEL_CT3) {
+        if (isCT2() || isCT3()) {
             // CT2、CT3は確認ダイアログを表示しない
             return false;
         }
@@ -365,20 +386,30 @@ public class Common {
         return null;
     }
 
-    public static boolean deleteDirectory(File file) {
-        if (file != null && file.isDirectory()) {
-            String[] fileList = file.list();
-            if (fileList != null) {
-                for (String s : fileList) {
-                    File f = new File(file, s);
-                    if (!f.delete()) {
+    public static boolean deleteDirectory(File directory) {
+        if (directory == null || !directory.isDirectory()) {
+            return false;
+        }
+        File[] fs = directory.listFiles();
+
+        if (fs == null) {
+            return false;
+        }
+
+        try {
+            for (File file : fs) {
+                if (file.isDirectory()) {
+                    deleteDirectory(file);
+                } else {
+                    if (!file.delete()) {
                         return false;
                     }
                 }
-                return true;
             }
+            return directory.delete();
+        } catch (RuntimeException ignored) {
+            return false;
         }
-        return false;
     }
 
     @NonNull
@@ -397,5 +428,37 @@ public class Common {
 
     public static void debugLog(String msg) {
         if (BuildConfig.DEBUG) Log.e("DEBUG", msg);
+    }
+
+    public static boolean copyAssetsFile(Context context) {
+        try {
+            InputStream inputStream = context.getAssets().open("base.apk");
+            FileOutputStream fileOutputStream = new FileOutputStream(context.getExternalCacheDir() + "/" + "base.apk", false);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) >= 0) {
+                fileOutputStream.write(buffer, 0, length);
+            }
+            fileOutputStream.close();
+            inputStream.close();
+        } catch (IOException ignored) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean copyFile(File srcFile, File dstFile) {
+        try (InputStream in = new FileInputStream(srcFile)) {
+            try (OutputStream out = new FileOutputStream(dstFile)) {
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                return true;
+            }
+        } catch (IOException ignored) {
+            return false;
+        }
     }
 }
