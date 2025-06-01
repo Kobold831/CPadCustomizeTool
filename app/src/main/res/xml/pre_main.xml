@@ -102,7 +102,7 @@
             app:iconSpaceReserved="false"
             android:key="pre_dcha_function"
             android:title="Dcha アプリの機能"
-            android:summary="再起動、インストール、解像度、システム更新" />
+            android:summary="@string/pre_main_sum_dcha_function" />
 
     </PreferenceCategory>
 
@@ -141,7 +141,7 @@
             app:iconSpaceReserved="false"
             android:key="pre_app_function"
             android:title="アプリの機能"
-            android:summary="緊急モード、通常モード" />
+            android:summary="@string/pre_main_sum_app_function" />
 
         <Preference
             app:iconSpaceReserved="false"

@@ -127,6 +127,7 @@
     <string name="pre_main_sum_message_2">ホームは、[%1$s] に設定されています。</string>
     <string name="pre_main_sum_already_device_owner">デバイスオーナーのため、変更できません。</string>
     <string name="pre_main_sum_no_setting_launcher">ホームは、設定されていません。</string>
+    <string name="pre_main_sum_check_enabled">この機能を使用するには、”%1$s” を有効にしてください。</string>
 
     <string name="pre_main_sum_keep_home">現在のホームを維持します。バッテリーの消耗を防ぐために、およそ 10 秒間隔で監視します。</string>
     <string name="pre_main_sum_other">画面表示と明るさ</string>
@@ -142,8 +143,10 @@
     <string name="pre_main_sum_res">画面解像度を任意の値に変更します。</string>
     <string name="pre_main_sum_res_reset">画面解像度をリセットします。</string>
     <string name="pre_main_sum_system_update">デバイスのシステムをアップデートします。</string>
+    <string name="pre_main_sum_dcha_function">再起動、インストール、解像度、システム更新</string>
     <string name="pre_main_sum_device_owner">アンインストールブロック、サイレントインストール</string>
     <string name="pre_main_sum_device_admin">このアプリがアンインストールされないようにします。</string>
+    <string name="pre_main_sum_app_function">緊急モード、通常モード</string>
     <string name="pre_main_sum_get_app">表示されるダイアログからアプリを選択してください。\nインストーラーは、[アプリ設定] -> [インストールモード] から変更できます。</string>
 
     <!-- アプリ設定 -->

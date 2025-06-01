@@ -46,11 +46,13 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.text.DateFormat;
@@ -443,5 +445,20 @@ public class Common {
             return false;
         }
         return true;
+    }
+
+    public static boolean copyFile(File srcFile, File dstFile) {
+        try (InputStream in = new FileInputStream(srcFile)) {
+            try (OutputStream out = new FileOutputStream(dstFile)) {
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                return true;
+            }
+        } catch (IOException ignored) {
+            return false;
+        }
     }
 }

@@ -591,12 +591,16 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swEnableDchaService.setChecked(true);
             swEnableDchaService.setSummary("DchaService 機能は、有効です。");
             preDchaFunction.setEnabled(true);
+            preDchaFunction.setSummary(R.string.pre_main_sum_dcha_function);
             preAppFunction.setEnabled(true);
+            preAppFunction.setSummary(R.string.pre_main_sum_app_function);
         } else {
             swEnableDchaService.setChecked(false);
             swEnableDchaService.setSummary("DchaService 機能は、無効です。");
             preDchaFunction.setEnabled(false);
+            preDchaFunction.setSummary(getString(R.string.pre_main_sum_check_enabled, getString(R.string.pre_main_title_use_dcha)));
             preAppFunction.setEnabled(false);
+            preAppFunction.setSummary(getString(R.string.pre_main_sum_check_enabled, getString(R.string.pre_main_title_use_dcha)));
         }
 
         if (!requireActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN)) {
