@@ -15,13 +15,14 @@ package com.saradabar.cpadcustomizetool.data.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.provider.Settings;
 
 import androidx.annotation.NonNull;
 
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 import com.saradabar.cpadcustomizetool.util.Common;
-import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
+import com.saradabar.cpadcustomizetool.util.Constants;
 
 public class BootCompletedReceiver extends BroadcastReceiver {
 
@@ -33,8 +34,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
         // 仕様で非表示になるのを防ぐ
         if (Common.isCTX() || Common.isCTZ()) {
-            new DchaServiceUtil(context).hideNavigationBar(false, object -> {
-            });
+            Settings.System.putInt(context.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, 0);
         }
         // サービスを起動
         context.startService(new Intent(context, KeepService.class));
