@@ -27,6 +27,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.saradabar.cpadcustomizetool.BuildConfig;
+import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.service.AlwaysNotiService;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -57,6 +58,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_app_settings, rootKey);
+        ((MainActivity) requireActivity()).initNavigationState();
 
         swDisableUpdateCheck = findPreference("pre_app_update_check");
         swNotiAlways = findPreference("pre_app_noti_always");

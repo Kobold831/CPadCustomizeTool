@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -33,6 +34,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigationrail.NavigationRailView;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.data.task.ResolutionTask;
@@ -45,6 +48,7 @@ import com.saradabar.cpadcustomizetool.view.activity.AppInfoActivity;
 import com.saradabar.cpadcustomizetool.view.activity.CheckActivity;
 import com.saradabar.cpadcustomizetool.view.activity.SelfUpdateActivity;
 import com.saradabar.cpadcustomizetool.view.flagment.AppSettingsFragment;
+import com.saradabar.cpadcustomizetool.view.flagment.DchaFunctionFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
 
 import org.json.JSONException;
@@ -76,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             // サポート対象端末
             setLayoutParams();
         }
+        setNavigationView();
 
         if (savedInstanceState == null) {
             transitionFragment(new MainFragment(), false, null);
@@ -87,11 +92,90 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         }
     }
 
+    private void setNavigationView() {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        NavigationRailView navigationRailView = findViewById(R.id.navigation_rail);
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            navigationRailView.setVisibility(View.GONE);
+            bottomNavigationView.setVisibility(View.VISIBLE);
+            bottomNavigationView.setOnItemSelectedListener(this::initNavigationListener);
+        } else {
+            bottomNavigationView.setVisibility(View.GONE);
+            navigationRailView.setVisibility(View.VISIBLE);
+            navigationRailView.setOnItemSelectedListener(this::initNavigationListener);
+        }
+        initNavigationState();
+    }
+
+    private boolean initNavigationListener(MenuItem item) {
+        if (item.getItemId() == R.id.navi_1) {
+            if (!(getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof MainFragment)) {
+                transitionFragment(new MainFragment(), false, null);
+            }
+            return true;
+        }
+
+        if (item.getItemId() == R.id.navi_2) {
+            if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
+                new DialogUtil(this)
+                        .setMessage(getString(R.string.pre_main_sum_check_enabled, getString(R.string.pre_main_title_use_dcha)))
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+                return false;
+            }
+            transitionFragment(new DchaFunctionFragment(), true, "Dcha アプリの機能");
+            return true;
+        }
+
+        if (item.getItemId() == R.id.navi_3) {
+            transitionFragment(new AppSettingsFragment(), true, getString(R.string.menu_app_settings));
+            return true;
+        }
+        return false;
+    }
+
+    public void initNavigationState() {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof MainFragment) {
+                bottomNavigationView.getMenu().getItem(0).setChecked(true);
+                return;
+            }
+
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof DchaFunctionFragment) {
+                bottomNavigationView.getMenu().getItem(1).setChecked(true);
+                return;
+            }
+
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof AppSettingsFragment) {
+                bottomNavigationView.getMenu().getItem(2).setChecked(true);
+            }
+        } else {
+            NavigationRailView navigationRailView = findViewById(R.id.navigation_rail);
+
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof MainFragment) {
+                navigationRailView.getMenu().getItem(0).setChecked(true);
+                return;
+            }
+
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof DchaFunctionFragment) {
+                navigationRailView.getMenu().getItem(1).setChecked(true);
+                return;
+            }
+
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof AppSettingsFragment) {
+                navigationRailView.getMenu().getItem(2).setChecked(true);
+            }
+        }
+    }
+
     /* メニュー表示 */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.options, menu);
         return true;
     }
 
@@ -210,6 +294,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         if (supportModelCheck()) {
             setLayoutParams();
         }
+        setNavigationView();
     }
 
     private boolean supportModelCheck() {

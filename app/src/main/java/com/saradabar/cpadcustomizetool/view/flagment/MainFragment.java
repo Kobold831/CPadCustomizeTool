@@ -132,6 +132,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_main, rootKey);
+        ((MainActivity) requireActivity()).initNavigationState();
 
         swDchaState = findPreference("pre_dcha_state");
         swKeepDchaState = findPreference("pre_keep_dcha_state");

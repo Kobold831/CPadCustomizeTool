@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navi_1"
+        android:title="メイン" />
+
+    <item
+        android:id="@+id/navi_2"
+        android:title="Dcha" />
+
+    <item
+        android:id="@+id/navi_3"
+        android:title="設定" />
+
+</menu>
