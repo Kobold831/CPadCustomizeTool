@@ -78,9 +78,9 @@ public class InstallerListDialogFragment extends DialogFragment {
                     }
 
                     try {
-                        if (Common.isDchaActive(requireActivity()) &&
-                                requireActivity().getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode > 4) {
-                            // dchaが機能かつdchaでのサイレントインストールが可能
+                        if (Common.isDchaActive(requireActivity()) && !Common.isCT2() ||
+                                Common.isDchaActive(requireActivity()) && Common.isCT2() && requireActivity().getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode > 4) {
+                            // dchaが機能でCT2でないまたはCT2でdchaでのサイレントインストールが可能
                             Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
                             listView.invalidateViews();
                             return;
