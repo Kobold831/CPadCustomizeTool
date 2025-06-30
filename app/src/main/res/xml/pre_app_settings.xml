@@ -12,6 +12,12 @@
             android:key="pre_app_update_check"
             android:title="@string/pre_app_title_update_check" />
 
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:key="pre_app_simple_mode"
+            android:title="シンプルモード"
+            android:summary="アプリが起動したときに、表示される画面をシンプルモードにします。" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

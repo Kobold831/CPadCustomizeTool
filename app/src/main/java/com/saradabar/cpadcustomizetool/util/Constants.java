@@ -89,7 +89,6 @@ public class Constants {
     public static final String KEY_INT_GET_APP_TMP = "key_radio_tmp";
     public static final String KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE = "normal_launcher";
     public static final String KEY_LIST_CRASH_LOG = "LIST_CRASH_LOG";
-
     public static final String KEY_EMERGENCY_SETTINGS = "emergency_settings";
     public static final String KEY_NORMAL_SETTINGS = "normal_settings";
     public static final String SHARED_PREFERENCE_KEY = "CustomizeTool";
@@ -100,7 +99,9 @@ public class Constants {
     public static final String KEY_FLAG_KEEP_HOME = "enabled_keep_home";
     public static final String KEY_STRINGS_KEEP_HOME_APP_PACKAGE = "save_keep_home";
     public static final String KEY_INT_DEBUG_DEVICE = "key_int_debug_device";
+    public static final String KEY_FLAG_SIMPLE_MODE = "key_flag_simple_mode";
 
+    // その他
     public static final String PKG_COMMON_DCHA = "jp.co.benesse.dcha";
     public static final String PKG_DCHA_SERVICE = PKG_COMMON_DCHA + ".dchaservice";
     public static final Intent ACTION_DCHA_SERVICE = new Intent(PKG_DCHA_SERVICE + ".DchaService").setPackage(PKG_DCHA_SERVICE);

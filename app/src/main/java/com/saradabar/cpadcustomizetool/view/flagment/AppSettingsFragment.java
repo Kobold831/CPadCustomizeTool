@@ -45,7 +45,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
     SwitchPreferenceCompat swDisableUpdateCheck,
             swNotiAlways,
             swUseDcha,
-            swDebugRestriction;
+            swDebugRestriction,
+            swSimpleMode;
 
     Preference preCrashLog,
             preDelCrashLog,
@@ -72,6 +73,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         preClearData = findPreference("pre_app_clear_data");
         preDebugForceCrash = findPreference("pre_app_debug_force_crash");
         preDebugDevice = findPreference("pre_app_debug_device");
+        swSimpleMode = findPreference("pre_app_simple_mode");
 
         swDisableUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
             if ((boolean) newValue) {
@@ -175,12 +177,18 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                     .show();
             return false;
         });
+
+        swSimpleMode.setOnPreferenceChangeListener((preference, o) -> {
+            Preferences.save(requireActivity(), Constants.KEY_FLAG_SIMPLE_MODE, (boolean) o);
+            return true;
+        });
         initPreference();
     }
 
     private void initPreference() {
         swDisableUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true));
         swUseDcha.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_SETTING_DCHA, false));
+        swSimpleMode.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_SIMPLE_MODE, Constants.DEF_BOOL));
 
         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
             swDisableUpdateCheck.setSummary("アプリを起動したときに、更新を確認します。");

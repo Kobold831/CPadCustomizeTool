@@ -32,7 +32,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.PreferenceFragmentCompat;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigationrail.NavigationRailView;
@@ -50,6 +50,7 @@ import com.saradabar.cpadcustomizetool.view.activity.SelfUpdateActivity;
 import com.saradabar.cpadcustomizetool.view.flagment.AppSettingsFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.DchaFunctionFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
+import com.saradabar.cpadcustomizetool.view.flagment.SimpleFunctionFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -80,16 +81,20 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             // サポート対象端末
             setLayoutParams();
         }
-        setNavigationView();
 
         if (savedInstanceState == null) {
-            transitionFragment(new MainFragment(), false, null);
+            if (Preferences.load(this, Constants.KEY_FLAG_SIMPLE_MODE, Constants.DEF_BOOL)) {
+                transitionFragment(new SimpleFunctionFragment(), false, "シンプルモード");
+            } else {
+                transitionFragment(new MainFragment(), false, null);
+            }
 
             if (Preferences.load(this, Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
                 // アップデートチェックする設定
                 new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), Constants.CHECK_JSON), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
             }
         }
+        setNavigationView();
     }
 
     private void setNavigationView() {
@@ -109,6 +114,13 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     private boolean initNavigationListener(MenuItem item) {
+        if (item.getItemId() == R.id.navi_0) {
+            if (!(getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof SimpleFunctionFragment)) {
+                transitionFragment(new SimpleFunctionFragment(), false, "シンプルモード");
+            }
+            return true;
+        }
+
         if (item.getItemId() == R.id.navi_1) {
             if (!(getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof MainFragment)) {
                 transitionFragment(new MainFragment(), false, null);
@@ -139,34 +151,44 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof MainFragment) {
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof SimpleFunctionFragment) {
                 bottomNavigationView.getMenu().getItem(0).setChecked(true);
                 return;
             }
 
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof DchaFunctionFragment) {
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof MainFragment) {
                 bottomNavigationView.getMenu().getItem(1).setChecked(true);
                 return;
             }
 
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof AppSettingsFragment) {
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof DchaFunctionFragment) {
                 bottomNavigationView.getMenu().getItem(2).setChecked(true);
+                return;
+            }
+
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof AppSettingsFragment) {
+                bottomNavigationView.getMenu().getItem(3).setChecked(true);
             }
         } else {
             NavigationRailView navigationRailView = findViewById(R.id.navigation_rail);
 
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof MainFragment) {
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof SimpleFunctionFragment) {
                 navigationRailView.getMenu().getItem(0).setChecked(true);
                 return;
             }
 
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof DchaFunctionFragment) {
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof MainFragment) {
                 navigationRailView.getMenu().getItem(1).setChecked(true);
                 return;
             }
 
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof AppSettingsFragment) {
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof DchaFunctionFragment) {
                 navigationRailView.getMenu().getItem(2).setChecked(true);
+                return;
+            }
+
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof AppSettingsFragment) {
+                navigationRailView.getMenu().getItem(3).setChecked(true);
             }
         }
     }
@@ -222,10 +244,10 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         }
     }
 
-    public void transitionFragment(PreferenceFragmentCompat preferenceFragmentCompat, boolean showHomeAsUp, String title) {
+    public void transitionFragment(Fragment fragment, boolean showHomeAsUp, String title) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container_view, preferenceFragmentCompat)
+                .replace(R.id.fragment_container_view, fragment)
                 .commitAllowingStateLoss();
 
         if (getSupportActionBar() != null) {
