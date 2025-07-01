@@ -34,7 +34,7 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 public class EmergencyActivity extends AppCompatActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {// TODO 通常環境モード改修
         super.onCreate(savedInstanceState);
 
         // 初期設定が完了していない場合は終了

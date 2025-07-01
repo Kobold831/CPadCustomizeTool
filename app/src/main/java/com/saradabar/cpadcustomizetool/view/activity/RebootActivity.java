@@ -26,7 +26,7 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 public class RebootActivity extends AppCompatActivity {
 
     @Override
-    public final void onCreate(Bundle savedInstanceState) {
+    public final void onCreate(Bundle savedInstanceState) {// TODO 通常環境モード改修
         super.onCreate(savedInstanceState);
 
         // 初期設定が完了していない場合は終了

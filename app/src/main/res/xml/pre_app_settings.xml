@@ -28,6 +28,18 @@
         <SwitchPreferenceCompat
             app:singleLineTitle="false"
             app:iconSpaceReserved="false"
+            android:key="pre_app_normal_env"
+            android:title="通常環境モード" />
+
+        <Preference
+            app:selectable="false"
+            android:key="pre_install_unknown_source_info"
+            android:icon="@drawable/ic_info_outline_24"
+            android:summary="この機能を使用すると、学習兼用機能（緊急モード、通常モード、維持機能、そのほか一部）は、無効になり非表示になります。設定変更などで、Dcha、BenesseExtension は使用しなくなります。" />
+
+        <SwitchPreferenceCompat
+            app:singleLineTitle="false"
+            app:iconSpaceReserved="false"
             android:key="pre_app_use_dcha"
             android:summary="@string/pre_app_sum_dcha"
             android:title="@string/pre_app_title_dcha" />

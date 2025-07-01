@@ -100,6 +100,8 @@ public class Constants {
     public static final String KEY_STRINGS_KEEP_HOME_APP_PACKAGE = "save_keep_home";
     public static final String KEY_INT_DEBUG_DEVICE = "key_int_debug_device";
     public static final String KEY_FLAG_SIMPLE_MODE = "key_flag_simple_mode";
+    public static final String KEY_FLAG_NORMAL_ENV = "key_flag_normal_env";
+    public static final String KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV = "key_flag_already_dialog_normal_env";
 
     // その他
     public static final String PKG_COMMON_DCHA = "jp.co.benesse.dcha";

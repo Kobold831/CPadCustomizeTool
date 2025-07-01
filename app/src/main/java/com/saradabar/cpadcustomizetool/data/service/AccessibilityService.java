@@ -24,7 +24,7 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
     }
 
     @Override
-    public boolean onKeyEvent(@NonNull KeyEvent event) {
+    public boolean onKeyEvent(@NonNull KeyEvent event) {// TODO 通常環境モード改修
         if (event.getKeyCode() == KeyEvent.KEYCODE_HOME) {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 isHomeButtonPressed = true;

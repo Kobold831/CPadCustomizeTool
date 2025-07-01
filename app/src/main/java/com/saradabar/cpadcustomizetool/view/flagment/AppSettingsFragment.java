@@ -46,7 +46,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             swNotiAlways,
             swUseDcha,
             swDebugRestriction,
-            swSimpleMode;
+            swSimpleMode,
+            swNormalEnv;
 
     Preference preCrashLog,
             preDelCrashLog,
@@ -74,6 +75,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         preDebugForceCrash = findPreference("pre_app_debug_force_crash");
         preDebugDevice = findPreference("pre_app_debug_device");
         swSimpleMode = findPreference("pre_app_simple_mode");
+        swNormalEnv = findPreference("pre_app_normal_env");
 
         swDisableUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
             if ((boolean) newValue) {
@@ -182,6 +184,11 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             Preferences.save(requireActivity(), Constants.KEY_FLAG_SIMPLE_MODE, (boolean) o);
             return true;
         });
+
+        swNormalEnv.setOnPreferenceChangeListener((preference, o) -> {
+            Preferences.save(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, (boolean) o);
+            return true;
+        });
         initPreference();
     }
 
@@ -189,6 +196,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         swDisableUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true));
         swUseDcha.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_SETTING_DCHA, false));
         swSimpleMode.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_SIMPLE_MODE, Constants.DEF_BOOL));
+        swNormalEnv.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL));
 
         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
             swDisableUpdateCheck.setSummary("アプリを起動したときに、更新を確認します。");
@@ -205,6 +213,11 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
         if (BuildConfig.DEBUG) {
             catDebugRestriction.setVisible(true);
+        }
+
+        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            swUseDcha.setVisible(false);
+            swNotiAlways.setVisible(false);
         }
     }
 }

@@ -21,6 +21,7 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
+import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.DeviceInfoActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
 import com.saradabar.cpadcustomizetool.view.flagment.dialog.BypassPermissionDialogFragment;
@@ -162,6 +163,12 @@ public class UtilFragment extends PreferenceFragmentCompat {
         if (!Common.isCTZ()) {
             preReEnableSystemApps.setEnabled(false);
             preReEnableSystemApps.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
+        }
+
+        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            preWebView.setVisible(false);
+            preLaunchApp.setVisible(false);
+            preReEnableSystemApps.setVisible(false);
         }
     }
 }

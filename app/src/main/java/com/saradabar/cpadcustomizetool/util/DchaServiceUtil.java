@@ -192,7 +192,7 @@ public class DchaServiceUtil {
         });
     }
 
-    public void hideNavigationBar(boolean hide, Listener listener) {
+    public void hideNavigationBar(boolean hide, Listener listener) {// TODO 通常環境モード改修
         if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
             new IDchaTask().execute(mContext, iDchaService -> {
                 if (iDchaService == null) {
@@ -338,7 +338,7 @@ public class DchaServiceUtil {
         });
     }
 
-    public void setSetupStatus(int status, Listener listener) {
+    public void setSetupStatus(int status, Listener listener) {// TODO 通常環境モード改修
         // BenesseExtensionが存在してかつCT3ではないか
         if (Common.isBenesseExtensionExist("setDchaState") && !Common.isCT3()) {
             BenesseExtension.setDchaState(status);
