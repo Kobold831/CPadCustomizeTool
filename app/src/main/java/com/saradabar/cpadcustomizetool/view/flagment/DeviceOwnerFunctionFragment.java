@@ -53,6 +53,7 @@ import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
+import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 
 import java.io.File;
@@ -106,7 +107,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
             new DialogUtil(requireActivity())
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_error)
-                    .setMessage("新しいバージョンは Device Owner の再設定が必要になりました。\nDevice Owner はこのデバイスに付与されていますが、Device Owner を ADB で再度有効にする必要があります。\n\n”OK” を押すと、Device Owner は解除されます。\n詳細は、メイン画面から ”アプリのお知らせ” を開いてください。")
+                    .setMessage("新しいバージョンは Device Owner の再設定が必要になりました。\nDevice Owner はこのデバイスに付与されていますが、Device Owner を ADB で再度有効にする必要があります。\n\n\"OK\" を押すと、Device Owner は解除されます。\n詳細は、メイン画面から \"アプリのお知らせ\" を開いてください。")
                     .setPositiveButton("OK", (dialog, which) -> {
                         dpm.clearDeviceOwnerApp(requireActivity().getPackageName());
                         finish();
@@ -203,6 +204,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
         preSessionInstallNotice.setOnPreferenceClickListener(preference -> {
             new DialogUtil(requireActivity())
                     .setView(R.layout.view_owner_session_notice)
+                    .setTitle("インストールファイル選択の手順")
                     .setPositiveButton(getString(R.string.dialog_common_ok), null)
                     .show();
             return false;
@@ -257,6 +259,11 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
             preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_message_1, getDeviceOwnerPackage()));
         } else {
             preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_no_device_owner));
+        }
+
+        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            preUninstallBlock.setVisible(false);
+
         }
     }
 

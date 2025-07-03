@@ -95,9 +95,9 @@ public class DeviceInfoActivity extends AppCompatActivity {
             String nextElement = propertyNames.nextElement().toString();
 
             if (properties.getProperty(nextElement).equals(System.lineSeparator())) {
-                stringArrayList.add(nextElement + "=" + properties.getProperty(nextElement).replace(System.lineSeparator(), ""));
+                stringArrayList.add(nextElement + " = " + properties.getProperty(nextElement).replace(System.lineSeparator(), ""));
             } else {
-                stringArrayList.add(nextElement + "=" + properties.getProperty(nextElement));
+                stringArrayList.add(nextElement + " = " + properties.getProperty(nextElement));
             }
         }
         return stringArrayList;
@@ -112,20 +112,20 @@ public class DeviceInfoActivity extends AppCompatActivity {
         if (batteryStatus == null || batteryManager == null) {
             return new ArrayList<>();
         }
-        stringArrayList.add("BatteryLevel=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
-        stringArrayList.add("BatteryScale=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
-        stringArrayList.add("BatteryHealth=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_HEALTH, -1));
-        stringArrayList.add("BatteryTechnology=" + batteryStatus.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY));
-        stringArrayList.add("BatteryVoltage=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1));
-        stringArrayList.add("BatteryTemperature=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1));
-        stringArrayList.add("BatteryStatus=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1));
-        stringArrayList.add("BatteryPlugged=" + batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1));
-        stringArrayList.add("BatteryPresent=" + batteryStatus.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false));
-        stringArrayList.add("BatteryCapacity=" + batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY));
-        stringArrayList.add("BatteryChargeCounter=" + batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER));
-        stringArrayList.add("BatteryCurrentAverage=" + batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE));
-        stringArrayList.add("BatteryEnergyCounter=" + batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_ENERGY_COUNTER));
-        stringArrayList.add("BatteryCurrentNow=" + batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW));
+        stringArrayList.add("BatteryLevel = " + batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
+        stringArrayList.add("BatteryScale = " + batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
+        stringArrayList.add("BatteryHealth = " + batteryStatus.getIntExtra(BatteryManager.EXTRA_HEALTH, -1));
+        stringArrayList.add("BatteryTechnology = " + batteryStatus.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY));
+        stringArrayList.add("BatteryVoltage = " + batteryStatus.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1));
+        stringArrayList.add("BatteryTemperature = " + batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1));
+        stringArrayList.add("BatteryStatus = " + batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1));
+        stringArrayList.add("BatteryPlugged = " + batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1));
+        stringArrayList.add("BatteryPresent = " + batteryStatus.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false));
+        stringArrayList.add("BatteryCapacity = " + batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY));
+        stringArrayList.add("BatteryChargeCounter = " + batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER));
+        stringArrayList.add("BatteryCurrentAverage = " + batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE));
+        stringArrayList.add("BatteryEnergyCounter = " + batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_ENERGY_COUNTER));
+        stringArrayList.add("BatteryCurrentNow = " + batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW));
         return stringArrayList;
     }
 }

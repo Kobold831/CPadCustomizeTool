@@ -242,8 +242,8 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
 
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
-        progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append("%"));
-        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append("/").append(totalByte).append(" MB"));
+        progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append(" %"));
+        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append(" / ").append(totalByte).append(" MB"));
         dialogProgressBar.setProgress(progress);
         progressDialog.setMessage(new StringBuilder(getString(R.string.progress_state_download_file)));
     }
@@ -365,9 +365,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             // 初期設定完了
             if (isPermissionCheck()) {
                 // 権限チェックOK
-                startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                overridePendingTransition(0, 0);
-                finish();
+                checkNormalEnv();
             }
         } else {
             // 初期設定未完了
@@ -383,11 +381,40 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
                 .setMessage(R.string.dialog_app_start_message)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                     Preferences.save(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, true);
-                    startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                    overridePendingTransition(0, 0);
-                    finish();
+                    checkNormalEnv();
                 })
                 .show();
+    }
+
+    private void checkNormalEnv() {
+        if (!Preferences.load(this, Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV, Constants.DEF_BOOL) && !isDchaInstalled(this) && !Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL) ||
+                !Preferences.load(this, Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV, Constants.DEF_BOOL) && !isBenesseHomeInstalled() && !Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            // ダイアログ表示履歴なしかつDcha がインストールされていないかつ通常環境モードが無効、またはダイアログ表示履歴なしかつ勉強ホームがインストールされていないかつ通常環境モードが無効
+            new DialogUtil(this)
+                    .setCancelable(false)
+                    .setTitle("通常環境モードで起動しますか?")
+                    .setMessage("このデバイスには、勉強アプリ (DchaService、または勉強ホーム) がインストールされていないことを確認しました。\n通常環境モードで起動することを推奨します。\nキャンセルを押すと、設定を変更するまでこのダイアログは表示されません。\n\n通常環境モードとは?\n勉強アプリがインストールされていない環境で、必要がないこのアプリの不要な機能を無効にするモードです。")
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                        Preferences.save(this, Constants.KEY_FLAG_NORMAL_ENV, true);
+                        showMainActivity();
+                    })
+                    .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> {
+                        Preferences.save(this, Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV, true);
+                        showMainActivity();
+                    })
+                    .show();
+        } else {
+            showMainActivity();
+        }
+    }
+
+    private void showMainActivity() {
+        // 通常環境モードに設定されている場合に、一部の機能を停止
+        Common.setNormalEnv(this);
+        //　メイン画面表示
+        startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+        overridePendingTransition(0, 0);
+        finish();
     }
 
     /* システム設定変更権限か付与されているか確認 */
@@ -458,6 +485,21 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
         } catch (PackageManager.NameNotFoundException ignored) {
             return false;
         }
+    }
+
+    private boolean isBenesseHomeInstalled() {
+        try {
+            getPackageManager().getPackageInfo(Constants.PKG_SHO_HOME, PackageManager.GET_ACTIVITIES);
+            return true;
+        } catch (PackageManager.NameNotFoundException ignored) {
+        }
+
+        try {
+            getPackageManager().getPackageInfo(Constants.PKG_CHU_HOME, PackageManager.GET_ACTIVITIES);
+            return true;
+        } catch (PackageManager.NameNotFoundException ignored) {
+        }
+        return false;
     }
 
     @Override

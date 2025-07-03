@@ -27,6 +27,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.saradabar.cpadcustomizetool.BuildConfig;
+import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.service.AlwaysNotiService;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -44,7 +45,9 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
     SwitchPreferenceCompat swDisableUpdateCheck,
             swNotiAlways,
             swUseDcha,
-            swDebugRestriction;
+            swDebugRestriction,
+            swSimpleMode,
+            swNormalEnv;
 
     Preference preCrashLog,
             preDelCrashLog,
@@ -57,6 +60,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_app_settings, rootKey);
+        ((MainActivity) requireActivity()).initNavigationState();
 
         swDisableUpdateCheck = findPreference("pre_app_update_check");
         swNotiAlways = findPreference("pre_app_noti_always");
@@ -70,6 +74,8 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         preClearData = findPreference("pre_app_clear_data");
         preDebugForceCrash = findPreference("pre_app_debug_force_crash");
         preDebugDevice = findPreference("pre_app_debug_device");
+        swSimpleMode = findPreference("pre_app_simple_mode");
+        swNormalEnv = findPreference("pre_app_normal_env");
 
         swDisableUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
             if ((boolean) newValue) {
@@ -173,12 +179,32 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                     .show();
             return false;
         });
+
+        swSimpleMode.setOnPreferenceChangeListener((preference, o) -> {
+            Preferences.save(requireActivity(), Constants.KEY_FLAG_SIMPLE_MODE, (boolean) o);
+            return true;
+        });
+
+        swNormalEnv.setOnPreferenceChangeListener((preference, o) -> {
+            Preferences.save(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, (boolean) o);
+
+            if ((boolean) o) {
+                // 通常環境モードに設定されている場合に、一部の機能を停止
+                Common.setNormalEnv(requireActivity());
+            } else {
+                // オフにされたときは、ダイアログの表示フラグをリセット
+                Preferences.save(requireActivity(), Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV, false);
+            }
+            return true;
+        });
         initPreference();
     }
 
     private void initPreference() {
         swDisableUpdateCheck.setChecked(!Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true));
         swUseDcha.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_SETTING_DCHA, false));
+        swSimpleMode.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_SIMPLE_MODE, Constants.DEF_BOOL));
+        swNormalEnv.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL));
 
         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
             swDisableUpdateCheck.setSummary("アプリを起動したときに、更新を確認します。");
@@ -195,6 +221,11 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
         if (BuildConfig.DEBUG) {
             catDebugRestriction.setVisible(true);
+        }
+
+        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            swUseDcha.setVisible(false);
+            swNotiAlways.setVisible(false);
         }
     }
 }

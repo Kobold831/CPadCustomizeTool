@@ -35,6 +35,11 @@ public class NormalActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            Toast.makeText(this, "アプリは通常環境モードのため終了します。", Toast.LENGTH_SHORT).show();
+            finishAndRemoveTask();
+            return;
+        }
 
         // 初期設定が完了していない場合は終了
         if (!Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {

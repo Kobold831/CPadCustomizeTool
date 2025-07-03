@@ -17,6 +17,7 @@ import android.app.admin.DevicePolicyManager;
 import android.app.admin.IDevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -39,6 +40,9 @@ import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
+import com.saradabar.cpadcustomizetool.data.service.AlwaysNotiService;
+import com.saradabar.cpadcustomizetool.data.service.KeepService;
+import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -317,13 +321,32 @@ public class Common {
         }
     }
 
-    public static boolean getDchaCompletedPast() {
-        // BenesseExtension が存在しない場合は配慮不要
-        if (!isBenesseExtensionExist("getDchaState")) {
+    public static boolean isBenesseExtensionFieldExist(String field) {
+        try {
+            Class<?> c = Class.forName("android.os.BenesseExtension", false, ClassLoader.getSystemClassLoader());
+            c.getField(field);
             return true;
+        } catch (ClassNotFoundException |
+                 NoClassDefFoundError |
+                 NoSuchFieldException |
+                 NoSuchFieldError |
+                 SecurityException |
+                 NullPointerException ignored) {
+            return false;
         }
-        // IGNORE_DCHA_COMPLETED が存在している場合は COUNT_DCHA_COMPLETED を作成しても何ら問題ない
-        return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists();
+    }
+
+    public static boolean getDchaCompletedPast() {
+        if (!isBenesseExtensionExist("getDchaState")) {
+            // BenesseExtension が存在しない
+            return false;
+        }
+
+        if (isBenesseExtensionFieldExist("COUNT_DCHA_COMPLETED_FILE")) {
+            return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists();
+        } else {
+            return false;
+        }
     }
 
     public static boolean isShowCfmDialog(Context context) {
@@ -459,6 +482,33 @@ public class Common {
             }
         } catch (IOException ignored) {
             return false;
+        }
+    }
+
+    public static void setNormalEnv(Context context) {
+        if (Preferences.load(context, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            // 通常環境モード有効 //
+            // サービスの維持機能を停止フラグに変更
+            Preferences.save(context, Constants.KEY_FLAG_KEEP_DCHA_STATE, false);
+            Preferences.save(context, Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false);
+            Preferences.save(context, Constants.KEY_FLAG_KEEP_MARKET_APP, false);
+            Preferences.save(context, Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
+            Preferences.save(context, Constants.KEY_FLAG_KEEP_HOME, false);
+            // サービスを起動(自動停止)
+            context.startService(new Intent(context, KeepService.class));
+            context.startService(new Intent(context, ProtectKeepService.class));
+
+            // 一部のサービスを停止
+            context.stopService(new Intent(context, AlwaysNotiService.class));
+
+            if (Preferences.load(context, Constants.KEY_INT_UPDATE_MODE, 1) == 2) {
+                // Dcha に設定されている
+                // インストールモードをリセット
+                Preferences.save(context, Constants.KEY_INT_UPDATE_MODE, 1);
+            }
+            // Dcha を使用しない設定に変更
+            Preferences.save(context, Constants.KEY_FLAG_DCHA_FUNCTION, false);
+            Preferences.save(context, Constants.KEY_FLAG_APP_SETTING_DCHA, false);
         }
     }
 }

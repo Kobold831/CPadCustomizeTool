@@ -25,7 +25,7 @@
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_other_web_view"
-            android:summary="セキュリティのため HTTP 接続、ファイルアクセス機能は使用できません。"
+            android:summary="セキュリティのため、HTTP 接続、ファイルアクセス機能は使用できません。"
             android:title="アプリ内ブラウザを起動" />
 
         <Preference

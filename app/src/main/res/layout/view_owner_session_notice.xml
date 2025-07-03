@@ -9,16 +9,9 @@
         android:orientation="vertical">
 
         <androidx.appcompat.widget.AppCompatTextView
-            style="@style/MyApp.TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="インストールファイル選択の手順"
-            android:textSize="24sp" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="１．サイレントインストールを押します。\n２．下記画像のような画面になった場合は、画像のとおりに操作してください。" />
+            android:text="1. サイレントインストールを押します。\n2. 下記画像のような画面になった場合は、画像のとおりに操作してください。" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="match_parent"
@@ -30,7 +23,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="３．下記画像のような画面が表示されたら、画像のとおりに操作してください。" />
+            android:text="3. 下記画像のような画面が表示されたら、画像のとおりに操作してください。" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="match_parent"
@@ -42,7 +35,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="４．下記画像のような画面が表示されたら、画像のとおりに操作してください。" />
+            android:text="4. 下記画像のような画面が表示されたら、画像のとおりに操作してください。" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="match_parent"
@@ -54,7 +47,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="５．下記画像のような画面が表示されたら、画像のとおりに操作してください。" />
+            android:text="5. 下記画像のような画面が表示されたら、画像のとおりに操作してください。" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="match_parent"
@@ -66,7 +59,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="６．下記画像のような画面が表示されたら、画像のとおりに操作してください。" />
+            android:text="6. 下記画像のような画面が表示されたら、画像のとおりに操作してください。" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="match_parent"
@@ -78,7 +71,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="７．インストールしたいアプリファイルを選択するとインストールを開始します。" />
+            android:text="7. インストールしたいアプリファイルを選択するとインストールを開始します。" />
 
     </LinearLayout>
 

@@ -2,7 +2,6 @@ package com.saradabar.cpadcustomizetool.view.flagment.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.os.BenesseExtension;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,21 +19,37 @@ public class BypassPermissionDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Context context = requireActivity();
         return new DialogUtil(context)
-                .setTitle("機能を使用するために権限を付与しますか？")
-                .setMessage("権限がないため、設定を変更できません。”OK”を押すと、権限設定を行います。処理は数秒で終わります。")
+                .setTitle("機能を使用するために権限を付与しますか?")
+                .setMessage("権限がないため、設定を変更できません。\n\"OK\" を押すと、権限設定を行います。処理は数秒で終わります。")
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                     if (Common.copyAssetsFile(context)) {
-                        BenesseExtension.setDchaState(3);
-                        new DchaServiceUtil(context).installApp(context.getExternalCacheDir() + "/" + "base.apk", 2, object -> {
+                        new DchaServiceUtil(context).setSetupStatus(3, object -> {
                             if (object.equals(true)) {
-                                new DchaServiceUtil(context).uninstallApp("a.a", 0, object1 -> {
+                                new DchaServiceUtil(context).installApp(context.getExternalCacheDir() + "/" + "base.apk", 2, object1 -> {
                                     if (object1.equals(true)) {
-                                        BenesseExtension.setDchaState(0);
-                                        new DialogUtil(context)
-                                                .setTitle("処理完了")
-                                                .setMessage("権限設定は完了しました。もう一度操作すれば、設定を変更できます。")
-                                                .setPositiveButton(R.string.dialog_common_ok, null)
-                                                .show();
+                                        new DchaServiceUtil(context).uninstallApp("a.a", 0, object2 -> {
+                                            if (object2.equals(true)) {
+                                                new DchaServiceUtil(context).setSetupStatus(0, object3 -> {
+                                                    if (object3.equals(true)) {
+                                                        new DialogUtil(context)
+                                                                .setTitle("処理完了")
+                                                                .setMessage("権限設定は完了しました。もう一度操作すれば、設定を変更できます。")
+                                                                .setPositiveButton(R.string.dialog_common_ok, null)
+                                                                .show();
+                                                    } else {
+                                                        new DialogUtil(context)
+                                                                .setMessage(R.string.dialog_error)
+                                                                .setPositiveButton(R.string.dialog_common_ok, null)
+                                                                .show();
+                                                    }
+                                                });
+                                            } else {
+                                                new DialogUtil(context)
+                                                        .setMessage(R.string.dialog_error)
+                                                        .setPositiveButton(R.string.dialog_common_ok, null)
+                                                        .show();
+                                            }
+                                        });
                                     } else {
                                         new DialogUtil(context)
                                                 .setMessage(R.string.dialog_error)

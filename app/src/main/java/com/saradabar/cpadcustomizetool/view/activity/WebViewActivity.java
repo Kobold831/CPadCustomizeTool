@@ -13,8 +13,11 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.app.DownloadManager;
+import android.content.res.AssetManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.webkit.CookieManager;
@@ -27,6 +30,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 
 import java.util.Objects;
 
@@ -38,6 +42,17 @@ public class WebViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            initWebView();
+        } catch (Exception ignored) {
+            new DialogUtil(this)
+                    .setMessage("\"WebView\" の起動に問題が発生しました。\nデバイスの更新、または \"WebView\" の更新をお試しください。")
+                    .setPositiveButton(R.string.dialog_common_ok, null)
+                    .show();
+        }
+    }
+
+    private void initWebView() {
         setContentView(R.layout.activity_web_view);
         Toolbar toolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
@@ -78,7 +93,7 @@ public class WebViewActivity extends AppCompatActivity {
             }
         });
         webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
-            Toast.makeText(this, "ダウンロードを開始します", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "ダウンロードを開始します。", Toast.LENGTH_SHORT).show();
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setMimeType(mimetype)
                     .addRequestHeader("Cookie", CookieManager.getInstance().getCookie(url))
@@ -112,5 +127,18 @@ public class WebViewActivity extends AppCompatActivity {
         } catch (Exception ignored) {
         }
         return true;
+    }
+
+    @Override
+    public AssetManager getAssets() {
+        return getResources().getAssets();
+    }
+
+    @Override
+    public void applyOverrideConfiguration(final Configuration overrideConfiguration) {
+        if (Build.VERSION.SDK_INT < 25) {
+            overrideConfiguration.uiMode &= ~Configuration.UI_MODE_NIGHT_MASK;
+        }
+        super.applyOverrideConfiguration(overrideConfiguration);
     }
 }
