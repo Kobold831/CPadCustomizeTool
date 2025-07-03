@@ -186,10 +186,15 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         });
 
         swNormalEnv.setOnPreferenceChangeListener((preference, o) -> {
-            if (!(boolean) o) {
+            Preferences.save(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, (boolean) o);
+
+            if ((boolean) o) {
+                // 通常環境モードに設定されている場合に、一部の機能を停止
+                Common.setNormalEnv(requireActivity());
+            } else {
+                // オフにされたときは、ダイアログの表示フラグをリセット
                 Preferences.save(requireActivity(), Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV, false);
             }
-            Preferences.save(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, (boolean) o);
             return true;
         });
         initPreference();
