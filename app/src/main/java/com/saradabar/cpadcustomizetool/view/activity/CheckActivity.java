@@ -40,6 +40,9 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ProgressHandler;
+import com.saradabar.cpadcustomizetool.data.service.AlwaysNotiService;
+import com.saradabar.cpadcustomizetool.data.service.KeepService;
+import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 import com.saradabar.cpadcustomizetool.data.task.ApkInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.DchaInstallTask;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
@@ -393,19 +396,52 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             new DialogUtil(this)
                     .setCancelable(false)
                     .setTitle("通常環境モードで起動しますか?")
-                    .setMessage("このデバイスには、勉強アプリ(DchaService、または勉強ホーム)がインストールされていないことを確認しました。\n通常環境モードで起動することを推奨します。\nこのダイアログは以降表示されません。\n\n通常環境モードとは?\n勉強アプリがインストールされていない環境で、必要がないこのアプリの不要な機能を無効にするモードです。")
+                    .setMessage("このデバイスには、勉強アプリ(DchaService、または勉強ホーム)がインストールされていないことを確認しました。\n通常環境モードで起動することを推奨します。\nキャンセルを押すと、設定を変更するまでこのダイアログは表示されません。\n\n通常環境モードとは?\n勉強アプリがインストールされていない環境で、必要がないこのアプリの不要な機能を無効にするモードです。")
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         Preferences.save(this, Constants.KEY_FLAG_NORMAL_ENV, true);
                         showMainActivity();
                     })
-                    .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> showMainActivity())
+                    .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> {
+                        Preferences.save(this, Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV, true);
+                        showMainActivity();
+                    })
                     .show();
         } else {
             showMainActivity();
         }
     }
 
+    private void setNormalEnv() {
+        if (Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            // 通常環境モード有効 //
+            // サービスの維持機能を停止フラグに変更
+            Preferences.save(this, Constants.KEY_FLAG_KEEP_DCHA_STATE, false);
+            Preferences.save(this, Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false);
+            Preferences.save(this, Constants.KEY_FLAG_KEEP_MARKET_APP, false);
+            Preferences.save(this, Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
+            Preferences.save(this, Constants.KEY_FLAG_KEEP_HOME, false);
+            // サービスを起動(自動停止)
+            startService(new Intent(this, KeepService.class));
+            startService(new Intent(this, ProtectKeepService.class));
+
+            // 一部のサービスを停止
+            stopService(new Intent(this, AlwaysNotiService.class));
+
+            if (Preferences.load(this, Constants.KEY_INT_UPDATE_MODE, 1) == 2) {
+                // Dchaに設定されている
+                // インストールモードをリセット
+                Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
+            }
+            // Dchaを使用しない設定に変更
+            Preferences.save(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
+            Preferences.save(this, Constants.KEY_FLAG_APP_SETTING_DCHA, false);
+        }
+    }
+
     private void showMainActivity() {
+        // 通常環境モードに設定されている場合に、一部の機能を停止
+        setNormalEnv();
+        //　メイン画面表示
         startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
         overridePendingTransition(0, 0);
         finish();

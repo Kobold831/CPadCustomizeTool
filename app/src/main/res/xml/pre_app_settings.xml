@@ -16,7 +16,7 @@
             app:iconSpaceReserved="false"
             android:key="pre_app_simple_mode"
             android:title="シンプルモード"
-            android:summary="アプリが起動したときに、表示される画面をシンプルモードにします。" />
+            android:summary="アプリが起動したときに、表示される画面をシンプルにします。" />
 
     </PreferenceCategory>
 

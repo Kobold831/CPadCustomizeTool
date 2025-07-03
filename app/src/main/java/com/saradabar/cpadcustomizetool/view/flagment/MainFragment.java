@@ -626,17 +626,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         }
 
         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            // 通常環境モード
             swKeepDchaState.setVisible(false);
             swKeepNavigation.setVisible(false);
-            swPreInstallUnknownSource.setVisible(false);
-            preInstallUnknownSourceInfo.setVisible(false);
-            preRequestInstallPackages.setVisible(false);
             swKeepUnkSrc.setVisible(false);
             swKeepAdb.setVisible(false);
             catDcha.setVisible(false);
             swEnableDchaService.setVisible(false);
             preDchaFunction.setVisible(false);
-            swDeviceAdmin.setVisible(false);
             preAppFunction.setVisible(false);
         }
         new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(requireActivity().getExternalCacheDir(), Constants.NOTICE_JSON), Constants.REQUEST_DOWNLOAD_NOTICE);

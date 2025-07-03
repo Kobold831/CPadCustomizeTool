@@ -6,6 +6,8 @@ import android.view.accessibility.AccessibilityEvent;
 
 import androidx.annotation.NonNull;
 
+import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NormalActivity;
 
@@ -24,7 +26,7 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
     }
 
     @Override
-    public boolean onKeyEvent(@NonNull KeyEvent event) {// TODO 通常環境モード改修
+    public boolean onKeyEvent(@NonNull KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_HOME) {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 isHomeButtonPressed = true;
@@ -49,12 +51,16 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
             }
         }
 
-        if (isHomeButtonPressed && isVolumeDownPressed) {
+        if (isHomeButtonPressed && isVolumeDownPressed &&
+                !Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            // ホームボタンが押されたかつボリュームダウンが押されたかつ通常環境モードではない
             startActivity(new Intent(this, NormalActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             return true;
         }
 
-        if (isHomeButtonPressed && isVolumeUpPressed) {
+        if (isHomeButtonPressed && isVolumeUpPressed &&
+                !Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            // ホームボタンが押されたかつボリュームダウンが押されたかつ通常環境モードではない
             startActivity(new Intent(this, EmergencyActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             return true;
         }

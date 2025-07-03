@@ -186,6 +186,9 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         });
 
         swNormalEnv.setOnPreferenceChangeListener((preference, o) -> {
+            if (!(boolean) o) {
+                Preferences.save(requireActivity(), Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV, false);
+            }
             Preferences.save(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, (boolean) o);
             return true;
         });

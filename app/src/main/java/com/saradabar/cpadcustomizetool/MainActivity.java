@@ -150,10 +150,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     public void initNavigationState() {
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-
-            if (Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
-                bottomNavigationView.getMenu().getItem(2).setVisible(false);
-            }
+            bottomNavigationView.getMenu().getItem(2).setVisible(!Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL));
 
             if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof SimpleFunctionFragment) {
                 bottomNavigationView.getMenu().getItem(0).setChecked(true);
@@ -175,10 +172,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             }
         } else {
             NavigationRailView navigationRailView = findViewById(R.id.navigation_rail);
-
-            if (Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
-                navigationRailView.getMenu().getItem(2).setVisible(false);
-            }
+            navigationRailView.getMenu().getItem(2).setVisible(!Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL));
 
             if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof SimpleFunctionFragment) {
                 navigationRailView.getMenu().getItem(0).setChecked(true);

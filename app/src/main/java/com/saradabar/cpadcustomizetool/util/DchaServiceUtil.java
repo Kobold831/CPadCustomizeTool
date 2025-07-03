@@ -192,8 +192,10 @@ public class DchaServiceUtil {
         });
     }
 
-    public void hideNavigationBar(boolean hide, Listener listener) {// TODO 通常環境モード改修
-        if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
+    public void hideNavigationBar(boolean hide, Listener listener) {
+        if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false) &&
+                !Preferences.load(mContext, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            // Dchaを使う設定かつ通常環境モードではない
             new IDchaTask().execute(mContext, iDchaService -> {
                 if (iDchaService == null) {
                     listener.onResult(false);
@@ -208,6 +210,7 @@ public class DchaServiceUtil {
                 }
             });
         } else {
+            // 設定で変更
             Settings.System.putInt(mContext.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, hide ? 1 : 0);
         }
     }
@@ -338,17 +341,18 @@ public class DchaServiceUtil {
         });
     }
 
-    public void setSetupStatus(int status, Listener listener) {// TODO 通常環境モード改修
-        // BenesseExtensionが存在してかつCT3ではないか
-        if (Common.isBenesseExtensionExist("setDchaState") && !Common.isCT3()) {
+    public void setSetupStatus(int status, Listener listener) {
+        if (Common.isBenesseExtensionExist("setDchaState") && !Common.isCT3() &&
+                !Preferences.load(mContext, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            // BenesseExtensionが存在かつCT3ではないかつ通常環境モードではない
             BenesseExtension.setDchaState(status);
             listener.onResult(true);
             return;
         }
 
-        // BenesseExtensionが存在しないまたはCT3
-        // Dchaを使うかどうか
-        if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false)) {
+        if (Preferences.load(mContext, Constants.KEY_FLAG_APP_SETTING_DCHA, false) &&
+                !Preferences.load(mContext, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            // Dchaを使う設定かつ通常環境モードではない
             new IDchaTask().execute(mContext, iDchaService -> {
                 if (iDchaService == null) {
                     listener.onResult(false);
@@ -363,6 +367,7 @@ public class DchaServiceUtil {
                 }
             });
         } else {
+            // 設定で変更
             Settings.System.putInt(mContext.getContentResolver(), Constants.DCHA_STATE, status);
             listener.onResult(true);
         }
