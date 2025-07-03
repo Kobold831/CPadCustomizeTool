@@ -32,7 +32,7 @@
         <Preference
             app:selectable="false"
             android:icon="@drawable/ic_info_outline_24"
-            android:summary="\変更するには、”android.permission.WRITE_SECURE_SETTINGS” 権限が付与されている必要があります。" />
+            android:summary="\変更するには、&quot;android.permission.WRITE_SECURE_SETTINGS&quot; 権限が付与されている必要があります。" />
 
     </PreferenceCategory>
 

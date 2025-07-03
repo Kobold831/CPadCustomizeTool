@@ -41,7 +41,7 @@
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_owner_session_install_notice"
-            android:summary="タップして内容を確認してください。正しい手順で操作しないとエラーの可能性があります！"
+            android:summary="タップして内容を確認してください。正しい手順で操作しないとエラーの可能性があります!"
             android:title="サイレントインストールの注意事項" />
 
         <Preference
