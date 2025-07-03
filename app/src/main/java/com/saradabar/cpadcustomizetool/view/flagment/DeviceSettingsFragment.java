@@ -91,7 +91,7 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
                         } catch (NumberFormatException ignored) {
                             new DialogUtil(requireActivity())
                                     .setTitle(R.string.dialog_title_error)
-                                    .setMessage("数値が、”2147483647” より大きいため、変更できません。")
+                                    .setMessage("数値が、\"2147483647\" より大きいため、変更できません。")
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                             return;
@@ -102,7 +102,7 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
                         } catch (Exception e) {
                             new DialogUtil(requireActivity())
                                     .setTitle(R.string.dialog_title_error)
-                                    .setMessage("”android.permission.WRITE_SECURE_SETTINGS” 権限が必要です。")
+                                    .setMessage("\"android.permission.WRITE_SECURE_SETTINGS\" 権限が必要です。")
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                             return;
@@ -132,10 +132,10 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         swUiModeNight.setOnPreferenceChangeListener((preference, o) -> {
             if ((boolean) o) {
                 Common.exec("cmd uimode night yes");
-                swUiModeNight.setSummary("外観モードは、”ダークモード”に設定されています。");
+                swUiModeNight.setSummary("外観モードは、\"ダークモード\" に設定されています。");
             } else {
                 Common.exec("cmd uimode night no");
-                swUiModeNight.setSummary("外観モードは、”ライトモード”に設定されています。");
+                swUiModeNight.setSummary("外観モードは、\"ライトモード\" に設定されています。");
             }
             return true;
         });
@@ -150,10 +150,10 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         if (!stringArrayList.isEmpty()) {
             if (String.valueOf(stringArrayList.get(0)).equals("Night mode: yes")) {
                 swUiModeNight.setChecked(true);
-                swUiModeNight.setSummary("外観モードは、”ダークモード”に設定されています。");
+                swUiModeNight.setSummary("外観モードは、\"ダークモード\" に設定されています。");
             } else if (String.valueOf(stringArrayList.get(0)).equals("Night mode: no")) {
                 swUiModeNight.setChecked(false);
-                swUiModeNight.setSummary("外観モードは、”ライトモード”に設定されています。");
+                swUiModeNight.setSummary("外観モードは、\"ライトモード\" に設定されています。");
             }
         }
 
@@ -194,7 +194,7 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         calendar.add(Calendar.SECOND, (int) time);
 
         date = calendar.getTime();
-        DateFormat df = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss", Locale.JAPAN);
+        DateFormat df = new SimpleDateFormat("yyyy 年 MM 月 dd 日 HH:mm:ss", Locale.JAPAN);
 
         textView.setText(getString(R.string.time_out_label, editTime + " ミリ秒" + " (" + time + " 秒" + ") ", day + " 日 " + hour + " 時間 " + min + " 分 " + sec + " 秒", df.format(date)));
     }

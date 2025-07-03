@@ -50,7 +50,7 @@ public class ByteProgressHandler extends Handler {
             }
 
             progressBar.setProgress(xApkCopyTask.getLoadedBytePercent(progressBar.getContext()));
-            textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append("%"));
+            textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append(" %"));
             textByte.setText(new StringBuilder(String.valueOf(xApkCopyTask.getLoadedCurrentByte(textByte.getContext()))).append(" / ").append(xApkCopyTask.getLoadedTotalByte()).append(" MB"));
 
             sendEmptyMessageDelayed(0, 100);
@@ -63,7 +63,7 @@ public class ByteProgressHandler extends Handler {
             }
 
             progressBar.setProgress(apkMCopyTask.getLoadedBytePercent(progressBar.getContext()));
-            textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append("%"));
+            textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append(" %"));
             textByte.setText(new StringBuilder(String.valueOf(apkMCopyTask.getLoadedCurrentByte(textByte.getContext()))).append(" / ").append(apkMCopyTask.getLoadedTotalByte()).append(" MB"));
 
             sendEmptyMessageDelayed(0, 100);
@@ -76,7 +76,7 @@ public class ByteProgressHandler extends Handler {
             }
 
             progressBar.setProgress(apkSCopyTask.getLoadedBytePercent(progressBar.getContext()));
-            textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append("%"));
+            textPercent.setText(new StringBuilder(String.valueOf(progressBar.getProgress())).append(" %"));
             textByte.setText(new StringBuilder(String.valueOf(apkSCopyTask.getLoadedCurrentByte(textByte.getContext()))).append(" / ").append(apkSCopyTask.getLoadedTotalByte()).append(" MB"));
 
             sendEmptyMessageDelayed(0, 100);

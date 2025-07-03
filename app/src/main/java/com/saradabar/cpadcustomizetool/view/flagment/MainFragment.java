@@ -386,7 +386,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 initPreference();
             } else {
                 new DialogUtil(requireActivity())
-                        .setMessage("DchaSerivce 機能を無効にしますか？")
+                        .setMessage("DchaSerivce 機能を無効にしますか?")
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
                             initPreference();
@@ -575,7 +575,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swPreInstallUnknownSource.setChecked(false);
             swPreInstallUnknownSource.setSummary("不明なアプリは許可されていません。");
             preRequestInstallPackages.setEnabled(false);
-            preRequestInstallPackages.setSummary("この機能を使用するには、”不明なアプリのユーザー制限を解除”から許可してください。");
+            preRequestInstallPackages.setSummary("この機能を使用するには、\"不明なアプリのユーザー制限を解除\" から許可してください。");
             preInstallUnknownSourceInfo.setEnabled(false);
         } else {
             swKeepUnkSrc.setVisible(true);

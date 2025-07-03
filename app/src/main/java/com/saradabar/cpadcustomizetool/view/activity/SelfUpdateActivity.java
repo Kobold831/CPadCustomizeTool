@@ -174,8 +174,8 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
 
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
-        progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append("%"));
-        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append("/").append(totalByte).append(" MB"));
+        progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append(" %"));
+        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append(" / ").append(totalByte).append(" MB"));
         dialogProgressBar.setProgress(progress);
         progressDialog.setMessage(new StringBuilder(getString(R.string.progress_state_download_file)));
     }

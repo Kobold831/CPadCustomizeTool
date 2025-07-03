@@ -19,8 +19,8 @@ public class BypassPermissionDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Context context = requireActivity();
         return new DialogUtil(context)
-                .setTitle("機能を使用するために権限を付与しますか？")
-                .setMessage("権限がないため、設定を変更できません。”OK”を押すと、権限設定を行います。処理は数秒で終わります。")
+                .setTitle("機能を使用するために権限を付与しますか?")
+                .setMessage("権限がないため、設定を変更できません。\n\"OK\" を押すと、権限設定を行います。処理は数秒で終わります。")
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                     if (Common.copyAssetsFile(context)) {
                         new DchaServiceUtil(context).setSetupStatus(3, object -> {

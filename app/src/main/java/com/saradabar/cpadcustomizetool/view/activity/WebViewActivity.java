@@ -93,7 +93,7 @@ public class WebViewActivity extends AppCompatActivity {
             }
         });
         webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
-            Toast.makeText(this, "ダウンロードを開始します", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "ダウンロードを開始します。", Toast.LENGTH_SHORT).show();
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setMimeType(mimetype)
                     .addRequestHeader("Cookie", CookieManager.getInstance().getCookie(url))

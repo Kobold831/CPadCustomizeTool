@@ -245,8 +245,8 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
 
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
-        progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append("%"));
-        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append("/").append(totalByte).append(" MB"));
+        progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append(" %"));
+        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append(" / ").append(totalByte).append(" MB"));
         dialogProgressBar.setProgress(progress);
         progressDialog.setMessage(new StringBuilder(getString(R.string.progress_state_download_file)));
     }
@@ -396,7 +396,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             new DialogUtil(this)
                     .setCancelable(false)
                     .setTitle("通常環境モードで起動しますか?")
-                    .setMessage("このデバイスには、勉強アプリ(DchaService、または勉強ホーム)がインストールされていないことを確認しました。\n通常環境モードで起動することを推奨します。\nキャンセルを押すと、設定を変更するまでこのダイアログは表示されません。\n\n通常環境モードとは?\n勉強アプリがインストールされていない環境で、必要がないこのアプリの不要な機能を無効にするモードです。")
+                    .setMessage("このデバイスには、勉強アプリ (DchaService、または勉強ホーム) がインストールされていないことを確認しました。\n通常環境モードで起動することを推奨します。\nキャンセルを押すと、設定を変更するまでこのダイアログは表示されません。\n\n通常環境モードとは?\n勉強アプリがインストールされていない環境で、必要がないこのアプリの不要な機能を無効にするモードです。")
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         Preferences.save(this, Constants.KEY_FLAG_NORMAL_ENV, true);
                         showMainActivity();

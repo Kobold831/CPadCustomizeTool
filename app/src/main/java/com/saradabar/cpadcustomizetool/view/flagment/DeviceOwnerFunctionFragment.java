@@ -107,7 +107,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
             new DialogUtil(requireActivity())
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_error)
-                    .setMessage("新しいバージョンは Device Owner の再設定が必要になりました。\nDevice Owner はこのデバイスに付与されていますが、Device Owner を ADB で再度有効にする必要があります。\n\n”OK” を押すと、Device Owner は解除されます。\n詳細は、メイン画面から ”アプリのお知らせ” を開いてください。")
+                    .setMessage("新しいバージョンは Device Owner の再設定が必要になりました。\nDevice Owner はこのデバイスに付与されていますが、Device Owner を ADB で再度有効にする必要があります。\n\n\"OK\" を押すと、Device Owner は解除されます。\n詳細は、メイン画面から \"アプリのお知らせ\" を開いてください。")
                     .setPositiveButton("OK", (dialog, which) -> {
                         dpm.clearDeviceOwnerApp(requireActivity().getPackageName());
                         finish();
