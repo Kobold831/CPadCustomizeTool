@@ -13,17 +13,26 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:gravity="center"
             android:text="@string/wel_title"
             android:textColor="@color/textColor"
             android:textSize="24sp" />
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginHorizontal="16dp"
+            android:gravity="start"
+            android:text="このアプリの使用には、利用規約に同意する必要があります。内容を確認して同意される場合は、&quot;同意する&quot; を押してください。"
+            android:textColor="@color/textColor" />
+
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:orientation="vertical"
             android:background="@drawable/shape_rounded_corners">
 
@@ -43,7 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_gravity="center"
         android:gravity="center"
         android:orientation="horizontal">

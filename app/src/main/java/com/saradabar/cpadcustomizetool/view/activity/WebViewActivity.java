@@ -13,8 +13,11 @@
 package com.saradabar.cpadcustomizetool.view.activity;
 
 import android.app.DownloadManager;
+import android.content.res.AssetManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.webkit.CookieManager;
@@ -124,5 +127,18 @@ public class WebViewActivity extends AppCompatActivity {
         } catch (Exception ignored) {
         }
         return true;
+    }
+
+    @Override
+    public AssetManager getAssets() {
+        return getResources().getAssets();
+    }
+
+    @Override
+    public void applyOverrideConfiguration(final Configuration overrideConfiguration) {
+        if (Build.VERSION.SDK_INT < 25) {
+            overrideConfiguration.uiMode &= ~Configuration.UI_MODE_NIGHT_MASK;
+        }
+        super.applyOverrideConfiguration(overrideConfiguration);
     }
 }

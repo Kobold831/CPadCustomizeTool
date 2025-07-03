@@ -35,7 +35,7 @@
             app:selectable="false"
             android:key="pre_install_unknown_source_info"
             android:icon="@drawable/ic_info_outline_24"
-            android:summary="この機能を使用すると、学習兼用機能（緊急モード、通常モード、維持機能、そのほか一部）は、無効になり非表示になります。設定変更などで、Dcha、BenesseExtension は使用しなくなります。" />
+            android:summary="この機能を使用すると、学習兼用機能 (緊急モード、通常モード、維持機能、そのほか一部) は、無効になり非表示になります。設定変更などで、Dcha、BenesseExtension は使用しなくなります。" />
 
         <SwitchPreferenceCompat
             app:singleLineTitle="false"
@@ -47,7 +47,7 @@
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_app_clear_cache"
-            android:summary="このアプリの不要ファイルを消去します。"
+            android:summary="このアプリの不要なファイルを消去します。"
             android:title="キャッシュをクリア" />
 
         <Preference
@@ -66,7 +66,7 @@
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_app_update_mode"
-            android:summary="アップデートやアプリを取得するときのインストーラーを変更できます。"
+            android:summary="アップデートやアプリをインストールするときのインストーラーを変更できます。"
             android:title="@string/pre_app_title_update" />
 
     </PreferenceCategory>
@@ -112,17 +112,17 @@
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_app_debug_restriction"
-            android:title="制限の解除" />
+            android:title="制限を解除する" />
 
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_app_debug_force_crash"
-            android:title="クラッシュ" />
+            android:title="クラッシュを発生させる" />
 
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_app_debug_device"
-            android:title="デバイス" />
+            android:title="デバイスを変更する" />
 
     </PreferenceCategory>
 

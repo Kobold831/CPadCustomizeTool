@@ -196,7 +196,7 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         date = calendar.getTime();
         DateFormat df = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss", Locale.JAPAN);
 
-        textView.setText(getString(R.string.time_out_label, editTime + " ミリ秒" + "（" + time + " 秒" + "）", day + "日" + hour + "時間" + min + "分" + sec + "秒", df.format(date)));
+        textView.setText(getString(R.string.time_out_label, editTime + " ミリ秒" + " (" + time + " 秒" + ") ", day + " 日 " + hour + " 時間 " + min + " 分 " + sec + " 秒", df.format(date)));
     }
 
     private void setSummaryScreenOffTimeConvert() {
@@ -208,6 +208,6 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         hour = (time / 3600) % 24;
         day = (time / 86400) % 31;
 
-        preScreenOffTimeOut.setSummary("操作が行われない状態で" + day + "日" + hour + "時間" + min + "分" + sec + "秒" + "経過後");
+        preScreenOffTimeOut.setSummary("操作が行われない状態で " + day + " 日 " + hour + " 時間 " + min + " 分 " + sec + " 秒" + "経過後");
     }
 }

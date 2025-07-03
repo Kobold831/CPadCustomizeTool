@@ -204,6 +204,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
         preSessionInstallNotice.setOnPreferenceClickListener(preference -> {
             new DialogUtil(requireActivity())
                     .setView(R.layout.view_owner_session_notice)
+                    .setTitle("インストールファイル選択の手順")
                     .setPositiveButton(getString(R.string.dialog_common_ok), null)
                     .show();
             return false;

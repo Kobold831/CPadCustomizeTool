@@ -618,10 +618,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swUnkSrc.setVisible(false);
             swKeepUnkSrc.setVisible(false);
         } else {
-            swPreInstallUnknownSource.setEnabled(false);
-            swPreInstallUnknownSource.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
-            preRequestInstallPackages.setEnabled(false);
-            preRequestInstallPackages.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
+            swPreInstallUnknownSource.setVisible(false);
+            preRequestInstallPackages.setVisible(false);
             preInstallUnknownSourceInfo.setVisible(false);
         }
 
@@ -981,8 +979,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
-        progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append("%"));
-        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append("/").append(totalByte).append(" MB"));
+        progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append(" %"));
+        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append(" / ").append(totalByte).append(" MB"));
         dialogProgressBar.setProgress(progress);
         progressDialog.setMessage(new StringBuilder(getString(R.string.progress_state_download_file)));
     }

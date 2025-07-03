@@ -9,7 +9,7 @@
         android:layout_gravity="bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="選択して OK を押下すると詳細な情報が表示されます。"
+        android:text="選択して &quot;OK&quot; を押下すると、詳細な情報が表示されます。"
         android:textSize="16sp" />
 
     <ListView

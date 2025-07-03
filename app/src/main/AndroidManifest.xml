@@ -153,7 +153,7 @@
             android:exported="false"
             android:label=""
             android:theme="@style/NoActionBarTheme"
-            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:configChanges="uiMode"
             android:clearTaskOnLaunch="true" />
 
         <activity
