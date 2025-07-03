@@ -43,6 +43,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
@@ -111,6 +112,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preInstallUnknownSourceInfo,
             preAppFunction;
 
+    PreferenceCategory catDcha;
+
     /* アクティビティ破棄 */
     @Override
     public void onDestroy() {
@@ -132,6 +135,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_main, rootKey);
+        ((MainActivity) requireActivity()).initNavigationState();
 
         swDchaState = findPreference("pre_dcha_state");
         swKeepDchaState = findPreference("pre_keep_dcha_state");
@@ -154,6 +158,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         preDchaFunction = findPreference("pre_dcha_function");
         preInstallUnknownSourceInfo = findPreference("pre_install_unknown_source_info");
         preAppFunction = findPreference("pre_app_function");
+        catDcha = findPreference("category_other");
 
         swDchaState.setOnPreferenceChangeListener((preference, o) -> {
             if (Common.isShowCfmDialog(requireActivity())) {
@@ -618,6 +623,18 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             preRequestInstallPackages.setEnabled(false);
             preRequestInstallPackages.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
             preInstallUnknownSourceInfo.setVisible(false);
+        }
+
+        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            // 通常環境モード
+            swKeepDchaState.setVisible(false);
+            swKeepNavigation.setVisible(false);
+            swKeepUnkSrc.setVisible(false);
+            swKeepAdb.setVisible(false);
+            catDcha.setVisible(false);
+            swEnableDchaService.setVisible(false);
+            preDchaFunction.setVisible(false);
+            preAppFunction.setVisible(false);
         }
         new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(requireActivity().getExternalCacheDir(), Constants.NOTICE_JSON), Constants.REQUEST_DOWNLOAD_NOTICE);
     }

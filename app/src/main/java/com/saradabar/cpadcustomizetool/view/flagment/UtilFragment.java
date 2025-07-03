@@ -21,6 +21,7 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
+import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.DeviceInfoActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
 import com.saradabar.cpadcustomizetool.view.flagment.dialog.BypassPermissionDialogFragment;
@@ -84,7 +85,14 @@ public class UtilFragment extends PreferenceFragmentCompat {
         });
 
         preWebView.setOnPreferenceClickListener(preference -> {
-            startActivity(new Intent(requireActivity(), WebViewActivity.class).putExtra("URL", "https://www.google.com/intl/ja/").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            try {
+                startActivity(new Intent(requireActivity(), WebViewActivity.class).putExtra("URL", "https://www.google.com/intl/ja/").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            } catch (Exception ignored) {
+                new DialogUtil(requireActivity())
+                        .setMessage("\"WebView\" の起動に問題が発生しました。\nデバイスの更新、または \"WebView\" の更新をお試しください。")
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            }
             return false;
         });
 
@@ -130,7 +138,6 @@ public class UtilFragment extends PreferenceFragmentCompat {
             try {
                 PackageManager packageManager = requireActivity().getPackageManager();
                 packageManager.setApplicationEnabledSetting("com.android.browser", PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
-                //noinspection SpellCheckingInspection
                 packageManager.setApplicationEnabledSetting("com.android.quicksearchbox", PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
                 packageManager.setApplicationEnabledSetting("com.android.traceur", PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
 
@@ -162,6 +169,10 @@ public class UtilFragment extends PreferenceFragmentCompat {
         if (!Common.isCTZ()) {
             preReEnableSystemApps.setEnabled(false);
             preReEnableSystemApps.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
+        }
+
+        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            preWebView.setVisible(false);
         }
     }
 }

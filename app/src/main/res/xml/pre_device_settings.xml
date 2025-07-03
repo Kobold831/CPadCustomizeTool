@@ -26,7 +26,13 @@
         <Preference
             app:selectable="false"
             android:icon="@drawable/ic_info_outline_24"
-            android:summary="変更するには、”android.permission.WRITE_SECURE_SETTINGS” 権限が付与されている必要があります。小さい時間に変更すると、操作に支障が発生する可能性があります。" />
+            android:summary="画面が薄暗くなる時間も変更するため、長時間に変更すると、バッテリー、ディスプレイの寿命が短くなる可能性がありますので、ご注意ください。\n小さい時間に変更すると、操作に支障が発生する可能性があります。" />
+
+
+        <Preference
+            app:selectable="false"
+            android:icon="@drawable/ic_info_outline_24"
+            android:summary="\変更するには、”android.permission.WRITE_SECURE_SETTINGS” 権限が付与されている必要があります。" />
 
     </PreferenceCategory>
 

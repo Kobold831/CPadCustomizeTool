@@ -121,6 +121,7 @@ public class DchaFunctionFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.pre_dcha_function, rootKey);
+        ((MainActivity) requireActivity()).initNavigationState();
 
         preLauncher = findPreference("pre_launcher");
         swKeepLauncher = findPreference("pre_keep_launcher");

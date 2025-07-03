@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.DialogUtil;
 
 import java.util.Objects;
 
@@ -38,6 +39,17 @@ public class WebViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            initWebView();
+        } catch (Exception ignored) {
+            new DialogUtil(this)
+                    .setMessage("\"WebView\" の起動に問題が発生しました。\nデバイスの更新、または \"WebView\" の更新をお試しください。")
+                    .setPositiveButton(R.string.dialog_common_ok, null)
+                    .show();
+        }
+    }
+
+    private void initWebView() {
         setContentView(R.layout.activity_web_view);
         Toolbar toolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);

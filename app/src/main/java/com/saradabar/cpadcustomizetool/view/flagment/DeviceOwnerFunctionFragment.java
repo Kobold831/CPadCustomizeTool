@@ -53,6 +53,7 @@ import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
+import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 
 import java.io.File;
@@ -257,6 +258,11 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
             preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_message_1, getDeviceOwnerPackage()));
         } else {
             preNowSetOwnPkg.setSummary(getString(R.string.pre_owner_sum_no_device_owner));
+        }
+
+        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+            preUninstallBlock.setVisible(false);
+
         }
     }
 
