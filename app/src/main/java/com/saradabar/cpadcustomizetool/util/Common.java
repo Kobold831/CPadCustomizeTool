@@ -317,13 +317,32 @@ public class Common {
         }
     }
 
-    public static boolean getDchaCompletedPast() {
-        // BenesseExtension が存在しない場合は配慮不要
-        if (!isBenesseExtensionExist("getDchaState")) {
+    public static boolean isBenesseExtensionFieldExist(String field) {
+        try {
+            Class<?> c = Class.forName("android.os.BenesseExtension", false, ClassLoader.getSystemClassLoader());
+            c.getField(field);
             return true;
+        } catch (ClassNotFoundException |
+                 NoClassDefFoundError |
+                 NoSuchFieldException |
+                 NoSuchFieldError |
+                 SecurityException |
+                 NullPointerException ignored) {
+            return false;
         }
-        // IGNORE_DCHA_COMPLETED が存在している場合は COUNT_DCHA_COMPLETED を作成しても何ら問題ない
-        return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists();
+    }
+
+    public static boolean getDchaCompletedPast() {
+        if (!isBenesseExtensionExist("getDchaState")) {
+            // BenesseExtension が存在しない
+            return false;
+        }
+
+        if (isBenesseExtensionFieldExist("COUNT_DCHA_COMPLETED_FILE")) {
+            return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists();
+        } else {
+            return false;
+        }
     }
 
     public static boolean isShowCfmDialog(Context context) {
