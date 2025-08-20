@@ -55,7 +55,7 @@ SDカード から簡単に利用できるようになりました。
 
 ## サンプル画像
 
-<a href="#"><img src="images/image-02.png" height="400"></a><a href="#"><img src="images/image-01.png" height="400"></a>
+<a href="#"><img src="images/image-01.png" height="600"></a>
 
 ## 権限付与
 
