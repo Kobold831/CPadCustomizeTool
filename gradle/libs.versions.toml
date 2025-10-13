@@ -5,7 +5,7 @@ preference = "1.2.1"
 material = "1.13.0"
 welcome = "1.4.1"
 zt = "1.17"
-dhizuku = "2.5.3"
+dhizuku = "2.5.4"
 
 [plugins]
 agp-app = { id = "com.android.application", version.ref = "agp" }
