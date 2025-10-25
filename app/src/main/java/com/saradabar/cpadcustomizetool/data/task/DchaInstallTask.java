@@ -46,6 +46,7 @@ public class DchaInstallTask {
         void onFailure();
     }
 
+    @NonNull
     private doListener doListener() {
         return (listener, result) -> {
             Handler handler = new Handler(Looper.getMainLooper());

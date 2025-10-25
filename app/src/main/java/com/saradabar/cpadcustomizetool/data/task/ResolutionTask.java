@@ -9,6 +9,8 @@ import android.os.ServiceManager;
 import android.view.Display;
 import android.view.IWindowManager;
 
+import androidx.annotation.NonNull;
+
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
@@ -68,6 +70,7 @@ public class ResolutionTask {
         void onError(String message);
     }
 
+    @NonNull
     private doListener doListener() {
         return (listener, result) -> {
             Handler handler = new Handler(Looper.getMainLooper());

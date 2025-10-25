@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+
 import com.saradabar.cpadcustomizetool.util.Constants;
 
 import java.util.concurrent.ExecutorService;
@@ -26,7 +28,7 @@ public class IDchaUtilTask {
         });
     }
 
-    private void doInBackground(Context context, Listener listener) {
+    private void doInBackground(@NonNull Context context, Listener listener) {
         if (!context.bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
 
             @Override

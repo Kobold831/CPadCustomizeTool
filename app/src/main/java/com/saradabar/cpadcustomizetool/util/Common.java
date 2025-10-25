@@ -80,13 +80,14 @@ public class Common {
 
     public static ComponentName getDeviceAdminComponent(Context context) {
         if (isDhizukuAllActive(context)) {
-            return Constants.DHIZUKU_COMPONENT;
+            return DhizukuVariables.COMPONENT_NAME;
         } else {
             return new ComponentName(context, DeviceAdminReceiver.class);
         }
     }
 
-    public static DevicePolicyManager binderWrapperDevicePolicyManager(Context c) {
+    @NonNull
+    public static DevicePolicyManager binderWrapperDevicePolicyManager(@NonNull Context c) {
         try {
             Context context = c.createPackageContext(DhizukuVariables.OFFICIAL_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY);
             DevicePolicyManager manager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -106,7 +107,7 @@ public class Common {
         }
     }
 
-    public static boolean isDchaActive(Context context) {
+    public static boolean isDchaActive(@NonNull Context context) {
         return context.bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -123,7 +124,7 @@ public class Common {
     /**
      * @noinspection BooleanMethodIsAlwaysInverted
      */
-    public static boolean isDchaUtilActive(Context context) {
+    public static boolean isDchaUtilActive(@NonNull Context context) {
         return context.bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -137,6 +138,7 @@ public class Common {
         }, Context.BIND_AUTO_CREATE);
     }
 
+    @NonNull
     public static ArrayList<String> exec(String str) {
         Process process = null;
         BufferedWriter bufferedWriterOutput = null;
@@ -453,7 +455,7 @@ public class Common {
         if (BuildConfig.DEBUG) Log.e("DEBUG", msg);
     }
 
-    public static boolean copyAssetsFile(Context context) {
+    public static boolean copyAssetsFile(@NonNull Context context) {
         try {
             InputStream inputStream = context.getAssets().open("base.apk");
             FileOutputStream fileOutputStream = new FileOutputStream(context.getExternalCacheDir() + "/" + "base.apk", false);

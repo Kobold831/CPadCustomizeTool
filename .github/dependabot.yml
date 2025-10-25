@@ -14,8 +14,6 @@ updates:
       maven-dependencies:
         patterns:
           - "*"
-    ignore:
-      - dependency-name: "io.github.iamr0s:Dhizuku-API"
 
 registries:
   maven-google:

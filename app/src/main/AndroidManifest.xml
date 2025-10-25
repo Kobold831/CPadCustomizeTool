@@ -1,22 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    
+
+    <!-- DchaService 及び DchaUtilService -->
     <uses-permission android:name="jp.co.benesse.dcha.permission.ACCESS_SYSTEM" />
+    <!-- System ネームスペースへの書き込み -->
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!-- Secure 及び Global ネームスペースへの書き込み -->
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <!-- ファイルの読み取り -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- ファイルの書き込み -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- 端末起動時のサービス呼び出し -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- 他のアプリのプロセスを停止 -->
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+    <!-- アプリのサービスを常に実行 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- ネットワークの状態を取得 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- インターネット接続を使用 -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- ホーム画面にショートカットを追加 -->
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <!-- 不明なアプリの許可機能用 -->
     <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_INSTALL_UNKNOWN_SOURCES"/>
+    <!-- 端末のユーザーを管理 -->
     <uses-permission android:name="android.permission.MANAGE_USERS" />
+    <!-- 他のユーザーにアクセス -->
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
+    <!-- AppOps の状態を管理 -->
     <uses-permission android:name="android.permission.MANAGE_APP_OPS_MODES" />
     <!-- システムアプリの有効機能用 -->
     <uses-permission android:name="android.permission.CHANGE_COMPONENT_ENABLED_STATE" />
@@ -24,6 +38,8 @@
     <uses-feature
         android:name="android.software.device_admin"
         android:required="false" />
+
+    <uses-sdk tools:overrideLibrary="com.rosan.dhizuku.api" />
 
     <application
         android:allowBackup="false"
@@ -197,7 +213,8 @@
             android:exported="true"
             android:label="@string/service_activity"
             android:description="@string/accessibility_description"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            tools:ignore="AccessibilityPolicy">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>

@@ -99,7 +99,6 @@ public class KeepService extends Service {
         }
 
         if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false)) {
-            //noinspection deprecation
             getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, marketObserver);
         } else {
             getContentResolver().unregisterContentObserver(marketObserver);
@@ -189,7 +188,6 @@ public class KeepService extends Service {
     /* 提供元不明オブサーバー */
     final ContentObserver marketObserver = new ContentObserver(new Handler()) {
 
-        /** @noinspection deprecation*/
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);

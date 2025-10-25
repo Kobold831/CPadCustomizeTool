@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace = 'com.saradabar.cpadcustomizetool'
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 22
         //noinspection ExpiredTargetSdkVersion
-        targetSdk = 22
+        targetSdk = minSdk
         versionCode = 275
         versionName = "2.7.5"
         proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

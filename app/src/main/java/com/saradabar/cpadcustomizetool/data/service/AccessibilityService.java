@@ -1,5 +1,6 @@
 package com.saradabar.cpadcustomizetool.data.service;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
@@ -11,6 +12,7 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NormalActivity;
 
+@SuppressLint("AccessibilityPolicy")
 public class AccessibilityService extends android.accessibilityservice.AccessibilityService {
 
     private static boolean isHomeButtonPressed = false;

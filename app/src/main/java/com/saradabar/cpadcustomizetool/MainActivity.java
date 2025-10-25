@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         initNavigationState();
     }
 
-    private boolean initNavigationListener(MenuItem item) {
+    private boolean initNavigationListener(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.navi_0) {
             if (!(getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof SimpleFunctionFragment)) {
                 transitionFragment(new SimpleFunctionFragment(), false, "シンプルモード");

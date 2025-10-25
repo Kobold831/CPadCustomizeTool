@@ -12,6 +12,7 @@
 
 package com.saradabar.cpadcustomizetool.data.installer;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -89,6 +90,7 @@ public class SessionInstaller {
         }
     }
 
+    @SuppressLint("RequestInstallPackagesPolicy")
     private boolean commitSession(PackageInstaller packageInstaller, int sessionId, Context context, int code) {
         PackageInstaller.Session session = null;
 

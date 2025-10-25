@@ -12,10 +12,7 @@
 
 package com.saradabar.cpadcustomizetool.util;
 
-import android.content.ComponentName;
 import android.content.Intent;
-
-import com.rosan.dhizuku.shared.DhizukuVariables;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,8 +126,4 @@ public class Constants {
             add(PRODUCT_CTZ);
         }
     };
-
-    // Don't use Dhizuku.getOwnerComponent()
-    public static final ComponentName DHIZUKU_COMPONENT =
-            new ComponentName(DhizukuVariables.OFFICIAL_PACKAGE_NAME, DhizukuVariables.OFFICIAL_PACKAGE_NAME + ".server.DhizukuDAReceiver");
 }

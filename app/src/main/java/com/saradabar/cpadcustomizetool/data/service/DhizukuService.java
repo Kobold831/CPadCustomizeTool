@@ -12,6 +12,7 @@
 
 package com.saradabar.cpadcustomizetool.data.service;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -124,6 +125,7 @@ public class DhizukuService extends IDhizukuService.Stub {
         }
     }
 
+    @SuppressLint("RequestInstallPackagesPolicy")
     private boolean commitSession(PackageInstaller packageInstaller, int sessionId, Context context, int reqCode) throws IOException {
         PackageInstaller.Session session = null;
 

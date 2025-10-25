@@ -15,6 +15,8 @@ package com.saradabar.cpadcustomizetool.data.task;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.Nullable;
+
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListenerList;
 
@@ -66,6 +68,7 @@ public class FileDownloadTask {
 		}
 	}
 
+	@Nullable
 	private Boolean doInBackground(String downloadUrl, File outputFile) {
 		BufferedInputStream bufferedInputStream;
 		FileOutputStream fileOutputStream;
