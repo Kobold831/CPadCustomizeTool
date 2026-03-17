@@ -10,8 +10,8 @@ android {
         minSdk = 22
         //noinspection ExpiredTargetSdkVersion
         targetSdk = minSdk
-        versionCode = 275
-        versionName = "2.7.5"
+        versionCode = 276
+        versionName = "2.7.6"
         proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
 

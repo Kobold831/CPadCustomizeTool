@@ -230,7 +230,9 @@ public class KeepService extends Service {
                                         Preferences.save(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
                                     }
                                     // setupStatusを戻す
-                                    new DchaServiceUtil(getBaseContext()).setSetupStatus(0, object1 -> {
+                                    String home = getDefaultLauncherPackageName();
+                                    boolean isDcha = home.equals(Constants.PKG_SHO_HOME) || home.equals(Constants.PKG_CHU_HOME);
+                                    new DchaServiceUtil(getBaseContext()).setSetupStatus(isDcha ? 3 : 0, object1 -> {
                                     });
                                 } catch (InterruptedException ignored) {
                                     // スレッド中断
