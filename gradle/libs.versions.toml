@@ -1,11 +1,11 @@
 [versions]
-agp = "9.2.0"
+agp = "9.2.1"
 benesse = "1.0.0"
 preference = "1.2.1"
-material = "1.13.0"
+material = "1.14.0"
 welcome = "1.4.1"
 zt = "1.17"
-dhizuku = "2.5.4"
+dhizuku = "2.6.0"
 
 [plugins]
 agp-app = { id = "com.android.application", version.ref = "agp" }
