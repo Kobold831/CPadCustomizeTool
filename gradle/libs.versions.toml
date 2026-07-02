@@ -4,7 +4,7 @@ agp = "9.2.1"
 benesse = "1.0.0"
 preference = "1.2.1"
 #noinspection GradleDependency
-material = "1.13.0"
+material = "1.14.0"
 welcome = "1.4.1"
 zt = "1.18.1"
 dhizuku = "2.6.0"
