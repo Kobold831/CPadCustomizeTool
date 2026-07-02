@@ -90,19 +90,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:allowDividerAbove="false"
-        app:iconSpaceReserved="false"
-        android:title="@string/pre_app_category_noti">
-
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
-            android:key="pre_app_noti_always"
-            android:summary="バックグラウンドでの自動タスクキルを防ぎます。"
-            android:title="@string/pre_app_title_noti_always" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
         app:isPreferenceVisible="false"
         app:allowDividerAbove="false"
         app:iconSpaceReserved="false"

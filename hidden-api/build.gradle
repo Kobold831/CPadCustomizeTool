@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.saradabar.hidden_api"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 24

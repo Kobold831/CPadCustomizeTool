@@ -40,7 +40,6 @@ import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
-import com.saradabar.cpadcustomizetool.data.service.AlwaysNotiService;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
 
@@ -499,9 +498,6 @@ public class Common {
             // サービスを起動(自動停止)
             context.startService(new Intent(context, KeepService.class));
             context.startService(new Intent(context, ProtectKeepService.class));
-
-            // 一部のサービスを停止
-            context.stopService(new Intent(context, AlwaysNotiService.class));
 
             if (Preferences.load(context, Constants.KEY_INT_UPDATE_MODE, 1) == 2) {
                 // Dcha に設定されている

@@ -1,11 +1,13 @@
 [versions]
-agp = "9.2.0"
+agp = "9.2.1"
+#noinspection NewerVersionAvailable
 benesse = "1.0.0"
 preference = "1.2.1"
+#noinspection GradleDependency
 material = "1.13.0"
 welcome = "1.4.1"
-zt = "1.17"
-dhizuku = "2.5.4"
+zt = "1.18.1"
+dhizuku = "2.6.0"
 
 [plugins]
 agp-app = { id = "com.android.application", version.ref = "agp" }
@@ -13,6 +15,8 @@ agp-lib = { id = "com.android.library", version.ref = "agp" }
 
 [libraries]
 benesse-extension = { group = "me.s1204", name = "BenesseExtension", version.ref = "benesse" }
+benesse-extension-service = { group = "me.s1204", name = "BenesseExtensionService", version.ref = "benesse" }
+sts-extension = { group = "me.s1204", name = "StsExtensionService", version.ref = "benesse" }
 benesse-dchaservice = { group = "me.s1204", name = "DchaService", version.ref = "benesse" }
 benesse-dchautilservice = { group = "me.s1204", name = "DchaUtilService", version.ref = "benesse" }
 preference = { module = "androidx.preference:preference", version.ref = "preference" }

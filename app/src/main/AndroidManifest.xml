@@ -254,10 +254,6 @@
             android:name=".data.service.PermissionIntentService"
             android:exported="false" />
 
-        <service
-            android:name=".data.service.AlwaysNotiService"
-            android:exported="false" />
-
         <receiver
             android:name=".data.receiver.PackageReceiver"
             android:exported="false">
@@ -287,6 +283,20 @@
             <intent-filter>
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".data.receiver.CheckPenReceiver"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/jm002_0e010_pen_btn"
+            android:label="@string/check_pen_battery">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_check_pen" />
         </receiver>
 
     </application>

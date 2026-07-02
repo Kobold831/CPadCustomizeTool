@@ -21,13 +21,7 @@ import java.util.List;
 public class Constants {
 
     // デフォルト値
-    /**
-     * @noinspection unused
-     */
     public static final int DEF_INT = 0;
-    /**
-     * @noinspection unused
-     */
     public static final String DEF_STR = "";
     public static final boolean DEF_BOOL = false;
 
@@ -106,6 +100,8 @@ public class Constants {
     public static final Intent ACTION_DCHA_SERVICE = new Intent(PKG_DCHA_SERVICE + ".DchaService").setPackage(PKG_DCHA_SERVICE);
     public static final String PKG_UTIL_SERVICE = PKG_COMMON_DCHA + ".dchautilservice";
     public static final Intent ACTION_UTIL_SERVICE = new Intent(PKG_UTIL_SERVICE + ".DchaUtilService").setPackage(PKG_UTIL_SERVICE);
+    public static final String PKG_STS_EXT = "com.sts.tottori.stsextension";
+    public static final Intent ACTION_STS_EXT = new Intent(PKG_STS_EXT + ".StsExtensionService").setPackage(PKG_STS_EXT);
     public static final String PKG_SHO_HOME = "jp.co.benesse.touch.allgrade.b003.touchhomelauncher";
     public static final String HOME_SHO = PKG_SHO_HOME + ".HomeLauncherActivity";
     public static final String PKG_CHU_HOME = "jp.co.benesse.touch.home";

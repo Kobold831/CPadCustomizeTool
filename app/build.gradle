@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = 'com.saradabar.cpadcustomizetool'
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 22
@@ -53,6 +53,8 @@ android {
 dependencies {
     // Custom Libraries
     compileOnly libs.benesse.extension
+    compileOnly libs.benesse.extension.service
+    compileOnly libs.sts.extension
     implementation libs.benesse.dchaservice
     implementation libs.benesse.dchautilservice
     compileOnly project(":hidden-api")

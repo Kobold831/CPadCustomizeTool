@@ -1,0 +1,6 @@
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:initialLayout="@layout/widget_check_pen"
+    android:minWidth="188px"
+    android:minHeight="188px"
+    android:previewImage="@drawable/check_pen_battery_touch_area_down"
+    android:updatePeriodMillis="0" />

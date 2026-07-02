@@ -20,7 +20,6 @@ import android.text.InputType;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.AppCompatEditText;
-import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
@@ -29,7 +28,6 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.data.service.AlwaysNotiService;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
@@ -43,7 +41,6 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
     PreferenceCategory catDebugRestriction;
 
     SwitchPreferenceCompat swDisableUpdateCheck,
-            swNotiAlways,
             swUseDcha,
             swDebugRestriction,
             swSimpleMode,
@@ -63,7 +60,6 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         ((MainActivity) requireActivity()).initNavigationState();
 
         swDisableUpdateCheck = findPreference("pre_app_update_check");
-        swNotiAlways = findPreference("pre_app_noti_always");
         swUseDcha = findPreference("pre_app_use_dcha");
         preCrashLog = findPreference("pre_app_crash_log");
         preDelCrashLog = findPreference("pre_app_del_crash_log");
@@ -84,15 +80,6 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
                 swDisableUpdateCheck.setSummary("アプリを起動したときに、更新を確認します。");
             }
             Preferences.save(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, !((boolean) newValue));
-            return true;
-        });
-
-        swNotiAlways.setOnPreferenceChangeListener((preference, newValue) -> {
-            Intent notiService = new Intent(requireContext(), AlwaysNotiService.class);
-            if ((boolean) newValue)
-                ContextCompat.startForegroundService(requireContext(), notiService);
-            else
-                requireContext().stopService(notiService);
             return true;
         });
 
@@ -225,7 +212,6 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
             swUseDcha.setVisible(false);
-            swNotiAlways.setVisible(false);
         }
     }
 }

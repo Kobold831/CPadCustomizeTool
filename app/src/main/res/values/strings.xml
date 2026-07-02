@@ -155,7 +155,6 @@
     <string name="pre_app_category_update">インストール設定</string>
     <string name="pre_app_category_log">アプリログ</string>
     <string name="pre_app_title_update_check">アップデートチェックをしない</string>
-    <string name="pre_app_title_noti_always">通知を常駐</string>
     <string name="pre_app_title_dcha">DchaService による設定の変更</string>
     <string name="pre_app_title_update">インストールモード</string>
     <string name="pre_app_title_crash_history">クラッシュログ</string>
@@ -318,5 +317,13 @@
     <string name="installer_status_failure">インストールに失敗しました。</string>s
     <string name="installer_status_no_allocatable_space">ストレージの空き容量が不足している可能性があります。\n</string>
     <string name="installer_status_unknown_error">不明なエラーが発生しました。</string>
+
+    <!-- ペンの電池残量 -->
+    <string name="check_pen_battery">ペンの電池残量</string>
+    <string name="check_pen_battery_annotation_text_unacquired">電池残量が測れませんでした。\nActiveES ペンでタッチしてください。</string>
+    <string name="check_pen_battery_annotation_text_extremely_low">電池残量がありません。\nペンの電池を交換しましょう。</string>
+    <string name="check_pen_battery_annotation_text_low">電池残量が少なくなってきています。\n残量がなくなる前に電池を交換しましょう。</string>
+    <string name="check_pen_battery_annotation_text_medium" />
+    <string name="check_pen_battery_annotation_text_full">電池残量は十分です。</string>
 
 </resources>
