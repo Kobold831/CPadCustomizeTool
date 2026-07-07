@@ -6,7 +6,7 @@ preference = "1.2.1"
 #noinspection GradleDependency
 material = "1.13.0"
 welcome = "1.4.1"
-zt = "1.18.1"
+zt = "1.18.2"
 dhizuku = "2.6.0"
 
 [plugins]
