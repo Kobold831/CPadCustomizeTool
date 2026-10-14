@@ -1,5 +1,5 @@
 [versions]
-agp = "9.3.1"
+agp = "9.4.1"
 #noinspection NewerVersionAvailable
 benesse = "1.0.0"
 preference = "1.2.1"
