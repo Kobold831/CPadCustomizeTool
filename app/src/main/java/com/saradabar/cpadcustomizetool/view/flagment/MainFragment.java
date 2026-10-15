@@ -641,7 +641,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     }
 
     /* システムUIオブザーバー */
-    final ContentObserver dchaStateObserver = new ContentObserver(new Handler()) {
+    final ContentObserver dchaStateObserver = new ContentObserver(new Handler(Looper.myLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -655,7 +655,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     };
 
     /* ナビゲーションバーオブザーバー */
-    final ContentObserver navigationBarObserver = new ContentObserver(new Handler()) {
+    final ContentObserver navigationBarObserver = new ContentObserver(new Handler(Looper.myLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -669,7 +669,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     };
 
     /* 提供元オブザーバー */
-    final ContentObserver marketObserver = new ContentObserver(new Handler()) {
+    final ContentObserver marketObserver = new ContentObserver(new Handler(Looper.myLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -683,7 +683,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     };
 
     /* USBデバッグオブザーバー */
-    final ContentObserver usbDebugObserver = new ContentObserver(new Handler()) {
+    final ContentObserver usbDebugObserver = new ContentObserver(new Handler(Looper.myLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {

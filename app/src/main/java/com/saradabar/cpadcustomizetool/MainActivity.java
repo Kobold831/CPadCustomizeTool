@@ -14,7 +14,6 @@ package com.saradabar.cpadcustomizetool;
 
 import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
 
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -23,6 +22,7 @@ import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +33,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigationrail.NavigationRailView;
@@ -358,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     alertDialog.show();
                 }
                 /* カウント開始 */
-                mHandler = new Handler();
+                mHandler = new Handler(Looper.myLooper());
                 mRunnable = new Runnable() {
                     int i = 10;
 

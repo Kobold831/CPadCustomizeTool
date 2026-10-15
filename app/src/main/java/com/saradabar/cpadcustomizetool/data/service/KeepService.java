@@ -25,6 +25,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
 
@@ -152,7 +153,7 @@ public class KeepService extends Service {
     }
 
     /* DchaStateオブサーバー */
-    final ContentObserver dchaStateObserver = new ContentObserver(new Handler()) {
+    final ContentObserver dchaStateObserver = new ContentObserver(new Handler(Looper.myLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -169,7 +170,7 @@ public class KeepService extends Service {
     };
 
     /* ナビゲーションバーオブサーバー */
-    final ContentObserver navigationBarObserver = new ContentObserver(new Handler()) {
+    final ContentObserver navigationBarObserver = new ContentObserver(new Handler(Looper.myLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -186,7 +187,7 @@ public class KeepService extends Service {
     };
 
     /* 提供元不明オブサーバー */
-    final ContentObserver marketObserver = new ContentObserver(new Handler()) {
+    final ContentObserver marketObserver = new ContentObserver(new Handler(Looper.myLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -203,7 +204,7 @@ public class KeepService extends Service {
     };
 
     /* UDBデバッグオブサーバー */
-    final ContentObserver usbDebugObserver = new ContentObserver(new Handler()) {
+    final ContentObserver usbDebugObserver = new ContentObserver(new Handler(Looper.myLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
