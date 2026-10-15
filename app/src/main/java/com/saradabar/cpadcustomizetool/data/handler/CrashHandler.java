@@ -32,8 +32,13 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
 
     @Override
     public void uncaughtException(@NonNull Thread thread, @NonNull Throwable throwable) {
-        Common.LogOverWrite(mContext, throwable);
-        Preferences.save(mContext, Constants.KEY_FLAG_ERROR_CRASH, true);
-        mDefaultUncaughtExceptionHandler.uncaughtException(thread, throwable);
+        try {
+            Common.LogOverWrite(mContext, thread, throwable);
+            Preferences.save(mContext, Constants.KEY_FLAG_ERROR_CRASH, true);
+        } finally {
+            if (mDefaultUncaughtExceptionHandler != null) {
+                mDefaultUncaughtExceptionHandler.uncaughtException(thread, throwable);
+            }
+        }
     }
 }

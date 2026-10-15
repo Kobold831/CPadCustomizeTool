@@ -53,6 +53,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -198,13 +200,17 @@ public class Common {
         return df.format(System.currentTimeMillis());
     }
 
-    public static void LogOverWrite(Context context, @NonNull Throwable throwable) {
+    public static void LogOverWrite(Context context, @NonNull Thread thread, @NonNull Throwable throwable) {
+        StringWriter stackTrace = new StringWriter();
+        throwable.printStackTrace(new PrintWriter(stackTrace));
         String message =
                 "Date: " + getNowDate() + System.lineSeparator() +
                         "Version: v" + BuildConfig.VERSION_NAME + System.lineSeparator() +
                         "Device: " + Build.MODEL + System.lineSeparator() +
                         "Build: " + Build.ID + System.lineSeparator() +
-                        "Exception: " + throwable.getMessage();
+                        "Thread: " + thread.getName() + " (" + thread.getId() + ")" + System.lineSeparator() +
+                        "Exception: " + throwable.getClass().getName() + ": " + throwable.getMessage() + System.lineSeparator() +
+                        "Stack trace:" + System.lineSeparator() + stackTrace;
 
         ArrayList<String> arrayList = Preferences.load(context, Constants.KEY_LIST_CRASH_LOG);
 

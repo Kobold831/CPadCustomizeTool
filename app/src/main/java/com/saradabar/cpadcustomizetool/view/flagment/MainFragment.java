@@ -117,11 +117,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     /* アクティビティ破棄 */
     @Override
     public void onDestroy() {
+        Context context = getContext();
+        if (context != null) {
+            context.getContentResolver().unregisterContentObserver(dchaStateObserver);
+            context.getContentResolver().unregisterContentObserver(navigationBarObserver);
+            context.getContentResolver().unregisterContentObserver(marketObserver);
+            context.getContentResolver().unregisterContentObserver(usbDebugObserver);
+        }
         super.onDestroy();
-        requireActivity().getContentResolver().unregisterContentObserver(dchaStateObserver);
-        requireActivity().getContentResolver().unregisterContentObserver(navigationBarObserver);
-        requireActivity().getContentResolver().unregisterContentObserver(marketObserver);
-        requireActivity().getContentResolver().unregisterContentObserver(usbDebugObserver);
     }
 
     @Override
@@ -643,6 +646,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+            if (!isAdded() || swDchaState == null) return;
             try {
                 swDchaState.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
@@ -656,6 +660,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+            if (!isAdded() || swNavigation == null) return;
             try {
                 swNavigation.setChecked(Settings.System.getInt(requireActivity().getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
@@ -669,6 +674,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+            if (!isAdded() || swUnkSrc == null) return;
             try {
                 swUnkSrc.setChecked(Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
@@ -682,6 +688,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+            if (!isAdded() || swAdb == null) return;
             try {
                 swAdb.setChecked(Settings.Global.getInt(requireActivity().getContentResolver(), Settings.Global.ADB_ENABLED) != 0);
             } catch (Settings.SettingNotFoundException ignored) {
@@ -762,12 +769,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             /* プログレスバーの表示 */
             @Override
             public void onShow() {
+                if (!isAdded()) return;
                 showLoadingDialog(requireActivity().getResources().getString(R.string.progress_state_installing));
             }
 
             /* 成功 */
             @Override
             public void onSuccess() {
+                if (!isAdded()) return;
                 cancelLoadingDialog();
                 new DialogUtil(MainFragment.this.requireActivity())
                         .setMessage(R.string.dialog_success_silent_install)
@@ -779,6 +788,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             /* 失敗 */
             @Override
             public void onFailure() {
+                if (!isAdded()) return;
                 cancelLoadingDialog();
                 new DialogUtil(MainFragment.this.requireActivity())
                         .setMessage(R.string.dialog_failure_silent_install)
@@ -792,6 +802,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @SuppressLint("InflateParams")
     @Override
     public void onDownloadComplete(int reqCode) {
+        if (!isAdded() || getContext() == null) return;
         switch (reqCode) {
             case Constants.REQUEST_DOWNLOAD_APP_CHECK:
                 cancelLoadingDialog();
@@ -949,6 +960,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onDownloadError(int reqCode) {
+        if (!isAdded() || getContext() == null) return;
         switch (reqCode) {
             case Constants.REQUEST_DOWNLOAD_APK,
                  Constants.REQUEST_DOWNLOAD_APP_CHECK -> {
@@ -964,6 +976,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onConnectionError(int reqCode) {
+        if (!isAdded() || getContext() == null) return;
         switch (reqCode) {
             case Constants.REQUEST_DOWNLOAD_APK,
                  Constants.REQUEST_DOWNLOAD_APP_CHECK -> {
@@ -979,6 +992,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
+        if (!isAdded() || progressPercentText == null || progressByteText == null || dialogProgressBar == null || progressDialog == null) return;
         progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append(" %"));
         progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append(" / ").append(totalByte).append(" MB"));
         dialogProgressBar.setProgress(progress);
@@ -987,16 +1001,19 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
     @Override
     public void onInstallSuccess(int reqCode) {
+        if (!isAdded() || getContext() == null) return;
         apkInstallTaskListener().onSuccess();
     }
 
     @Override
     public void onInstallFailure(int reqCode, String message) {
+        if (!isAdded() || getContext() == null) return;
         apkInstallTaskListener().onFailure(message);
     }
 
     @Override
     public void onInstallError(int reqCode, String message) {
+        if (!isAdded() || getContext() == null) return;
         apkInstallTaskListener().onError(message);
     }
 
@@ -1006,12 +1023,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             /* プログレスバーの表示 */
             @Override
             public void onShow() {
+                if (!isAdded()) return;
                 showLoadingDialog(getString(R.string.progress_state_installing));
             }
 
             /* 成功 */
             @Override
             public void onSuccess() {
+                if (!isAdded()) return;
                 Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
                 AlertDialog alertDialog = new DialogUtil(MainFragment.this.requireActivity())
@@ -1028,6 +1047,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             /* 失敗 */
             @Override
             public void onFailure(String message) {
+                if (!isAdded()) return;
                 Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
                 new DialogUtil(MainFragment.this.requireActivity())
@@ -1039,6 +1059,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             @Override
             public void onError(String message) {
+                if (!isAdded()) return;
                 Common.deleteDirectory(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
                 new DialogUtil(MainFragment.this.requireActivity())

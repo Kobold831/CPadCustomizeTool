@@ -2,6 +2,7 @@ package com.saradabar.cpadcustomizetool.view.flagment.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -31,37 +32,21 @@ public class BypassPermissionDialogFragment extends DialogFragment {
                                             if (object2.equals(true)) {
                                                 new DchaServiceUtil(context).setSetupStatus(0, object3 -> {
                                                     if (object3.equals(true)) {
-                                                        new DialogUtil(context)
-                                                                .setTitle("処理完了")
-                                                                .setMessage("権限設定は完了しました。もう一度操作すれば、設定を変更できます。")
-                                                                .setPositiveButton(R.string.dialog_common_ok, null)
-                                                                .show();
+                                                        showResultDialog("処理完了", "権限設定は完了しました。もう一度操作すれば、設定を変更できます。");
                                                     } else {
-                                                        new DialogUtil(context)
-                                                                .setMessage(R.string.dialog_error)
-                                                                .setPositiveButton(R.string.dialog_common_ok, null)
-                                                                .show();
+                                                        showResultDialog(null, R.string.dialog_error);
                                                     }
                                                 });
                                             } else {
-                                                new DialogUtil(context)
-                                                        .setMessage(R.string.dialog_error)
-                                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                                        .show();
+                                                showResultDialog(null, R.string.dialog_error);
                                             }
                                         });
                                     } else {
-                                        new DialogUtil(context)
-                                                .setMessage(R.string.dialog_error)
-                                                .setPositiveButton(R.string.dialog_common_ok, null)
-                                                .show();
+                                        showResultDialog(null, R.string.dialog_error);
                                     }
                                 });
                             } else {
-                                new DialogUtil(context)
-                                        .setMessage(R.string.dialog_error)
-                                        .setPositiveButton(R.string.dialog_common_ok, null)
-                                        .show();
+                                showResultDialog(null, R.string.dialog_error);
                             }
                         });
                     } else {
@@ -72,5 +57,26 @@ public class BypassPermissionDialogFragment extends DialogFragment {
                     }
                 })
                 .show();
+    }
+
+    private void showResultDialog(String title, CharSequence message) {
+        Activity activity = getActivity();
+        if (!isAdded() || activity == null || activity.isFinishing() || activity.isDestroyed()) {
+            return;
+        }
+
+        DialogUtil dialog = new DialogUtil(activity)
+                .setMessage(message)
+                .setPositiveButton(R.string.dialog_common_ok, null);
+        if (title != null) {
+            dialog.setTitle(title);
+        }
+        dialog.show();
+    }
+
+    private void showResultDialog(String title, int messageResId) {
+        Activity activity = getActivity();
+        if (activity == null) return;
+        showResultDialog(title, activity.getString(messageResId));
     }
 }
