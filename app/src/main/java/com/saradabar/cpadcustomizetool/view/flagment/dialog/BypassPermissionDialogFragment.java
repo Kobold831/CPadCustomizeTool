@@ -65,8 +65,8 @@ public class BypassPermissionDialogFragment extends DialogFragment {
             return;
         }
 
-        DialogUtil dialog = new DialogUtil(activity)
-                .setMessage(message)
+        DialogUtil dialog = new DialogUtil(activity);
+        dialog.setMessage(message)
                 .setPositiveButton(R.string.dialog_common_ok, null);
         if (title != null) {
             dialog.setTitle(title);
