@@ -23,7 +23,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="終了" />
+            android:text="@string/device_info_button_finish" />
 
         <com.google.android.material.button.MaterialButton
             style="?android:attr/buttonBarButtonStyle"
@@ -31,7 +31,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="メインメニュー" />
+            android:text="@string/device_info_button_main_menu" />
 
     </LinearLayout>
 

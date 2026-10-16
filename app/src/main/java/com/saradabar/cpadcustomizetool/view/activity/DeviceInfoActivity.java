@@ -35,7 +35,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            getSupportActionBar().setTitle("デバイス情報");
+            getSupportActionBar().setTitle(R.string.activity_device_info);
         }
         init();
 
@@ -51,9 +51,9 @@ public class DeviceInfoActivity extends AppCompatActivity {
     private void init() {
         ListView listView = findViewById(R.id.act_device_info_list);
         listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>(Arrays.asList(
-                "システムプロパティ情報",
-                "システム情報",
-                "バッテリー情報"))));
+                getString(R.string.device_info_system_property),
+                getString(R.string.device_info_system),
+                getString(R.string.device_info_battery)))));
         listView.setOnItemClickListener((parent, view, position, id) -> {
             switch (position) {
                 case 0:

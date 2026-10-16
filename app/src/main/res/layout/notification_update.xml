@@ -3,13 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp"
+    android:padding="@dimen/notification_update_padding"
     tools:keep="@layout/notification_update">
 
     <ImageView
         android:id="@+id/notification_large_icon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@dimen/notification_update_icon_size"
+        android:layout_height="@dimen/notification_update_icon_size"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
         android:importantForAccessibility="no"
@@ -37,7 +37,7 @@
             style="@style/TextAppearance.Compat.Notification.Line2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="@dimen/notification_update_margin_top"
             android:ellipsize="end"
             android:maxLines="1"
             tools:text="タップして今すぐカスタマイズツールを更新" />

@@ -20,37 +20,6 @@ public class DchaServiceUtil {
         void onResult(Object object);
     }
 
-    public void cancelSetup(Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                iDchaService.cancelSetup();
-                listener.onResult(true);
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
-    public void checkPadRooted(Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                listener.onResult(iDchaService.checkPadRooted());
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
     public void clearDefaultPreferredApp(String packageName, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
             if (iDchaService == null) {
@@ -67,21 +36,6 @@ public class DchaServiceUtil {
         });
     }
 
-    public void copyFile(String srcFilePath, String dstFilePath, Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                listener.onResult(iDchaService.copyFile(srcFilePath, dstFilePath));
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
     public void copyUpdateImage(String srcFilePath, String dstFilePath, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
             if (iDchaService == null) {
@@ -91,101 +45,6 @@ public class DchaServiceUtil {
 
             try {
                 listener.onResult(iDchaService.copyUpdateImage(srcFilePath, dstFilePath.startsWith("/cache") ? dstFilePath : "/cache/../" + dstFilePath));
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
-    public void deleteFile(String path, Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                listener.onResult(iDchaService.deleteFile(path));
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
-    public void disableADB(Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                iDchaService.disableADB();
-                listener.onResult(true);
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
-    public void getCanonicalExternalPath(String linkPath, Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                listener.onResult(iDchaService.getCanonicalExternalPath(linkPath));
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
-    public void getForegroundPackageName(Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                listener.onResult(iDchaService.getForegroundPackageName());
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
-    public void getSetupStatus(Listener listener) {
-        if (Common.isBenesseExtensionExist("getDchaState")) {
-            listener.onResult(BenesseExtension.getDchaState());
-        } else {
-            new IDchaTask().execute(mContext, iDchaService -> {
-                if (iDchaService == null) {
-                    listener.onResult(false);
-                    return;
-                }
-
-                try {
-                    listener.onResult(iDchaService.getSetupStatus());
-                } catch (RemoteException e) {
-                    listener.onResult(e.getMessage());
-                }
-            });
-        }
-    }
-
-    public void getUserCount(Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                listener.onResult(iDchaService.getUserCount());
             } catch (RemoteException e) {
                 listener.onResult(e.getMessage());
             }
@@ -211,7 +70,12 @@ public class DchaServiceUtil {
             });
         } else {
             // 設定で変更
-            Settings.System.putInt(mContext.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, hide ? 1 : 0);
+            try {
+                Settings.System.putInt(mContext.getContentResolver(), Constants.HIDE_NAVIGATION_BAR, hide ? 1 : 0);
+                listener.onResult(true);
+            } catch (RuntimeException e) {
+                listener.onResult(e.getMessage());
+            }
         }
     }
 
@@ -224,21 +88,6 @@ public class DchaServiceUtil {
 
             try {
                 listener.onResult(iDchaService.installApp(path, installFlag));
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
-    public void isDeviceEncryptionEnabled(Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                listener.onResult(iDchaService.isDeviceEncryptionEnabled());
             } catch (RemoteException e) {
                 listener.onResult(e.getMessage());
             }
@@ -277,38 +126,6 @@ public class DchaServiceUtil {
         });
     }
 
-    public void sdUnmount(Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                iDchaService.sdUnmount();
-                listener.onResult(true);
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
-    public void setDefaultParam(Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                iDchaService.setDefaultParam();
-                listener.onResult(true);
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
     public void setDefaultPreferredHomeApp(String packageName, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
             if (iDchaService == null) {
@@ -318,22 +135,6 @@ public class DchaServiceUtil {
 
             try {
                 iDchaService.setDefaultPreferredHomeApp(packageName);
-                listener.onResult(true);
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
-    public void setPermissionEnforced(boolean enforced, Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                iDchaService.setPermissionEnforced(enforced);
                 listener.onResult(true);
             } catch (RemoteException e) {
                 listener.onResult(e.getMessage());
@@ -373,22 +174,6 @@ public class DchaServiceUtil {
         }
     }
 
-    public void setSystemTime(String time, String timeFormat, Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                iDchaService.setSystemTime(time, timeFormat);
-                listener.onResult(true);
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
     public void uninstallApp(String packageName, int uninstallFlag, Listener listener) {
         new IDchaTask().execute(mContext, iDchaService -> {
             if (iDchaService == null) {
@@ -398,21 +183,6 @@ public class DchaServiceUtil {
 
             try {
                 listener.onResult(iDchaService.uninstallApp(packageName, uninstallFlag));
-            } catch (RemoteException e) {
-                listener.onResult(e.getMessage());
-            }
-        });
-    }
-
-    public void verifyUpdateImage(String updateFile, Listener listener) {
-        new IDchaTask().execute(mContext, iDchaService -> {
-            if (iDchaService == null) {
-                listener.onResult(false);
-                return;
-            }
-
-            try {
-                listener.onResult(iDchaService.verifyUpdateImage(updateFile));
             } catch (RemoteException e) {
                 listener.onResult(e.getMessage());
             }

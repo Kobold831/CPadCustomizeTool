@@ -49,7 +49,7 @@ public class InstallerListDialogFragment extends DialogFragment {
         List<UpdateModeListView.AppData> dataList = new ArrayList<>();
         int i = 0;
 
-        for (String str1 : Constants.LIST_UPDATE_MODE) {
+        for (String str1 : getResources().getStringArray(R.array.update_mode_text)) {
             UpdateModeListView.AppData data = new UpdateModeListView.AppData();
             data.label = str1;
             data.updateMode = i;

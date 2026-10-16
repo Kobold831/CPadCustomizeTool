@@ -3,5 +3,6 @@
 
     <color name="colorPrimary">@color/m3_sys_color_dark_background</color>
     <color name="textColor">@color/m3_sys_color_dark_on_background</color>
+    <color name="emergencyManualTextColor">#FFFFFF00</color>
 
 </resources>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="icon_size">24dp</dimen>
+
+    <!-- activity_main -->
+    <dimen name="main_navigation_rail_margin_start">16dp</dimen>
+    <dimen name="main_frame_margin_ct2_portrait">64px</dimen>
+    <dimen name="main_frame_margin_ctx_portrait">72px</dimen>
+    <dimen name="main_frame_margin_ct2_landscape">112px</dimen>
+    <dimen name="main_frame_margin_ctx_landscape">144px</dimen>
+
+    <!-- activity_splash -->
+    <dimen name="splash_margin_horizontal">16dp</dimen>
+    <dimen name="splash_spacing">8dp</dimen>
+    <dimen name="splash_text_size">16sp</dimen>
+    <dimen name="splash_title_text_size">24sp</dimen>
+    <dimen name="splash_button_height">128dp</dimen>
+
+    <!-- activity_welcome -->
+    <dimen name="welcome_spacing">8dp</dimen>
+    <dimen name="welcome_margin_horizontal">16dp</dimen>
+    <dimen name="welcome_text_size">16sp</dimen>
+    <dimen name="welcome_button_text_size">24sp</dimen>
+
+    <!-- activity_app_info -->
+    <dimen name="app_info_spacing">16dp</dimen>
+    <dimen name="app_info_spacing_small">8dp</dimen>
+    <dimen name="app_info_text_size">16sp</dimen>
+
+    <!-- activity_crash_log -->
+    <dimen name="crash_log_padding">8dp</dimen>
+    <dimen name="crash_log_divider_height">16dp</dimen>
+
+    <!-- activity_notice_list -->
+    <dimen name="notice_list_padding">8dp</dimen>
+    <dimen name="notice_list_divider_height">16dp</dimen>
+
+    <!-- layout_app_list -->
+    <dimen name="app_list_padding_horizontal">24dp</dimen>
+    <dimen name="app_list_text_size">16sp</dimen>
+
+    <!-- layout_launcher_list -->
+    <dimen name="launcher_list_padding_top">8dp</dimen>
+
+    <!-- layout_normal_launcher_list -->
+    <dimen name="normal_launcher_list_padding_top">8dp</dimen>
+
+    <!-- layout_simple_function -->
+    <dimen name="simple_function_spacing">16dp</dimen>
+    <dimen name="simple_function_spacing_small">8dp</dimen>
+    <dimen name="simple_function_header_text_size">20sp</dimen>
+    <dimen name="simple_function_card_text_size">32sp</dimen>
+
+    <!-- layout_uninstall_list -->
+    <dimen name="uninstall_list_spacing">16dp</dimen>
+    <dimen name="uninstall_list_button_margin_vertical">8dp</dimen>
+    <dimen name="uninstall_list_button_gap">4dp</dimen>
+
+    <!-- layout_update_list -->
+    <dimen name="update_list_padding_top">8dp</dimen>
+
+    <!-- notification_update -->
+    <dimen name="notification_update_padding">8dp</dimen>
+    <dimen name="notification_update_icon_size">48dp</dimen>
+    <dimen name="notification_update_margin_top">2dp</dimen>
+
+    <!-- view_app_list_item -->
+    <dimen name="app_list_item_padding_vertical">8dp</dimen>
+    <dimen name="app_list_item_text_size">20sp</dimen>
+
+    <!-- view_app_url -->
+    <dimen name="app_url_margin_horizontal">20dp</dimen>
+
+    <!-- view_crash_log_list_item -->
+    <dimen name="crash_log_list_item_padding">8dp</dimen>
+
+    <!-- view_launch_app_item -->
+    <dimen name="launch_app_item_icon_size">48dp</dimen>
+    <dimen name="launch_app_item_spacing">8dp</dimen>
+    <dimen name="launch_app_item_text_margin_start">16dp</dimen>
+    <dimen name="launch_app_item_text_size">16sp</dimen>
+
+    <!-- view_launcher_item -->
+    <dimen name="launcher_item_spacing">20dp</dimen>
+    <dimen name="launcher_item_spacing_small">8dp</dimen>
+    <dimen name="launcher_item_icon_size">48dp</dimen>
+    <dimen name="launcher_item_text_margin_start">16dp</dimen>
+    <dimen name="launcher_item_text_size">20sp</dimen>
+
+    <!-- view_notice_item -->
+    <dimen name="notice_item_padding">8dp</dimen>
+    <dimen name="notice_item_title_text_size">24sp</dimen>
+    <dimen name="notice_item_text_size">16sp</dimen>
+
+    <!-- view_progress_spinner -->
+    <dimen name="progress_spinner_margin">16dp</dimen>
+
+    <!-- view_progress -->
+    <dimen name="progress_margin_horizontal">20dp</dimen>
+
+    <!-- view_resolution -->
+    <dimen name="resolution_margin">20dp</dimen>
+
+    <!-- view_time_out -->
+    <dimen name="time_out_margin_horizontal">20dp</dimen>
+
+    <!-- view_uninstall_item -->
+    <dimen name="uninstall_item_padding">8dp</dimen>
+    <dimen name="uninstall_item_icon_size">48dp</dimen>
+    <dimen name="uninstall_item_text_size">20sp</dimen>
+
+    <!-- view_update_item -->
+    <dimen name="update_item_margin_start">20dp</dimen>
+    <dimen name="update_item_padding_vertical">8dp</dimen>
+    <dimen name="update_item_text_size">20sp</dimen>
+
+    <!-- view_update -->
+    <dimen name="update_margin">20dp</dimen>
+    <dimen name="update_text_size">15sp</dimen>
+
+    <!-- AppFunctionFragment -->
+    <dimen name="app_function_manual_text_size">16sp</dimen>
+    <dimen name="app_function_manual_padding_horizontal">32px</dimen>
+
+    <!-- drawable -->
+    <dimen name="ic_launcher_background_size">108dp</dimen>
+    <dimen name="dialog_background_m3_inset">10dp</dimen>
+    <dimen name="shape_rounded_corners_radius">8dp</dimen>
+    <dimen name="shape_rounded_corners_stroke_width">1dp</dimen>
+</resources>

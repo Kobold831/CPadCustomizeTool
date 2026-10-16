@@ -5,7 +5,7 @@
     <PreferenceCategory
         app:allowDividerAbove="false"
         app:iconSpaceReserved="false"
-        android:title="機能">
+        android:title="@string/pre_util_category_function">
 
         <Preference
             app:iconSpaceReserved="false"
@@ -25,32 +25,32 @@
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_other_web_view"
-            android:summary="セキュリティのため、HTTP 接続、ファイルアクセス機能は使用できません。"
-            android:title="アプリ内ブラウザを起動" />
+            android:summary="@string/pre_util_sum_web_view"
+            android:title="@string/pre_util_title_web_view" />
 
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_other_launch_app"
-            android:summary="インストールされている任意のアプリを起動します。"
-            android:title="アプリランチャー" />
+            android:summary="@string/pre_util_sum_launch_app"
+            android:title="@string/pre_util_title_launch_app" />
 
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_util_re-enable_system-apps"
-            android:title="システムアプリの有効化"
-            android:summary="ブラウザ、検索、トレースを有効にします。" />
+            android:title="@string/pre_util_title_reenable_system_apps"
+            android:summary="@string/pre_util_sum_reenable_system_apps" />
 
     </PreferenceCategory>
 
     <PreferenceCategory
         app:allowDividerAbove="false"
         app:iconSpaceReserved="false"
-        android:title="情報">
+        android:title="@string/pre_util_category_info">
 
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_other_start_device_info"
-            android:title="デバイス情報" />
+            android:title="@string/activity_device_info" />
 
     </PreferenceCategory>
 

@@ -8,7 +8,7 @@
         android:icon="@drawable/ic_info_outline_24" />
 
     <PreferenceCategory
-        android:title="アンインストール設定"
+        android:title="@string/pre_owner_category_uninstall"
         app:allowDividerAbove="false"
         app:iconSpaceReserved="false">
 
@@ -21,7 +21,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="権限設定"
+        android:title="@string/pre_owner_category_permission"
         app:allowDividerAbove="false"
         app:iconSpaceReserved="false">
 
@@ -34,15 +34,15 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="インストール"
+        android:title="@string/pre_owner_category_install"
         app:allowDividerAbove="false"
         app:iconSpaceReserved="false">
 
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_owner_session_install_notice"
-            android:summary="タップして内容を確認してください。正しい手順で操作しないとエラーの可能性があります!"
-            android:title="サイレントインストールの注意事項" />
+            android:summary="@string/pre_owner_sum_session_install_notice"
+            android:title="@string/pre_owner_title_session_install_notice" />
 
         <Preference
             app:iconSpaceReserved="false"
@@ -53,13 +53,13 @@
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_owner_abandon_session"
-            android:summary="インストールで問題が発生した場合に使用してください。"
-            android:title="インストールセッション破棄" />
+            android:summary="@string/pre_owner_sum_abandon_session"
+            android:title="@string/pre_owner_title_abandon_session" />
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="デバイスオーナー設定"
+        android:title="@string/pre_owner_category_device_owner"
         app:allowDividerAbove="false"
         app:iconSpaceReserved="false">
 

@@ -15,8 +15,8 @@
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_app_simple_mode"
-            android:title="シンプルモード"
-            android:summary="アプリが起動したときに、表示される画面をシンプルにします。" />
+            android:title="@string/pre_app_title_simple_mode"
+            android:summary="@string/pre_app_sum_simple_mode" />
 
     </PreferenceCategory>
 
@@ -29,13 +29,13 @@
             app:singleLineTitle="false"
             app:iconSpaceReserved="false"
             android:key="pre_app_normal_env"
-            android:title="通常環境モード" />
+            android:title="@string/pre_app_title_normal_env" />
 
         <Preference
             app:selectable="false"
             android:key="pre_install_unknown_source_info"
             android:icon="@drawable/ic_info_outline_24"
-            android:summary="この機能を使用すると、学習兼用機能 (緊急モード、通常モード、維持機能、そのほか一部) は、無効になり非表示になります。設定変更などで、Dcha、BenesseExtension は使用しなくなります。" />
+            android:summary="@string/pre_app_sum_normal_env" />
 
         <SwitchPreferenceCompat
             app:singleLineTitle="false"
@@ -47,14 +47,14 @@
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_app_clear_cache"
-            android:summary="このアプリの不要なファイルを消去します。"
-            android:title="キャッシュをクリア" />
+            android:summary="@string/pre_app_sum_clear_cache"
+            android:title="@string/pre_app_title_clear_cache" />
 
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_app_clear_data"
-            android:summary="このアプリのデータを消去します。"
-            android:title="ユーザーデータをクリア" />
+            android:summary="@string/pre_app_sum_clear_data"
+            android:title="@string/pre_app_title_clear_data" />
 
     </PreferenceCategory>
 
@@ -66,7 +66,7 @@
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_app_update_mode"
-            android:summary="アップデートやアプリをインストールするときのインストーラーを変更できます。"
+            android:summary="@string/pre_app_sum_update_mode"
             android:title="@string/pre_app_title_update" />
 
     </PreferenceCategory>
@@ -79,7 +79,7 @@
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_app_crash_log"
-            android:summary="アプリが予期せず終了したときのログを確認できます。"
+            android:summary="@string/pre_app_sum_crash_log"
             android:title="@string/pre_app_title_crash_history" />
 
         <Preference
@@ -94,22 +94,22 @@
         app:allowDividerAbove="false"
         app:iconSpaceReserved="false"
         android:key="pre_app_category_debug"
-        android:title="デバッグ">
+        android:title="@string/pre_app_category_debug">
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_app_debug_restriction"
-            android:title="制限を解除する" />
+            android:title="@string/pre_app_title_debug_restriction" />
 
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_app_debug_force_crash"
-            android:title="クラッシュを発生させる" />
+            android:title="@string/pre_app_title_debug_force_crash" />
 
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_app_debug_device"
-            android:title="デバイスを変更する" />
+            android:title="@string/pre_app_title_debug_device" />
 
     </PreferenceCategory>
 

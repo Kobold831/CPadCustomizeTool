@@ -20,8 +20,8 @@ public class BypassPermissionDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Context context = requireActivity();
         return new DialogUtil(context)
-                .setTitle("機能を使用するために権限を付与しますか?")
-                .setMessage("権限がないため、設定を変更できません。\n\"OK\" を押すと、権限設定を行います。処理は数秒で終わります。")
+                .setTitle(R.string.dialog_title_bypass_permission)
+                .setMessage(R.string.dialog_bypass_permission_message)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                     if (Common.copyAssetsFile(context)) {
                         new DchaServiceUtil(context).setSetupStatus(3, object -> {
@@ -32,7 +32,7 @@ public class BypassPermissionDialogFragment extends DialogFragment {
                                             if (object2.equals(true)) {
                                                 new DchaServiceUtil(context).setSetupStatus(0, object3 -> {
                                                     if (object3.equals(true)) {
-                                                        showResultDialog("処理完了", "権限設定は完了しました。もう一度操作すれば、設定を変更できます。");
+                                                        showResultDialog(getString(R.string.dialog_title_process_complete), R.string.dialog_bypass_permission_complete);
                                                     } else {
                                                         showResultDialog(null, R.string.dialog_error);
                                                     }

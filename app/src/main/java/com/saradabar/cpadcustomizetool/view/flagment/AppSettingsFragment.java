@@ -75,9 +75,9 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
 
         swDisableUpdateCheck.setOnPreferenceChangeListener((preference, newValue) -> {
             if ((boolean) newValue) {
-                swDisableUpdateCheck.setSummary("アプリを起動したときに、更新を確認しません。");
+                swDisableUpdateCheck.setSummary(R.string.pre_app_sum_update_check_off);
             } else {
-                swDisableUpdateCheck.setSummary("アプリを起動したときに、更新を確認します。");
+                swDisableUpdateCheck.setSummary(R.string.pre_app_sum_update_check_on);
             }
             Preferences.save(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, !((boolean) newValue));
             return true;
@@ -194,9 +194,9 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         swNormalEnv.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL));
 
         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
-            swDisableUpdateCheck.setSummary("アプリを起動したときに、更新を確認します。");
+            swDisableUpdateCheck.setSummary(R.string.pre_app_sum_update_check_on);
         } else {
-            swDisableUpdateCheck.setSummary("アプリを起動したときに、更新を確認しません。");
+            swDisableUpdateCheck.setSummary(R.string.pre_app_sum_update_check_off);
         }
 
         if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {

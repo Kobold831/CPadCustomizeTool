@@ -46,7 +46,7 @@ public class WebViewActivity extends AppCompatActivity {
             initWebView();
         } catch (Exception ignored) {
             new DialogUtil(this)
-                    .setMessage("\"WebView\" の起動に問題が発生しました。\nデバイスの更新、または \"WebView\" の更新をお試しください。")
+                    .setMessage(R.string.dialog_error_web_view)
                     .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
         }
@@ -67,7 +67,7 @@ public class WebViewActivity extends AppCompatActivity {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 if (getSupportActionBar() != null) {
-                    getSupportActionBar().setTitle("読み込みしています");
+                    getSupportActionBar().setTitle(R.string.webview_loading);
                     getSupportActionBar().setSubtitle(url);
                 }
             }
@@ -85,15 +85,15 @@ public class WebViewActivity extends AppCompatActivity {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (isUrlDistrusted(url)) {
                     if (getSupportActionBar() != null) {
-                        getSupportActionBar().setTitle("このサイトにアクセスできません");
-                        getSupportActionBar().setSubtitle("このウェブページは、HTTP 接続のため表示できません");
+                        getSupportActionBar().setTitle(R.string.webview_cannot_access_site);
+                        getSupportActionBar().setSubtitle(R.string.webview_http_not_available);
                     }
                 }
                 return isUrlDistrusted(url);
             }
         });
         webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
-            Toast.makeText(this, "ダウンロードを開始します。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.toast_start_download, Toast.LENGTH_SHORT).show();
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setMimeType(mimetype)
                     .addRequestHeader("Cookie", CookieManager.getInstance().getCookie(url))

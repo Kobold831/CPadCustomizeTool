@@ -26,6 +26,13 @@
 
     <style name="ThemeOverlay.App.Preference" parent="PreferenceThemeOverlay">
         <item name="switchPreferenceCompatStyle">@style/PreferenceMaterialSwitch</item>
+        <item name="preferenceCategoryTitleTextAppearance">@style/TextAppearance.Material3.TitleSmall</item>
+        <item name="preferenceCategoryTitleTextColor">?attr/colorPrimary</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.App.AlertDialog</item>
+    </style>
+
+    <style name="ThemeOverlay.App.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="android:windowBackground">@drawable/dialog_background_m3</item>
     </style>
 
     <style name="PreferenceMaterialSwitch" parent="@style/Preference.SwitchPreferenceCompat.Material">

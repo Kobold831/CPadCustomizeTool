@@ -10,21 +10,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:padding="@dimen/uninstall_item_padding">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/un_icon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/uninstall_item_icon_size"
+            android:layout_height="@dimen/uninstall_item_icon_size"
             tools:ignore="ContentDescription" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/un_label"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/uninstall_item_padding"
             android:gravity="center_vertical"
-            android:textSize="20sp" />
+            android:textSize="@dimen/uninstall_item_text_size" />
 
         <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/un_switch"

@@ -9,21 +9,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="@dimen/notice_item_padding">
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/MyApp.TextView"
             android:id="@+id/notice_text_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="24sp" />
+            android:textSize="@dimen/notice_item_title_text_size" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/notice_text_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:textSize="16sp" />
+            android:paddingTop="@dimen/notice_item_padding"
+            android:textSize="@dimen/notice_item_text_size" />
 
     </LinearLayout>
 

@@ -7,10 +7,10 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginVertical="8dp"
-        android:text="システムUI"
-        android:textSize="16sp"
+        android:layout_marginHorizontal="@dimen/simple_function_spacing"
+        android:layout_marginVertical="@dimen/simple_function_spacing_small"
+        android:text="@string/layout_simple_function_system_ui"
+        android:textSize="@dimen/simple_function_header_text_size"
         android:textStyle="bold" />
 
     <com.google.android.material.card.MaterialCardView
@@ -18,18 +18,19 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginHorizontal="@dimen/simple_function_spacing"
+        android:layout_marginBottom="@dimen/simple_function_spacing"
         android:focusable="true"
         android:clickable="true">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginVertical="16dp"
+            android:layout_marginHorizontal="@dimen/simple_function_spacing"
+            android:layout_marginVertical="@dimen/simple_function_spacing"
             android:gravity="center"
-            android:text="通常モード" />
+            android:text="@string/activity_normal"
+            android:textSize="@dimen/simple_function_card_text_size"/>
 
     </com.google.android.material.card.MaterialCardView>
 
@@ -38,27 +39,28 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginHorizontal="16dp"
+        android:layout_marginHorizontal="@dimen/simple_function_spacing"
         android:focusable="true"
         android:clickable="true">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginVertical="16dp"
+            android:layout_marginHorizontal="@dimen/simple_function_spacing"
+            android:layout_marginVertical="@dimen/simple_function_spacing"
             android:gravity="center"
-            android:text="勉強モード" />
+            android:text="@string/layout_simple_function_study_mode"
+            android:textSize="@dimen/simple_function_card_text_size"/>
 
     </com.google.android.material.card.MaterialCardView>
 
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginVertical="8dp"
-        android:text="ナビゲーションバー"
-        android:textSize="16sp"
+        android:layout_marginHorizontal="@dimen/simple_function_spacing"
+        android:layout_marginVertical="@dimen/simple_function_spacing_small"
+        android:text="@string/layout_simple_function_navigation_bar"
+        android:textSize="@dimen/simple_function_header_text_size"
         android:textStyle="bold" />
 
     <com.google.android.material.card.MaterialCardView
@@ -66,18 +68,19 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginHorizontal="@dimen/simple_function_spacing"
+        android:layout_marginBottom="@dimen/simple_function_spacing"
         android:focusable="true"
         android:clickable="true">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginVertical="16dp"
+            android:layout_marginHorizontal="@dimen/simple_function_spacing"
+            android:layout_marginVertical="@dimen/simple_function_spacing"
             android:gravity="center"
-            android:text="ナビゲーション表示" />
+            android:text="@string/layout_simple_function_show"
+            android:textSize="@dimen/simple_function_card_text_size" />
 
     </com.google.android.material.card.MaterialCardView>
 
@@ -86,18 +89,19 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginHorizontal="@dimen/simple_function_spacing"
+        android:layout_marginBottom="@dimen/simple_function_spacing_small"
         android:focusable="true"
         android:clickable="true">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginVertical="16dp"
+            android:layout_marginHorizontal="@dimen/simple_function_spacing"
+            android:layout_marginVertical="@dimen/simple_function_spacing"
             android:gravity="center"
-            android:text="ナビゲーション非表示" />
+            android:text="@string/layout_simple_function_hide"
+            android:textSize="@dimen/simple_function_card_text_size"/>
 
     </com.google.android.material.card.MaterialCardView>
 

@@ -12,6 +12,7 @@
 
 package com.saradabar.cpadcustomizetool.util;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.admin.DevicePolicyManager;
 import android.app.admin.IDevicePolicyManager;
@@ -32,6 +33,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.rosan.dhizuku.api.Dhizuku;
 
@@ -60,6 +62,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -70,6 +73,10 @@ import java.util.Objects;
 
 /** @noinspection unused*/
 public class Common {
+
+    public static boolean isWriteSecureSettingsGranted(Context context) {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED;
+    }
 
     public static DevicePolicyManager getDevicePolicyManager(Context context) {
         if (isDhizukuAllActive(context)) {
@@ -317,11 +324,14 @@ public class Common {
     public static boolean isBenesseExtensionExist(String method) {
         try {
             Class<?> c = Class.forName("android.os.BenesseExtension", false, ClassLoader.getSystemClassLoader());
-            c.getMethod(method);
-            return true;
+            for (Method m : c.getMethods()) {
+                if (m.getName().equals(method)) {
+                    return true;
+                }
+            }
+            return false;
         } catch (ClassNotFoundException |
                  NoClassDefFoundError |
-                 NoSuchMethodException |
                  SecurityException |
                  NullPointerException ignored) {
             return false;

@@ -18,6 +18,7 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
     private static boolean isHomeButtonPressed = false;
     private static boolean isVolumeDownPressed = false;
     private static boolean isVolumeUpPressed = false;
+    private static boolean isFunctionExecuted = false;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -34,6 +35,10 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
                 isHomeButtonPressed = true;
             } else if (event.getAction() == KeyEvent.ACTION_UP) {
                 isHomeButtonPressed = false;
+                if (isFunctionExecuted) {
+                    isFunctionExecuted = false;
+                    return true;
+                }
             }
         }
 
@@ -56,14 +61,20 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
         if (isHomeButtonPressed && isVolumeDownPressed &&
                 !Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
             // ホームボタンが押されたかつボリュームダウンが押されたかつ通常環境モードではない
-            startActivity(new Intent(this, NormalActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            if (!isFunctionExecuted) {
+                isFunctionExecuted = true;
+                startActivity(new Intent(this, NormalActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            }
             return true;
         }
 
         if (isHomeButtonPressed && isVolumeUpPressed &&
                 !Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
-            // ホームボタンが押されたかつボリュームダウンが押されたかつ通常環境モードではない
-            startActivity(new Intent(this, EmergencyActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            // ホームボタンが押されたかつボリュームアップが押されたかつ通常環境モードではない
+            if (!isFunctionExecuted) {
+                isFunctionExecuted = true;
+                startActivity(new Intent(this, EmergencyActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            }
             return true;
         }
         return super.onKeyEvent(event);

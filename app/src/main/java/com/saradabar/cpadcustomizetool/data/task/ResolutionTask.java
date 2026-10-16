@@ -28,7 +28,7 @@ public class ResolutionTask {
     }
 
     private void onPostExecute(Listener listener, Object result) {
-        new Handler(Looper.myLooper()).postDelayed(() -> {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (result.equals(true)) {
                 listener.onSuccess();
                 return;

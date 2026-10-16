@@ -6,11 +6,12 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
-import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
@@ -18,10 +19,16 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreferenceCompat;
 
+import com.saradabar.cpadcustomizetool.BuildConfig;
+import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.data.service.AccessibilityService;
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
@@ -34,6 +41,11 @@ import java.util.List;
 
 public class AppFunctionFragment extends PreferenceFragmentCompat {
 
+    private static final String ACCESSIBILITY_SERVICE =
+            BuildConfig.APPLICATION_ID + "/" + AccessibilityService.class.getName();
+
+    SwitchPreferenceCompat swServiceStatus;
+
     Preference preEmgManual,
             preEmgExecute,
             preEmgShortcut,
@@ -45,6 +57,7 @@ public class AppFunctionFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.pre_app_function, rootKey);
+        ((MainActivity) requireActivity()).initNavigationState();
 
         preEmgManual = findPreference("pre_emg_manual");
         preEmgExecute = findPreference("pre_emg_execute");
@@ -53,13 +66,30 @@ public class AppFunctionFragment extends PreferenceFragmentCompat {
         preNorManual = findPreference("pre_nor_manual");
         preNorExecute = findPreference("pre_nor_execute");
         preNorShortcut = findPreference("pre_nor_shortcut");
+        swServiceStatus = findPreference("switch_service_status");
+
+        swServiceStatus.setChecked(isAccessibilityServiceEnabled());
+        //swServiceStatus.setEnabled(Common.isWriteSecureSettingsGranted(requireActivity()));
+
+        swServiceStatus.setOnPreferenceChangeListener((preference, newValue) -> {
+            if (!Common.isWriteSecureSettingsGranted(requireActivity())) {
+                Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            String enabledServices = Settings.Secure.getString(requireActivity().getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+
+            Settings.Secure.putString(requireActivity().getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+                    (boolean) newValue ? enableAccessibilityService(enabledServices) : disableAccessibilityService(enabledServices));
+
+            return true;
+        });
 
         preEmgManual.setOnPreferenceClickListener(preference -> {
             AppCompatTextView textView = new AppCompatTextView(requireActivity());
             textView.setText(R.string.dialog_emergency_manual_red);
-            textView.setTextSize(16);
-            textView.setTextColor(Color.RED);
-            textView.setPadding(32, 0, 32, 0);
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, requireActivity().getResources().getDimensionPixelSize(R.dimen.app_function_manual_text_size));
+            textView.setTextColor(ContextCompat.getColor(requireActivity(), R.color.emergencyManualTextColor));
+            textView.setPadding(requireActivity().getResources().getDimensionPixelSize(R.dimen.app_function_manual_padding_horizontal), 0, requireActivity().getResources().getDimensionPixelSize(R.dimen.app_function_manual_padding_horizontal), 0);
             new DialogUtil(requireActivity())
                     .setTitle(R.string.dialog_title_emergency_manual)
                     .setMessage(R.string.dialog_emergency_manual)
@@ -171,5 +201,41 @@ public class AppFunctionFragment extends PreferenceFragmentCompat {
         } catch (PackageManager.NameNotFoundException ignored) {
             preSelNorLauncher.setSummary(getString(R.string.pre_main_sum_no_setting_launcher));
         }
+    }
+
+    private boolean isAccessibilityServiceEnabled() {
+        String enabledServices = Settings.Secure.getString(requireActivity().getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+
+        if (enabledServices == null) return false;
+
+        for (String service : enabledServices.split(":")) {
+            if (service.equals(ACCESSIBILITY_SERVICE)) return true;
+        }
+        return false;
+    }
+
+    private static String enableAccessibilityService(String enabledServices) {
+        if (enabledServices == null || enabledServices.isEmpty()) return ACCESSIBILITY_SERVICE;
+        return enabledServices + ":" + ACCESSIBILITY_SERVICE;
+    }
+
+    private static String disableAccessibilityService(String enabledServices) {
+        if (enabledServices == null) return null;
+
+        int start = enabledServices.indexOf(ACCESSIBILITY_SERVICE);
+
+        if (start < 0) return enabledServices;
+
+        int end = start + ACCESSIBILITY_SERVICE.length();
+
+        if (end < enabledServices.length() && enabledServices.charAt(end) == ':') {
+            return enabledServices.substring(0, start) + enabledServices.substring(end + 1);
+        }
+
+        if (start > 0 && enabledServices.charAt(start - 1) == ':') {
+            return enabledServices.substring(0, start - 1);
+        }
+
+        return "";
     }
 }

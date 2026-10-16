@@ -44,20 +44,20 @@
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             android:key="pre_owner_install_unknown_source"
-            android:title="不明なアプリのユーザー制限を解除"
-            android:summary="不明なアプリは許可されていません。" />
+            android:title="@string/pre_main_title_owner_install_unknown_source"
+            android:summary="@string/pre_main_sum_unknown_source_disallowed" />
 
         <Preference
             app:selectable="false"
             android:key="pre_install_unknown_source_info"
             android:icon="@drawable/ic_info_outline_24"
-            android:summary="デフォルトの状態は、システムのユーザー制限で不明なアプリは許可されていません。有効にするとユーザー制限を解除します。" />
+            android:summary="@string/pre_main_sum_install_unknown_source_info" />
 
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_main_request_install_packages"
-            android:title="不明なアプリのインストールを許可"
-            android:summary="シェルコマンドを実行して、選択したアプリで不明なアプリのインストール権限を許可します。" />
+            android:title="@string/pre_main_title_request_install_packages"
+            android:summary="@string/pre_main_sum_request_install_packages" />
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
@@ -101,7 +101,7 @@
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_dcha_function"
-            android:title="Dcha アプリの機能"
+            android:title="@string/pre_main_title_dcha_function"
             android:summary="@string/pre_main_sum_dcha_function" />
 
     </PreferenceCategory>
@@ -121,7 +121,7 @@
             app:isPreferenceVisible="false"
             app:iconSpaceReserved="false"
             android:key="pre_edit_admin"
-            android:title="デバイス管理者の編集" />
+            android:title="@string/pre_main_title_edit_admin" />
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
@@ -140,14 +140,14 @@
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_app_function"
-            android:title="アプリの機能"
+            android:title="@string/pre_main_title_app_function"
             android:summary="@string/pre_main_sum_app_function" />
 
         <Preference
             app:iconSpaceReserved="false"
             android:key="pre_util"
-            android:title="ユーティリティー"
-            android:summary="機能、情報" />
+            android:title="@string/pre_main_title_util"
+            android:summary="@string/pre_main_sum_util" />
 
         <Preference
             app:iconSpaceReserved="false"

@@ -12,11 +12,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="@dimen/update_item_margin_start"
         android:clickable="false"
         android:focusable="false"
         android:gravity="center_vertical"
-        android:paddingVertical="8dp" />
+        android:paddingVertical="@dimen/update_item_padding_vertical" />
 
     <androidx.appcompat.widget.AppCompatTextView
         style="@style/MyApp.TextView"
@@ -24,9 +24,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="@dimen/update_item_margin_start"
         android:gravity="center_vertical"
-        android:paddingVertical="8dp"
-        android:textSize="20sp" />
+        android:paddingVertical="@dimen/update_item_padding_vertical"
+        android:textSize="@dimen/update_item_text_size" />
 
 </LinearLayout>

@@ -3,18 +3,27 @@
 
     <item
         android:id="@+id/navi_0"
-        android:title="シンプル" />
+        android:icon="@drawable/sentiment_very_satisfied_24px"
+        android:title="@string/menu_navi_simple" />
 
     <item
         android:id="@+id/navi_1"
-        android:title="メイン" />
+        android:icon="@drawable/home_24px"
+        android:title="@string/menu_navi_main" />
 
     <item
         android:id="@+id/navi_2"
-        android:title="Dcha" />
+        android:icon="@drawable/android_24px"
+        android:title="@string/menu_navi_dcha" />
+
+    <item
+        android:id="@+id/navi_4"
+        android:icon="@drawable/swap_horiz_24px"
+        android:title="@string/menu_navi_both" />
 
     <item
         android:id="@+id/navi_3"
-        android:title="設定" />
+        android:icon="@drawable/settings_24px"
+        android:title="@string/activity_start" />
 
 </menu>

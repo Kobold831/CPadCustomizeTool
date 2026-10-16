@@ -48,6 +48,7 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.AppInfoActivity;
 import com.saradabar.cpadcustomizetool.view.activity.CheckActivity;
 import com.saradabar.cpadcustomizetool.view.activity.SelfUpdateActivity;
+import com.saradabar.cpadcustomizetool.view.flagment.AppFunctionFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.AppSettingsFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.DchaFunctionFragment;
 import com.saradabar.cpadcustomizetool.view.flagment.MainFragment;
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
         if (savedInstanceState == null) {
             if (Preferences.load(this, Constants.KEY_FLAG_SIMPLE_MODE, Constants.DEF_BOOL)) {
-                transitionFragment(new SimpleFunctionFragment(), false, "シンプルモード");
+                transitionFragment(new SimpleFunctionFragment(), false, getString(R.string.pre_app_title_simple_mode));
             } else {
                 transitionFragment(new MainFragment(), false, null);
             }
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     private boolean initNavigationListener(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.navi_0) {
             if (!(getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof SimpleFunctionFragment)) {
-                transitionFragment(new SimpleFunctionFragment(), false, "シンプルモード");
+                transitionFragment(new SimpleFunctionFragment(), false, getString(R.string.pre_app_title_simple_mode));
             }
             return true;
         }
@@ -137,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         .show();
                 return false;
             }
-            transitionFragment(new DchaFunctionFragment(), true, "Dcha アプリの機能");
+            transitionFragment(new DchaFunctionFragment(), true, getString(R.string.pre_main_title_dcha_function));
             return true;
         }
 
@@ -145,55 +146,71 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             transitionFragment(new AppSettingsFragment(), true, getString(R.string.menu_app_settings));
             return true;
         }
+
+        if (item.getItemId() == R.id.navi_4) {
+            if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
+                new DialogUtil(this)
+                        .setMessage(getString(R.string.pre_main_sum_check_enabled, getString(R.string.pre_main_title_use_dcha)))
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+                return false;
+            }
+            transitionFragment(new AppFunctionFragment(), true, getString(R.string.pre_main_title_app_function_settings));
+            return true;
+        }
         return false;
     }
 
     public void initNavigationState() {
+        Menu navigationMenu = getNavigationMenu();
+
+        if (navigationMenu == null) {
+            return;
+        }
+
+        boolean isNormalEnv = Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL);
+        navigationMenu.findItem(R.id.navi_2).setVisible(!isNormalEnv);
+        navigationMenu.findItem(R.id.navi_4).setVisible(!isNormalEnv);
+
+        int itemId = getNavigationItemId(getCurrentFragment());
+        MenuItem item = itemId == 0 ? null : navigationMenu.findItem(itemId);
+
+        if (item != null) {
+            item.setChecked(true);
+        }
+    }
+
+    private Menu getNavigationMenu() {
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-            bottomNavigationView.getMenu().getItem(2).setVisible(!Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL));
-
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof SimpleFunctionFragment) {
-                bottomNavigationView.getMenu().getItem(0).setChecked(true);
-                return;
-            }
-
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof MainFragment) {
-                bottomNavigationView.getMenu().getItem(1).setChecked(true);
-                return;
-            }
-
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof DchaFunctionFragment) {
-                bottomNavigationView.getMenu().getItem(2).setChecked(true);
-                return;
-            }
-
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof AppSettingsFragment) {
-                bottomNavigationView.getMenu().getItem(3).setChecked(true);
-            }
-        } else {
-            NavigationRailView navigationRailView = findViewById(R.id.navigation_rail);
-            navigationRailView.getMenu().getItem(2).setVisible(!Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL));
-
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof SimpleFunctionFragment) {
-                navigationRailView.getMenu().getItem(0).setChecked(true);
-                return;
-            }
-
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof MainFragment) {
-                navigationRailView.getMenu().getItem(1).setChecked(true);
-                return;
-            }
-
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof DchaFunctionFragment) {
-                navigationRailView.getMenu().getItem(2).setChecked(true);
-                return;
-            }
-
-            if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof AppSettingsFragment) {
-                navigationRailView.getMenu().getItem(3).setChecked(true);
-            }
+            return bottomNavigationView == null ? null : bottomNavigationView.getMenu();
         }
+
+        NavigationRailView navigationRailView = findViewById(R.id.navigation_rail);
+        return navigationRailView == null ? null : navigationRailView.getMenu();
+    }
+
+    private Fragment getCurrentFragment() {
+        return getSupportFragmentManager().findFragmentById(R.id.fragment_container_view);
+    }
+
+    private int getNavigationItemId(Fragment fragment) {
+        if (fragment instanceof SimpleFunctionFragment) {
+            return R.id.navi_0;
+        }
+        if (fragment instanceof MainFragment) {
+            return R.id.navi_1;
+        }
+        if (fragment instanceof DchaFunctionFragment) {
+            return R.id.navi_2;
+        }
+        if (fragment instanceof AppFunctionFragment) {
+            return R.id.navi_4;
+        }
+        if (fragment instanceof AppSettingsFragment) {
+            return R.id.navi_3;
+        }
+        return 0;
     }
 
     /* メニュー表示 */
@@ -202,6 +219,13 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         this.menu = menu;
         getMenuInflater().inflate(R.menu.options, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        this.menu = menu;
+        menu.findItem(R.id.app_info_3).setVisible(!(getCurrentFragment() instanceof AppSettingsFragment));
+        return super.onPrepareOptionsMenu(menu);
     }
 
     /* メニュー選択 */
@@ -270,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         if (!Preferences.load(this, "debug_restriction", Constants.DEF_BOOL) &&
                 Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL) &&
                 !Common.isDchaActive(this)) {
-            // デバッグモードが無効かつ DchaService を使う設定かつ　DchaService と通信できない
+            // デバッグモードが無効かつ DchaService を使う設定かつ DchaService と通信できない
             Preferences.save(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
             startActivity(new Intent(this, CheckActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             overridePendingTransition(0, 0);
@@ -359,13 +383,13 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                     alertDialog.show();
                 }
                 /* カウント開始 */
-                mHandler = new Handler(Looper.myLooper());
+                mHandler = new Handler(Looper.getMainLooper());
                 mRunnable = new Runnable() {
                     int i = 10;
 
                     @Override
                     public void run() {
-                        alertDialog.setMessage(i + " 秒で初期設定に戻ります。");
+                        alertDialog.setMessage(getString(R.string.dialog_resolution_countdown, i));
                         mHandler.postDelayed(this, 1000);
 
                         if (i <= 0) {
@@ -434,15 +458,15 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             if (Common.isCT2() || Common.isCT3()) {
-                marginLayoutParams.setMargins(64, 0, 64, 0);
+                marginLayoutParams.setMargins(getResources().getDimensionPixelSize(R.dimen.main_frame_margin_ct2_portrait), 0, getResources().getDimensionPixelSize(R.dimen.main_frame_margin_ct2_portrait), 0);
             } else if (Common.isCTX() || Common.isCTZ()) {
-                marginLayoutParams.setMargins(72, 0, 72, 0);
+                marginLayoutParams.setMargins(getResources().getDimensionPixelSize(R.dimen.main_frame_margin_ctx_portrait), 0, getResources().getDimensionPixelSize(R.dimen.main_frame_margin_ctx_portrait), 0);
             }
         } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             if (Common.isCT2() || Common.isCT3()) {
-                marginLayoutParams.setMargins(112, 0, 112, 0);
+                marginLayoutParams.setMargins(getResources().getDimensionPixelSize(R.dimen.main_frame_margin_ct2_landscape), 0, getResources().getDimensionPixelSize(R.dimen.main_frame_margin_ct2_landscape), 0);
             } else if (Common.isCTX() || Common.isCTZ()) {
-                marginLayoutParams.setMargins(144, 0, 144, 0);
+                marginLayoutParams.setMargins(getResources().getDimensionPixelSize(R.dimen.main_frame_margin_ctx_landscape), 0, getResources().getDimensionPixelSize(R.dimen.main_frame_margin_ctx_landscape), 0);
             }
         }
         frameLayout.setLayoutParams(marginLayoutParams);

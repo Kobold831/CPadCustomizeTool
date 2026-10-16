@@ -6,27 +6,27 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
+        android:layout_marginHorizontal="@dimen/app_info_spacing"
         android:orientation="vertical">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
+            android:layout_marginVertical="@dimen/app_info_spacing_small"
             android:text="@string/info_app_info"
-            android:textSize="16sp"
+            android:textSize="@dimen/app_info_text_size"
             android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="@dimen/app_info_spacing_small">
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="@dimen/app_info_spacing_small"
                 android:focusable="true"
                 android:clickable="true">
 
@@ -38,18 +38,18 @@
                     <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:layout_marginVertical="16dp"
+                        android:layout_marginHorizontal="@dimen/app_info_spacing"
+                        android:layout_marginVertical="@dimen/app_info_spacing"
                         android:gravity="center"
-                        android:text="アプリ名"
+                        android:text="@string/info_app_name"
                         android:textStyle="bold" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/menu_text_1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginHorizontal="@dimen/app_info_spacing"
+                        android:layout_marginBottom="@dimen/app_info_spacing"
                         android:gravity="center" />
 
                 </LinearLayout>
@@ -71,18 +71,18 @@
                     <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:layout_marginVertical="16dp"
+                        android:layout_marginHorizontal="@dimen/app_info_spacing"
+                        android:layout_marginVertical="@dimen/app_info_spacing"
                         android:gravity="center"
-                        android:text="パッケージ名"
+                        android:text="@string/info_package_name"
                         android:textStyle="bold" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/menu_text_2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginHorizontal="@dimen/app_info_spacing"
+                        android:layout_marginBottom="@dimen/app_info_spacing"
                         android:gravity="center" />
 
                 </LinearLayout>
@@ -94,13 +94,13 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="@dimen/app_info_spacing_small">
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="@dimen/app_info_spacing_small"
                 android:focusable="true"
                 android:clickable="true">
 
@@ -112,18 +112,18 @@
                     <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:layout_marginVertical="16dp"
+                        android:layout_marginHorizontal="@dimen/app_info_spacing"
+                        android:layout_marginVertical="@dimen/app_info_spacing"
                         android:gravity="center"
-                        android:text="バージョン"
+                        android:text="@string/info_version"
                         android:textStyle="bold" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/menu_text_3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginHorizontal="@dimen/app_info_spacing"
+                        android:layout_marginBottom="@dimen/app_info_spacing"
                         android:gravity="center" />
 
                 </LinearLayout>
@@ -145,18 +145,18 @@
                     <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:layout_marginVertical="16dp"
+                        android:layout_marginHorizontal="@dimen/app_info_spacing"
+                        android:layout_marginVertical="@dimen/app_info_spacing"
                         android:gravity="center"
-                        android:text="バージョンコード"
+                        android:text="@string/info_version_code"
                         android:textStyle="bold" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/menu_text_4"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginHorizontal="@dimen/app_info_spacing"
+                        android:layout_marginBottom="@dimen/app_info_spacing"
                         android:gravity="center" />
 
                 </LinearLayout>
@@ -173,7 +173,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="@dimen/app_info_spacing_small"
                 android:focusable="true"
                 android:clickable="true">
 
@@ -185,18 +185,18 @@
                     <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:layout_marginVertical="16dp"
+                        android:layout_marginHorizontal="@dimen/app_info_spacing"
+                        android:layout_marginVertical="@dimen/app_info_spacing"
                         android:gravity="center"
-                        android:text="ビルドステータス"
+                        android:text="@string/info_build_status"
                         android:textStyle="bold" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/menu_text_5"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginHorizontal="@dimen/app_info_spacing"
+                        android:layout_marginBottom="@dimen/app_info_spacing"
                         android:gravity="center" />
 
                 </LinearLayout>
@@ -218,9 +218,9 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
+            android:layout_marginVertical="@dimen/app_info_spacing_small"
             android:text="@string/info_development"
-            android:textSize="16sp"
+            android:textSize="@dimen/app_info_text_size"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -232,17 +232,17 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="@dimen/app_info_spacing_small"
                 android:focusable="true"
                 android:clickable="true">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginVertical="16dp"
+                    android:layout_marginHorizontal="@dimen/app_info_spacing"
+                    android:layout_marginVertical="@dimen/app_info_spacing"
                     android:gravity="center"
-                    android:text="こぼるど"
+                    android:text="@string/info_developer_kobold"
                     android:textStyle="bold" />
 
             </com.google.android.material.card.MaterialCardView>
@@ -258,10 +258,10 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginVertical="16dp"
+                    android:layout_marginHorizontal="@dimen/app_info_spacing"
+                    android:layout_marginVertical="@dimen/app_info_spacing"
                     android:gravity="center"
-                    android:text="しゅーご"
+                    android:text="@string/info_developer_syuugo"
                     android:textStyle="bold" />
 
             </com.google.android.material.card.MaterialCardView>
@@ -271,23 +271,23 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
+            android:layout_marginVertical="@dimen/app_info_spacing_small"
             android:text="@string/info_library"
-            android:textSize="16sp"
+            android:textSize="@dimen/app_info_text_size"
             android:textStyle="bold" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="@dimen/app_info_spacing_small"
             android:focusable="true"
             android:clickable="true">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="16dp"
+                android:layout_marginHorizontal="@dimen/app_info_spacing"
+                android:layout_marginVertical="@dimen/app_info_spacing"
                 android:text="@string/info_library_other_label" />
 
         </com.google.android.material.card.MaterialCardView>
@@ -295,15 +295,15 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="@dimen/app_info_spacing_small"
             android:focusable="true"
             android:clickable="true">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="16dp"
+                android:layout_marginHorizontal="@dimen/app_info_spacing"
+                android:layout_marginVertical="@dimen/app_info_spacing"
                 android:text="@string/info_library_wel_label" />
 
         </com.google.android.material.card.MaterialCardView>
@@ -311,15 +311,15 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="@dimen/app_info_spacing_small"
             android:focusable="true"
             android:clickable="true">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="16dp"
+                android:layout_marginHorizontal="@dimen/app_info_spacing"
+                android:layout_marginVertical="@dimen/app_info_spacing"
                 android:text="@string/info_library_zip_label" />
 
         </com.google.android.material.card.MaterialCardView>
@@ -327,15 +327,15 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="@dimen/app_info_spacing_small"
             android:focusable="true"
             android:clickable="true">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="16dp"
+                android:layout_marginHorizontal="@dimen/app_info_spacing"
+                android:layout_marginVertical="@dimen/app_info_spacing"
                 android:text="@string/info_library_yib_label" />
 
         </com.google.android.material.card.MaterialCardView>
@@ -343,15 +343,15 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="@dimen/app_info_spacing_small"
             android:focusable="true"
             android:clickable="true">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="16dp"
+                android:layout_marginHorizontal="@dimen/app_info_spacing"
+                android:layout_marginVertical="@dimen/app_info_spacing"
                 android:text="@string/info_library_dhizuku_label" />
 
         </com.google.android.material.card.MaterialCardView>
@@ -359,15 +359,15 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="@dimen/app_info_spacing_small"
             android:focusable="true"
             android:clickable="true">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="16dp"
+                android:layout_marginHorizontal="@dimen/app_info_spacing"
+                android:layout_marginVertical="@dimen/app_info_spacing"
                 android:text="@string/info_library_awayume_label" />
 
         </com.google.android.material.card.MaterialCardView>
@@ -381,8 +381,8 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="16dp"
+                android:layout_marginHorizontal="@dimen/app_info_spacing"
+                android:layout_marginVertical="@dimen/app_info_spacing"
                 android:text="@string/info_library_naniwara_label" />
 
         </com.google.android.material.card.MaterialCardView>
@@ -390,9 +390,9 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
+            android:layout_marginVertical="@dimen/app_info_spacing_small"
             android:text="@string/info_github"
-            android:textSize="16sp"
+            android:textSize="@dimen/app_info_text_size"
             android:textStyle="bold" />
 
         <com.google.android.material.card.MaterialCardView
@@ -409,16 +409,16 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginVertical="16dp"
+                    android:layout_marginHorizontal="@dimen/app_info_spacing"
+                    android:layout_marginVertical="@dimen/app_info_spacing"
                     android:text="@string/info_github_label" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/download_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginHorizontal="@dimen/app_info_spacing"
+                    android:layout_marginBottom="@dimen/app_info_spacing"
                     android:layout_gravity="center"
                     android:text="@string/info_github_button" />
 
@@ -429,9 +429,9 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            android:text="バグレポートとフィードバック"
-            android:textSize="16sp"
+            android:layout_marginVertical="@dimen/app_info_spacing_small"
+            android:text="@string/info_feedback"
+            android:textSize="@dimen/app_info_text_size"
             android:textStyle="bold" />
 
         <com.google.android.material.card.MaterialCardView
@@ -448,18 +448,18 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginVertical="16dp"
-                    android:text="開発者に問題や提案を送信できます。" />
+                    android:layout_marginHorizontal="@dimen/app_info_spacing"
+                    android:layout_marginVertical="@dimen/app_info_spacing"
+                    android:text="@string/info_feedback_label" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/act_app_info_button_feedback"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginHorizontal="@dimen/app_info_spacing"
+                    android:layout_marginBottom="@dimen/app_info_spacing"
                     android:layout_gravity="center"
-                    android:text="フォームを開く" />
+                    android:text="@string/info_feedback_button" />
 
             </LinearLayout>
 

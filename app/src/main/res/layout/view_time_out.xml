@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|center_horizontal"
-        android:layout_marginHorizontal="20dp"
+        android:layout_marginHorizontal="@dimen/time_out_margin_horizontal"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -38,7 +38,7 @@
         android:id="@+id/time_out_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
+        android:layout_marginHorizontal="@dimen/time_out_margin_horizontal"
         android:gravity="start"
         android:text="@string/time_out_label" />
 

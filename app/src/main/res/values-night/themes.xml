@@ -24,14 +24,6 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
-    <style name="ThemeOverlay.App.Preference" parent="PreferenceThemeOverlay">
-        <item name="switchPreferenceCompatStyle">@style/PreferenceMaterialSwitch</item>
-    </style>
-
-    <style name="PreferenceMaterialSwitch" parent="@style/Preference.SwitchPreferenceCompat.Material">
-        <item name="widgetLayout">@layout/widget_material_switch</item>
-    </style>
-
     <style name="MyApp.TextView" parent="Widget.AppCompat.TextView">
         <item name="android:textColor">@android:color/white</item>
     </style>

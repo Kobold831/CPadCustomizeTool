@@ -68,7 +68,7 @@ public class CrashScreenActivity extends AppCompatActivity {
                 clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(arrayList.size() - 1)));
                 startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK));
                 new DialogUtil(this)
-                        .setMessage("ご協力ありがとうございます。")
+                        .setMessage(R.string.dialog_thanks_for_cooperation)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             } catch (Exception e) {

@@ -107,8 +107,8 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
             new DialogUtil(requireActivity())
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_error)
-                    .setMessage("新しいバージョンは Device Owner の再設定が必要になりました。\nDevice Owner はこのデバイスに付与されていますが、Device Owner を ADB で再度有効にする必要があります。\n\n\"OK\" を押すと、Device Owner は解除されます。\n詳細は、メイン画面から \"アプリのお知らせ\" を開いてください。")
-                    .setPositiveButton("OK", (dialog, which) -> {
+                    .setMessage(R.string.dialog_device_owner_reconfigure)
+                    .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         dpm.clearDeviceOwnerApp(requireActivity().getPackageName());
                         finish();
                     })
@@ -204,7 +204,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
         preSessionInstallNotice.setOnPreferenceClickListener(preference -> {
             new DialogUtil(requireActivity())
                     .setView(R.layout.view_owner_session_notice)
-                    .setTitle("インストールファイル選択の手順")
+                    .setTitle(R.string.dialog_title_install_file_select_notice)
                     .setPositiveButton(getString(R.string.dialog_common_ok), null)
                     .show();
             return false;

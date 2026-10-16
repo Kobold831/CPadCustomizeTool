@@ -3,5 +3,10 @@
 
     <color name="colorPrimary">@color/m3_sys_color_light_background</color>
     <color name="textColor">@color/m3_sys_color_light_on_background</color>
+    <color name="emergencyManualTextColor">#FFFF0000</color>
+    <color name="welcomeButtonTextColor">#2F4578</color>
+    <color name="iconTint">#333333</color>
+    <color name="icLauncherBackground">#00aeff</color>
+    <color name="icLauncherStroke">#33FFFFFF</color>
 
 </resources>

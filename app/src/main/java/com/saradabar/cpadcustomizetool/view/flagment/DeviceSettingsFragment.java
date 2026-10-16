@@ -74,13 +74,13 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
             new DialogUtil(requireActivity())
                     .setView(view)
                     .setCancelable(false)
-                    .setTitle("スクリーンのタイムアウト")
+                    .setTitle(R.string.dialog_title_screen_timeout)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         //noinspection SizeReplaceableByIsEmpty
                         if (editText.getText() == null || editText.getText().length() == 0) {
                             new DialogUtil(requireActivity())
                                     .setTitle(R.string.dialog_title_error)
-                                    .setMessage("数値を入力してください。")
+                                    .setMessage(R.string.dialog_error_input_number)
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                             return;
@@ -91,7 +91,7 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
                         } catch (NumberFormatException ignored) {
                             new DialogUtil(requireActivity())
                                     .setTitle(R.string.dialog_title_error)
-                                    .setMessage("数値が、\"2147483647\" より大きいため、変更できません。")
+                                    .setMessage(R.string.dialog_error_number_too_large)
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                             return;
@@ -102,7 +102,7 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
                         } catch (Exception e) {
                             new DialogUtil(requireActivity())
                                     .setTitle(R.string.dialog_title_error)
-                                    .setMessage("\"android.permission.WRITE_SECURE_SETTINGS\" 権限が必要です。")
+                                    .setMessage(R.string.dialog_error_need_write_secure_settings)
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
                             return;
@@ -132,10 +132,10 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         swUiModeNight.setOnPreferenceChangeListener((preference, o) -> {
             if ((boolean) o) {
                 Common.exec("cmd uimode night yes");
-                swUiModeNight.setSummary("外観モードは、\"ダークモード\" に設定されています。");
+                swUiModeNight.setSummary(R.string.pre_other_sum_ui_mode_night);
             } else {
                 Common.exec("cmd uimode night no");
-                swUiModeNight.setSummary("外観モードは、\"ライトモード\" に設定されています。");
+                swUiModeNight.setSummary(R.string.pre_other_sum_ui_mode_light);
             }
             return true;
         });
@@ -150,10 +150,10 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         if (!stringArrayList.isEmpty()) {
             if (String.valueOf(stringArrayList.get(0)).equals("Night mode: yes")) {
                 swUiModeNight.setChecked(true);
-                swUiModeNight.setSummary("外観モードは、\"ダークモード\" に設定されています。");
+                swUiModeNight.setSummary(R.string.pre_other_sum_ui_mode_night);
             } else if (String.valueOf(stringArrayList.get(0)).equals("Night mode: no")) {
                 swUiModeNight.setChecked(false);
-                swUiModeNight.setSummary("外観モードは、\"ライトモード\" に設定されています。");
+                swUiModeNight.setSummary(R.string.pre_other_sum_ui_mode_light);
             }
         }
 
@@ -194,9 +194,9 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         calendar.add(Calendar.SECOND, (int) time);
 
         date = calendar.getTime();
-        DateFormat df = new SimpleDateFormat("yyyy 年 MM 月 dd 日 HH:mm:ss", Locale.JAPAN);
+        DateFormat df = new SimpleDateFormat(getString(R.string.date_format), Locale.JAPAN);
 
-        textView.setText(getString(R.string.time_out_label, editTime + " ミリ秒" + " (" + time + " 秒" + ") ", day + " 日 " + hour + " 時間 " + min + " 分 " + sec + " 秒", df.format(date)));
+        textView.setText(getString(R.string.time_out_label, getString(R.string.time_out_value, editTime, time), getString(R.string.time_out_duration, day, hour, min, sec), df.format(date)));
     }
 
     private void setSummaryScreenOffTimeConvert() {
@@ -208,6 +208,6 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         hour = (time / 3600) % 24;
         day = (time / 86400) % 31;
 
-        preScreenOffTimeOut.setSummary("操作が行われない状態で " + day + " 日 " + hour + " 時間 " + min + " 分 " + sec + " 秒" + "経過後");
+        preScreenOffTimeOut.setSummary(getString(R.string.pre_other_sum_screen_off_duration, day, hour, min, sec));
     }
 }

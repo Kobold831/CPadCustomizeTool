@@ -288,11 +288,9 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         swKeepAdb.setOnPreferenceChangeListener((preference, o) -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (requireActivity().checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
-                    return false;
-                }
+            if (!Common.isWriteSecureSettingsGranted(requireActivity())) {
+                Toast.makeText(requireActivity(), R.string.toast_no_permission, Toast.LENGTH_SHORT).show();
+                return false;
             }
 
             if (Common.isShowCfmDialog(requireActivity())) {
@@ -359,12 +357,12 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         preUtil.setOnPreferenceClickListener(preference -> {
-            ((MainActivity) requireActivity()).transitionFragment(new UtilFragment(), true, "ユーティリティー");
+            ((MainActivity) requireActivity()).transitionFragment(new UtilFragment(), true, getString(R.string.pre_main_title_util));
             return false;
         });
 
         preOtherSettings.setOnPreferenceClickListener(preference -> {
-            ((MainActivity) requireActivity()).transitionFragment(new DeviceSettingsFragment(), true, "デバイスの設定");
+            ((MainActivity) requireActivity()).transitionFragment(new DeviceSettingsFragment(), true, getString(R.string.pre_main_title_other_settings));
             return false;
         });
 
@@ -389,7 +387,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 initPreference();
             } else {
                 new DialogUtil(requireActivity())
-                        .setMessage("DchaSerivce 機能を無効にしますか?")
+                        .setMessage(R.string.dialog_disable_dcha_function)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             Preferences.save(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false);
                             initPreference();
@@ -401,13 +399,13 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         });
 
         preDchaFunction.setOnPreferenceClickListener(preference -> {
-            ((MainActivity) requireActivity()).transitionFragment(new DchaFunctionFragment(), true, "Dcha アプリの機能");
+            ((MainActivity) requireActivity()).transitionFragment(new DchaFunctionFragment(), true, getString(R.string.pre_main_title_dcha_function));
             return false;
         });
 
         preDeviceOwnerFn.setOnPreferenceClickListener(preference -> {
             requireActivity().runOnUiThread(() ->
-                    ((MainActivity) requireActivity()).transitionFragment(new DeviceOwnerFunctionFragment(), true, "デバイスオーナーの機能"));
+                    ((MainActivity) requireActivity()).transitionFragment(new DeviceOwnerFunctionFragment(), true, getString(R.string.pre_main_title_device_owner)));
             return false;
         });
 
@@ -460,11 +458,11 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     if ((boolean) o) {
                         if (userManager.hasUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)) {
                             userManager.setUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES, false);
-                            swPreInstallUnknownSource.setSummary("提供元不明のアプリは許可されています。");
+                            swPreInstallUnknownSource.setSummary(R.string.pre_main_sum_install_unknown_source_granted);
                         }
                     } else {
                         userManager.setUserRestriction(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES, true);
-                        swPreInstallUnknownSource.setSummary("提供元不明のアプリは許可されていません。");
+                        swPreInstallUnknownSource.setSummary(R.string.pre_main_sum_install_unknown_source_denied);
                     }
                     initPreference();
                     return true;
@@ -473,7 +471,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 }
             } else {
                 new DialogUtil(requireActivity())
-                        .setMessage(R.string.dialog_error + "UserManager の取得に失敗したか、DchaService が動作していません。")
+                        .setMessage(getString(R.string.dialog_error) + getString(R.string.dialog_error_user_manager))
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
@@ -511,7 +509,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                     new BypassPermissionDialogFragment().show(requireActivity().getSupportFragmentManager(), "");
                 } else {
                     new DialogUtil(requireActivity())
-                            .setMessage("このアプリで、不明なアプリのインストールは許可されました。")
+                            .setMessage(R.string.dialog_allow_install_unknown_source)
                             .setPositiveButton(R.string.dialog_common_ok, null)
                             .show();
                 }
@@ -519,14 +517,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
             new DialogUtil(requireActivity())
                     .setView(view)
-                    .setTitle("アプリの選択")
+                    .setTitle(R.string.dialog_title_select_app)
                     .setPositiveButton(R.string.dialog_common_cancel, null)
                     .show();
             return false;
         });
 
         preAppFunction.setOnPreferenceClickListener(preference -> {
-            ((MainActivity) requireActivity()).transitionFragment(new AppFunctionFragment(), true, "アプリの機能");
+            ((MainActivity) requireActivity()).transitionFragment(new AppFunctionFragment(), true, getString(R.string.pre_main_title_app_function_short));
             return false;
         });
         /* 一括変更 */
@@ -576,17 +574,17 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             swKeepUnkSrc.setVisible(false);
             swUnkSrc.setVisible(false);
             swPreInstallUnknownSource.setChecked(false);
-            swPreInstallUnknownSource.setSummary("不明なアプリは許可されていません。");
+            swPreInstallUnknownSource.setSummary(R.string.pre_main_sum_unknown_source_disallowed);
             preRequestInstallPackages.setEnabled(false);
-            preRequestInstallPackages.setSummary("この機能を使用するには、\"不明なアプリのユーザー制限を解除\" から許可してください。");
+            preRequestInstallPackages.setSummary(R.string.pre_main_sum_request_install_packages_disabled);
             preInstallUnknownSourceInfo.setEnabled(false);
         } else {
             swKeepUnkSrc.setVisible(true);
             swUnkSrc.setVisible(true);
             swPreInstallUnknownSource.setChecked(true);
-            swPreInstallUnknownSource.setSummary("不明なアプリは許可されています。");
+            swPreInstallUnknownSource.setSummary(R.string.pre_main_sum_unknown_source_allowed);
             preRequestInstallPackages.setEnabled(true);
-            preRequestInstallPackages.setSummary("シェルコマンドを実行して、選択したアプリで不明なアプリのインストール権限を許可します。");
+            preRequestInstallPackages.setSummary(R.string.pre_main_sum_request_install_packages);
             preInstallUnknownSourceInfo.setEnabled(true);
         }
 
@@ -597,14 +595,14 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         if (Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
             swEnableDchaService.setChecked(true);
-            swEnableDchaService.setSummary("DchaService 機能は、有効です。");
+            swEnableDchaService.setSummary(R.string.pre_main_sum_dcha_enabled);
             preDchaFunction.setEnabled(true);
             preDchaFunction.setSummary(R.string.pre_main_sum_dcha_function);
             preAppFunction.setEnabled(true);
             preAppFunction.setSummary(R.string.pre_main_sum_app_function);
         } else {
             swEnableDchaService.setChecked(false);
-            swEnableDchaService.setSummary("DchaService 機能は、無効です。");
+            swEnableDchaService.setSummary(R.string.pre_main_sum_dcha_disabled);
             preDchaFunction.setEnabled(false);
             preDchaFunction.setSummary(getString(R.string.pre_main_sum_check_enabled, getString(R.string.pre_main_title_use_dcha)));
             preAppFunction.setEnabled(false);
@@ -655,7 +653,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     };
 
     /* ナビゲーションバーオブザーバー */
-    final ContentObserver navigationBarObserver = new ContentObserver(new Handler(Looper.myLooper())) {
+    final ContentObserver navigationBarObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -669,7 +667,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     };
 
     /* 提供元オブザーバー */
-    final ContentObserver marketObserver = new ContentObserver(new Handler(Looper.myLooper())) {
+    final ContentObserver marketObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -683,7 +681,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     };
 
     /* USBデバッグオブザーバー */
-    final ContentObserver usbDebugObserver = new ContentObserver(new Handler(Looper.myLooper())) {
+    final ContentObserver usbDebugObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
@@ -849,16 +847,16 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                 });
                 new DialogUtil(requireActivity())
                         .setView(view)
-                        .setTitle("アプリを選択")
+                        .setTitle(R.string.dialog_title_choose_app)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             StringBuilder str = new StringBuilder();
                             // 選択位置参照
                             int i = Preferences.load(requireActivity(), Constants.KEY_INT_GET_APP_TMP, 0);
-                            str.append("アプリ名：")
+                            str.append(getString(R.string.dialog_label_app_name))
                                     .append("\n")
                                     .append(appDataArrayList.get(i).name)
                                     .append("\n\n")
-                                    .append("説明：")
+                                    .append(getString(R.string.dialog_label_app_description))
                                     .append("\n")
                                     .append(appDataArrayList.get(i).description)
                                     .append("\n");
@@ -868,7 +866,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                 return;
                             }
                             new DialogUtil(requireActivity())
-                                    .setMessage(str + "\n" + "よろしければ OK を押下してください。")
+                                    .setMessage(str + "\n" + getString(R.string.dialog_confirm_ok))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog2, which2) -> {
                                         if (!Objects.equals(appDataArrayList.get(i).url, "MYURL")) {
                                             startDownload(appDataArrayList.get(i).url);
@@ -877,7 +875,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                                             View view1 = getLayoutInflater().inflate(R.layout.view_app_url, null);
                                             AppCompatEditText editText = view1.findViewById(R.id.edit_app_url);
                                             new DialogUtil(requireActivity())
-                                                    .setMessage("http:// または https:// を含む URL を指定してください。")
+                                                    .setMessage(R.string.dialog_error_invalid_url)
                                                     .setView(view1)
                                                     .setCancelable(false)
                                                     .setPositiveButton(R.string.dialog_common_ok, (dialog3, which3) -> {
@@ -949,8 +947,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
                         // 表示しない
                         preNotice.setVisible(false);
                     } else {
-                        preNotice.setTitle("アプリのお知らせ");
-                        preNotice.setSummary("お知らせは " + jsonArray.length() + " 件あります。タップして確認できます。");
+                        preNotice.setTitle(R.string.activity_notice);
+                        preNotice.setSummary(getString(R.string.pre_main_sum_notice, jsonArray.length()));
                     }
                 } catch (JSONException | IOException | IllegalStateException ignored) {
                 }
@@ -993,8 +991,8 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
         if (!isAdded() || progressPercentText == null || progressByteText == null || dialogProgressBar == null || progressDialog == null) return;
-        progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append(" %"));
-        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append(" / ").append(totalByte).append(" MB"));
+        progressPercentText.setText(getString(R.string.progress_percent, progress));
+        progressByteText.setText(getString(R.string.progress_byte, currentByte, totalByte));
         dialogProgressBar.setProgress(progress);
         progressDialog.setMessage(new StringBuilder(getString(R.string.progress_state_download_file)));
     }

@@ -69,7 +69,7 @@ public class CrashLogActivity extends AppCompatActivity {
             ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             clipboardManager.setPrimaryClip(ClipData.newPlainText("", stringArrayList.get(position)));
             new DialogUtil(this)
-                    .setMessage("対象データをコピーしました。")
+                    .setMessage(R.string.dialog_copied_data)
                     .setPositiveButton(R.string.dialog_common_ok, null)
                     .show();
         });

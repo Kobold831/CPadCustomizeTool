@@ -16,7 +16,6 @@ import android.content.Intent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class Constants {
 
@@ -111,8 +110,6 @@ public class Constants {
 
     public static final String ACTION_INSTALL_SHORTCUT = "com.android.launcher.action.INSTALL_SHORTCUT";
     public static final String DOWNLOAD_APK = "update.apk";
-
-    public static final List<String> LIST_UPDATE_MODE = Arrays.asList("パッケージインストーラ", "ADB", "DchaService", "デバイスオーナー", "Dhizuku");
 
     public static final ArrayList<String> LIST_MODEL = new ArrayList<>() {
         {

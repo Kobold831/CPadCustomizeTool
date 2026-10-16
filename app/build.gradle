@@ -10,8 +10,8 @@ android {
         minSdk = 22
         //noinspection ExpiredTargetSdkVersion
         targetSdk = minSdk
-        versionCode = 277
-        versionName = "2.7.7"
+        versionCode = 280
+        versionName = "2.8.0"
         proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
 
@@ -41,7 +41,7 @@ android {
 
     lint {
         checkReleaseBuilds = false
-        disable 'ProtectedPermissions', 'ExportedService', 'UnusedAttribute', 'SdCardPath', 'SetJavaScriptEnabled', 'MissingSuperCall', 'HardcodedText'
+        disable 'ProtectedPermissions', 'ExportedService', 'SetJavaScriptEnabled'
     }
     
     compileOptions {
@@ -71,5 +71,5 @@ dependencies {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
+    //options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
 }

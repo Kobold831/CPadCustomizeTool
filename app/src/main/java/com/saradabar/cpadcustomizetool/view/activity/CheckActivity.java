@@ -242,8 +242,8 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
 
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
-        progressPercentText.setText(new StringBuilder(String.valueOf(progress)).append(" %"));
-        progressByteText.setText(new StringBuilder(String.valueOf(currentByte)).append(" MB").append(" / ").append(totalByte).append(" MB"));
+        progressPercentText.setText(getString(R.string.progress_percent, progress));
+        progressByteText.setText(getString(R.string.progress_byte, currentByte, totalByte));
         dialogProgressBar.setProgress(progress);
         progressDialog.setMessage(new StringBuilder(getString(R.string.progress_state_download_file)));
     }
@@ -284,7 +284,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
                     progressDialog.show();
                 })
                 .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> showWelcome())
-                .setNeutralButton("設定", (dialog, which) -> new InstallerListDialogFragment(0, this::init).show(getSupportFragmentManager(), ""))
+                .setNeutralButton(R.string.activity_start, (dialog, which) -> new InstallerListDialogFragment(0, this::init).show(getSupportFragmentManager(), ""))
                 .show();
     }
 
@@ -392,8 +392,8 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             // ダイアログ表示履歴なしかつDcha がインストールされていないかつ通常環境モードが無効、またはダイアログ表示履歴なしかつ勉強ホームがインストールされていないかつ通常環境モードが無効
             new DialogUtil(this)
                     .setCancelable(false)
-                    .setTitle("通常環境モードで起動しますか?")
-                    .setMessage("このデバイスには、勉強アプリ (DchaService、または勉強ホーム) がインストールされていないことを確認しました。\n通常環境モードで起動することを推奨します。\nキャンセルを押すと、設定を変更するまでこのダイアログは表示されません。\n\n通常環境モードとは?\n勉強アプリがインストールされていない環境で、必要がないこのアプリの不要な機能を無効にするモードです。")
+                    .setTitle(R.string.dialog_title_normal_env)
+                    .setMessage(R.string.dialog_normal_env_message)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                         Preferences.save(this, Constants.KEY_FLAG_NORMAL_ENV, true);
                         showMainActivity();
@@ -529,7 +529,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
                 if (checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") != PackageManager.PERMISSION_GRANTED) {
                     new DialogUtil(this)
                             .setCancelable(false)
-                            .setMessage("jp.co.benesse.dcha.permission.ACCESS_SYSTEM 権限を付与してください。権限を付与される場合は OK を押下してください。")
+                            .setMessage(R.string.dialog_request_dcha_permission)
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                                 if (checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") != PackageManager.PERMISSION_GRANTED) {
                                     requestPermissions(new String[]{"jp.co.benesse.dcha.permission.ACCESS_SYSTEM"}, 1);

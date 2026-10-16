@@ -89,7 +89,7 @@ public class UtilFragment extends PreferenceFragmentCompat {
                 startActivity(new Intent(requireActivity(), WebViewActivity.class).putExtra("URL", "https://www.google.com/intl/ja/").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (Exception ignored) {
                 new DialogUtil(requireActivity())
-                        .setMessage("\"WebView\" の起動に問題が発生しました。\nデバイスの更新、または \"WebView\" の更新をお試しください。")
+                        .setMessage(R.string.dialog_error_web_view)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             }
@@ -128,7 +128,7 @@ public class UtilFragment extends PreferenceFragmentCompat {
 
             new DialogUtil(requireActivity())
                     .setView(view)
-                    .setTitle("アプリを選択")
+                    .setTitle(R.string.dialog_title_choose_app)
                     .setPositiveButton(R.string.dialog_common_cancel, null)
                     .show();
             return false;
@@ -142,7 +142,7 @@ public class UtilFragment extends PreferenceFragmentCompat {
                 packageManager.setApplicationEnabledSetting("com.android.traceur", PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
 
                 new DialogUtil(requireActivity())
-                        .setMessage("システムアプリ (ブラウザ、検索、トレース) は、有効になりました。")
+                        .setMessage(R.string.dialog_success_enable_system_apps)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
             } catch (SecurityException ignored) {

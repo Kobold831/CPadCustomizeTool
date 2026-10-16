@@ -29,7 +29,7 @@ public class RebootActivity extends AppCompatActivity {
     public final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
-            Toast.makeText(this, "アプリは通常環境モードのため終了します。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.toast_normal_env_finish, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
         }

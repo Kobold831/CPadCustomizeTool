@@ -181,7 +181,7 @@
         <activity
             android:name=".view.activity.NoticeActivity"
             android:exported="false"
-            android:label="アプリのお知らせ"
+            android:label="@string/activity_notice"
             android:theme="@style/ActionBarTheme" />
 
         <activity
@@ -192,7 +192,7 @@
         <activity
             android:name=".view.activity.ForceCrashActivity"
             android:exported="true"
-            android:label="強制クラッシュ (開発用)"
+            android:label="@string/activity_force_crash"
             android:theme="@style/NoDisplayTheme"
             android:clearTaskOnLaunch="true"
             android:documentLaunchMode="always"

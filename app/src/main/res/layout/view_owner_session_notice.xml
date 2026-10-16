@@ -11,7 +11,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="1. サイレントインストールを押します。\n2. 下記画像のような画面になった場合は、画像のとおりに操作してください。" />
+            android:text="@string/view_owner_session_notice_1" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="match_parent"
@@ -23,7 +23,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="3. 下記画像のような画面が表示されたら、画像のとおりに操作してください。" />
+            android:text="@string/view_owner_session_notice_2" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="match_parent"
@@ -35,7 +35,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="4. 下記画像のような画面が表示されたら、画像のとおりに操作してください。" />
+            android:text="@string/view_owner_session_notice_3" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="match_parent"
@@ -47,7 +47,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="5. 下記画像のような画面が表示されたら、画像のとおりに操作してください。" />
+            android:text="@string/view_owner_session_notice_4" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="match_parent"
@@ -59,7 +59,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="6. 下記画像のような画面が表示されたら、画像のとおりに操作してください。" />
+            android:text="@string/view_owner_session_notice_5" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="match_parent"
@@ -71,7 +71,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="7. インストールしたいアプリファイルを選択するとインストールを開始します。" />
+            android:text="@string/view_owner_session_notice_6" />
 
     </LinearLayout>
 

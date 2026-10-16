@@ -153,11 +153,16 @@ public class KeepService extends Service {
     }
 
     /* DchaStateオブサーバー */
-    final ContentObserver dchaStateObserver = new ContentObserver(new Handler(Looper.myLooper())) {
+    final ContentObserver dchaStateObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+            // 維持機能が無効になっている場合は何もしない
+            // (オブザーバーの解除は非同期のため、無効化直後にも呼ばれてしまう)
+            if (!Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false)) {
+                return;
+            }
             try {
                 if (Settings.System.getInt(getContentResolver(), Constants.DCHA_STATE) != 0) {
                     // DCHA_STATE が0でない
@@ -170,11 +175,14 @@ public class KeepService extends Service {
     };
 
     /* ナビゲーションバーオブサーバー */
-    final ContentObserver navigationBarObserver = new ContentObserver(new Handler(Looper.myLooper())) {
+    final ContentObserver navigationBarObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+            if (!Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false)) {
+                return;
+            }
             try {
                 if (Settings.System.getInt(getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != 0) {
                     // HIDE_NAVIGATION_BAR が0でない
@@ -187,11 +195,14 @@ public class KeepService extends Service {
     };
 
     /* 提供元不明オブサーバー */
-    final ContentObserver marketObserver = new ContentObserver(new Handler(Looper.myLooper())) {
+    final ContentObserver marketObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+            if (!Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false)) {
+                return;
+            }
             try {
                 if (Settings.Secure.getInt(getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 1) {
                     // INSTALL_NON_MARKET_APPS が1でない
@@ -204,11 +215,14 @@ public class KeepService extends Service {
     };
 
     /* UDBデバッグオブサーバー */
-    final ContentObserver usbDebugObserver = new ContentObserver(new Handler(Looper.myLooper())) {
+    final ContentObserver usbDebugObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
 
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+            if (!Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false)) {
+                return;
+            }
             try {
                 if (Settings.Global.getInt(getContentResolver(), Settings.Global.ADB_ENABLED) != 1) {
                     // ADB_ENABLED が1でない
@@ -222,6 +236,14 @@ public class KeepService extends Service {
 
                     if (Common.getDchaCompletedPast()) {
                         // COUNT_DCHA_COMPLETED 存在
+                        if (Settings.System.getInt(getContentResolver(), Constants.DCHA_STATE, 0) == 3) {
+                            if (!adbEnabled()) {
+                                Preferences.save(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
+                            }
+                            return;
+                        }
+
+                        final int previousStatus = Settings.System.getInt(getContentResolver(), Constants.DCHA_STATE, 0);
                         new DchaServiceUtil(getBaseContext()).setSetupStatus(3, object -> {
                             if (object.equals(true)) {
                                 try {
@@ -231,14 +253,12 @@ public class KeepService extends Service {
                                         Preferences.save(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
                                     }
                                     // setupStatusを戻す
-                                    String home = getDefaultLauncherPackageName();
-                                    boolean isDcha = home.equals(Constants.PKG_SHO_HOME) || home.equals(Constants.PKG_CHU_HOME);
-                                    new DchaServiceUtil(getBaseContext()).setSetupStatus(isDcha ? 3 : 0, object1 -> {
+                                    new DchaServiceUtil(getBaseContext()).setSetupStatus(previousStatus, object1 -> {
                                     });
                                 } catch (InterruptedException ignored) {
                                     // スレッド中断
                                     // setupStatusを戻す
-                                    new DchaServiceUtil(getBaseContext()).setSetupStatus(0, object1 -> {
+                                    new DchaServiceUtil(getBaseContext()).setSetupStatus(previousStatus, object1 -> {
                                     });
                                 }
                             } else {

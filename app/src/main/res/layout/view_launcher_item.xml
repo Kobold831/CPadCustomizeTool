@@ -10,18 +10,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="@dimen/launcher_item_spacing"
         android:clickable="false"
         android:focusable="false"
-        android:paddingTop="20dp" />
+        android:paddingTop="@dimen/launcher_item_spacing" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/launcher_image"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@dimen/launcher_item_icon_size"
+        android:layout_height="@dimen/launcher_item_icon_size"
         android:layout_gravity="center"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="@dimen/launcher_item_spacing_small"
+        android:layout_marginBottom="@dimen/launcher_item_spacing_small"
         android:contentDescription="@string/img_content_description" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -29,7 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="16dp"
-        android:textSize="20sp" />
+        android:layout_marginStart="@dimen/launcher_item_text_margin_start"
+        android:textSize="@dimen/launcher_item_text_size" />
 
 </LinearLayout>

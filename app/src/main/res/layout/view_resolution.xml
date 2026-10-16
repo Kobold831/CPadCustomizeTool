@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginHorizontal="20dp"
+        android:layout_marginHorizontal="@dimen/resolution_margin"
         android:visibility="visible">
 
         <androidx.appcompat.widget.AppCompatEditText
@@ -44,14 +44,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/resolution_margin"
         android:visibility="gone">
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/MyApp.TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="セキュリティで保護されたシステム設定にアクセスするための権限\n(WRITE_SECURE_SETTINGS) が付与されていないため、\n任意の解像度を設定できません。\n\nシステムで予め予約された解像度なら設定できます。\n下記のリストから選択してください。" />
+            android:text="@string/view_resolution_text_permission" />
 
         <RadioGroup
             android:layout_width="match_parent"
@@ -61,19 +61,19 @@
                 android:id="@+id/v_resolution_radio_1024"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="1024 x 768" />
+                android:text="@string/view_resolution_rb_1024" />
 
             <androidx.appcompat.widget.AppCompatRadioButton
                 android:id="@+id/v_resolution_radio_1280"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="1280 x 800" />
+                android:text="@string/view_resolution_rb_1280" />
 
             <androidx.appcompat.widget.AppCompatRadioButton
                 android:id="@+id/v_resolution_radio_1920"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="1920 x 1200" />
+                android:text="@string/view_resolution_rb_1920" />
 
         </RadioGroup>
 

@@ -18,6 +18,8 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.os.BenesseExtension;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,21 +38,21 @@ public class NormalActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
-            Toast.makeText(this, "アプリは通常環境モードのため終了します。", Toast.LENGTH_SHORT).show();
-            finishAndRemoveTask();
+            Toast.makeText(this, R.string.toast_normal_env_finish, Toast.LENGTH_SHORT).show();
+            finishAfterToast();
             return;
         }
 
         // 初期設定が完了していない場合は終了
         if (!Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
             Toast.makeText(this, R.string.toast_no_setting_app, Toast.LENGTH_SHORT).show();
-            finishAndRemoveTask();
+            finishAfterToast();
             return;
         }
 
         if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
             Toast.makeText(this, R.string.toast_enable_dcha, Toast.LENGTH_SHORT).show();
-            finishAndRemoveTask();
+            finishAfterToast();
             return;
         }
         // メイン処理
@@ -66,12 +68,20 @@ public class NormalActivity extends AppCompatActivity {
                 run();
                 activityManager.killBackgroundProcesses(Constants.PKG_CHU_HOME);
                 break;
+            default:
+                Toast.makeText(this, R.string.toast_set_alternative_launcher, Toast.LENGTH_SHORT).show();
+                finishAfterToast();
+                break;
         }
     }
 
     private void run() {
         startHomeApp();
         setSetupStatus();
+    }
+
+    private void finishAfterToast() {
+        new Handler(Looper.getMainLooper()).postDelayed(this::finishAndRemoveTask, 2200);
     }
 
     // ホームを起動
@@ -154,14 +164,14 @@ public class NormalActivity extends AppCompatActivity {
             // 変更するホームが設定されているかチェック
             if (Preferences.load(this, Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, "").isEmpty()) {
                 Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
+                finishAfterToast();
                 return;
             }
             ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
 
             if (resolveInfo == null) {
                 Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
-                finishAndRemoveTask();
+                finishAfterToast();
                 return;
             }
             new DchaServiceUtil(this).setPreferredHomeApp(resolveInfo.activityInfo.packageName,
@@ -171,17 +181,11 @@ public class NormalActivity extends AppCompatActivity {
                             Toast.makeText(this, R.string.toast_no_home, Toast.LENGTH_SHORT).show();
                         }
                         Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-                        finishAndRemoveTask();
+                        finishAfterToast();
                     });
         } else {
             Toast.makeText(NormalActivity.this, R.string.toast_execution, Toast.LENGTH_SHORT).show();
-            finishAndRemoveTask();
+            finishAfterToast();
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        finishAndRemoveTask();
     }
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="@dimen/dialog_background_m3_inset"
+    android:insetTop="@dimen/dialog_background_m3_inset"
+    android:insetRight="@dimen/dialog_background_m3_inset"
+    android:insetBottom="@dimen/dialog_background_m3_inset">
+
+    <shape android:shape="rectangle">
+
+        <corners android:radius="?attr/shapeCornerSizeExtraLarge" />
+
+        <solid android:color="?attr/colorSurfaceContainerHigh" />
+
+    </shape>
+
+</inset>

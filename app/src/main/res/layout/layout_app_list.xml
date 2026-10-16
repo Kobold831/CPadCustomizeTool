@@ -3,14 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingHorizontal="24dp">
+    android:paddingHorizontal="@dimen/app_list_padding_horizontal">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_gravity="bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="選択して &quot;OK&quot; を押下すると、詳細な情報が表示されます。"
-        android:textSize="16sp" />
+        android:text="@string/layout_app_list_message"
+        android:textSize="@dimen/app_list_text_size" />
 
     <ListView
         style="@style/Widget.AppCompat.ListView"

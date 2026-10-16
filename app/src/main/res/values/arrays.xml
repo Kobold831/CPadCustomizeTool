@@ -11,6 +11,14 @@
         <item>2</item>
     </string-array>
 
+    <string-array name="update_mode_text">
+        <item>パッケージインストーラ</item>
+        <item>ADB</item>
+        <item>DchaService</item>
+        <item>デバイスオーナー</item>
+        <item>Dhizuku</item>
+    </string-array>
+
     <string-array name="emergency_settings_text">
         <item>システム UI の学習モード</item>
         <item>ナビゲーションバーの非表示</item>

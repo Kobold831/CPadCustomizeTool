@@ -1,5 +1,6 @@
 # Gradle
 /.gradle/
+/gradle/gradle-daemon-jvm.properties
 # Android SDK
 /local.properties
 # IntelliJ
@@ -9,5 +10,7 @@
 # Gradle Build
 build/
 # Android Studio Signing APK
-/*/debug/
-/*/release/
+/app/debug/
+/app/release/
+# macOS
+.DS_Store

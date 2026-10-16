@@ -9,7 +9,7 @@
         android:id="@+id/navigation_rail"
         android:layout_width="?actionBarSize"
         android:layout_height="match_parent"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="@dimen/main_navigation_rail_margin_start"
         android:background="@android:color/transparent"
         app:menu="@menu/navigation"
         app:labelVisibilityMode="labeled" />
