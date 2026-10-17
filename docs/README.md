@@ -73,11 +73,14 @@ adb shell pm grant com.saradabar.cpadcustomizetool android.permission.WRITE_SECU
 
 アンインストールブロッカーなどの一部の機能を使用するにはデバイスオーナーを設定する必要があります。
 
-デバイスオーナーには [**Dhizuku**](https://github.com/iamr0s/Dhizuku) が推奨されています。
+チャレンジパッド３以降の場合、デバイスオーナーには [**Dhizuku**](https://github.com/iamr0s/Dhizuku) が推奨されています。
 
 > [!WARNING]
 > デバイスオーナーの設定をする際にデバイスにアカウントが１つも存在しないか確認してください。  
 > Google アカウント等が追加されていると設定できません。
+
+> [!CAUTION]
+> チャレンジパッド２で **Dhizuku** を使用しないでください。
 
 **Dhizuku** に設定する場合は以下のコマンドをADBで実行してください：
 
@@ -85,10 +88,7 @@ adb shell pm grant com.saradabar.cpadcustomizetool android.permission.WRITE_SECU
 adb shell dpm set-device-owner com.rosan.dhizuku/.server.DhizukuDAReceiver
 ```
 
-> [!NOTE]
-> 通常、CPadCustomizeTool にデバイスオーナーを設定する必要はありません。
-
-Dhizuku を何らかの理由で設定できない場合は、  
+チャレンジパッド２の場合は、  
 このアプリに設定する以下のコマンドをADBで実行してください：
 
 ```
@@ -99,15 +99,10 @@ adb shell dpm set-device-owner com.saradabar.cpadcustomizetool/.data.receiver.De
 > デバイスオーナーは複数設定することはできません
 
 > [!NOTE]
-> アプリ内の機能からデバイスオーナーを解除することができない場合は、以下のいずれかをお試しください。
+> 「デバイスオーナーを解除」で解除することができない場合は、以下のいずれかをお試しください。
 > 
-> ・デバイスの初期化。
-> 
-> ・以下のコマンドを ADB で**特権実行**。
-> 
-> ```
-> adb shell rm /data/system/device_owner_2.xml
-> ```
+> ・デバイスの初期化
+> ・`/data/system/` の `device_owner_2.xml`（または `profile_owner.xml`）の削除
 
 ## 問題の報告
 
