@@ -57,23 +57,23 @@ public class InstallService extends Service {
             case PackageInstaller.STATUS_SUCCESS:
                 try {
                     getPackageManager().getPackageInstaller().openSession(sessionId).close();
-                    installEventListenerList.installSuccessNotify(code);
                 } catch (Exception ignored) {
                 }
+                installEventListenerList.installSuccessNotify(code);
                 break;
             case PackageInstaller.STATUS_FAILURE_ABORTED:
                 try {
                     getPackageManager().getPackageInstaller().abandonSession(sessionId);
-                    installEventListenerList.installFailureNotify(code, getErrorMessage(this, status) + "\n" + extra);
                 } catch (Exception ignored) {
                 }
+                installEventListenerList.installFailureNotify(code, getErrorMessage(this, status) + "\n" + extra);
                 break;
             default:
                 try {
                     getPackageManager().getPackageInstaller().abandonSession(sessionId);
-                    installEventListenerList.installErrorNotify(code, getErrorMessage(this, status) + "\n" + extra);
                 } catch (Exception ignored) {
                 }
+                installEventListenerList.installErrorNotify(code, getErrorMessage(this, status) + "\n" + extra);
                 break;
         }
     }

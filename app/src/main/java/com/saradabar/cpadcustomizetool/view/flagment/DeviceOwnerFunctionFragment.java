@@ -417,7 +417,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
             /* 成功 */
             @Override
             public void onSuccess() {
-                Common.deleteDirectory(requireActivity().getExternalCacheDir());
+                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
                 AlertDialog alertDialog = new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setMessage(R.string.dialog_success_silent_install)
@@ -436,7 +436,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
             /* 失敗 */
             @Override
             public void onFailure(String message) {
-                Common.deleteDirectory(requireActivity().getExternalCacheDir());
+                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
                 new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
@@ -450,7 +450,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
 
             @Override
             public void onError(String message) {
-                Common.deleteDirectory(requireActivity().getExternalCacheDir());
+                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
                 new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
@@ -506,7 +506,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
             @Override
             public void onFailure() {
                 alertDialog.dismiss();
-                Common.deleteDirectory(requireActivity().getExternalCacheDir());
+                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(getString(R.string.dialog_failure))
@@ -521,7 +521,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
             @Override
             public void onError(String message) {
                 alertDialog.dismiss();
-                Common.deleteDirectory(requireActivity().getExternalCacheDir());
+                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
@@ -581,7 +581,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
             @Override
             public void onFailure() {
                 alertDialog.dismiss();
-                Common.deleteDirectory(requireActivity().getExternalCacheDir());
+                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(getString(R.string.dialog_failure))
@@ -596,7 +596,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
             @Override
             public void onError(String message) {
                 alertDialog.dismiss();
-                Common.deleteDirectory(requireActivity().getExternalCacheDir());
+                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
@@ -656,7 +656,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
             @Override
             public void onFailure() {
                 alertDialog.dismiss();
-                Common.deleteDirectory(requireActivity().getExternalCacheDir());
+                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(getString(R.string.dialog_failure))
@@ -671,7 +671,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
             @Override
             public void onError(String message) {
                 alertDialog.dismiss();
-                Common.deleteDirectory(requireActivity().getExternalCacheDir());
+                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)

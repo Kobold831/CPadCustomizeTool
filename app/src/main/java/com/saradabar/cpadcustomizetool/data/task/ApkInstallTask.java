@@ -80,39 +80,41 @@ public class ApkInstallTask {
             dServiceConnection = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder iBinder) {
-                    mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
+                    new Thread(() -> {
+                        mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
 
-                    if (mDhizukuService == null) {
-                        // 失敗
-                        doListener().onPost(context, listener, false, installEventListener);
-                        return;
-                    }
-
-                    try {
-                        if (mDhizukuService.tryInstallPackages(splitInstallData, reqCode)) {
-                            if (dhizukuUserServiceArgs != null) {
-                                try {
-                                    Dhizuku.stopUserService(dhizukuUserServiceArgs);
-                                } catch (IllegalStateException ignored) {
-                                }
-                            }
-
-                            if (dServiceConnection != null) {
-                                try {
-                                    Dhizuku.unbindUserService(dServiceConnection);
-                                } catch (IllegalStateException ignored) {
-                                }
-                            }
-                            // 成功
-                            doListener().onPost(context, listener, true, installEventListener);
-                        } else {
+                        if (mDhizukuService == null) {
                             // 失敗
                             doListener().onPost(context, listener, false, installEventListener);
+                            return;
                         }
-                    } catch (Exception e) {
-                        // 例外処理
-                        doListener().onPost(context, listener, e.getMessage(), installEventListener);
-                    }
+
+                        try {
+                            if (mDhizukuService.tryInstallPackages(splitInstallData, reqCode)) {
+                                if (dhizukuUserServiceArgs != null) {
+                                    try {
+                                        Dhizuku.stopUserService(dhizukuUserServiceArgs);
+                                    } catch (IllegalStateException ignored) {
+                                    }
+                                }
+
+                                if (dServiceConnection != null) {
+                                    try {
+                                        Dhizuku.unbindUserService(dServiceConnection);
+                                    } catch (IllegalStateException ignored) {
+                                    }
+                                }
+                                // 成功
+                                doListener().onPost(context, listener, true, installEventListener);
+                            } else {
+                                // 失敗
+                                doListener().onPost(context, listener, false, installEventListener);
+                            }
+                        } catch (Exception e) {
+                            // 例外処理
+                            doListener().onPost(context, listener, e.getMessage(), installEventListener);
+                        }
+                    }).start();
                 }
 
                 @Override
@@ -174,7 +176,9 @@ public class ApkInstallTask {
             if (!sessionInstaller.splitCommitSession(context, sessionId, reqCode)) {
                 // 失敗
                 doListener().onPost(context, listener, false, installEventListener);
+                return;
             }
+                doListener().onPost(context, listener, true, installEventListener);
         } catch (Exception e) {
             // 例外処理
             doListener().onPost(context, listener, e.getMessage(), installEventListener);
@@ -194,9 +198,8 @@ public class ApkInstallTask {
     private doListener doListener() {
         return (context, listener, result, installEventListener) -> {
             Handler handler = new Handler(Looper.getMainLooper());
-            new Thread(() ->
-                    handler.post(() ->
-                            onPostExecute(context, listener, result, installEventListener))).start();
+            handler.post(() ->
+                    onPostExecute(context, listener, result, installEventListener));
         };
     }
 

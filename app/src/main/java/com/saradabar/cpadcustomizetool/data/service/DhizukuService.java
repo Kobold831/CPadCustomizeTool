@@ -16,7 +16,6 @@ import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
 
 import androidx.annotation.NonNull;
@@ -86,7 +85,6 @@ public class DhizukuService extends IDhizukuService.Stub {
 
     private int createSession(@NonNull PackageInstaller packageInstaller) throws IOException {
         PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
-        params.setInstallLocation(PackageInfo.INSTALL_LOCATION_PREFER_EXTERNAL);
         return packageInstaller.createSession(params);
     }
 

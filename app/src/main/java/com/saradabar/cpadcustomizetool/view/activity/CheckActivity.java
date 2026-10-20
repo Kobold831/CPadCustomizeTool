@@ -571,7 +571,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             /* 成功 */
             @Override
             public void onSuccess() {
-                Common.deleteDirectory(getExternalCacheDir());
+                Common.deleteDirectoryAsync(getExternalCacheDir());
                 cancelLoadingDialog();
                 AlertDialog alertDialog = new DialogUtil(CheckActivity.this)
                         .setMessage(R.string.dialog_success_silent_install)
@@ -587,7 +587,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             /* 失敗 */
             @Override
             public void onFailure(String message) {
-                Common.deleteDirectory(getExternalCacheDir());
+                Common.deleteDirectoryAsync(getExternalCacheDir());
                 cancelLoadingDialog();
                 new DialogUtil(CheckActivity.this)
                         .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
@@ -598,7 +598,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
 
             @Override
             public void onError(String message) {
-                Common.deleteDirectory(getExternalCacheDir());
+                Common.deleteDirectoryAsync(getExternalCacheDir());
                 cancelLoadingDialog();
                 new DialogUtil(CheckActivity.this)
                         .setTitle(getString(R.string.dialog_title_error))

@@ -49,7 +49,6 @@ import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -308,15 +307,8 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
             /* 成功 */
             @Override
             public void onSuccess() {
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (IOException ignored) {
-                }
+                /* 一時ファイルを消去 */
+                Common.deleteDirectoryAsync(getExternalCacheDir());
                 cancelLoadingDialog();
                 AlertDialog alertDialog = new DialogUtil(SelfUpdateActivity.this)
                         .setMessage(R.string.dialog_success_silent_install)
@@ -332,15 +324,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
             /* 失敗 */
             @Override
             public void onFailure(String message) {
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (IOException ignored) {
-                }
+                Common.deleteDirectoryAsync(getExternalCacheDir());
                 cancelLoadingDialog();
                 new DialogUtil(SelfUpdateActivity.this)
                         .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
@@ -351,15 +335,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
 
             @Override
             public void onError(String message) {
-                try {
-                    /* 一時ファイルを消去 */
-                    File tmpFile = getExternalCacheDir();
-
-                    if (tmpFile != null) {
-                        FileUtils.deleteDirectory(tmpFile);
-                    }
-                } catch (IOException ignored) {
-                }
+                Common.deleteDirectoryAsync(getExternalCacheDir());
                 cancelLoadingDialog();
                 new DialogUtil(SelfUpdateActivity.this)
                         .setTitle(getString(R.string.dialog_title_error))

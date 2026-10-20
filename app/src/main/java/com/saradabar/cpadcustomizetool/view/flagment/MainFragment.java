@@ -21,6 +21,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.net.Uri;
@@ -480,40 +481,40 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
 
         preRequestInstallPackages.setOnPreferenceClickListener(preference -> {
             @SuppressLint("InflateParams") View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_launch_app_list, null);
-            List<ApplicationInfo> installedAppList = requireActivity().getPackageManager().getInstalledApplications(0);
+            PackageManager packageManager = requireActivity().getPackageManager();
+            List<PackageInfo> installedAppList = packageManager.getInstalledPackages(PackageManager.GET_PERMISSIONS);
             List<LaunchAppListView.AppData> dataList = new ArrayList<>();
 
-            for (ApplicationInfo app : installedAppList) {
-                if(requireActivity().getPackageManager().getLaunchIntentForPackage(app.packageName) != null) {
-                    LaunchAppListView.AppData data = new LaunchAppListView.AppData();
-                    data.icon = app.loadIcon(requireActivity().getPackageManager());
-                    data.label = app.loadLabel(requireActivity().getPackageManager()).toString();
-                    data.packName = app.packageName;
-                    dataList.add(data);
+            for (PackageInfo info : installedAppList) {
+                if (info.applicationInfo == null || info.requestedPermissions == null) {
+                    continue;
                 }
+
+                boolean isRequestInstallPackages = false;
+
+                for (String permission : info.requestedPermissions) {
+                    if (Manifest.permission.REQUEST_INSTALL_PACKAGES.equals(permission)) {
+                        isRequestInstallPackages = true;
+                        break;
+                    }
+                }
+
+                if (!isRequestInstallPackages) {
+                    continue;
+                }
+
+                LaunchAppListView.AppData data = new LaunchAppListView.AppData();
+                data.icon = info.applicationInfo.loadIcon(packageManager);
+                data.label = info.applicationInfo.loadLabel(packageManager).toString();
+                data.packName = info.packageName;
+                dataList.add(data);
             }
 
             ListView listView = view.findViewById(R.id.launch_app_list);
             listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             listView.setAdapter(new LaunchAppListView.LaunchAppAdapter(requireActivity(), dataList));
-            listView.setOnItemClickListener((parent, mView, position, id) -> {
-                ArrayList<String> stringArrayList = Common.exec("appops set " + dataList.get(position).packName + " REQUEST_INSTALL_PACKAGES allow");
-                StringBuilder stringBuilder = new StringBuilder();
-
-                for (int i = 0; i < stringArrayList.size(); i++) {
-                    stringBuilder.append(stringArrayList.get(i));
-                }
-
-                if (String.valueOf(stringBuilder).contains("Security exception")) {
-                    // 権限なし
-                    new BypassPermissionDialogFragment().show(requireActivity().getSupportFragmentManager(), "");
-                } else {
-                    new DialogUtil(requireActivity())
-                            .setMessage(R.string.dialog_allow_install_unknown_source)
-                            .setPositiveButton(R.string.dialog_common_ok, null)
-                            .show();
-                }
-            });
+            listView.setOnItemClickListener((parent, mView, position, id) ->
+                    grantRequestInstallPackages(dataList.get(position).packName));
 
             new DialogUtil(requireActivity())
                     .setView(view)
@@ -1015,6 +1016,60 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
         apkInstallTaskListener().onError(message);
     }
 
+    private void grantRequestInstallPackages(String packName) {
+        String result = execRequestInstallPackages(packName);
+
+        if (result.contains("Security exception") || result.contains("SecurityException")) {
+            showLoadingDialog(getString(R.string.progress_state_installing));
+            Common.acquireBypassPermission(requireActivity(), success -> {
+                cancelLoadingDialog();
+
+                if (!isAdded()) {
+                    return;
+                }
+
+                if (!success) {
+                    new DialogUtil(requireActivity())
+                            .setTitle(getString(R.string.dialog_title_error))
+                            .setMessage(R.string.dialog_error)
+                            .setPositiveButton(R.string.dialog_common_ok, null)
+                            .show();
+                    return;
+                }
+
+                showRequestInstallPackagesResult(execRequestInstallPackages(packName));
+            });
+        } else {
+            showRequestInstallPackagesResult(result);
+        }
+    }
+
+    private void showRequestInstallPackagesResult(String result) {
+        if (result.isEmpty()) {
+            new DialogUtil(requireActivity())
+                    .setMessage(R.string.dialog_allow_install_unknown_source)
+                    .setPositiveButton(R.string.dialog_common_ok, null)
+                    .show();
+        } else {
+            new DialogUtil(requireActivity())
+                    .setTitle(getString(R.string.dialog_title_error))
+                    .setMessage(result)
+                    .setPositiveButton(R.string.dialog_common_ok, null)
+                    .show();
+        }
+    }
+
+    private String execRequestInstallPackages(String packName) {
+        ArrayList<String> stringArrayList = Common.exec("appops set " + packName + " REQUEST_INSTALL_PACKAGES allow");
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (int i = 0; i < stringArrayList.size(); i++) {
+            stringBuilder.append(stringArrayList.get(i));
+        }
+
+        return stringBuilder.toString();
+    }
+
     private ApkInstallTask.Listener apkInstallTaskListener() {
         return new ApkInstallTask.Listener() {
 
@@ -1029,7 +1084,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             @Override
             public void onSuccess() {
                 if (!isAdded()) return;
-                Common.deleteDirectory(requireActivity().getExternalCacheDir());
+                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
                 AlertDialog alertDialog = new DialogUtil(MainFragment.this.requireActivity())
                         .setMessage(R.string.dialog_success_silent_install)
@@ -1046,7 +1101,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             @Override
             public void onFailure(String message) {
                 if (!isAdded()) return;
-                Common.deleteDirectory(requireActivity().getExternalCacheDir());
+                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
                 new DialogUtil(MainFragment.this.requireActivity())
                         .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
@@ -1058,7 +1113,7 @@ public class MainFragment extends PreferenceFragmentCompat implements DownloadEv
             @Override
             public void onError(String message) {
                 if (!isAdded()) return;
-                Common.deleteDirectory(requireActivity().getExternalCacheDir());
+                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 cancelLoadingDialog();
                 new DialogUtil(MainFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))

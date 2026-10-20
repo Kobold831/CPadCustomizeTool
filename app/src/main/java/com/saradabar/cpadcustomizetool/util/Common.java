@@ -26,9 +26,12 @@ import android.net.Uri;
 import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Environment;
+import android.os.FileUtils;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
+import android.system.ErrnoException;
+import android.system.Os;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -53,7 +56,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -63,6 +65,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -71,7 +74,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-/** @noinspection unused*/
 public class Common {
 
     public static boolean isWriteSecureSettingsGranted(Context context) {
@@ -129,9 +131,6 @@ public class Common {
         }, Context.BIND_AUTO_CREATE);
     }
 
-    /**
-     * @noinspection BooleanMethodIsAlwaysInverted
-     */
     public static boolean isDchaUtilActive(@NonNull Context context) {
         return context.bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
             @Override
@@ -259,20 +258,18 @@ public class Common {
 
     @NonNull
     public static JSONObject parseJson(@NonNull File json) throws JSONException, IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(json.getPath()));
-        JSONObject jsonObject;
         StringBuilder data = new StringBuilder();
-        String str = bufferedReader.readLine();
 
-        while (str != null) {
-            data.append(str);
-            str = bufferedReader.readLine();
+        try (BufferedReader bufferedReader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(json), StandardCharsets.UTF_8))) {
+            String str;
+
+            while ((str = bufferedReader.readLine()) != null) {
+                data.append(str);
+            }
         }
 
-        jsonObject = new JSONObject(data.toString());
-
-        bufferedReader.close();
-        return jsonObject;
+        return new JSONObject(data.toString());
     }
 
     public static boolean isDhizukuActive(@NonNull Context context) {
@@ -353,27 +350,38 @@ public class Common {
         }
     }
 
+    private static int getUid(@NonNull File file) {
+        if (!file.exists()) {
+            return -1;
+        }
+        try {
+            return Os.stat(file.getPath()).st_uid;
+        } catch (ErrnoException ignored) {
+            return -1;
+        }
+    }
+
     public static boolean getDchaCompletedPast() {
-        if (!isBenesseExtensionExist("getDchaState")) {
-            // BenesseExtension が存在しない
+        if (!isBenesseExtensionExist("checkPassword")) {
+            // BenesseExtension でのパスワード検証が存在しない
             return false;
         }
 
-        if (isBenesseExtensionFieldExist("COUNT_DCHA_COMPLETED_FILE")) {
-            return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists();
+        if (!isCT3()) {
+            // Neo/Next は IGNORE が存在すれば OK
+            return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists() && !BenesseExtension.IGNORE_DCHA_COMPLETED_FILE.exists();
+        } else if (isCT3())  {
+            // CT3 は IGNORE が在っても UID が root じゃないと無理
+            return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists() && getUid(BenesseExtension.IGNORE_DCHA_COMPLETED_FILE) != 0;
         } else {
+            // それ以外は知らん
             return false;
         }
     }
 
     public static boolean isShowCfmDialog(Context context) {
-        if (isCT2() || isCT3()) {
-            // CT2、CT3は確認ダイアログを表示しない
-            return false;
-        }
-
         if (getDchaCompletedPast()) {
-            // すでにdchaファイルが作成されている場合は確認ダイアログを表示しない
+            // すでに保護が働いている場合は確認ダイアログを表示しない
             return false;
         }
         // すでにダイアログで確認している場合は、確認ダイアログを表示しない
@@ -394,7 +402,6 @@ public class Common {
         long result = 0;
 
         while (!dirs.isEmpty()) {
-            //noinspection SequencedCollectionMethodCanBeUsed
             final File dir = dirs.remove(0);
 
             if (!dir.exists()) {
@@ -424,6 +431,13 @@ public class Common {
             return context.getExternalCacheDir().getPath() + "/tmp";
         }
         return null;
+    }
+
+    public static void deleteDirectoryAsync(@Nullable File directory) {
+        if (directory == null) {
+            return;
+        }
+        new Thread(() -> deleteDirectory(directory)).start();
     }
 
     public static boolean deleteDirectory(File directory) {
@@ -485,6 +499,41 @@ public class Common {
             return false;
         }
         return true;
+    }
+
+    public interface BypassPermissionListener {
+        void onResult(boolean success);
+    }
+
+    public static void acquireBypassPermission(@NonNull Context context, @NonNull BypassPermissionListener listener) {
+        if (!copyAssetsFile(context)) {
+            listener.onResult(false);
+            return;
+        }
+
+        new DchaServiceUtil(context).setSetupStatus(3, object -> {
+            if (!object.equals(true)) {
+                listener.onResult(false);
+                return;
+            }
+
+            new DchaServiceUtil(context).installApp(context.getExternalCacheDir() + "/" + "base.apk", 2, object1 -> {
+                if (!object1.equals(true)) {
+                    listener.onResult(false);
+                    return;
+                }
+
+                new DchaServiceUtil(context).uninstallApp("a.a", 0, object2 -> {
+                    if (!object2.equals(true)) {
+                        listener.onResult(false);
+                        return;
+                    }
+
+                    new DchaServiceUtil(context).setSetupStatus(0, object3 ->
+                            listener.onResult(object3.equals(true)));
+                });
+            });
+        });
     }
 
     public static boolean copyFile(File srcFile, File dstFile) {
