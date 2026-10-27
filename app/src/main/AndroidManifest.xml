@@ -253,7 +253,7 @@
 
         <receiver
             android:name=".data.receiver.DeviceAdminReceiver"
-            android:description="@string/accessibility_description"
+            android:description="@string/pre_main_sum_device_admin"
             android:exported="false"
             android:permission="android.permission.BIND_DEVICE_ADMIN">
             <meta-data
