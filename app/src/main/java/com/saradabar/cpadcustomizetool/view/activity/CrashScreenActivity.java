@@ -50,7 +50,7 @@ public class CrashScreenActivity extends AppCompatActivity {
                 .setNegativeButton(getString(R.string.dialog_common_cancel), null)
                 .show());
 
-        btnOpenWeb.setOnClickListener(v -> startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", "https://docs.google.com/document/d/1NcdovWYrOTPrwvzDrYF0hUSg3T7zyQxnef27rTKU_SY/edit?usp=drive_link")));
+        btnOpenWeb.setOnClickListener(v -> startActivity(new Intent(this, WebViewActivity.class).putExtra(Constants.URI_EXTRA_NAME, "https://docs.google.com/document/d/1NcdovWYrOTPrwvzDrYF0hUSg3T7zyQxnef27rTKU_SY/view")));
 
         btnSendCrash.setOnClickListener(v -> {
             try {
@@ -64,9 +64,8 @@ public class CrashScreenActivity extends AppCompatActivity {
                     return;
                 }
                 ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                //noinspection SequencedCollectionMethodCanBeUsed
                 clipboardManager.setPrimaryClip(ClipData.newPlainText("", arrayList.get(arrayList.size() - 1)));
-                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK));
+                startActivity(new Intent(this, WebViewActivity.class).putExtra(Constants.URI_EXTRA_NAME, Constants.URL_FEEDBACK));
                 new DialogUtil(this)
                         .setMessage(R.string.dialog_thanks_for_cooperation)
                         .setPositiveButton(R.string.dialog_common_ok, null)

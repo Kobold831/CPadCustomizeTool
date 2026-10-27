@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -13,68 +13,76 @@
 package com.saradabar.cpadcustomizetool.util;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.app.admin.DevicePolicyManager;
 import android.app.admin.IDevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Environment;
-import android.os.FileUtils;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
-import android.system.ErrnoException;
-import android.system.Os;
-import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 
 import com.rosan.dhizuku.api.Dhizuku;
 
 import com.rosan.dhizuku.api.DhizukuBinderWrapper;
 import com.rosan.dhizuku.shared.DhizukuVariables;
+
 import com.saradabar.cpadcustomizetool.BuildConfig;
 import com.saradabar.cpadcustomizetool.MyApplication;
+import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
 import com.saradabar.cpadcustomizetool.data.service.KeepService;
 import com.saradabar.cpadcustomizetool.data.service.ProtectKeepService;
+import com.saradabar.cpadcustomizetool.data.task.ApkInstallTask;
+import com.saradabar.cpadcustomizetool.data.task.DchaInstallTask;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Common {
+
+    private static volatile Field sDevicePolicyManagerServiceField;
 
     public static boolean isWriteSecureSettingsGranted(Context context) {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED;
@@ -101,8 +109,13 @@ public class Common {
         try {
             Context context = c.createPackageContext(DhizukuVariables.OFFICIAL_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY);
             DevicePolicyManager manager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-            @SuppressLint("PrivateApi") Field field = manager.getClass().getDeclaredField("mService");
-            field.setAccessible(true);
+            Field field = sDevicePolicyManagerServiceField;
+
+            if (field == null) {
+                field = manager.getClass().getDeclaredField("mService");
+                field.setAccessible(true);
+                sDevicePolicyManagerServiceField = field;
+            }
             IDevicePolicyManager oldInterface = (IDevicePolicyManager) field.get(manager);
             if (oldInterface instanceof DhizukuBinderWrapper) return manager;
             assert oldInterface != null;
@@ -118,82 +131,31 @@ public class Common {
     }
 
     public static boolean isDchaActive(@NonNull Context context) {
-        return context.bindService(Constants.ACTION_DCHA_SERVICE, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                context.unbindService(this);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                context.unbindService(this);
-            }
-        }, Context.BIND_AUTO_CREATE);
-    }
-
-    public static boolean isDchaUtilActive(@NonNull Context context) {
-        return context.bindService(Constants.ACTION_UTIL_SERVICE, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                context.unbindService(this);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                context.unbindService(this);
-            }
-        }, Context.BIND_AUTO_CREATE);
+        return DchaServiceConnection.ensureBound(context);
     }
 
     @NonNull
     public static ArrayList<String> exec(String str) {
-        Process process = null;
-        BufferedWriter bufferedWriterOutput = null;
-        BufferedReader bufferedReaderInput = null, bufferedReaderError = null;
         ArrayList<String> stringArrayList = new ArrayList<>();
+        Process process = null;
 
         try {
-            String[] cmd = {"/system/bin/sh", "-c", str,};
-            process = Runtime.getRuntime().exec(cmd);
-            bufferedWriterOutput = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-            bufferedReaderInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            bufferedReaderError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            bufferedWriterOutput.write("exit" + System.lineSeparator());
-            bufferedWriterOutput.flush();
+            ProcessBuilder builder = new ProcessBuilder("/system/bin/sh", "-c", str);
+            builder.redirectErrorStream(true);
+            process = builder.start();
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                String data;
+
+                while ((data = reader.readLine()) != null) {
+                    stringArrayList.add(data);
+                }
+            }
+
             process.waitFor();
-
-            String data;
-
-            while ((data = bufferedReaderInput.readLine()) != null) {
-                stringArrayList.add(data);
-            }
-
-            while ((data = bufferedReaderError.readLine()) != null) {
-                stringArrayList.add(data);
-            }
         } catch (Exception ignored) {
         } finally {
-            if (bufferedReaderInput != null) {
-                try {
-                    bufferedReaderInput.close();
-                } catch (IOException ignored) {
-                }
-            }
-
-            if (bufferedReaderError != null) {
-                try {
-                    bufferedReaderError.close();
-                } catch (IOException ignored) {
-                }
-            }
-
-            if (bufferedWriterOutput != null) {
-                try {
-                    bufferedWriterOutput.close();
-                } catch (IOException ignored) {
-                }
-            }
-
             if (process != null) {
                 process.destroy();
             }
@@ -202,21 +164,28 @@ public class Common {
     }
 
     public static String getNowDate() {
-        DateFormat df = new SimpleDateFormat("yyyy/MM/dd (E) HH:mm:ss", Locale.US);
+        DateFormat df = new SimpleDateFormat("yyyy/MM/dd (E) HH:mm:ss", Locale.JAPAN);
         return df.format(System.currentTimeMillis());
     }
 
-    public static void LogOverWrite(Context context, @NonNull Thread thread, @NonNull Throwable throwable) {
-        StringWriter stackTrace = new StringWriter();
-        throwable.printStackTrace(new PrintWriter(stackTrace));
+    public static void LogOverWrite(Context context, @NonNull Throwable throwable) {
+        StackTraceElement crashElement = getCrashElement(context, throwable);
+        String crashClass = throwable.getClass().getName();
+        String crashMethod = "";
+
+        if (crashElement != null) {
+            crashClass = crashElement.getClassName();
+            crashMethod = crashElement.getMethodName();
+        }
+
         String message =
                 "Date: " + getNowDate() + System.lineSeparator() +
-                        "Version: v" + BuildConfig.VERSION_NAME + System.lineSeparator() +
-                        "Device: " + Build.MODEL + System.lineSeparator() +
-                        "Build: " + Build.ID + System.lineSeparator() +
-                        "Thread: " + thread.getName() + " (" + thread.getId() + ")" + System.lineSeparator() +
-                        "Exception: " + throwable.getClass().getName() + ": " + throwable.getMessage() + System.lineSeparator() +
-                        "Stack trace:" + System.lineSeparator() + stackTrace;
+                "Version: v" + BuildConfig.VERSION_NAME + System.lineSeparator() +
+                "Device: " + Build.MODEL + System.lineSeparator() +
+                "Build: " + Build.ID + System.lineSeparator() +
+                "Class: " + crashClass + System.lineSeparator() +
+                "Method: " + crashMethod + System.lineSeparator() +
+                "Exception: " + throwable.getClass().getName() + ": " + throwable.getMessage();
 
         ArrayList<String> arrayList = Preferences.load(context, Constants.KEY_LIST_CRASH_LOG);
 
@@ -225,6 +194,35 @@ public class Common {
         }
         arrayList.add(message);
         Preferences.save(context, Constants.KEY_LIST_CRASH_LOG, arrayList);
+    }
+
+    @Nullable
+    private static StackTraceElement getCrashElement(@NonNull Context context, @NonNull Throwable throwable) {
+        String packageName = context.getPackageName() + ".";
+        StackTraceElement firstElement = null;
+        Throwable cause = throwable;
+
+        for (int depth = 0; cause != null && depth < Constants.MAX_CAUSE_DEPTH; depth++) {
+            StackTraceElement[] stackTraceElements = cause.getStackTrace();
+
+            if (stackTraceElements.length > 0 && firstElement == null) {
+                firstElement = stackTraceElements[0];
+            }
+
+            for (StackTraceElement stackTraceElement : stackTraceElements) {
+                if (stackTraceElement.getClassName().startsWith(packageName)) {
+                    return stackTraceElement;
+                }
+            }
+
+            Throwable next = cause.getCause();
+
+            if (next == cause) {
+                break;
+            }
+            cause = next;
+        }
+        return firstElement;
     }
 
     /* 選択したファイルデータを取得 */
@@ -272,6 +270,10 @@ public class Common {
         return new JSONObject(data.toString());
     }
 
+    public static boolean isUserApp(@NonNull ApplicationInfo app) {
+        return app.sourceDir.startsWith("/data/app/");
+    }
+
     public static boolean isDhizukuActive(@NonNull Context context) {
         try {
             return Dhizuku.init(context);
@@ -290,32 +292,112 @@ public class Common {
         return false;
     }
 
+    public static int getFlag(String keyName) {
+        return Preferences.load(MyApplication.getContext(), keyName, Constants.DEF_INT);
+    }
+
+    public static int getFlag(Context context, String keyName) {
+        return Preferences.load(context, keyName, Constants.DEF_INT);
+    }
+
+    public static int getFlag(String keyName, int def) {
+        return Preferences.load(MyApplication.getContext(), keyName, def);
+    }
+
+    public static int getFlag(Context context, String keyName, int def) {
+        return Preferences.load(context, keyName, def);
+    }
+
+    public static void setFlag(String keyName, int flag) {
+        Preferences.save(MyApplication.getContext(), keyName, flag);
+    }
+
+    public static void setFlag(Context context, String keyName, int flag) {
+        Preferences.save(context, keyName, flag);
+    }
+
+    public static boolean isFlagEnabled(String keyName) {
+        return Preferences.load(MyApplication.getContext(), keyName, Constants.DEF_BOOL);
+    }
+
+    public static boolean isFlagEnabled(Context context, String keyName) {
+        return Preferences.load(context, keyName, Constants.DEF_BOOL);
+    }
+
+    public static boolean isFlagEnabled(String keyName, boolean def) {
+        return Preferences.load(MyApplication.getContext(), keyName, def);
+    }
+
+    public static boolean isFlagEnabled(Context context, String keyName, boolean def) {
+        return Preferences.load(context, keyName, def);
+    }
+
+    public static void setFlagEnabled(String keyName, boolean enabled) {
+        Preferences.save(MyApplication.getContext(), keyName, enabled);
+    }
+
+    public static void setFlagEnabled(Context context, String keyName, boolean enabled) {
+        Preferences.save(context, keyName, enabled);
+    }
+
+    public static String getName(String keyName) {
+        return Preferences.load(MyApplication.getContext(), keyName, Constants.DEF_STR);
+    }
+
+    public static String getName(Context context, String keyName) {
+        return Preferences.load(context, keyName, Constants.DEF_STR);
+    }
+
+    public static String getName(String keyName, String def) {
+        return Preferences.load(MyApplication.getContext(), keyName, def);
+    }
+
+    public static String getName(Context context, String keyName, String def) {
+        return Preferences.load(context, keyName, def);
+    }
+
+    public static void setName(String keyName, String val) {
+        Preferences.save(MyApplication.getContext(), keyName, val);
+    }
+
+    public static void setName(Context context, String keyName, String val) {
+        Preferences.save(context, keyName, val);
+    }
+
+    public static String getPref(Context context, String keyName) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getString(keyName, "0");
+    }
+
+    private static boolean isDebugDevice() {
+        return getDebugDevice() != 0 && BuildConfig.DEBUG;
+    }
+
+    private static int getDebugDevice() {
+        return getFlag(Constants.KEY_INT_DEBUG_DEVICE);
+    }
+
     public static boolean isCT2() {
-        if (Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 0) {
-            return Constants.PRODUCT_CT2.contains(Build.MODEL);
-        }
-        return Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 1;
+        return isDebugDevice()
+                ? getDebugDevice() == Constants.DEBUG_DEVICE_CT2
+                : Constants.PRODUCT_CT2.contains(Build.MODEL);
     }
 
     public static boolean isCT3() {
-        if (Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 0) {
-            return Build.MODEL.equals(Constants.PRODUCT_CT3);
-        }
-        return Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 2;
+        return isDebugDevice()
+                ? getDebugDevice() == Constants.DEBUG_DEVICE_CT3
+                : Build.MODEL.equals(Constants.PRODUCT_CT3);
     }
 
     public static boolean isCTX() {
-        if (Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 0) {
-            return Build.MODEL.equals(Constants.PRODUCT_CTX);
-        }
-        return Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 3;
+        return isDebugDevice()
+                ? getDebugDevice() == Constants.DEBUG_DEVICE_CTX
+                : Build.MODEL.equals(Constants.PRODUCT_CTX);
     }
 
     public static boolean isCTZ() {
-        if (Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 0) {
-            return Build.MODEL.equals(Constants.PRODUCT_CTZ);
-        }
-        return Preferences.load(MyApplication.getContext(), Constants.KEY_INT_DEBUG_DEVICE, 0) == 4;
+        return isDebugDevice()
+                ? getDebugDevice() == Constants.DEBUG_DEVICE_CTZ
+                : Build.MODEL.equals(Constants.PRODUCT_CTZ);
     }
 
     public static boolean isBenesseExtensionExist(String method) {
@@ -335,48 +417,16 @@ public class Common {
         }
     }
 
-    public static boolean isBenesseExtensionFieldExist(String field) {
-        try {
-            Class<?> c = Class.forName("android.os.BenesseExtension", false, ClassLoader.getSystemClassLoader());
-            c.getField(field);
-            return true;
-        } catch (ClassNotFoundException |
-                 NoClassDefFoundError |
-                 NoSuchFieldException |
-                 NoSuchFieldError |
-                 SecurityException |
-                 NullPointerException ignored) {
-            return false;
-        }
-    }
-
-    private static int getUid(@NonNull File file) {
-        if (!file.exists()) {
-            return -1;
-        }
-        try {
-            return Os.stat(file.getPath()).st_uid;
-        } catch (ErrnoException ignored) {
-            return -1;
-        }
+    public static boolean isDchaLockExists() {
+        return isBenesseExtensionExist("checkPassword");
     }
 
     public static boolean getDchaCompletedPast() {
-        if (!isBenesseExtensionExist("checkPassword")) {
+        if (!isDchaLockExists()) {
             // BenesseExtension でのパスワード検証が存在しない
-            return false;
+            return true;
         }
-
-        if (!isCT3()) {
-            // Neo/Next は IGNORE が存在すれば OK
-            return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists() && !BenesseExtension.IGNORE_DCHA_COMPLETED_FILE.exists();
-        } else if (isCT3())  {
-            // CT3 は IGNORE が在っても UID が root じゃないと無理
-            return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists() && getUid(BenesseExtension.IGNORE_DCHA_COMPLETED_FILE) != 0;
-        } else {
-            // それ以外は知らん
-            return false;
-        }
+        return BenesseExtension.COUNT_DCHA_COMPLETED_FILE.exists();
     }
 
     public static boolean isShowCfmDialog(Context context) {
@@ -385,7 +435,7 @@ public class Common {
             return false;
         }
         // すでにダイアログで確認している場合は、確認ダイアログを表示しない
-        return !Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION, Constants.DEF_BOOL);
+        return !isFlagEnabled(context, Constants.KEY_FLAG_DCHA_FUNCTION_CONFIRMATION);
     }
 
     public static long getFileSize(final File file) {
@@ -397,12 +447,12 @@ public class Common {
             return file.length();
         }
 
-        final List<File> dirs = new LinkedList<>();
+        final ArrayDeque<File> dirs = new ArrayDeque<>();
         dirs.add(file);
         long result = 0;
 
         while (!dirs.isEmpty()) {
-            final File dir = dirs.remove(0);
+            final File dir = dirs.poll();
 
             if (!dir.exists()) {
                 continue;
@@ -468,33 +518,31 @@ public class Common {
 
     @NonNull
     public static String getRandomString() {
-        String theAlphaNumericS;
-        StringBuilder builder;
-        theAlphaNumericS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        builder = new StringBuilder(5);
+        final String theAlphaNumericS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        StringBuilder builder = new StringBuilder(Constants.RANDOM_STRING_LENGTH);
+        ThreadLocalRandom random = ThreadLocalRandom.current();
 
-        for (int m = 0; m < 5; m++) {
-            int myindex = (int) (theAlphaNumericS.length() * Math.random());
-            builder.append(theAlphaNumericS.charAt(myindex));
+        for (int m = 0; m < Constants.RANDOM_STRING_LENGTH; m++) {
+            builder.append(theAlphaNumericS.charAt(random.nextInt(theAlphaNumericS.length())));
         }
         return builder.toString();
     }
 
-    public static void debugLog(String msg) {
-        if (BuildConfig.DEBUG) Log.e("DEBUG", msg);
-    }
+    public static boolean extractTempApk(@NonNull Context context) {
+        File cacheDir = context.getExternalCacheDir();
 
-    public static boolean copyAssetsFile(@NonNull Context context) {
-        try {
-            InputStream inputStream = context.getAssets().open("base.apk");
-            FileOutputStream fileOutputStream = new FileOutputStream(context.getExternalCacheDir() + "/" + "base.apk", false);
-            byte[] buffer = new byte[1024];
+        if (cacheDir == null) {
+            return false;
+        }
+
+        try (InputStream inputStream = context.getAssets().open("base.apk");
+             FileOutputStream fileOutputStream = new FileOutputStream(new File(cacheDir, "base.apk"), false)) {
+            byte[] buffer = new byte[Constants.BUFFER_SIZE_SMALL];
             int length;
+
             while ((length = inputStream.read(buffer)) >= 0) {
                 fileOutputStream.write(buffer, 0, length);
             }
-            fileOutputStream.close();
-            inputStream.close();
         } catch (IOException ignored) {
             return false;
         }
@@ -506,30 +554,30 @@ public class Common {
     }
 
     public static void acquireBypassPermission(@NonNull Context context, @NonNull BypassPermissionListener listener) {
-        if (!copyAssetsFile(context)) {
+        if (!extractTempApk(context)) {
             listener.onResult(false);
             return;
         }
 
-        new DchaServiceUtil(context).setSetupStatus(3, object -> {
+        new DchaServiceUtil(context).setSetupStatus(Constants.DIGICHALIZE_STATUS_DIGICHALIZED, object -> {
             if (!object.equals(true)) {
                 listener.onResult(false);
                 return;
             }
 
-            new DchaServiceUtil(context).installApp(context.getExternalCacheDir() + "/" + "base.apk", 2, object1 -> {
+            new DchaServiceUtil(context).installApp(context.getExternalCacheDir() + "/" + "base.apk", object1 -> {
                 if (!object1.equals(true)) {
                     listener.onResult(false);
                     return;
                 }
 
-                new DchaServiceUtil(context).uninstallApp("a.a", 0, object2 -> {
+                new DchaServiceUtil(context).uninstallApp("a.a", object2 -> {
                     if (!object2.equals(true)) {
                         listener.onResult(false);
                         return;
                     }
 
-                    new DchaServiceUtil(context).setSetupStatus(0, object3 ->
+                    new DchaServiceUtil(context).setSetupStatus(Constants.DIGICHALIZE_STATUS_UNDIGICHALIZE, object3 ->
                             listener.onResult(object3.equals(true)));
                 });
             });
@@ -539,7 +587,7 @@ public class Common {
     public static boolean copyFile(File srcFile, File dstFile) {
         try (InputStream in = new FileInputStream(srcFile)) {
             try (OutputStream out = new FileOutputStream(dstFile)) {
-                byte[] buf = new byte[1024];
+                byte[] buf = new byte[Constants.BUFFER_SIZE_SMALL];
                 int len;
                 while ((len = in.read(buf)) > 0) {
                     out.write(buf, 0, len);
@@ -551,27 +599,350 @@ public class Common {
         }
     }
 
+    public static boolean copyDirectory(@NonNull File srcDir, File dstDir) {
+        if (!srcDir.isDirectory()) {
+            return false;
+        }
+
+        if (!dstDir.isDirectory() && !dstDir.mkdirs()) {
+            return false;
+        }
+
+        File[] files = srcDir.listFiles();
+
+        if (files == null) {
+            return false;
+        }
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                if (!copyDirectory(file, new File(dstDir, file.getName()))) {
+                    return false;
+                }
+            } else {
+                if (!copyFile(file, new File(dstDir, file.getName()))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public static void setNormalEnv(Context context) {
-        if (Preferences.load(context, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+        if (isFlagEnabled(context, Constants.KEY_FLAG_NORMAL_ENV)) {
             // 通常環境モード有効 //
             // サービスの維持機能を停止フラグに変更
-            Preferences.save(context, Constants.KEY_FLAG_KEEP_DCHA_STATE, false);
-            Preferences.save(context, Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false);
-            Preferences.save(context, Constants.KEY_FLAG_KEEP_MARKET_APP, false);
-            Preferences.save(context, Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
-            Preferences.save(context, Constants.KEY_FLAG_KEEP_HOME, false);
+            setFlagEnabled(context, Constants.KEY_FLAG_KEEP_DCHA_STATE, false);
+            setFlagEnabled(context, Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false);
+            setFlagEnabled(context, Constants.KEY_FLAG_KEEP_MARKET_APP, false);
+            setFlagEnabled(context, Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
+            setFlagEnabled(context, Constants.KEY_FLAG_KEEP_HOME, false);
             // サービスを起動(自動停止)
-            context.startService(new Intent(context, KeepService.class));
-            context.startService(new Intent(context, ProtectKeepService.class));
+            startKeepService(context);
 
-            if (Preferences.load(context, Constants.KEY_INT_UPDATE_MODE, 1) == 2) {
+            if (getFlag(context, Constants.KEY_INT_UPDATE_MODE, Constants.DEF_UPDATE_MODE) == Constants.UPDATE_MODE_DCHA) {
                 // Dcha に設定されている
                 // インストールモードをリセット
-                Preferences.save(context, Constants.KEY_INT_UPDATE_MODE, 1);
+                setFlag(context, Constants.KEY_INT_UPDATE_MODE, Constants.DEF_UPDATE_MODE);
             }
             // Dcha を使用しない設定に変更
-            Preferences.save(context, Constants.KEY_FLAG_DCHA_FUNCTION, false);
-            Preferences.save(context, Constants.KEY_FLAG_APP_SETTING_DCHA, false);
+            setFlagEnabled(context, Constants.KEY_FLAG_DCHA_FUNCTION, false);
+            setFlagEnabled(context, Constants.KEY_FLAG_APP_SETTING_DCHA, false);
         }
+    }
+
+    public static boolean isAnyKeepFlagEnabled(@NonNull Context context) {
+        return isFlagEnabled(context, Constants.KEY_FLAG_KEEP_NAVIGATION_BAR) ||
+                isFlagEnabled(context, Constants.KEY_FLAG_KEEP_DCHA_STATE) ||
+                isFlagEnabled(context, Constants.KEY_FLAG_KEEP_MARKET_APP) ||
+                isFlagEnabled(context, Constants.KEY_FLAG_KEEP_USB_DEBUG) ||
+                isFlagEnabled(context, Constants.KEY_FLAG_KEEP_HOME);
+    }
+
+    public static void startKeepService(@NonNull Context context) {
+        context.startService(new Intent(context, KeepService.class));
+        context.startService(new Intent(context, ProtectKeepService.class));
+    }
+
+    @NonNull
+    public static List<ApplicationInfo> getUserApplications(@NonNull Context context) {
+        List<ApplicationInfo> userApps = new ArrayList<>();
+
+        for (ApplicationInfo app : context.getPackageManager().getInstalledApplications(0)) {
+            if (isUserApp(app)) {
+                userApps.add(app);
+            }
+        }
+        return userApps;
+    }
+
+    @NonNull
+    public static String[] getRequiredPermissions(@NonNull Context context, @NonNull String packageName) {
+        try {
+            String[] permissions = context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS).requestedPermissions;
+
+            if (permissions != null && permissions.length > 0) {
+                return permissions;
+            }
+        } catch (Exception ignored) {
+        }
+        return new String[0];
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    public static int setPermissionGrantState(@NonNull Context context, @NonNull String packageName, int grantState) {
+        return setPermissionGrantState(getDevicePolicyManager(context), getDeviceAdminComponent(context), context, packageName, grantState);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    public static int setPermissionGrantState(@NonNull DevicePolicyManager dpm, @NonNull ComponentName adminComponent,
+                                              @NonNull Context context, @NonNull String packageName, int grantState) {
+        String[] permissions = getRequiredPermissions(context, packageName);
+
+        for (String permission : permissions) {
+            dpm.setPermissionGrantState(adminComponent, packageName, permission, grantState);
+        }
+        return permissions.length;
+    }
+
+    public static int getVersionCode(@NonNull Context context, @NonNull String packageName) {
+        try {
+            return context.getPackageManager().getPackageInfo(packageName, 0).versionCode;
+        } catch (PackageManager.NameNotFoundException ignored) {
+            return -1;
+        }
+    }
+
+    public static boolean isVersionBelow(@NonNull Context context, @NonNull String packageName, int versionCode) {
+        int currentVersionCode = getVersionCode(context, packageName);
+        return currentVersionCode >= 0 && currentVersionCode < versionCode;
+    }
+
+    @NonNull
+    public static JSONObject getUpdateInfo(@NonNull File json) throws JSONException, IOException {
+        return parseJson(json).getJSONObject("update");
+    }
+
+    @NonNull
+    public static JSONArray getNotices(@NonNull File json) throws JSONException, IOException {
+        JSONArray source = parseJson(json).getJSONArray("notice");
+        JSONArray notices = new JSONArray();
+
+        for (int i = 0; i < source.length(); i++) {
+            JSONObject notice = source.getJSONObject(i);
+
+            if (notice.optString("title").isEmpty()
+                    && notice.optString("message").isEmpty()
+                    && notice.optString("url").isEmpty()) {
+                continue;
+            }
+            notices.put(notice);
+        }
+        return notices;
+    }
+
+    public static void setDisplaySizeWithDcha(@NonNull Context context, int width, int height) {
+        try {
+            BenesseExtension.setForcedDisplaySize(width, height);
+        } catch (SecurityException ignored) {
+            Toast.makeText(context, context.getString(R.string.dialog_error_resolution_failed), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public static void resetResolution(@NonNull Context context) {
+        if (isCTX() || isCTZ()) {
+            // CTXとCTZ
+            BenesseExtension.putInt(Constants.BC_COMPATSCREEN, Constants.WUXGA);
+        } else {
+            // CT2とCT3
+            setDisplaySizeWithDcha(context, Constants.WXGA_WIDTH, Constants.WXGA_HEIGHT);
+        }
+    }
+
+    public static void setDchaState(@NonNull Context context, int status, @NonNull Runnable onFailure) {
+        new DchaServiceUtil(context).setSetupStatus(status, object -> {
+            if (!Boolean.TRUE.equals(object)) {
+                onFailure.run();
+            }
+        });
+    }
+
+    public static void setNavigationBar(@NonNull Context context, boolean hidden, @NonNull Runnable onFailure) {
+        new DchaServiceUtil(context).hideNavigationBar(hidden, object -> {
+            if (!Boolean.TRUE.equals(object)) {
+                onFailure.run();
+            }
+        });
+    }
+
+    @Nullable
+    public static ResolveInfo resolveHomeActivity(@NonNull Context context) {
+        return context.getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
+    }
+
+    @Nullable
+    public static String getLauncherPackage(@NonNull Context context) {
+        ResolveInfo resolveInfo = resolveHomeActivity(context);
+        return resolveInfo != null ? resolveInfo.activityInfo.packageName : null;
+    }
+
+    @Nullable
+    public static String getLauncherName(@NonNull Context context) {
+        ResolveInfo resolveInfo = resolveHomeActivity(context);
+        return resolveInfo != null ? resolveInfo.loadLabel(context.getPackageManager()).toString() : null;
+    }
+
+    @NonNull
+    public static AlertDialog showProgressSpinner(@NonNull Context context, String message) {
+        View view = LayoutInflater.from(context).inflate(R.layout.view_progress_spinner, null);
+        AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
+        textView.setText(message);
+        AlertDialog progressDialog = new DialogUtil(context).setCancelable(false).setView(view).create();
+        progressDialog.show();
+        return progressDialog;
+    }
+
+    public static void cancelDialog(@Nullable Dialog dialog) {
+        if (dialog == null || !dialog.isShowing()) {
+            return;
+        }
+
+        try {
+            dialog.cancel();
+        } catch (RuntimeException ignored) {
+        }
+    }
+
+    public interface TaskUi {
+        @Nullable
+        Context context();
+
+        void showLoading();
+
+        void cancelLoading();
+    }
+
+    @NonNull
+    public static ApkInstallTask.Listener apkInstallTaskListener(@NonNull TaskUi taskUi, @Nullable Runnable onResult) {
+        return new ApkInstallTask.Listener() {
+
+            @Override
+            public void onShow() {
+                if (taskUi.context() == null) {
+                    return;
+                }
+                taskUi.showLoading();
+            }
+
+            @Override
+            public void onSuccess() {
+                Context context = taskUi.context();
+
+                if (context == null) {
+                    return;
+                }
+                deleteDirectoryAsync(context.getExternalCacheDir());
+                taskUi.cancelLoading();
+                new DialogUtil(context)
+                        .setMessage(R.string.dialog_success_silent_install)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            if (onResult != null) {
+                                onResult.run();
+                            }
+                        })
+                        .show();
+            }
+
+            @Override
+            public void onFailure(String message) {
+                Context context = taskUi.context();
+
+                if (context == null) {
+                    return;
+                }
+                deleteDirectoryAsync(context.getExternalCacheDir());
+                taskUi.cancelLoading();
+                new DialogUtil(context)
+                        .setMessage(context.getString(R.string.dialog_failure_silent_install) + "\n" + message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            if (onResult != null) {
+                                onResult.run();
+                            }
+                        })
+                        .show();
+            }
+
+            @Override
+            public void onError(String message) {
+                Context context = taskUi.context();
+
+                if (context == null) {
+                    return;
+                }
+
+                deleteDirectoryAsync(context.getExternalCacheDir());
+                taskUi.cancelLoading();
+                new DialogUtil(context)
+                        .setTitle(context.getString(R.string.dialog_title_error))
+                        .setMessage(message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            if (onResult != null) {
+                                onResult.run();
+                            }
+                        })
+                        .show();
+            }
+        };
+    }
+
+    @NonNull
+    public static DchaInstallTask.Listener dchaInstallTaskListener(@NonNull TaskUi taskUi, @Nullable Runnable onResult) {
+        return new DchaInstallTask.Listener() {
+
+            @Override
+            public void onShow() {
+                if (taskUi.context() == null) {
+                    return;
+                }
+                taskUi.showLoading();
+            }
+
+            @Override
+            public void onSuccess() {
+                if (taskUi.context() == null) {
+                    return;
+                }
+                taskUi.cancelLoading();
+                new DialogUtil(taskUi.context())
+                        .setMessage(R.string.dialog_success_silent_install)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            if (onResult != null) {
+                                onResult.run();
+                            }
+                        })
+                        .show();
+            }
+
+            @Override
+            public void onFailure() {
+                if (taskUi.context() == null) {
+                    return;
+                }
+                taskUi.cancelLoading();
+                new DialogUtil(taskUi.context())
+                        .setMessage(R.string.dialog_failure_silent_install)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                            if (onResult != null) {
+                                onResult.run();
+                            }
+                        })
+                        .show();
+            }
+        };
     }
 }

@@ -3,7 +3,7 @@
 
     <string-array name="mode_text">
         <item>小学講座</item>
-        <item>中学講座・その他</item>
+        <item>中学講座</item>
     </string-array>
 
     <string-array name="mode_value">

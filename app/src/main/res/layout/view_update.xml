@@ -8,30 +8,11 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/update_margin"
         android:layout_gravity="center"
+        android:layout_marginHorizontal="@dimen/update_margin"
         android:gravity="center"
         android:text="@string/view_update_text_info"
         android:textSize="@dimen/update_text_size"
-        android:textStyle="bold"/>
-
-    <androidx.appcompat.widget.AppCompatTextView
-        style="@style/MyApp.TextView"
-        android:id="@+id/update_information"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/update_margin"
-        android:layout_gravity="center"
-        android:textSize="@dimen/update_text_size"
-        android:text="@string/view_update_text_placeholder"/>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/update_info_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/update_margin"
-        android:layout_marginTop="@dimen/update_margin"
-        android:text="@string/view_update_button_detail_info"
-        android:textSize="@dimen/update_text_size" />
+        android:textStyle="bold" />
 
 </LinearLayout>

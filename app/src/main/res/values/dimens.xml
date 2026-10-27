@@ -12,6 +12,7 @@
     <!-- activity_splash -->
     <dimen name="splash_margin_horizontal">16dp</dimen>
     <dimen name="splash_spacing">8dp</dimen>
+    <dimen name="splash_border">6dp</dimen>
     <dimen name="splash_text_size">16sp</dimen>
     <dimen name="splash_title_text_size">24sp</dimen>
     <dimen name="splash_button_height">128dp</dimen>
@@ -21,6 +22,7 @@
     <dimen name="welcome_margin_horizontal">16dp</dimen>
     <dimen name="welcome_text_size">16sp</dimen>
     <dimen name="welcome_button_text_size">24sp</dimen>
+    <dimen name="welcome_image_max_height">320dp</dimen>
 
     <!-- activity_app_info -->
     <dimen name="app_info_spacing">16dp</dimen>
@@ -116,7 +118,7 @@
 
     <!-- view_update -->
     <dimen name="update_margin">20dp</dimen>
-    <dimen name="update_text_size">15sp</dimen>
+    <dimen name="update_text_size">26sp</dimen>
 
     <!-- AppFunctionFragment -->
     <dimen name="app_function_manual_text_size">16sp</dimen>

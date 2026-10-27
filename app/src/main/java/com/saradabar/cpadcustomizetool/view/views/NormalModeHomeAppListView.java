@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -27,6 +27,7 @@ import androidx.appcompat.widget.AppCompatTextView;
 import androidx.annotation.NonNull;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
@@ -83,7 +84,7 @@ public class NormalModeHomeAppListView {
         /* ランチャーに設定されているかの確認 */
         private boolean isLauncher(String s) {
             try {
-                return Objects.equals(s, Preferences.load(getContext(), Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE, ""));
+                return Objects.equals(s, Common.getName(getContext(), Constants.KEY_STRINGS_NORMAL_LAUNCHER_APP_PACKAGE));
             } catch (NullPointerException ignored) {
                 return false;
             }

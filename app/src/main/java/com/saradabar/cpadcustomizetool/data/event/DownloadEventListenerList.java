@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -21,6 +21,10 @@ public class DownloadEventListenerList {
 
 	public void addEventListener(DownloadEventListener downloadEventListener) {
 		listeners.add(downloadEventListener);
+	}
+
+	public void removeEventListener(DownloadEventListener downloadEventListener) {
+		listeners.remove(downloadEventListener);
 	}
 
 	public void downloadCompleteNotify(int reqCode) {

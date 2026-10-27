@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -20,8 +20,7 @@ import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 
-import com.saradabar.cpadcustomizetool.util.Constants;
-import com.saradabar.cpadcustomizetool.util.Preferences;
+import com.saradabar.cpadcustomizetool.util.Common;
 
 public class ProtectKeepService extends Service {
 
@@ -34,11 +33,7 @@ public class ProtectKeepService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (!Preferences.load(this, Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false) &&
-                !Preferences.load(this, Constants.KEY_FLAG_KEEP_DCHA_STATE, false) &&
-                !Preferences.load(this, Constants.KEY_FLAG_KEEP_MARKET_APP, false) &&
-                !Preferences.load(this, Constants.KEY_FLAG_KEEP_USB_DEBUG, false) &&
-                !Preferences.load(this, Constants.KEY_FLAG_KEEP_HOME, false)) {
+        if (!Common.isAnyKeepFlagEnabled(this)) {
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -50,11 +45,7 @@ public class ProtectKeepService extends Service {
 
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
-                if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
+                if (Common.isAnyKeepFlagEnabled(getBaseContext())) {
                     startService(new Intent(getBaseContext(), KeepService.class));
                 }
             }

@@ -3,6 +3,7 @@ package com.saradabar.cpadcustomizetool.view.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.BatteryManager;
@@ -16,11 +17,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.data.task.AppExecutors;
 import com.saradabar.cpadcustomizetool.util.Common;
+import com.saradabar.cpadcustomizetool.util.Constants;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class DeviceInfoActivity extends AppCompatActivity {
@@ -53,26 +59,65 @@ public class DeviceInfoActivity extends AppCompatActivity {
         listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>(Arrays.asList(
                 getString(R.string.device_info_system_property),
                 getString(R.string.device_info_system),
-                getString(R.string.device_info_battery)))));
+                getString(R.string.device_info_battery),
+                getString(R.string.device_info_shared_pref)))));
         listView.setOnItemClickListener((parent, view, position, id) -> {
             switch (position) {
                 case 0:
-                    listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, getSystemProperties()));
-                    listView.setOnItemClickListener(null);
-                    listView.invalidateViews();
+                    showProperties(listView, getSystemProperties());
                     break;
                 case 1:
-                    listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, Common.exec("getprop")));
-                    listView.setOnItemClickListener(null);
-                    listView.invalidateViews();
+                    AppExecutors.io(() -> {
+                        ArrayList<String> properties = Common.exec("getprop");
+                        AppExecutors.main(() -> {
+                            if (isFinishing() || isDestroyed()) {
+                                return;
+                            }
+                            showProperties(listView, properties);
+                        });
+                    });
                     break;
                 case 2:
-                    listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, getBatteryInfo()));
-                    listView.setOnItemClickListener(null);
-                    listView.invalidateViews();
+                    showProperties(listView, getBatteryInfo());
+                    break;
+                case 3:
+                    showProperties(listView, getSharedPreferencesList());
                     break;
             }
         });
+    }
+
+    private void showProperties(@NonNull ListView listView, @NonNull ArrayList<String> properties) {
+        listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, properties));
+        listView.setOnItemClickListener(null);
+        listView.invalidateViews();
+    }
+
+    @NonNull
+    private ArrayList<String> getSharedPreferencesList() {
+        ArrayList<String> prefsList = new ArrayList<>();
+        File[] files = new File(getApplicationInfo().dataDir, "shared_prefs").listFiles();
+
+        if (files == null) {
+            return prefsList;
+        }
+
+        Arrays.sort(files);
+
+        for (File f : files) {
+            String fileName = f.getName();
+
+            if (!fileName.endsWith(".xml")) continue;
+            if (fileName.equals("WebViewChromiumPrefs.xml") || fileName.equals("AwOriginVisitLoggerPrefs.xml"))
+                continue;
+
+            SharedPreferences prefs = getSharedPreferences(fileName.substring(0, fileName.length() - 4), Context.MODE_PRIVATE);
+            for (Map.Entry<String, ?> e : prefs.getAll().entrySet()) {
+                if (Constants.KEY_LIST_CRASH_LOG.equals(e.getKey())) continue;
+                prefsList.add(e.getKey() + "  =  " + e.getValue());
+            }
+        }
+        return prefsList;
     }
 
     @Override

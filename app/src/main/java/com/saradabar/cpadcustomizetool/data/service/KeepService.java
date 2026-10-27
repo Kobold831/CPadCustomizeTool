@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -12,17 +12,14 @@
 
 package com.saradabar.cpadcustomizetool.data.service;
 
-import android.Manifest;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.database.ContentObserver;
+import android.os.BenesseExtension;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -30,12 +27,11 @@ import android.os.Message;
 import android.provider.Settings;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
+import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
-import com.saradabar.cpadcustomizetool.util.Preferences;
 
 public class KeepService extends Service {
 
@@ -51,16 +47,12 @@ public class KeepService extends Service {
         /* オブザーバーの初期化 */
         initRegisterContentObserver();
 
-        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
+        if (Common.isFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME)) {
             // ホームアプリ維持
             runKeepHomeApp();
         }
 
-        if (!Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false) &&
-                !Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false) &&
-                !Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false) &&
-                !Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false) &&
-                !Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
+        if (!Common.isAnyKeepFlagEnabled(getBaseContext())) {
             // すべての機能が無効
             stopSelf();
             return START_NOT_STICKY;
@@ -73,11 +65,7 @@ public class KeepService extends Service {
 
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
-                if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false) ||
-                        Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
+                if (Common.isAnyKeepFlagEnabled(getBaseContext())) {
                     // いずれかの機能が有効
                     startService(new Intent(getBaseContext(), ProtectKeepService.class));
                 }
@@ -87,25 +75,25 @@ public class KeepService extends Service {
     }
 
     private void initRegisterContentObserver() {
-        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false)) {
+        if (Common.isFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR)) {
             getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.HIDE_NAVIGATION_BAR), false, navigationBarObserver);
         } else {
             getContentResolver().unregisterContentObserver(navigationBarObserver);
         }
 
-        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false)) {
+        if (Common.isFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_DCHA_STATE)) {
             getContentResolver().registerContentObserver(Settings.System.getUriFor(Constants.DCHA_STATE), false, dchaStateObserver);
         } else {
             getContentResolver().unregisterContentObserver(dchaStateObserver);
         }
 
-        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false)) {
+        if (Common.isFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP)) {
             getContentResolver().registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.INSTALL_NON_MARKET_APPS), false, marketObserver);
         } else {
             getContentResolver().unregisterContentObserver(marketObserver);
         }
 
-        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false)) {
+        if (Common.isFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG)) {
             getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED), false, usbDebugObserver);
         } else {
             getContentResolver().unregisterContentObserver(usbDebugObserver);
@@ -118,37 +106,26 @@ public class KeepService extends Service {
             @Override
             public void handleMessage(@NonNull Message msg) {
                 super.handleMessage(msg);
-                if (!Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
+                if (!Common.isFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME)) {
                     // 機能無効
                     return;
                 }
 
-                if (getDefaultLauncherPackageName() != null) {
-                    if (!getDefaultLauncherPackageName().equals(Preferences.load(getBaseContext(), Constants.KEY_STRINGS_KEEP_HOME_APP_PACKAGE, Constants.DEF_STR))) {
+                if (Common.getLauncherPackage(getBaseContext()) != null) {
+                    if (!Common.getLauncherPackage(getBaseContext()).equals(Common.getName(getBaseContext(), Constants.KEY_STRINGS_KEEP_HOME_APP_PACKAGE))) {
                         // ホームアプリ不一致
-                        new DchaServiceUtil(getBaseContext()).setPreferredHomeApp(getDefaultLauncherPackageName(),
-                                Preferences.load(getBaseContext(), Constants.KEY_STRINGS_KEEP_HOME_APP_PACKAGE, Constants.DEF_STR), object -> {
-                                });
+                        new DchaServiceUtil(getBaseContext()).setPreferredHomeApp(Common.getLauncherPackage(getBaseContext()),
+                                Common.getName(getBaseContext(), Constants.KEY_STRINGS_KEEP_HOME_APP_PACKAGE), object -> {
+                        });
                     }
                 }
-                sendEmptyMessageDelayed(0, 10000);
+                sendEmptyMessageDelayed(0, getResources().getInteger(R.integer.keep_service_interval_ms));
             }
         };
 
-        if (Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME, false)) {
+        if (Common.isFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_HOME)) {
             // 機能有効
             handler.sendEmptyMessageDelayed(0, 0);
-        }
-    }
-
-    @Nullable
-    private String getDefaultLauncherPackageName() {
-        ResolveInfo resolveInfo = getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
-
-        if (resolveInfo != null) {
-            return resolveInfo.activityInfo.packageName;
-        } else {
-            return null;
         }
     }
 
@@ -160,16 +137,16 @@ public class KeepService extends Service {
             super.onChange(selfChange);
             // 維持機能が無効になっている場合は何もしない
             // (オブザーバーの解除は非同期のため、無効化直後にも呼ばれてしまう)
-            if (!Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false)) {
+            if (!Common.isFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_DCHA_STATE)) {
                 return;
             }
             try {
-                if (Settings.System.getInt(getContentResolver(), Constants.DCHA_STATE) != 0) {
+                if (BenesseExtension.getDchaState() != Constants.DIGICHALIZE_STATUS_UNDIGICHALIZE) {
                     // DCHA_STATE が0でない
-                    new DchaServiceUtil(getBaseContext()).setSetupStatus(0, object -> {
+                    new DchaServiceUtil(getBaseContext()).setSetupStatus(Constants.DIGICHALIZE_STATUS_UNDIGICHALIZE, object -> {
                     });
                 }
-            } catch (Settings.SettingNotFoundException | SecurityException ignored) {
+            } catch (SecurityException ignored) {
             }
         }
     };
@@ -180,11 +157,11 @@ public class KeepService extends Service {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
-            if (!Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR, false)) {
+            if (!Common.isFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_NAVIGATION_BAR)) {
                 return;
             }
             try {
-                if (Settings.System.getInt(getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != 0) {
+                if (Settings.System.getInt(getContentResolver(), Constants.HIDE_NAVIGATION_BAR) != Constants.SETTING_OFF) {
                     // HIDE_NAVIGATION_BAR が0でない
                     new DchaServiceUtil(getBaseContext()).hideNavigationBar(false, object -> {
                     });
@@ -200,16 +177,16 @@ public class KeepService extends Service {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
-            if (!Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false)) {
+            if (!Common.isFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP)) {
                 return;
             }
             try {
-                if (Settings.Secure.getInt(getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != 1) {
+                if (Settings.Secure.getInt(getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) != Constants.SETTING_ON) {
                     // INSTALL_NON_MARKET_APPS が1でない
-                    Settings.Secure.putInt(getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS, 1);
+                    Settings.Secure.putInt(getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS, Constants.SETTING_ON);
                 }
             } catch (Settings.SettingNotFoundException | SecurityException ignored) {
-                Preferences.save(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false);
+                Common.setFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_MARKET_APP, false);
             }
         }
     };
@@ -220,37 +197,35 @@ public class KeepService extends Service {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
-            if (!Preferences.load(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false)) {
+            if (!Common.isFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG)) {
                 return;
             }
             try {
-                if (Settings.Global.getInt(getContentResolver(), Settings.Global.ADB_ENABLED) != 1) {
+                if (Settings.Global.getInt(getContentResolver(), Settings.Global.ADB_ENABLED) != Constants.SETTING_ON) {
                     // ADB_ENABLED が1でない
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if (getBaseContext().checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
-                            Preferences.save(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
-                            return;
-                        }
+                    if (!Common.isWriteSecureSettingsGranted(getBaseContext())) {
+                        Common.setFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
+                        return;
                     }
-                    Settings.Global.putInt(getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 1);
+                    Settings.Global.putInt(getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, Constants.SETTING_ON);
 
                     if (Common.getDchaCompletedPast()) {
                         // COUNT_DCHA_COMPLETED 存在
-                        if (Settings.System.getInt(getContentResolver(), Constants.DCHA_STATE, 0) == 3) {
+                        if (BenesseExtension.getDchaState() == Constants.DIGICHALIZE_STATUS_DIGICHALIZED) {
                             if (!adbEnabled()) {
-                                Preferences.save(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
+                                Common.setFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
                             }
                             return;
                         }
 
-                        final int previousStatus = Settings.System.getInt(getContentResolver(), Constants.DCHA_STATE, 0);
-                        new DchaServiceUtil(getBaseContext()).setSetupStatus(3, object -> {
+                        final int previousStatus = BenesseExtension.getDchaState();
+                        new DchaServiceUtil(getBaseContext()).setSetupStatus(Constants.DIGICHALIZE_STATUS_DIGICHALIZED, object -> {
                             if (object.equals(true)) {
                                 try {
-                                    Thread.sleep(100);
+                                    Thread.sleep(getResources().getInteger(R.integer.retry_wait_ms));
                                     if (!adbEnabled()) {
                                         // 設定変更失敗
-                                        Preferences.save(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
+                                        Common.setFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
                                     }
                                     // setupStatusを戻す
                                     new DchaServiceUtil(getBaseContext()).setSetupStatus(previousStatus, object1 -> {
@@ -263,32 +238,33 @@ public class KeepService extends Service {
                                 }
                             } else {
                                 // 失敗
-                                Preferences.save(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
+                                Common.setFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
                             }
                         });
                     } else {
                         // COUNT_DCHA_COMPLETED 存在しない
                         if (!adbEnabled()) {
                             // 設定変更失敗
-                            Preferences.save(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
+                            Common.setFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
                         }
                     }
                 }
             } catch (Settings.SettingNotFoundException | SecurityException ignored) {
-                Preferences.save(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
+                Common.setFlagEnabled(getBaseContext(), Constants.KEY_FLAG_KEEP_USB_DEBUG, false);
             }
         }
     };
 
-    /**
-     * @noinspection BooleanMethodIsAlwaysInverted
-     */
     private boolean adbEnabled() {
         try {
-            Settings.Global.putInt(getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 1);
-            Settings.Global.putInt(getContentResolver(), Settings.Global.ADB_ENABLED, 1);
-            if (Common.isBenesseExtensionExist("getDchaState")) {
-                Settings.System.putInt(getContentResolver(), Constants.BC_PASSWORD_HIT_FLAG, 1);
+            Settings.Global.putInt(getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, Constants.SETTING_ON);
+            Settings.Global.putInt(getContentResolver(), Settings.Global.ADB_ENABLED, Constants.SETTING_ON);
+            if (Common.isDchaLockExists()) {
+                try {
+                    BenesseExtension.putInt(Constants.BC_PASSWORD_HIT_FLAG, Constants.SETTING_ON);
+                } catch (NoSuchMethodError ignored) {
+                    Settings.System.putInt(getContentResolver(), Constants.BC_PASSWORD_HIT_FLAG, Constants.SETTING_ON);
+                }
             }
             return true;
         } catch (RuntimeException ignored) {

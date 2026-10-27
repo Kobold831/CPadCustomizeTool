@@ -14,7 +14,7 @@
         android:visibility="visible">
 
         <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/edit_text_1"
+            android:id="@+id/width"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -29,7 +29,7 @@
             android:text="@string/view_resolution_text_x" />
 
         <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/edit_text_2"
+            android:id="@+id/height"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -58,19 +58,19 @@
             android:layout_height="wrap_content">
 
             <androidx.appcompat.widget.AppCompatRadioButton
-                android:id="@+id/v_resolution_radio_1024"
+                android:id="@+id/xga"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/view_resolution_rb_1024" />
 
             <androidx.appcompat.widget.AppCompatRadioButton
-                android:id="@+id/v_resolution_radio_1280"
+                android:id="@+id/wxga"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/view_resolution_rb_1280" />
 
             <androidx.appcompat.widget.AppCompatRadioButton
-                android:id="@+id/v_resolution_radio_1920"
+                android:id="@+id/wuxga"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/view_resolution_rb_1920" />

@@ -1,10 +1,11 @@
 package com.saradabar.cpadcustomizetool.view.flagment;
 
-import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -13,18 +14,20 @@ import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.data.task.AppExecutors;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.DeviceInfoActivity;
 import com.saradabar.cpadcustomizetool.view.activity.WebViewActivity;
-import com.saradabar.cpadcustomizetool.view.flagment.dialog.BypassPermissionDialogFragment;
 import com.saradabar.cpadcustomizetool.view.views.LaunchAppListView;
 
 import java.util.ArrayList;
@@ -39,6 +42,8 @@ public class UtilFragment extends PreferenceFragmentCompat {
             preLaunchApp,
             preDeviceInfo,
             preReEnableSystemApps;
+
+    AlertDialog progressDialog;
 
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
@@ -61,11 +66,10 @@ public class UtilFragment extends PreferenceFragmentCompat {
         });
 
         preStartDevSettings.setOnPreferenceClickListener(preference -> {
-            if (Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) == 1) {
+            if (Settings.Secure.getInt(requireActivity().getContentResolver(), Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) == Constants.SETTING_ON) {
                 try {
-                    // DchaCompletedPast && DchaState != 3
-                    if (Common.getDchaCompletedPast() && Settings.System.getInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 0) != 3) {
-                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, 3);
+                    if (Common.getDchaCompletedPast() && BenesseExtension.getDchaState() != Constants.DIGICHALIZE_STATUS_DIGICHALIZED) {
+                        Settings.System.putInt(requireActivity().getContentResolver(), Constants.DCHA_STATE, Constants.DIGICHALIZE_STATUS_DIGICHALIZED);
                     }
                     startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                 } catch (ActivityNotFoundException ignored) {
@@ -86,7 +90,7 @@ public class UtilFragment extends PreferenceFragmentCompat {
 
         preWebView.setOnPreferenceClickListener(preference -> {
             try {
-                startActivity(new Intent(requireActivity(), WebViewActivity.class).putExtra("URL", "https://www.google.com/intl/ja/").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                startActivity(new Intent(requireActivity(), WebViewActivity.class).putExtra(Constants.URI_EXTRA_NAME, "https://www.google.com/intl/ja/").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             } catch (Exception ignored) {
                 new DialogUtil(requireActivity())
                         .setMessage(R.string.dialog_error_web_view)
@@ -97,58 +101,47 @@ public class UtilFragment extends PreferenceFragmentCompat {
         });
 
         preLaunchApp.setOnPreferenceClickListener(preference -> {
-            @SuppressLint("InflateParams") View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_launch_app_list, null);
-            List<ApplicationInfo> installedAppList = requireActivity().getPackageManager().getInstalledApplications(0);
-            List<LaunchAppListView.AppData> dataList = new ArrayList<>();
-
-            for (ApplicationInfo app : installedAppList) {
-                if(requireActivity().getPackageManager().getLaunchIntentForPackage(app.packageName) != null) {
-                    LaunchAppListView.AppData data = new LaunchAppListView.AppData();
-                    data.icon = app.loadIcon(requireActivity().getPackageManager());
-                    data.label = app.loadLabel(requireActivity().getPackageManager()).toString();
-                    data.packName = app.packageName;
-                    dataList.add(data);
-                }
-            }
-
-            ListView listView = view.findViewById(R.id.launch_app_list);
-            listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-            listView.setAdapter(new LaunchAppListView.LaunchAppAdapter(requireActivity(), dataList));
-            listView.setOnItemClickListener((parent, mView, position, id) -> {
-                try {
-                    startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(dataList.get(position).packName));
-                } catch (Exception e) {
-                    new DialogUtil(requireActivity())
-                            .setTitle(R.string.dialog_title_error)
-                            .setMessage(e.getMessage())
-                            .setPositiveButton(R.string.dialog_common_ok, null)
-                            .show();
-                }
+            showLoadingDialog(getString(R.string.progress_state_check_file));
+            Context appContext = requireContext().getApplicationContext();
+            AppExecutors.io(() -> {
+                List<LaunchAppListView.AppData> dataList = loadLaunchableApps(appContext);
+                AppExecutors.main(() -> {
+                    if (!isAdded()) {
+                        cancelLoadingDialog();
+                        return;
+                    }
+                    cancelLoadingDialog();
+                    showLaunchAppDialog(dataList);
+                });
             });
-
-            new DialogUtil(requireActivity())
-                    .setView(view)
-                    .setTitle(R.string.dialog_title_choose_app)
-                    .setPositiveButton(R.string.dialog_common_cancel, null)
-                    .show();
             return false;
         });
 
         preReEnableSystemApps.setOnPreferenceClickListener(preference -> {
-            try {
-                PackageManager packageManager = requireActivity().getPackageManager();
-                packageManager.setApplicationEnabledSetting("com.android.browser", PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
-                packageManager.setApplicationEnabledSetting("com.android.quicksearchbox", PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
-                packageManager.setApplicationEnabledSetting("com.android.traceur", PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
+            if (enableSystemApps()) {
+                showSystemAppsEnabledDialog();
+                return false;
+            }
+
+            showLoadingDialog(getString(R.string.progress_state_processing));
+            Common.acquireBypassPermission(requireActivity(), success -> {
+                cancelLoadingDialog();
+
+                if (!isAdded()) {
+                    return;
+                }
+
+                if (success && enableSystemApps()) {
+                    showSystemAppsEnabledDialog();
+                    return;
+                }
 
                 new DialogUtil(requireActivity())
-                        .setMessage(R.string.dialog_success_enable_system_apps)
+                        .setTitle(R.string.dialog_title_error)
+                        .setMessage(R.string.dialog_error)
                         .setPositiveButton(R.string.dialog_common_ok, null)
                         .show();
-            } catch (SecurityException ignored) {
-                // 権限なし
-                new BypassPermissionDialogFragment().show(requireActivity().getSupportFragmentManager(), "");
-            }
+            });
             return false;
         });
 
@@ -160,7 +153,88 @@ public class UtilFragment extends PreferenceFragmentCompat {
         initPreference();
     }
 
+    private void showLoadingDialog(String message) {
+        progressDialog = Common.showProgressSpinner(requireActivity(), message);
+    }
+
+    private void cancelLoadingDialog() {
+        Common.cancelDialog(progressDialog);
+    }
+
+    @Override
+    public void onDestroyView() {
+        cancelLoadingDialog();
+        super.onDestroyView();
+    }
+
+    @NonNull
+    private List<LaunchAppListView.AppData> loadLaunchableApps(@NonNull Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        List<ApplicationInfo> installedAppList = packageManager.getInstalledApplications(0);
+        List<LaunchAppListView.AppData> dataList = new ArrayList<>();
+
+        for (ApplicationInfo app : installedAppList) {
+            if (packageManager.getLaunchIntentForPackage(app.packageName) == null) {
+                continue;
+            }
+
+            LaunchAppListView.AppData data = new LaunchAppListView.AppData();
+            data.icon = app.loadIcon(packageManager);
+            data.label = app.loadLabel(packageManager).toString();
+            data.packName = app.packageName;
+            dataList.add(data);
+        }
+        return dataList;
+    }
+
+    private void showLaunchAppDialog(@NonNull List<LaunchAppListView.AppData> dataList) {
+        View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_launch_app_list, null);
+        ListView listView = view.findViewById(R.id.launch_app_list);
+        listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+        listView.setAdapter(new LaunchAppListView.LaunchAppAdapter(requireActivity(), dataList));
+        listView.setOnItemClickListener((parent, mView, position, id) -> {
+            try {
+                startActivity(requireActivity().getPackageManager().getLaunchIntentForPackage(dataList.get(position).packName));
+            } catch (Exception e) {
+                new DialogUtil(requireActivity())
+                        .setTitle(R.string.dialog_title_error)
+                        .setMessage(e.getMessage())
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            }
+        });
+
+        new DialogUtil(requireActivity())
+                .setView(view)
+                .setTitle(R.string.dialog_title_choose_app)
+                .setPositiveButton(R.string.dialog_common_cancel, null)
+                .show();
+    }
+
+    private boolean enableSystemApps() {
+        try {
+            PackageManager packageManager = requireActivity().getPackageManager();
+            packageManager.setApplicationEnabledSetting("com.android.browser", PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
+            packageManager.setApplicationEnabledSetting("com.android.quicksearchbox", PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
+            packageManager.setApplicationEnabledSetting("com.android.traceur", PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
+            return true;
+        } catch (SecurityException ignored) {
+            return false;
+        }
+    }
+
+    private void showSystemAppsEnabledDialog() {
+        new DialogUtil(requireActivity())
+                .setMessage(R.string.dialog_success_enable_system_apps)
+                .setPositiveButton(R.string.dialog_common_ok, null)
+                .show();
+    }
+
     private void initPreference() {
+        if (!Common.getDchaCompletedPast()) {
+            preReEnableSystemApps.setVisible(false);
+        }
+
         if (Common.isCT2()) {
             preStartUiAdjustment.setEnabled(false);
             preStartUiAdjustment.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
@@ -171,7 +245,7 @@ public class UtilFragment extends PreferenceFragmentCompat {
             preReEnableSystemApps.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
         }
 
-        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+        if (Common.isFlagEnabled(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV)) {
             preWebView.setVisible(false);
         }
     }

@@ -61,18 +61,18 @@ public class InstallerListDialogFragment extends DialogFragment {
         listView.setAdapter(new UpdateModeListView.AppListAdapter(context, dataList));
         listView.setOnItemClickListener((parent, mView, position, id) -> {
             switch (position) {
-                case 0:// パッケージインストーラー
-                    Preferences.save(context, Constants.KEY_INT_UPDATE_MODE, (int) id);
+                case Constants.UPDATE_MODE_PACKAGE_INSTALLER:// パッケージインストーラー
+                    Common.setFlag(context, Constants.KEY_INT_UPDATE_MODE, (int) id);
                     listView.invalidateViews();
                     break;
-                case 1:// Adb
-                    Preferences.save(context, Constants.KEY_INT_UPDATE_MODE, (int) id);
+                case Constants.UPDATE_MODE_ADB:// Adb
+                    Common.setFlag(context, Constants.KEY_INT_UPDATE_MODE, (int) id);
                     listView.invalidateViews();
                     break;
-                case 2:// Dcha
-                    if (reqCode != 0 &&
-                            !Preferences.load(context, Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-                        // reqCodeが0以外(MainActivityからの要求以外)かつDcha機能を使用する設定が無効
+                case Constants.UPDATE_MODE_DCHA:// Dcha
+                    if (reqCode != Constants.INSTALLER_LIST_FROM_MAIN &&
+                            !Common.isFlagEnabled(context, Constants.KEY_FLAG_DCHA_FUNCTION)) {
+                        // reqCodeがメインからの要求以外(アプリ設定からの要求)かつDcha機能を使用する設定が無効
                         new DialogUtil(context)
                                 .setMessage(getString(R.string.pre_app_sum_confirmation_dcha))
                                 .setPositiveButton(R.string.dialog_common_ok, null)
@@ -80,26 +80,23 @@ public class InstallerListDialogFragment extends DialogFragment {
                         return;
                     }
 
-                    try {
-                        if (Common.isDchaActive(requireActivity()) && !Common.isCT2() ||
-                                Common.isDchaActive(requireActivity()) && Common.isCT2() && requireActivity().getPackageManager().getPackageInfo(Constants.PKG_DCHA_SERVICE, 0).versionCode > 4) {
-                            // dchaが機能でCT2でないまたはCT2でdchaでのサイレントインストールが可能
-                            Preferences.save(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
-                            listView.invalidateViews();
-                            return;
-                        }
-                    } catch (PackageManager.NameNotFoundException ignored) {
+                    if (Common.isDchaActive(requireActivity()) && (!Common.isCT2() ||
+                            Common.getVersionCode(requireActivity(), Constants.PKG_DCHA_SERVICE) >= Constants.MIN_VERSION_CODE_DCHA_SERVICE)) {
+                        // dchaが機能でCT2でないまたはCT2でdchaでのサイレントインストールが可能
+                        Common.setFlag(requireActivity(), Constants.KEY_INT_UPDATE_MODE, (int) id);
+                        listView.invalidateViews();
+                        return;
                     }
                     new DialogUtil(context)
                             .setMessage(getString(R.string.dialog_error_no_mode))
                             .setPositiveButton(R.string.dialog_common_ok, null)
                             .show();
                     break;
-                case 3:// デバイスオーナー
+                case Constants.UPDATE_MODE_DEVICE_OWNER:// デバイスオーナー
                     if (((DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE)).isDeviceOwnerApp(context.getPackageName()) &&
                             !Common.isCT2()) {
                         // このアプリがデバイスオーナーかつCT2ではない
-                        Preferences.save(context, Constants.KEY_INT_UPDATE_MODE, (int) id);
+                        Common.setFlag(context, Constants.KEY_INT_UPDATE_MODE, (int) id);
                         listView.invalidateViews();
                     } else {
                         new DialogUtil(context)
@@ -108,7 +105,7 @@ public class InstallerListDialogFragment extends DialogFragment {
                                 .show();
                     }
                     break;
-                case 4://  Dhizuku
+                case Constants.UPDATE_MODE_DHIZUKU://  Dhizuku
                     if (Common.isCT2() || !Common.isDhizukuActive(context)) {
                         // CT2またはDhizuku が動作していない
                         new DialogUtil(context)
@@ -141,23 +138,26 @@ public class InstallerListDialogFragment extends DialogFragment {
 
                     if (Common.isDhizukuAllActive(context)) {
                         // Dhizukuが動作していて権限あり
-                        try {
-                            if (context.getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
-                                // Dhizukuのバージョンコードが12未満
-                                new DialogUtil(context)
-                                        .setCancelable(false)
-                                        .setMessage(getString(R.string.dialog_dhizuku_require_12))
-                                        .setPositiveButton(getString(R.string.dialog_common_ok), null)
-                                        .show();
-                            }
-                            Preferences.save(context, Constants.KEY_INT_UPDATE_MODE, (int) id);
-                            listView.invalidateViews();
-                        } catch (PackageManager.NameNotFoundException ignored) {
+                        int dhizukuVersionCode = Common.getVersionCode(context, DhizukuVariables.OFFICIAL_PACKAGE_NAME);
+
+                        if (dhizukuVersionCode < 0) {
                             new DialogUtil(context)
                                     .setMessage(getString(R.string.dialog_error_no_mode))
                                     .setPositiveButton(R.string.dialog_common_ok, null)
                                     .show();
+                            return;
                         }
+
+                        if (dhizukuVersionCode < Constants.MIN_VERSION_CODE_DHIZUKU) {
+                            // Dhizukuのバージョンコードが v2.13.0 未満
+                            new DialogUtil(context)
+                                    .setCancelable(false)
+                                    .setMessage(getString(R.string.dialog_dhizuku_require_20))
+                                    .setPositiveButton(getString(R.string.dialog_common_ok), null)
+                                    .show();
+                        }
+                        Common.setFlag(context, Constants.KEY_INT_UPDATE_MODE, (int) id);
+                        listView.invalidateViews();
                     }
                     break;
             }

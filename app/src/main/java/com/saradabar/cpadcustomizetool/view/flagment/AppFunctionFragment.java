@@ -1,6 +1,5 @@
 package com.saradabar.cpadcustomizetool.view.flagment;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -25,7 +24,6 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.saradabar.cpadcustomizetool.BuildConfig;
-import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.service.AccessibilityService;
 import com.saradabar.cpadcustomizetool.util.Common;
@@ -57,7 +55,6 @@ public class AppFunctionFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.pre_app_function, rootKey);
-        ((MainActivity) requireActivity()).initNavigationState();
 
         preEmgManual = findPreference("pre_emg_manual");
         preEmgExecute = findPreference("pre_emg_execute");
@@ -113,13 +110,13 @@ public class AppFunctionFragment extends PreferenceFragmentCompat {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.activity_emergency))
                         .setShortLabel(getString(R.string.activity_emergency))
-                        .setIcon(Icon.createWithResource(requireActivity(), android.R.drawable.ic_dialog_alert))
+                        .setIcon(Icon.createWithResource(requireActivity(), R.drawable.emergency_home_24px))
                         .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), EmergencyActivity.class.getName()))
                         .build(), null);
             } else {
                 requireActivity().sendBroadcast(new Intent(Constants.ACTION_INSTALL_SHORTCUT)
                         .putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), EmergencyActivity.class.getName()))
-                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), android.R.drawable.ic_dialog_alert))
+                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.emergency_home_24px))
                         .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_emergency));
                 Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
             }
@@ -127,7 +124,7 @@ public class AppFunctionFragment extends PreferenceFragmentCompat {
         });
 
         preSelNorLauncher.setOnPreferenceClickListener(preference -> {
-            @SuppressLint("InflateParams") View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_normal_launcher_list, null);
+            View view = requireActivity().getLayoutInflater().inflate(R.layout.layout_normal_launcher_list, null);
             List<ResolveInfo> installedAppList = requireActivity().getPackageManager().queryIntentActivities(new Intent().setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
             List<NormalModeHomeAppListView.AppData> dataList = new ArrayList<>();
 
@@ -178,13 +175,13 @@ public class AppFunctionFragment extends PreferenceFragmentCompat {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.activity_normal))
                         .setShortLabel(getString(R.string.activity_normal))
-                        .setIcon(Icon.createWithResource(requireActivity(), android.R.drawable.ic_menu_revert))
+                        .setIcon(Icon.createWithResource(requireActivity(), R.drawable.undo_24px))
                         .setIntent(new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), NormalActivity.class.getName()))
                         .build(), null);
             } else {
                 requireActivity().sendBroadcast(new Intent(Constants.ACTION_INSTALL_SHORTCUT)
                         .putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(Intent.ACTION_MAIN).setClassName(requireActivity(), NormalActivity.class.getName()))
-                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), android.R.drawable.ic_menu_revert))
+                        .putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(requireActivity(), R.drawable.undo_24px))
                         .putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.activity_normal));
                 Toast.makeText(requireActivity(), R.string.toast_success, Toast.LENGTH_SHORT).show();
             }

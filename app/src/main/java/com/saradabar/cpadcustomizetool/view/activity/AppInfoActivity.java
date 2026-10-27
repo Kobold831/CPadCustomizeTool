@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -46,16 +46,19 @@ public class AppInfoActivity extends AppCompatActivity {
         MaterialButton buttonFeedBack = findViewById(R.id.act_app_info_button_feedback);
 
         buttonDownload.setOnClickListener(view ->
-                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_GITHUB).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)));
+                startActivity(new Intent(this, WebViewActivity.class).putExtra(Constants.URI_EXTRA_NAME, Constants.URL_GITHUB).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)));
         buttonFeedBack.setOnClickListener(v ->
-                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_FEEDBACK).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)));
+                startActivity(new Intent(this, WebViewActivity.class).putExtra(Constants.URI_EXTRA_NAME, Constants.URL_FEEDBACK).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)));
         MaterialCardView cardViewDev1 = findViewById(R.id.act_app_info_card_dev_1);
         MaterialCardView cardViewDev2 = findViewById(R.id.act_app_info_card_dev_2);
+        MaterialCardView cardViewThx1 = findViewById(R.id.act_app_info_card_thanks_1);
 
         cardViewDev1.setOnClickListener(v ->
-                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", "https://github.com/Kobold831").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)));
+                startActivity(new Intent(this, WebViewActivity.class).putExtra(Constants.URI_EXTRA_NAME, "https://github.com/Kobold831").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)));
         cardViewDev2.setOnClickListener(v ->
-                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", "https://github.com/s1204IT").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)));
+                startActivity(new Intent(this, WebViewActivity.class).putExtra(Constants.URI_EXTRA_NAME, "https://github.com/s1204IT").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)));
+        cardViewThx1.setOnClickListener(v ->
+                startActivity(new Intent(this, WebViewActivity.class).putExtra(Constants.URI_EXTRA_NAME, "https://github.com/2315195882").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)));
     }
 
     private void initialize() {

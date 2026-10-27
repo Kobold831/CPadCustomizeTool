@@ -1,18 +1,17 @@
 package com.saradabar.cpadcustomizetool.data.service;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 
 import androidx.annotation.NonNull;
 
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
 import com.saradabar.cpadcustomizetool.view.activity.NormalActivity;
 
-@SuppressLint("AccessibilityPolicy")
 public class AccessibilityService extends android.accessibilityservice.AccessibilityService {
 
     private static boolean isHomeButtonPressed = false;
@@ -59,7 +58,7 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
         }
 
         if (isHomeButtonPressed && isVolumeDownPressed &&
-                !Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+                !Common.isFlagEnabled(this, Constants.KEY_FLAG_NORMAL_ENV)) {
             // ホームボタンが押されたかつボリュームダウンが押されたかつ通常環境モードではない
             if (!isFunctionExecuted) {
                 isFunctionExecuted = true;
@@ -69,7 +68,7 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
         }
 
         if (isHomeButtonPressed && isVolumeUpPressed &&
-                !Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+                !Common.isFlagEnabled(this, Constants.KEY_FLAG_NORMAL_ENV)) {
             // ホームボタンが押されたかつボリュームアップが押されたかつ通常環境モードではない
             if (!isFunctionExecuted) {
                 isFunctionExecuted = true;

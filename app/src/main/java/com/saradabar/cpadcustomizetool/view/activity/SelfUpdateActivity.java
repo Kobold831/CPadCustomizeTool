@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -14,9 +14,7 @@ package com.saradabar.cpadcustomizetool.view.activity;
 
 import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuAllActive;
 
-import android.annotation.SuppressLint;
 import android.app.admin.DevicePolicyManager;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -27,7 +25,6 @@ import android.os.Looper;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -45,7 +42,6 @@ import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
-import com.saradabar.cpadcustomizetool.util.Preferences;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,13 +51,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** @noinspection deprecation*/
 public class SelfUpdateActivity extends AppCompatActivity implements DownloadEventListener, InstallEventListener {
 
     AlertDialog progressDialog;
     AppCompatTextView progressPercentText;
     AppCompatTextView progressByteText;
     ProgressBar dialogProgressBar;
+
+    private final Common.TaskUi installTaskUi = new Common.TaskUi() {
+        @Override
+        public Context context() {
+            return SelfUpdateActivity.this;
+        }
+
+        @Override
+        public void showLoading() {
+            showLoadingDialog(getString(R.string.progress_state_installing));
+        }
+
+        @Override
+        public void cancelLoading() {
+            cancelLoadingDialog();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +84,7 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
         showLoadingDialog(getString(R.string.progress_state_connecting));
-        new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), Constants.CHECK_JSON), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
+        new FileDownloadTask().execute(this, Constants.URL_CORE, new File(getExternalCacheDir(), Constants.CORE_JSON), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK, Constants.JSON_TIMEOUT_MS, Constants.JSON_TIMEOUT_MS);
     }
 
     @Override
@@ -81,12 +93,10 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         switch (reqCode) {
             case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:
                 try {
-                    JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), Constants.CHECK_JSON));
-                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-                    JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
+                    JSONObject jsonObj3 = Common.getUpdateInfo(new File(getExternalCacheDir(), Constants.CORE_JSON));
 
                     if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
-                        showUpdateDialog(jsonObj3.getString("description"), jsonObj3.getString("url"));
+                        showUpdateDialog(jsonObj3.getString("url"));
                     } else {
                         showNoUpdateDialog();
                     }
@@ -95,15 +105,14 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                 }
                 break;
             case Constants.REQUEST_DOWNLOAD_APK:
-                switch (Preferences.load(this, Constants.KEY_INT_UPDATE_MODE, 1)) {
-                    case 0:
+                switch (Common.getFlag(this, Constants.KEY_INT_UPDATE_MODE, Constants.DEF_UPDATE_MODE)) {
+                    case Constants.UPDATE_MODE_PACKAGE_INSTALLER:
                         startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
                         break;
-                    case 1:
+                    case Constants.UPDATE_MODE_ADB:
                         try {
-                            JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), Constants.CHECK_JSON));
-                            JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-                            JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
+                            JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), Constants.CORE_JSON));
+                            JSONObject jsonObj3 = jsonObj1.getJSONObject("update");
 
                             new DialogUtil(this)
                                     .setCancelable(false)
@@ -115,14 +124,14 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                             onDownloadError(reqCode);
                         }
                         break;
-                    case 2:
+                    case Constants.UPDATE_MODE_DCHA:
                         new DchaInstallTask().execute(this, dchaInstallTaskListener(), new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
                         break;
-                    case 3:
+                    case Constants.UPDATE_MODE_DEVICE_OWNER:
                         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 
                         if (!dpm.isDeviceOwnerApp(getPackageName()) || Common.isCT2()) {
-                            Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
+                            Common.setFlag(this, Constants.KEY_INT_UPDATE_MODE, Constants.DEF_UPDATE_MODE);
                             new DialogUtil(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_installer))
@@ -132,9 +141,9 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                         }
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), new ArrayList<>(List.of(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
-                    case 4:
+                    case Constants.UPDATE_MODE_DHIZUKU:
                         if (!isDhizukuAllActive(this) || Common.isCT2()) {
-                            Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
+                            Common.setFlag(this, Constants.KEY_INT_UPDATE_MODE, Constants.DEF_UPDATE_MODE);
                             new DialogUtil(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_installer))
@@ -173,57 +182,24 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
 
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
+        if (totalByte > 0 && dialogProgressBar.isIndeterminate()) {
+            dialogProgressBar.setIndeterminate(false);
+        }
         progressPercentText.setText(getString(R.string.progress_percent, progress));
-        progressByteText.setText(getString(R.string.progress_byte, currentByte, totalByte));
+        if (totalByte > 0) {
+            progressByteText.setText(getString(R.string.progress_byte, currentByte, totalByte));
+        }
         dialogProgressBar.setProgress(progress);
-        progressDialog.setMessage(new StringBuilder(getString(R.string.progress_state_download_file)));
+        progressDialog.setMessage(getString(R.string.progress_state_download_file));
     }
 
     @NonNull
     private DchaInstallTask.Listener dchaInstallTaskListener() {
-        return new DchaInstallTask.Listener() {
-
-            /* プログレスバーの表示 */
-            @Override
-            public void onShow() {
-                showLoadingDialog(getString(R.string.progress_state_installing));
-            }
-
-            /* 成功 */
-            @Override
-            public void onSuccess() {
-                cancelLoadingDialog();
-                new DialogUtil(SelfUpdateActivity.this)
-                        .setMessage(R.string.dialog_success_silent_install)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
-                        .show();
-            }
-
-            /* 失敗 */
-            @Override
-            public void onFailure() {
-                cancelLoadingDialog();
-                new DialogUtil(SelfUpdateActivity.this)
-                        .setMessage(R.string.dialog_failure_silent_install)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
-                        .show();
-            }
-        };
+        return Common.dchaInstallTaskListener(installTaskUi, this::finish);
     }
 
-    private void showUpdateDialog(String str, String downloadFileUrl) {
-        @SuppressLint("InflateParams") View view = getLayoutInflater().inflate(R.layout.view_update, null);
-        AppCompatTextView tv = view.findViewById(R.id.update_information);
-        tv.setText(str);
-        view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
-            try {
-                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_UPDATE_INFO).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            } catch (ActivityNotFoundException ignored) {
-                Toast.makeText(this, R.string.toast_no_browser, Toast.LENGTH_SHORT).show();
-            }
-        });
+    private void showUpdateDialog(String downloadFileUrl) {
+        View view = getLayoutInflater().inflate(R.layout.view_update, null);
 
         new DialogUtil(this)
                 .setView(view)
@@ -237,11 +213,12 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
                     progressHandler.sendEmptyMessage(0);
                     View progressView = getLayoutInflater().inflate(R.layout.view_progress, null);
                     progressPercentText = progressView.findViewById(R.id.progress_percent);
-                    progressPercentText.setText("");
                     progressByteText = progressView.findViewById(R.id.progress_byte);
-                    progressByteText.setText("");
                     dialogProgressBar = progressView.findViewById(R.id.progress);
-                    dialogProgressBar.setProgress(0);
+                    progressPercentText.setText(getString(R.string.progress_percent, 0));
+                    progressByteText.setText(R.string.progress_waiting);
+                    dialogProgressBar.setIndeterminate(true);
+                    dialogProgressBar.setMax(Constants.PERCENT_MAX);
                     progressDialog = new DialogUtil(this).setCancelable(false).setView(progressView).create();
                     progressDialog.setMessage("");
                     progressDialog.show();
@@ -260,21 +237,11 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
     }
 
     private void showLoadingDialog(String message) {
-        View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
-        AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
-        textView.setText(message);
-        progressDialog = new DialogUtil(this).setCancelable(false).setView(view).create();
-        progressDialog.show();
+        progressDialog = Common.showProgressSpinner(this, message);
     }
 
     private void cancelLoadingDialog() {
-        if (progressDialog == null) {
-            return;
-        }
-
-        if (progressDialog.isShowing()) {
-            progressDialog.cancel();
-        }
+        Common.cancelDialog(progressDialog);
     }
 
     @Override
@@ -295,56 +262,9 @@ public class SelfUpdateActivity extends AppCompatActivity implements DownloadEve
         }
     }
 
+    @NonNull
     private ApkInstallTask.Listener apkInstallTaskListener() {
-        return new ApkInstallTask.Listener() {
-
-            /* プログレスバーの表示 */
-            @Override
-            public void onShow() {
-                showLoadingDialog(getString(R.string.progress_state_installing));
-            }
-
-            /* 成功 */
-            @Override
-            public void onSuccess() {
-                /* 一時ファイルを消去 */
-                Common.deleteDirectoryAsync(getExternalCacheDir());
-                cancelLoadingDialog();
-                AlertDialog alertDialog = new DialogUtil(SelfUpdateActivity.this)
-                        .setMessage(R.string.dialog_success_silent_install)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
-                        .create();
-
-                if (!alertDialog.isShowing()) {
-                    alertDialog.show();
-                }
-            }
-
-            /* 失敗 */
-            @Override
-            public void onFailure(String message) {
-                Common.deleteDirectoryAsync(getExternalCacheDir());
-                cancelLoadingDialog();
-                new DialogUtil(SelfUpdateActivity.this)
-                        .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
-                        .show();
-            }
-
-            @Override
-            public void onError(String message) {
-                Common.deleteDirectoryAsync(getExternalCacheDir());
-                cancelLoadingDialog();
-                new DialogUtil(SelfUpdateActivity.this)
-                        .setTitle(getString(R.string.dialog_title_error))
-                        .setMessage(message)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> finish())
-                        .show();
-            }
-        };
+        return Common.apkInstallTaskListener(installTaskUi, this::finish);
     }
 
     @Override

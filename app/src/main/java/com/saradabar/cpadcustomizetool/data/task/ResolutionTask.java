@@ -1,6 +1,5 @@
 package com.saradabar.cpadcustomizetool.data.task;
 
-import android.content.Context;
 import android.os.BenesseExtension;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,22 +12,17 @@ import androidx.annotation.NonNull;
 
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
-import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class ResolutionTask {
 
-    public void execute(Context context, Listener listener, int i, int i1) {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() ->
-                new Thread(() ->
-                        doInBackground(context, listener, i, i1)).start());
+    private static final Handler MAIN = new Handler(Looper.getMainLooper());
+
+    public void execute(Listener listener, int width, int height) {
+        AppExecutors.io(() -> doInBackground(listener, width, height));
     }
 
     private void onPostExecute(Listener listener, Object result) {
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+        MAIN.postDelayed(() -> {
             if (result.equals(true)) {
                 listener.onSuccess();
                 return;
@@ -39,26 +33,31 @@ public class ResolutionTask {
                 return;
             }
             listener.onError(result.toString());
-        }, 1500);
+        }, Constants.RESOLUTION_APPLY_DELAY_MS);
     }
 
-    private void doInBackground(Context context, Listener listener, int width, int height) {
-        if (Common.isCTX() || Common.isCTZ()) {
-            if (width == 1024 && height == 768 || width == 1280 && height == 800 || width == 1920 && height == 1200) {
-                doListener().onPost(listener, BenesseExtension.putInt(Constants.BC_COMPATSCREEN,
-                        width == 1024 ? 1 : width == 1280 ? 2 : 0 // 1920x1200
-                ));
+    private void doInBackground(Listener listener, int width, int height) {
+        if (Common.isBenesseExtensionExist("putInt")) {
+            if (width == Constants.XGA_WIDTH && height == Constants.XGA_HEIGHT ||
+                    width == Constants.WXGA_WIDTH && height == Constants.WXGA_HEIGHT ||
+                    width == Constants.WUXGA_WIDTH && height == Constants.WUXGA_HEIGHT) {
+                onPostExecute(listener,
+                        BenesseExtension.putInt(Constants.BC_COMPATSCREEN, width == Constants.XGA_WIDTH ? Constants.XGA : width == Constants.WXGA_WIDTH ? Constants.WXGA : Constants.WUXGA));
             } else {
                 try {
                     IWindowManager.Stub.asInterface(ServiceManager.getService("window")).setForcedDisplaySize(Display.DEFAULT_DISPLAY, width, height);
-                    doListener().onPost(listener, true);
+                    onPostExecute(listener, true);
                 } catch (RemoteException e) {
-                    doListener().onPost(listener, e.getMessage());
+                    onPostExecute(listener, e.getMessage());
                 }
             }
         } else {
-            new DchaUtilServiceUtil(context).setForcedDisplaySize(width, height, object ->
-                    doListener().onPost(listener, object));
+            try {
+                onPostExecute(listener,
+                    BenesseExtension.setForcedDisplaySize(width, height));
+            } catch (SecurityException e) {
+                onPostExecute(listener, e.getMessage());
+            }
         }
     }
 
@@ -68,19 +67,5 @@ public class ResolutionTask {
         void onFailure();
 
         void onError(String message);
-    }
-
-    @NonNull
-    private doListener doListener() {
-        return (listener, result) -> {
-            Handler handler = new Handler(Looper.getMainLooper());
-            new Thread(() ->
-                    handler.post(() ->
-                            onPostExecute(listener, result))).start();
-        };
-    }
-
-    private interface doListener {
-        void onPost(Listener listener, Object result);
     }
 }

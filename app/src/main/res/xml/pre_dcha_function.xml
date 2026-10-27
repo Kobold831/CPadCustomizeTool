@@ -70,17 +70,4 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        app:allowDividerAbove="false"
-        app:iconSpaceReserved="false"
-        android:title="@string/pre_dcha_category_system_update">
-
-        <Preference
-            app:iconSpaceReserved="false"
-            android:key="pre_system_update"
-            android:title="@string/pre_main_title_system_update"
-            android:summary="@string/pre_main_sum_system_update" />
-
-    </PreferenceCategory>
-
 </androidx.preference.PreferenceScreen>

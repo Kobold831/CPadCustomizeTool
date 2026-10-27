@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 
 import com.saradabar.cpadcustomizetool.MyApplication;
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListenerList;
 
 public class InstallService extends Service {
@@ -46,12 +47,15 @@ public class InstallService extends Service {
 
     private void postStatus(int sessionId, int code, int status, String extra) {
         MyApplication myApplication = (MyApplication) getApplication();
+        InstallEventListener listener = myApplication.getInstallEventListener();
 
-        if (myApplication.installEventListener == null) {
+        if (listener == null) {
             return;
         }
+        myApplication.setInstallEventListener(null);
+
         InstallEventListenerList installEventListenerList = new InstallEventListenerList();
-        installEventListenerList.addEventListener(myApplication.installEventListener);
+        installEventListenerList.addEventListener(listener);
 
         switch (status) {
             case PackageInstaller.STATUS_SUCCESS:

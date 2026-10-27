@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -12,7 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
-import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -28,7 +27,9 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.data.task.AppExecutors;
 import com.saradabar.cpadcustomizetool.util.Common;
+import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
 
 import java.text.DateFormat;
@@ -52,7 +53,7 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         swUiModeNight = findPreference("pre_other_ui_mode_night");
 
         preScreenOffTimeOut.setOnPreferenceClickListener(preference -> {
-            @SuppressLint("InflateParams") View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
+            View view = requireActivity().getLayoutInflater().inflate(R.layout.view_time_out, null);
             AppCompatEditText editText = view.findViewById(R.id.time_out_edit);
             editText.setHint(getString(R.string.time_out_hint, String.valueOf(Integer.MAX_VALUE)));
             editText.addTextChangedListener(new TextWatcher() {
@@ -76,7 +77,6 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_screen_timeout)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                        //noinspection SizeReplaceableByIsEmpty
                         if (editText.getText() == null || editText.getText().length() == 0) {
                             new DialogUtil(requireActivity())
                                     .setTitle(R.string.dialog_title_error)
@@ -99,7 +99,7 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
 
                         try {
                             Settings.Secure.putInt(requireActivity().getContentResolver(), "sleep_timeout", Integer.parseInt(editText.getText().toString()));
-                        } catch (Exception e) {
+                        } catch (SecurityException ignored) {
                             new DialogUtil(requireActivity())
                                     .setTitle(R.string.dialog_title_error)
                                     .setMessage(R.string.dialog_error_need_write_secure_settings)
@@ -130,49 +130,55 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
         });
 
         swUiModeNight.setOnPreferenceChangeListener((preference, o) -> {
-            if ((boolean) o) {
-                Common.exec("cmd uimode night yes");
-                swUiModeNight.setSummary(R.string.pre_other_sum_ui_mode_night);
-            } else {
-                Common.exec("cmd uimode night no");
-                swUiModeNight.setSummary(R.string.pre_other_sum_ui_mode_light);
-            }
+            boolean enabled = (boolean) o;
+            swUiModeNight.setSummary(enabled ? R.string.pre_other_sum_ui_mode_night : R.string.pre_other_sum_ui_mode_light);
+            AppExecutors.io(() -> Common.exec(enabled ? "cmd uimode night yes" : "cmd uimode night no"));
             return true;
         });
         initPreference();
     }
 
-    /** @noinspection SequencedCollectionMethodCanBeUsed*/
     private void initPreference() {
         setSummaryScreenOffTimeConvert();
-        ArrayList<String> stringArrayList = Common.exec("cmd uimode night");
 
-        if (!stringArrayList.isEmpty()) {
-            if (String.valueOf(stringArrayList.get(0)).equals("Night mode: yes")) {
+        if (Common.isCT2() || Common.isCT3()) {
+            swUiModeNight.setEnabled(false);
+            swUiModeNight.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
+            return;
+        }
+
+        AppExecutors.io(() -> {
+            ArrayList<String> stringArrayList = Common.exec("cmd uimode night");
+            AppExecutors.main(() -> {
+                if (!isAdded() || swUiModeNight == null) {
+                    return;
+                }
+                applyUiModeNight(stringArrayList);
+            });
+        });
+    }
+
+    private void applyUiModeNight(@NonNull ArrayList<String> stringArrayList) {
+        for (String line : stringArrayList) {
+            if (line.isEmpty()) {
+                continue;
+            }
+
+            if (line.contains("yes")) {
                 swUiModeNight.setChecked(true);
                 swUiModeNight.setSummary(R.string.pre_other_sum_ui_mode_night);
-            } else if (String.valueOf(stringArrayList.get(0)).equals("Night mode: no")) {
+            } else if (line.contains("no")) {
                 swUiModeNight.setChecked(false);
                 swUiModeNight.setSummary(R.string.pre_other_sum_ui_mode_light);
             }
-        }
-
-        if (Common.isCT2()) {
-            swUiModeNight.setEnabled(false);
-            swUiModeNight.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
-        }
-
-        if (Common.isCT3()) {
-            swUiModeNight.setEnabled(false);
-            swUiModeNight.setSummary(getString(R.string.pre_main_sum_message_1, Build.MODEL));
+            return;
         }
     }
 
-    private void setTextScreenOffTimeConvert(@NonNull AppCompatTextView textView, AppCompatEditText editText) {
+    private void setTextScreenOffTimeConvert(@NonNull AppCompatTextView textView, @NonNull AppCompatEditText editText) {
         long time, sec, min, hour, day;
         int editTime;
 
-        //noinspection SizeReplaceableByIsEmpty
         if (editText.getText() == null || editText.getText().length() == 0) {
             editTime = 0;
         } else {
@@ -182,11 +188,11 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
                 editTime = 0;
             }
         }
-        time = editTime / 1000;
-        sec = time % 60;
-        min = (time / 60) % 60;
-        hour = (time / 3600) % 24;
-        day = (time / 86400) % 31;
+        time = editTime / getResources().getInteger(R.integer.sec_ms);
+        sec = time % Constants.SEC_PER_MIN;
+        min = (time / Constants.SEC_PER_MIN) % Constants.SEC_PER_MIN;
+        hour = (time / Constants.SEC_PER_HOUR) % Constants.HOUR_PER_DAY;
+        day = (time / Constants.SEC_PER_DAY) % Constants.DAY_PER_MONTH;
         Date date = new Date();
         Calendar calendar = Calendar.getInstance();
 
@@ -202,11 +208,12 @@ public class DeviceSettingsFragment extends PreferenceFragmentCompat {
     private void setSummaryScreenOffTimeConvert() {
         long time, sec, min, hour, day;
 
-        time = Settings.System.getInt(requireActivity().getContentResolver(), "screen_off_timeout", 60) / 1000;
-        sec = time % 60;
-        min = (time / 60) % 60;
-        hour = (time / 3600) % 24;
-        day = (time / 86400) % 31;
+        time = Settings.System.getInt(requireActivity().getContentResolver(), "screen_off_timeout",
+                getResources().getInteger(R.integer.def_screen_off_timeout_ms)) / getResources().getInteger(R.integer.sec_ms);
+        sec = time % Constants.SEC_PER_MIN;
+        min = (time / Constants.SEC_PER_MIN) % Constants.SEC_PER_MIN;
+        hour = (time / Constants.SEC_PER_HOUR) % Constants.HOUR_PER_DAY;
+        day = (time / Constants.SEC_PER_DAY) % Constants.DAY_PER_MONTH;
 
         preScreenOffTimeOut.setSummary(getString(R.string.pre_other_sum_screen_off_duration, day, hour, min, sec));
     }

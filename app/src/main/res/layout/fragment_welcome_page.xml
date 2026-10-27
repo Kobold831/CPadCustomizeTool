@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/wel_page_image"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:adjustViewBounds="true"
+        android:maxHeight="@dimen/welcome_image_max_height"
+        android:scaleType="fitCenter"
+        tools:src="@drawable/cpad_grid_icon_v2" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/wel_page_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/welcome_margin_horizontal"
+            android:textColor="@color/textColor"
+            android:textSize="@dimen/welcome_button_text_size"
+            tools:text="見出し" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/wel_page_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/welcome_margin_horizontal"
+            android:layout_marginTop="@dimen/welcome_spacing"
+            android:textColor="@color/textColor"
+            tools:text="詳細\n\n2行改行\n1行改行" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- DchaService 及び DchaUtilService -->
+    <!-- DchaService -->
     <uses-permission android:name="jp.co.benesse.dcha.permission.ACCESS_SYSTEM" />
     <!-- System ネームスペースへの書き込み -->
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
@@ -25,7 +25,7 @@
     <!-- ホーム画面にショートカットを追加 -->
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <!-- 不明なアプリの許可機能用 -->
-    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_INSTALL_UNKNOWN_SOURCES"/>
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_INSTALL_UNKNOWN_SOURCES" />
     <!-- 端末のユーザーを管理 -->
     <uses-permission android:name="android.permission.MANAGE_USERS" />
     <!-- 他のユーザーにアクセス -->
@@ -43,11 +43,9 @@
 
     <application
         android:allowBackup="false"
-        android:appCategory="productivity"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:name=".MyApplication"
-        android:persistent="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="false"
         tools:remove="android:appComponentFactory">
@@ -59,6 +57,7 @@
         <activity
             android:name=".view.activity.WelcomeAppActivity"
             android:exported="false"
+            android:screenOrientation="landscape"
             android:theme="@style/WelcomeTheme" />
 
         <activity
@@ -105,7 +104,7 @@
         <activity
             android:name=".view.activity.EmergencyActivity"
             android:exported="true"
-            android:icon="@android:drawable/ic_dialog_alert"
+            android:icon="@drawable/emergency_home_24px"
             android:label="@string/activity_emergency"
             android:theme="@style/NoDisplayTheme"
             android:configChanges="keyboardHidden|screenSize|orientation"
@@ -121,7 +120,7 @@
         <activity
             android:name=".view.activity.NormalActivity"
             android:exported="true"
-            android:icon="@android:drawable/ic_menu_revert"
+            android:icon="@drawable/undo_24px"
             android:label="@string/activity_normal"
             android:theme="@style/NoDisplayTheme"
             android:configChanges="keyboardHidden|screenSize|orientation"
@@ -137,7 +136,7 @@
         <activity
             android:name=".view.activity.RebootActivity"
             android:exported="true"
-            android:icon="@android:drawable/ic_popup_sync"
+            android:icon="@drawable/autorenew_24px"
             android:label="@string/activity_reboot"
             android:theme="@style/NoDisplayTheme"
             android:configChanges="keyboardHidden|screenSize|orientation"
@@ -173,12 +172,6 @@
             android:clearTaskOnLaunch="true" />
 
         <activity
-            android:name=".view.activity.EditAdminActivity"
-            android:exported="false"
-            android:theme="@style/ActionBarTheme"
-            android:configChanges="keyboardHidden|screenSize|orientation" />
-
-        <activity
             android:name=".view.activity.NoticeActivity"
             android:exported="false"
             android:label="@string/activity_notice"
@@ -190,20 +183,6 @@
             android:theme="@style/ActionBarTheme" />
 
         <activity
-            android:name=".view.activity.ForceCrashActivity"
-            android:exported="true"
-            android:label="@string/activity_force_crash"
-            android:theme="@style/NoDisplayTheme"
-            android:clearTaskOnLaunch="true"
-            android:documentLaunchMode="always"
-            android:excludeFromRecents="true"
-            android:launchMode="singleInstance">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-            </intent-filter>
-        </activity>
-
-        <activity
             android:name=".view.activity.CrashScreenActivity"
             android:exported="false"
             android:theme="@style/NoActionBarTheme" />
@@ -213,8 +192,7 @@
             android:exported="true"
             android:label="@string/service_activity"
             android:description="@string/accessibility_description"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-            tools:ignore="AccessibilityPolicy">
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
@@ -275,6 +253,7 @@
 
         <receiver
             android:name=".data.receiver.DeviceAdminReceiver"
+            android:description="@string/accessibility_description"
             android:exported="false"
             android:permission="android.permission.BIND_DEVICE_ADMIN">
             <meta-data

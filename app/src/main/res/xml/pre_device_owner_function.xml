@@ -5,7 +5,7 @@
     <Preference
         app:selectable="false"
         android:key="pre_owner_now_set_own_pkg"
-        android:icon="@drawable/ic_info_outline_24" />
+        android:icon="@drawable/info_24px" />
 
     <PreferenceCategory
         android:title="@string/pre_owner_category_uninstall"
@@ -37,12 +37,6 @@
         android:title="@string/pre_owner_category_install"
         app:allowDividerAbove="false"
         app:iconSpaceReserved="false">
-
-        <Preference
-            app:iconSpaceReserved="false"
-            android:key="pre_owner_session_install_notice"
-            android:summary="@string/pre_owner_sum_session_install_notice"
-            android:title="@string/pre_owner_title_session_install_notice" />
 
         <Preference
             app:iconSpaceReserved="false"

@@ -4,7 +4,7 @@
 
     <Preference
         android:key="pre_notice"
-        android:icon="@drawable/ic_info_outline_24"
+        android:icon="@drawable/info_24px"
         android:title="" />
 
     <PreferenceCategory
@@ -50,7 +50,7 @@
         <Preference
             app:selectable="false"
             android:key="pre_install_unknown_source_info"
-            android:icon="@drawable/ic_info_outline_24"
+            android:icon="@drawable/info_24px"
             android:summary="@string/pre_main_sum_install_unknown_source_info" />
 
         <Preference

@@ -277,102 +277,7 @@
             android:textStyle="bold" />
 
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/app_info_spacing_small"
-            android:focusable="true"
-            android:clickable="true">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/app_info_spacing"
-                android:layout_marginVertical="@dimen/app_info_spacing"
-                android:text="@string/info_library_other_label" />
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/app_info_spacing_small"
-            android:focusable="true"
-            android:clickable="true">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/app_info_spacing"
-                android:layout_marginVertical="@dimen/app_info_spacing"
-                android:text="@string/info_library_wel_label" />
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/app_info_spacing_small"
-            android:focusable="true"
-            android:clickable="true">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/app_info_spacing"
-                android:layout_marginVertical="@dimen/app_info_spacing"
-                android:text="@string/info_library_zip_label" />
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/app_info_spacing_small"
-            android:focusable="true"
-            android:clickable="true">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/app_info_spacing"
-                android:layout_marginVertical="@dimen/app_info_spacing"
-                android:text="@string/info_library_yib_label" />
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/app_info_spacing_small"
-            android:focusable="true"
-            android:clickable="true">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/app_info_spacing"
-                android:layout_marginVertical="@dimen/app_info_spacing"
-                android:text="@string/info_library_dhizuku_label" />
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/app_info_spacing_small"
-            android:focusable="true"
-            android:clickable="true">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/app_info_spacing"
-                android:layout_marginVertical="@dimen/app_info_spacing"
-                android:text="@string/info_library_awayume_label" />
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/act_app_info_card_thanks_1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:focusable="true"
@@ -383,7 +288,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/app_info_spacing"
                 android:layout_marginVertical="@dimen/app_info_spacing"
-                android:text="@string/info_library_naniwara_label" />
+                android:text="@string/info_library_2315_label" />
 
         </com.google.android.material.card.MaterialCardView>
 

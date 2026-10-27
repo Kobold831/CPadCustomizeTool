@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -16,13 +16,13 @@ import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuAllActive;
 
 import android.Manifest;
 import android.app.admin.DevicePolicyManager;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
@@ -46,10 +46,7 @@ import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
-import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.flagment.dialog.InstallerListDialogFragment;
-
-import com.stephentuso.welcome.WelcomeHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,9 +55,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-/** @noinspection deprecation*/
 public class CheckActivity extends AppCompatActivity implements DownloadEventListener, InstallEventListener {
 
     AlertDialog progressDialog;
@@ -68,20 +63,57 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
     AppCompatTextView progressByteText;
     ProgressBar dialogProgressBar;
 
+    private static boolean updateChecked = false;
+
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private boolean updateCheckFinished = false;
+
+    private final Runnable updateCheckTimeout = () -> {
+        if (updateCheckFinished) {
+            return;
+        }
+        finishUpdateCheck();
+        cancelLoadingDialog();
+        showWelcome();
+    };
+
+    private final Common.TaskUi installTaskUi = new Common.TaskUi() {
+        @Override
+        public Context context() {
+            return CheckActivity.this;
+        }
+
+        @Override
+        public void showLoading() {
+            showLoadingDialog(getString(R.string.progress_state_installing));
+        }
+
+        @Override
+        public void cancelLoading() {
+            cancelLoadingDialog();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         init();
     }
 
+    @Override
+    protected void onDestroy() {
+        finishUpdateCheck();
+        super.onDestroy();
+    }
+
     private void init() {
         // クラッシュしていたか判定
-        if (Preferences.load(this, Constants.KEY_FLAG_ERROR_CRASH, Constants.DEF_BOOL)) {
+        if (Common.isFlagEnabled(this, Constants.KEY_FLAG_ERROR_CRASH)) {
             showCrashScreen();
             return;
         }
 
-        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
+        if (Common.isFlagEnabled(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE)) {
             // 初回起動完了
             supportModelCheck();
         } else {
@@ -99,12 +131,12 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
 
     // Welcome画面表示
     private void showWelcome() {
-        if (Preferences.load(this, Constants.KEY_FLAG_APP_WELCOME_COMPLETE, Constants.DEF_BOOL)) {
+        if (Common.isFlagEnabled(this, Constants.KEY_FLAG_APP_WELCOME_COMPLETE)) {
             // 初回起動完了
             supportModelCheck();
         } else {
             // 初回起動未完了
-            new WelcomeHelper(this, WelcomeAppActivity.class).forceShow();
+            startActivityForResult(new Intent(this, WelcomeAppActivity.class), Constants.REQUEST_ACTIVITY_WELCOME);
             overridePendingTransition(0, 0);
             finish();
         }
@@ -112,45 +144,61 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
 
     /* アップデートチェック */
     private void updateCheck() {
+        if (updateChecked) {
+            showWelcome();
+            return;
+        }
+        updateChecked = true;
+        updateCheckFinished = false;
+        handler.removeCallbacks(updateCheckTimeout);
         showLoadingDialog(getString(R.string.progress_state_connecting));
-        new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), Constants.CHECK_JSON), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
+        handler.postDelayed(updateCheckTimeout, Constants.JSON_TIMEOUT_MS);
+        new FileDownloadTask().execute(this, Constants.URL_CORE, new File(getExternalCacheDir(), Constants.CORE_JSON), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK, Constants.JSON_TIMEOUT_MS, Constants.JSON_TIMEOUT_MS);
+    }
+
+    private void finishUpdateCheck() {
+        updateCheckFinished = true;
+        handler.removeCallbacks(updateCheckTimeout);
     }
 
     /* ダウンロード完了 */
     @Override
     public void onDownloadComplete(int reqCode) {
+        if (reqCode == Constants.REQUEST_DOWNLOAD_UPDATE_CHECK) {
+            if (updateCheckFinished) {
+                return;
+            }
+            finishUpdateCheck();
+        }
+
         cancelLoadingDialog();
         switch (reqCode) {
             case Constants.REQUEST_DOWNLOAD_UPDATE_CHECK:// アップデートチェック要求
                 try {
-                    JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), Constants.CHECK_JSON));
-                    JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-                    JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
+                    JSONObject updateInfo = Common.getUpdateInfo(new File(getExternalCacheDir(), Constants.CORE_JSON));
 
-                    if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
-                        showUpdateDialog(jsonObj3.getString("description"), jsonObj3.getString("url"));
+                    if (updateInfo.getInt("versionCode") > BuildConfig.VERSION_CODE) {
+                        showUpdateDialog(updateInfo.getString("url"));
                     } else {
                         showWelcome();
                     }
                 } catch (JSONException | IOException ignored) {
-                    onDownloadError(reqCode);
+                    showWelcome();
                 }
                 break;
             case Constants.REQUEST_DOWNLOAD_APK:// APKダウンロード要求
-                switch (Preferences.load(this, Constants.KEY_INT_UPDATE_MODE, 1)) {
-                    case 0:// パッケージインストーラー
+                switch (Common.getFlag(this, Constants.KEY_INT_UPDATE_MODE, Constants.DEF_UPDATE_MODE)) {
+                    case Constants.UPDATE_MODE_PACKAGE_INSTALLER:// パッケージインストーラー
                         startActivityForResult(new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(new File(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), "application/vnd.android.package-archive").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), Constants.REQUEST_ACTIVITY_UPDATE);
                         break;
-                    case 1:// Adb
+                    case Constants.UPDATE_MODE_ADB:// Adb
                         try {
-                            JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), Constants.CHECK_JSON));
-                            JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-                            JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
+                            JSONObject updateInfo = Common.getUpdateInfo(new File(getExternalCacheDir(), Constants.CORE_JSON));
 
                             new DialogUtil(this)
                                     .setCancelable(false)
                                     .setTitle(getString(R.string.dialog_title_error))
-                                    .setMessage(getString(R.string.dialog_no_installer, jsonObj3.getString("url")))
+                                    .setMessage(getString(R.string.dialog_no_installer, updateInfo.getString("url")))
                                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
                                     .show();
                         } catch (JSONException | IOException ignored) {
@@ -158,14 +206,14 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
                             init();
                         }
                         break;
-                    case 2:// Dcha
+                    case Constants.UPDATE_MODE_DCHA:// Dcha
                         new DchaInstallTask().execute(this, dchaInstallTaskListener(), new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath());
                         break;
-                    case 3:// デバイスオーナー
+                    case Constants.UPDATE_MODE_DEVICE_OWNER:// デバイスオーナー
                         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 
                         if (!dpm.isDeviceOwnerApp(getPackageName()) || Common.isCT2()) {
-                            Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
+                            Common.setFlag(this, Constants.KEY_INT_UPDATE_MODE, Constants.DEF_UPDATE_MODE);
                             new DialogUtil(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_installer))
@@ -175,9 +223,9 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
                         }
                         new ApkInstallTask().execute(this, apkInstallTaskListener(), new ArrayList<>(List.of(new File(getExternalCacheDir(), Constants.DOWNLOAD_APK).getPath())), Constants.REQUEST_INSTALL_SELF_UPDATE, this);
                         break;
-                    case 4:// Dhizuku
+                    case Constants.UPDATE_MODE_DHIZUKU:// Dhizuku
                         if (!isDhizukuAllActive(this) || Common.isCT2()) {
-                            Preferences.save(this, Constants.KEY_INT_UPDATE_MODE, 1);
+                            Common.setFlag(this, Constants.KEY_INT_UPDATE_MODE, Constants.DEF_UPDATE_MODE);
                             new DialogUtil(this)
                                     .setCancelable(false)
                                     .setMessage(getString(R.string.dialog_error_reset_installer))
@@ -194,41 +242,19 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
 
     @NonNull
     private DchaInstallTask.Listener dchaInstallTaskListener() {
-        return new DchaInstallTask.Listener() {
-
-            /* プログレスバーの表示 */
-            @Override
-            public void onShow() {
-                showLoadingDialog(getResources().getString(R.string.progress_state_installing));
-            }
-
-            /* 成功 */
-            @Override
-            public void onSuccess() {
-                cancelLoadingDialog();
-                new DialogUtil(CheckActivity.this)
-                        .setMessage(R.string.dialog_success_silent_install)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
-                        .show();
-            }
-
-            /* 失敗 */
-            @Override
-            public void onFailure() {
-                cancelLoadingDialog();
-                new DialogUtil(CheckActivity.this)
-                        .setMessage(R.string.dialog_failure_silent_install)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
-                        .show();
-            }
-        };
+        return Common.dchaInstallTaskListener(installTaskUi, this::init);
     }
 
     /* ダウンロードエラー */
     @Override
     public void onDownloadError(int reqCode) {
+        if (reqCode == Constants.REQUEST_DOWNLOAD_UPDATE_CHECK) {
+            if (updateCheckFinished) {
+                return;
+            }
+            finishUpdateCheck();
+        }
+
         cancelLoadingDialog();
         showWelcome();
     }
@@ -236,30 +262,33 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
     /* サーバー接続エラー */
     @Override
     public void onConnectionError(int reqCode) {
+        if (reqCode == Constants.REQUEST_DOWNLOAD_UPDATE_CHECK) {
+            if (updateCheckFinished) {
+                return;
+            }
+            finishUpdateCheck();
+        }
+
         cancelLoadingDialog();
         showWelcome();
     }
 
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
+        if (totalByte > 0 && dialogProgressBar.isIndeterminate()) {
+            dialogProgressBar.setIndeterminate(false);
+        }
         progressPercentText.setText(getString(R.string.progress_percent, progress));
-        progressByteText.setText(getString(R.string.progress_byte, currentByte, totalByte));
+        if (totalByte > 0) {
+            progressByteText.setText(getString(R.string.progress_byte, currentByte, totalByte));
+        }
         dialogProgressBar.setProgress(progress);
-        progressDialog.setMessage(new StringBuilder(getString(R.string.progress_state_download_file)));
+        progressDialog.setMessage(getString(R.string.progress_state_download_file));
     }
 
     /* アップデートダイアログ */
-    private void showUpdateDialog(String str, String downloadFileUrl) {
+    private void showUpdateDialog(String downloadFileUrl) {
         View view = getLayoutInflater().inflate(R.layout.view_update, null);
-        AppCompatTextView tv = view.findViewById(R.id.update_information);
-        tv.setText(str);
-        view.findViewById(R.id.update_info_button).setOnClickListener(v -> {
-            try {
-                startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", Constants.URL_UPDATE_INFO).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            } catch (ActivityNotFoundException ignored) {
-                Toast.makeText(this, R.string.toast_no_browser, Toast.LENGTH_SHORT).show();
-            }
-        });
 
         new DialogUtil(this)
                 .setTitle(R.string.dialog_title_update)
@@ -274,39 +303,30 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
                     progressHandler.sendEmptyMessage(0);
                     View progressView = getLayoutInflater().inflate(R.layout.view_progress, null);
                     progressPercentText = progressView.findViewById(R.id.progress_percent);
-                    progressPercentText.setText("");
                     progressByteText = progressView.findViewById(R.id.progress_byte);
-                    progressByteText.setText("");
                     dialogProgressBar = progressView.findViewById(R.id.progress);
-                    dialogProgressBar.setProgress(0);
+                    progressPercentText.setText(getString(R.string.progress_percent, 0));
+                    progressByteText.setText(R.string.progress_waiting);
+                    dialogProgressBar.setIndeterminate(true);
+                    dialogProgressBar.setMax(Constants.PERCENT_MAX);
                     progressDialog = new DialogUtil(this).setCancelable(false).setView(progressView).create();
                     progressDialog.setMessage("");
                     progressDialog.show();
                 })
                 .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> showWelcome())
-                .setNeutralButton(R.string.activity_start, (dialog, which) -> new InstallerListDialogFragment(0, this::init).show(getSupportFragmentManager(), ""))
+                .setNeutralButton(R.string.activity_start, (dialog, which) -> new InstallerListDialogFragment(Constants.INSTALLER_LIST_FROM_MAIN, this::init).show(getSupportFragmentManager(), ""))
                 .show();
     }
 
 
     /* ローディングダイアログを表示する */
     private void showLoadingDialog(String message) {
-        View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
-        AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
-        textView.setText(message);
-        progressDialog = new DialogUtil(this).setCancelable(false).setView(view).create();
-        progressDialog.show();
+        progressDialog = Common.showProgressSpinner(this, message);
     }
 
     /* ローディングダイアログを非表示にする */
     private void cancelLoadingDialog() {
-        if (progressDialog == null) {
-            return;
-        }
-
-        if (progressDialog.isShowing()) {
-            progressDialog.cancel();
-        }
+        Common.cancelDialog(progressDialog);
     }
 
     /* 端末チェック */
@@ -318,7 +338,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
         }
 
         for (String model : Constants.LIST_MODEL) {
-            if (Objects.equals(model, Build.MODEL)) {
+            if (Build.MODEL.equals(model)) {
                 // サポートデバイス一致
                 checkDchaService();
                 return;
@@ -340,7 +360,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
 
     /* DchaService動作チェック */
     private void checkDchaService() {
-        if (Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
+        if (Common.isFlagEnabled(this, Constants.KEY_FLAG_DCHA_FUNCTION)) {
             // dchaを使用する設定
             if (!Common.isDchaActive(this)) {
                 // Dchaが動作していない
@@ -350,7 +370,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
                         .setMessage(R.string.dialog_error_check_dcha)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             // Dchaを使用しない設定に変更
-                            Preferences.save(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
+                            Common.setFlagEnabled(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
                             init();
                         })
                         .show();
@@ -361,7 +381,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
     }
 
     private void confCheck() {
-        if (Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
+        if (Common.isFlagEnabled(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE)) {
             // 初期設定完了
             if (isPermissionCheck()) {
                 // 権限チェックOK
@@ -380,26 +400,26 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
                 .setTitle(R.string.dialog_title_notice_start)
                 .setMessage(R.string.dialog_app_start_message)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                    Preferences.save(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, true);
+                    Common.setFlagEnabled(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, true);
                     checkNormalEnv();
                 })
                 .show();
     }
 
     private void checkNormalEnv() {
-        if (!Preferences.load(this, Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV, Constants.DEF_BOOL) && !isDchaInstalled(this) && !Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL) ||
-                !Preferences.load(this, Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV, Constants.DEF_BOOL) && !isBenesseHomeInstalled() && !Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+        if (!Common.isFlagEnabled(this, Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV) && !isDchaInstalled(this) && !Common.isFlagEnabled(this, Constants.KEY_FLAG_NORMAL_ENV) ||
+                !Common.isFlagEnabled(this, Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV) && !isBenesseHomeInstalled() && !Common.isFlagEnabled(this, Constants.KEY_FLAG_NORMAL_ENV)) {
             // ダイアログ表示履歴なしかつDcha がインストールされていないかつ通常環境モードが無効、またはダイアログ表示履歴なしかつ勉強ホームがインストールされていないかつ通常環境モードが無効
             new DialogUtil(this)
                     .setCancelable(false)
                     .setTitle(R.string.dialog_title_normal_env)
                     .setMessage(R.string.dialog_normal_env_message)
                     .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                        Preferences.save(this, Constants.KEY_FLAG_NORMAL_ENV, true);
+                        Common.setFlagEnabled(this, Constants.KEY_FLAG_NORMAL_ENV, true);
                         showMainActivity();
                     })
                     .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> {
-                        Preferences.save(this, Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV, true);
+                        Common.setFlagEnabled(this, Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV, true);
                         showMainActivity();
                     })
                     .show();
@@ -457,7 +477,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             canWrite = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
             if (!canWrite) {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.REQUEST_PERMISSION_STORAGE);
             }
         }
         return canWrite;
@@ -471,7 +491,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             if (isDchaInstalled(this)) {
                 canWrite = checkSelfPermission(Constants.DCHA_ACCESS_SYSTEM) == PackageManager.PERMISSION_GRANTED;
                 if (!canWrite) {
-                    requestPermissions(new String[]{Constants.DCHA_ACCESS_SYSTEM}, 1);
+                    requestPermissions(new String[]{Constants.DCHA_ACCESS_SYSTEM}, Constants.REQUEST_PERMISSION_DCHA_SYSTEM);
                 }
             }
         }
@@ -506,7 +526,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == 0 && grantResults.length > 0) {
+        if (requestCode == Constants.REQUEST_PERMISSION_STORAGE && grantResults.length > 0) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     new DialogUtil(this)
@@ -514,7 +534,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
                             .setMessage(R.string.dialog_request_storage_permission)
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                                 if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+                                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.REQUEST_PERMISSION_STORAGE);
                                 }
                             })
                             .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> init())
@@ -524,15 +544,15 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
             }
         }
 
-        if (requestCode == 1 && grantResults.length > 0) {
+        if (requestCode == Constants.REQUEST_PERMISSION_DCHA_SYSTEM && grantResults.length > 0) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") != PackageManager.PERMISSION_GRANTED) {
+                if (checkSelfPermission(Constants.DCHA_ACCESS_SYSTEM) != PackageManager.PERMISSION_GRANTED) {
                     new DialogUtil(this)
                             .setCancelable(false)
                             .setMessage(R.string.dialog_request_dcha_permission)
                             .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                                if (checkSelfPermission("jp.co.benesse.dcha.permission.ACCESS_SYSTEM") != PackageManager.PERMISSION_GRANTED) {
-                                    requestPermissions(new String[]{"jp.co.benesse.dcha.permission.ACCESS_SYSTEM"}, 1);
+                                if (checkSelfPermission(Constants.DCHA_ACCESS_SYSTEM) != PackageManager.PERMISSION_GRANTED) {
+                                    requestPermissions(new String[]{Constants.DCHA_ACCESS_SYSTEM}, Constants.REQUEST_PERMISSION_DCHA_SYSTEM);
                                 }
                             })
                             .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> init())
@@ -552,7 +572,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case Constants.REQUEST_ACTIVITY_UPDATE:
-            case WelcomeHelper.DEFAULT_WELCOME_SCREEN_REQUEST:
+            case Constants.REQUEST_ACTIVITY_WELCOME:
             case Constants.REQUEST_ACTIVITY_PERMISSION:
                 init();
                 break;
@@ -560,54 +580,7 @@ public class CheckActivity extends AppCompatActivity implements DownloadEventLis
     }
 
     private ApkInstallTask.Listener apkInstallTaskListener() {
-        return new ApkInstallTask.Listener() {
-
-            /* プログレスバーの表示 */
-            @Override
-            public void onShow() {
-                showLoadingDialog(getString(R.string.progress_state_installing));
-            }
-
-            /* 成功 */
-            @Override
-            public void onSuccess() {
-                Common.deleteDirectoryAsync(getExternalCacheDir());
-                cancelLoadingDialog();
-                AlertDialog alertDialog = new DialogUtil(CheckActivity.this)
-                        .setMessage(R.string.dialog_success_silent_install)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
-                        .create();
-
-                if (!alertDialog.isShowing()) {
-                    alertDialog.show();
-                }
-            }
-
-            /* 失敗 */
-            @Override
-            public void onFailure(String message) {
-                Common.deleteDirectoryAsync(getExternalCacheDir());
-                cancelLoadingDialog();
-                new DialogUtil(CheckActivity.this)
-                        .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
-                        .show();
-            }
-
-            @Override
-            public void onError(String message) {
-                Common.deleteDirectoryAsync(getExternalCacheDir());
-                cancelLoadingDialog();
-                new DialogUtil(CheckActivity.this)
-                        .setTitle(getString(R.string.dialog_title_error))
-                        .setMessage(message)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> init())
-                        .show();
-            }
-        };
+        return Common.apkInstallTaskListener(installTaskUi, this::init);
     }
 
     @Override

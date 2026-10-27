@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -19,6 +19,7 @@ import android.os.Message;
 import androidx.annotation.NonNull;
 
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
+import com.saradabar.cpadcustomizetool.util.Constants;
 
 public class ProgressHandler extends Handler {
 
@@ -32,18 +33,18 @@ public class ProgressHandler extends Handler {
     public void handleMessage(@NonNull Message msg) {
         super.handleMessage(msg);
 
-        if (fileDownloadTask.getLoadedBytePercent() >= 100) {
-            fileDownloadTask.onProgressUpdate(100);
+        if (fileDownloadTask.getLoadedBytePercent() >= Constants.PERCENT_MAX) {
+            fileDownloadTask.onProgressUpdate(Constants.PERCENT_MAX);
             return;
         }
 
         if (fileDownloadTask.isFinish()) {
-            fileDownloadTask.onProgressUpdate(100);
+            fileDownloadTask.onProgressUpdate(Constants.PERCENT_MAX);
             return;
         }
 
         fileDownloadTask.onProgressUpdate(fileDownloadTask.getLoadedBytePercent());
 
-        sendEmptyMessageDelayed(0, 100);
+        sendEmptyMessageDelayed(0, Constants.PROGRESS_INTERVAL_MS);
     }
 }
