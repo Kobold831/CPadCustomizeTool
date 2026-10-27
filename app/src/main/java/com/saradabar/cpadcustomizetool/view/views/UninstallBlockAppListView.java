@@ -71,7 +71,13 @@ public class UninstallBlockAppListView {
                 holder.cardView.setOnClickListener(view -> listener.onClick(view, position));
                 holder.textLabel.setText(data.label);
                 holder.imageIcon.setImageDrawable(data.icon);
-                holder.switchView.setChecked(getDevicePolicyManager().isUninstallBlocked(getAdminComponent(), data.packName));
+                boolean blocked = false;
+
+                try {
+                    blocked = getDevicePolicyManager().isUninstallBlocked(getAdminComponent(), data.packName);
+                } catch (RuntimeException ignored) {
+                }
+                holder.switchView.setChecked(blocked);
             }
             return convertView;
         }

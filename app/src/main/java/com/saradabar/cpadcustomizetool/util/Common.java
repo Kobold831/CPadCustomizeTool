@@ -284,12 +284,15 @@ public class Common {
 
     public static boolean isDhizukuAllActive(Context context) {
         try {
-            if (isDhizukuActive(context)) {
-                return Dhizuku.isPermissionGranted();
+            if (!isDhizukuActive(context) || !Dhizuku.isPermissionGranted()) {
+                return false;
             }
+
+            DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            return dpm != null && dpm.isDeviceOwnerApp(DhizukuVariables.OFFICIAL_PACKAGE_NAME);
         } catch (RuntimeException ignored) {
+            return false;
         }
-        return false;
     }
 
     public static int getFlag(String keyName) {

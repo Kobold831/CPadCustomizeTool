@@ -97,8 +97,13 @@ public class UninstallBlockActivity extends AppCompatActivity {
         listView.setAdapter(appListAdapter);
         appListAdapter.setOnItemClickListener((view, position) -> {
             String selectPackage = Uri.fromParts("package", dataList.get(position).packName, null).toString();
-            dpm.setUninstallBlocked(Common.getDeviceAdminComponent(this), selectPackage.replace("package:", ""),
-                    !dpm.isUninstallBlocked(Common.getDeviceAdminComponent(this), selectPackage.replace("package:", "")));
+
+            try {
+                dpm.setUninstallBlocked(Common.getDeviceAdminComponent(this), selectPackage.replace("package:", ""),
+                        !dpm.isUninstallBlocked(Common.getDeviceAdminComponent(this), selectPackage.replace("package:", "")));
+            } catch (RuntimeException ignored) {
+                return;
+            }
             /* listviewの更新 */
             listView.invalidateViews();
         });
