@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -12,12 +12,11 @@
 
 package com.saradabar.cpadcustomizetool.util;
 
-import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
-
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 
 import org.json.JSONArray;
 
@@ -76,7 +75,7 @@ public class Preferences {
 
     /* マルチリストのデータ取得 */
     public static boolean loadMultiList(Context context, String key, int item) {
-        Set<String> strings = getDefaultSharedPreferences(context).getStringSet(key, null);
+        Set<String> strings = PreferenceManager.getDefaultSharedPreferences(context).getStringSet(key, null);
 
         if (strings == null) {
             return false;

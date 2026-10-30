@@ -1,6 +1,7 @@
 package com.saradabar.cpadcustomizetool.view.views;
 
 import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -31,6 +32,9 @@ public class UninstallBlockAppListView {
 
         private OnClickListener listener;
 
+        private DevicePolicyManager devicePolicyManager;
+        private ComponentName adminComponent;
+
         public AppListAdapter(Context context, List<AppData> dataList) {
             super(context, R.layout.view_uninstall_item);
             addAll(dataList);
@@ -47,28 +51,49 @@ public class UninstallBlockAppListView {
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            ViewHolder holder = new ViewHolder();
+            ViewHolder holder;
 
             if (convertView == null) {
                 LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = mInflater.inflate(R.layout.view_uninstall_item, parent, false);
+                holder = new ViewHolder();
                 holder.cardView = convertView.findViewById(R.id.view_uninstall_item_card);
                 holder.textLabel = convertView.findViewById(R.id.un_label);
                 holder.imageIcon = convertView.findViewById(R.id.un_icon);
+                holder.switchView = convertView.findViewById(R.id.un_switch);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
             final AppData data = getItem(position);
-            DevicePolicyManager dpm = Common.getDevicePolicyManager(getContext());
 
             if (data != null) {
                 holder.cardView.setOnClickListener(view -> listener.onClick(view, position));
                 holder.textLabel.setText(data.label);
                 holder.imageIcon.setImageDrawable(data.icon);
-                ((SwitchCompat) convertView.findViewById(R.id.un_switch)).setChecked(dpm.isUninstallBlocked(Common.getDeviceAdminComponent(getContext()), data.packName));
+                boolean blocked = false;
+
+                try {
+                    blocked = getDevicePolicyManager().isUninstallBlocked(getAdminComponent(), data.packName);
+                } catch (RuntimeException ignored) {
+                }
+                holder.switchView.setChecked(blocked);
             }
             return convertView;
+        }
+
+        private DevicePolicyManager getDevicePolicyManager() {
+            if (devicePolicyManager == null) {
+                devicePolicyManager = Common.getDevicePolicyManager(getContext());
+            }
+            return devicePolicyManager;
+        }
+
+        private ComponentName getAdminComponent() {
+            if (adminComponent == null) {
+                adminComponent = Common.getDeviceAdminComponent(getContext());
+            }
+            return adminComponent;
         }
     }
 
@@ -76,5 +101,6 @@ public class UninstallBlockAppListView {
         MaterialCardView cardView;
         AppCompatTextView textLabel;
         AppCompatImageView imageIcon;
+        SwitchCompat switchView;
     }
 }

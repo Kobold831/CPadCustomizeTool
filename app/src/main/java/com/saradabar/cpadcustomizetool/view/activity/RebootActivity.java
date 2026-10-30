@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
@@ -28,20 +29,20 @@ public class RebootActivity extends AppCompatActivity {
     @Override
     public final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+        if (Common.isFlagEnabled(this, Constants.KEY_FLAG_NORMAL_ENV)) {
             Toast.makeText(this, R.string.toast_normal_env_finish, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
         }
 
         // 初期設定が完了していない場合は終了
-        if (!Preferences.load(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE, Constants.DEF_BOOL)) {
+        if (!Common.isFlagEnabled(this, Constants.KEY_FLAG_APP_SETTINGS_COMPLETE)) {
             Toast.makeText(this, R.string.toast_no_setting_app, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
         }
 
-        if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
+        if (!Common.isFlagEnabled(this, Constants.KEY_FLAG_DCHA_FUNCTION)) {
             Toast.makeText(this, R.string.toast_enable_dcha, Toast.LENGTH_SHORT).show();
             finishAndRemoveTask();
             return;
@@ -54,7 +55,7 @@ public class RebootActivity extends AppCompatActivity {
         new DialogUtil(this)
                 .setMessage(R.string.dialog_question_reboot)
                 .setPositiveButton(R.string.dialog_common_ok, (dialog, which) ->
-                        new DchaServiceUtil(this).rebootPad(0, null, object -> {
+                        new DchaServiceUtil(this).rebootPad(object -> {
                     if (!object.equals(true)) {
                         Toast.makeText(this, R.string.dialog_error, Toast.LENGTH_SHORT).show();
                     }

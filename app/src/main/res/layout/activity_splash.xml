@@ -19,6 +19,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/splash_spacing"
+                android:gravity="center"
                 android:text="@string/crash_message"
                 android:textColor="@android:color/holo_red_light"
                 android:textSize="@dimen/splash_title_text_size" />
@@ -173,6 +174,11 @@
 
     </ScrollView>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/splash_border"
+        android:background="@android:color/holo_red_light" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -191,15 +197,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/crash_back_main_message"
-            android:textColor="@android:color/holo_red_light"
+            android:textColor="@color/emergencyManualTextColor"
             android:textSize="@dimen/splash_text_size" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/act_splash_btn_main"
             android:layout_width="match_parent"
             android:layout_height="@dimen/splash_button_height"
-            android:text="@string/crash_back_main_button"
-            android:autoSizeTextType="uniform" />
+            android:autoSizeTextType="uniform"
+            android:text="@string/crash_back_main_button" />
 
     </LinearLayout>
 

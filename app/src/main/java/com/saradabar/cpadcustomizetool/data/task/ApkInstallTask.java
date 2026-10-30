@@ -5,6 +5,7 @@ import static com.saradabar.cpadcustomizetool.util.Common.isDhizukuAllActive;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
+import android.content.pm.PackageInstaller;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -20,11 +21,10 @@ import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.installer.SessionInstaller;
 import com.saradabar.cpadcustomizetool.data.service.DhizukuService;
 import com.saradabar.cpadcustomizetool.data.service.IDhizukuService;
+import com.saradabar.cpadcustomizetool.util.Constants;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ApkInstallTask {
 
@@ -34,10 +34,8 @@ public class ApkInstallTask {
 
     public void execute(Context context, Listener listener, ArrayList<String> splitInstallData, int reqCode, InstallEventListener installEventListener) {
         onPreExecute(listener);
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() ->
-                new Thread(() ->
-                        doInBackground(context, listener, installEventListener, splitInstallData, reqCode)).start());
+        AppExecutors.io(() ->
+                doInBackground(context, listener, installEventListener, splitInstallData, reqCode));
     }
 
     private void onPreExecute(@NonNull Listener listener) {
@@ -53,7 +51,7 @@ public class ApkInstallTask {
         if (result.equals(true)) {
             // InstallServiceで成功イベントを発生
             MyApplication myApplication = (MyApplication) context.getApplicationContext();
-            myApplication.installEventListener = installEventListener;
+            myApplication.setInstallEventListener(installEventListener);
             return;
         }
 
@@ -75,11 +73,23 @@ public class ApkInstallTask {
     }
 
     private void doDhizukuInstall(Context context, Listener listener, InstallEventListener installEventListener, ArrayList<String> splitInstallData, int reqCode) {
+        AtomicBoolean connected = new AtomicBoolean(false);
+        Handler timeoutHandler = new Handler(Looper.getMainLooper());
+        Runnable timeoutTask = () -> {
+            if (connected.compareAndSet(false, true)) {
+                doListener().onPost(context, listener, context.getString(R.string.installer_status_dhizuku_timeout), installEventListener);
+            }
+        };
         try {
             dhizukuUserServiceArgs = new DhizukuUserServiceArgs(new ComponentName(context, DhizukuService.class));
+            timeoutHandler.postDelayed(timeoutTask, Constants.DHIZUKU_SERVICE_TIMEOUT);
             dServiceConnection = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder iBinder) {
+                    timeoutHandler.removeCallbacks(timeoutTask);
+                    if (!connected.compareAndSet(false, true)) {
+                        return;
+                    }
                     new Thread(() -> {
                         mDhizukuService = IDhizukuService.Stub.asInterface(iBinder);
 
@@ -124,21 +134,27 @@ public class ApkInstallTask {
 
             // サービスに接続
             if (!Dhizuku.bindUserService(dhizukuUserServiceArgs, dServiceConnection)) {
-                // 失敗
-                doListener().onPost(context, listener, false, installEventListener);
+                timeoutHandler.removeCallbacks(timeoutTask);
+                if (connected.compareAndSet(false, true)) {
+                    // 失敗
+                    doListener().onPost(context, listener, false, installEventListener);
+                }
             }
         } catch (Exception e) {
-            // 例外処理
-            doListener().onPost(context, listener, e.getMessage(), installEventListener);
+            timeoutHandler.removeCallbacks(timeoutTask);
+            if (connected.compareAndSet(false, true)) {
+                // 例外処理
+                doListener().onPost(context, listener, e.getMessage(), installEventListener);
+            }
         }
     }
 
-    private void doSessionInstall(Context context, Listener listener, InstallEventListener installEventListener, ArrayList<String> splitInstallData, int reqCode) {
-        SessionInstaller sessionInstaller = new SessionInstaller();
+    private void doSessionInstall(@NonNull Context context, Listener listener, InstallEventListener installEventListener, ArrayList<String> splitInstallData, int reqCode) {
+        PackageInstaller packageInstaller = context.getPackageManager().getPackageInstaller();
         int sessionId;
 
         try {
-            sessionId = sessionInstaller.splitCreateSession(context);
+            sessionId = SessionInstaller.createSession(packageInstaller);
 
             if (sessionId < 0) {
                 // 失敗
@@ -151,29 +167,22 @@ public class ApkInstallTask {
             return;
         }
 
-        /* インストールデータの長さ回数繰り返す */
-        for (String str : splitInstallData) {
-            /* 配列の中身を確認 */
-            if (str != null) {
-                try {
-                    if (!sessionInstaller.splitWriteSession(context, new File(str), sessionId)) {
-                        // 失敗
-                        doListener().onPost(context, listener, false, installEventListener);
-                        return;
-                    }
-                } catch (Exception e) {
-                    // 例外処理
-                    doListener().onPost(context, listener, e.getMessage(), installEventListener);
-                    return;
-                }
-            } else {
-                /* つぎの配列の中身が空ならループ終了 */
-                break;
-            }
+        /* インストールデータの書き込み */
+        Object writeResult = SessionInstaller.writeSessions(packageInstaller, sessionId, splitInstallData);
+
+        if (!Boolean.TRUE.equals(writeResult)) {
+            // 失敗
+            doListener().onPost(context, listener, writeResult, installEventListener);
+            return;
+        }
+
+        if (installEventListener != null) {
+            ((MyApplication) context.getApplicationContext()).setInstallEventListener(installEventListener);
         }
 
         try {
-            if (!sessionInstaller.splitCommitSession(context, sessionId, reqCode)) {
+            if (!SessionInstaller.commitSession(packageInstaller, sessionId, context,
+                    SessionInstaller.installServiceIntent(context, sessionId, reqCode))) {
                 // 失敗
                 doListener().onPost(context, listener, false, installEventListener);
                 return;
@@ -195,6 +204,7 @@ public class ApkInstallTask {
         void onError(String message);
     }
 
+    @NonNull
     private doListener doListener() {
         return (context, listener, result, installEventListener) -> {
             Handler handler = new Handler(Looper.getMainLooper());

@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -26,7 +26,6 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.saradabar.cpadcustomizetool.BuildConfig;
-import com.saradabar.cpadcustomizetool.MainActivity;
 import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
@@ -34,7 +33,6 @@ import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.flagment.dialog.InstallerListDialogFragment;
 import com.saradabar.cpadcustomizetool.view.activity.CrashLogActivity;
-import com.saradabar.cpadcustomizetool.view.activity.ForceCrashActivity;
 
 public class AppSettingsFragment extends PreferenceFragmentCompat {
 
@@ -51,13 +49,11 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             preUpdateMode,
             preClearCache,
             preClearData,
-            preDebugForceCrash,
             preDebugDevice;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pre_app_settings, rootKey);
-        ((MainActivity) requireActivity()).initNavigationState();
 
         swDisableUpdateCheck = findPreference("pre_app_update_check");
         swUseDcha = findPreference("pre_app_use_dcha");
@@ -68,7 +64,6 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         swDebugRestriction = findPreference("pre_app_debug_restriction");
         preClearCache = findPreference("pre_app_clear_cache");
         preClearData = findPreference("pre_app_clear_data");
-        preDebugForceCrash = findPreference("pre_app_debug_force_crash");
         preDebugDevice = findPreference("pre_app_debug_device");
         swSimpleMode = findPreference("pre_app_simple_mode");
         swNormalEnv = findPreference("pre_app_normal_env");
@@ -79,12 +74,12 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             } else {
                 swDisableUpdateCheck.setSummary(R.string.pre_app_sum_update_check_on);
             }
-            Preferences.save(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, !((boolean) newValue));
+            Common.setFlagEnabled(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, !((boolean) newValue));
             return true;
         });
 
         swUseDcha.setOnPreferenceChangeListener((preference, newValue) -> {
-            Preferences.save(requireActivity(), Constants.KEY_FLAG_APP_SETTING_DCHA, (boolean) newValue);
+            Common.setFlagEnabled(requireActivity(), Constants.KEY_FLAG_APP_SETTING_DCHA, (boolean) newValue);
             return true;
         });
 
@@ -106,13 +101,13 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         });
 
         preUpdateMode.setOnPreferenceClickListener(preference -> {
-            new InstallerListDialogFragment(1, () -> {
+            new InstallerListDialogFragment(Constants.INSTALLER_LIST_FROM_SETTINGS, () -> {
             }).show(requireActivity().getSupportFragmentManager(), "");
             return false;
         });
 
         swDebugRestriction.setOnPreferenceChangeListener((preference, newValue) -> {
-            Preferences.save(requireActivity(), "debug_restriction", (boolean) newValue);
+            Common.setFlagEnabled(requireActivity(), Constants.KEY_DEBUG_RESTRICTION, (boolean) newValue);
             return true;
         });
 
@@ -145,11 +140,6 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             return false;
         });
 
-        preDebugForceCrash.setOnPreferenceClickListener(preference -> {
-            startActivity(new Intent(requireActivity(), ForceCrashActivity.class));
-            return false;
-        });
-
         preDebugDevice.setOnPreferenceClickListener(preference -> {
             AppCompatEditText editText = new AppCompatEditText(requireActivity());
             editText.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -157,10 +147,10 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             new DialogUtil(requireActivity())
                     .setView(editText)
                     .setPositiveButton(getString(R.string.dialog_common_ok), (dialog, which) -> {
-                        if (editText.getText() == null || editText.length() != 1) {
+                        if (editText.getText() == null || editText.length() != Constants.DEBUG_DEVICE_DIGIT_LENGTH) {
                             return;
                         }
-                        Preferences.save(requireActivity(), Constants.KEY_INT_DEBUG_DEVICE, Integer.parseInt(editText.getText().toString()));
+                        Common.setFlag(requireActivity(), Constants.KEY_INT_DEBUG_DEVICE, Integer.parseInt(editText.getText().toString()));
                     })
                     .setNegativeButton(getString(R.string.dialog_common_cancel), null)
                     .show();
@@ -168,19 +158,19 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         });
 
         swSimpleMode.setOnPreferenceChangeListener((preference, o) -> {
-            Preferences.save(requireActivity(), Constants.KEY_FLAG_SIMPLE_MODE, (boolean) o);
+            Common.setFlagEnabled(requireActivity(), Constants.KEY_FLAG_SIMPLE_MODE, (boolean) o);
             return true;
         });
 
         swNormalEnv.setOnPreferenceChangeListener((preference, o) -> {
-            Preferences.save(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, (boolean) o);
+            Common.setFlagEnabled(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, (boolean) o);
 
             if ((boolean) o) {
                 // 通常環境モードに設定されている場合に、一部の機能を停止
                 Common.setNormalEnv(requireActivity());
             } else {
                 // オフにされたときは、ダイアログの表示フラグをリセット
-                Preferences.save(requireActivity(), Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV, false);
+                Common.setFlagEnabled(requireActivity(), Constants.KEY_FLAG_ALREADY_DIALOG_NORMAL_ENV, false);
             }
             return true;
         });
@@ -193,14 +183,14 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
         swSimpleMode.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_SIMPLE_MODE, Constants.DEF_BOOL));
         swNormalEnv.setChecked(Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL));
 
-        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
+        if (Common.isFlagEnabled(requireActivity(), Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
             swDisableUpdateCheck.setSummary(R.string.pre_app_sum_update_check_on);
         } else {
             swDisableUpdateCheck.setSummary(R.string.pre_app_sum_update_check_off);
         }
 
-        if (!Preferences.load(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION, false)) {
-            Preferences.save(requireActivity(), Constants.KEY_FLAG_APP_SETTING_DCHA, false);
+        if (!Common.isFlagEnabled(requireActivity(), Constants.KEY_FLAG_DCHA_FUNCTION)) {
+            Common.setFlagEnabled(requireActivity(), Constants.KEY_FLAG_APP_SETTING_DCHA, false);
             swUseDcha.setChecked(false);
             swUseDcha.setSummary(getString(R.string.pre_app_sum_confirmation_dcha));
             swUseDcha.setEnabled(false);
@@ -210,7 +200,7 @@ public class AppSettingsFragment extends PreferenceFragmentCompat {
             catDebugRestriction.setVisible(true);
         }
 
-        if (Preferences.load(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL)) {
+        if (Common.isFlagEnabled(requireActivity(), Constants.KEY_FLAG_NORMAL_ENV)) {
             swUseDcha.setVisible(false);
         }
     }

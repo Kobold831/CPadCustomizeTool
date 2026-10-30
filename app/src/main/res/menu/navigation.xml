@@ -2,27 +2,27 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navi_0"
+        android:id="@+id/navi_simple"
         android:icon="@drawable/sentiment_very_satisfied_24px"
         android:title="@string/menu_navi_simple" />
 
     <item
-        android:id="@+id/navi_1"
+        android:id="@+id/navi_main"
         android:icon="@drawable/home_24px"
         android:title="@string/menu_navi_main" />
 
     <item
-        android:id="@+id/navi_2"
+        android:id="@+id/navi_dcha"
         android:icon="@drawable/android_24px"
         android:title="@string/menu_navi_dcha" />
 
     <item
-        android:id="@+id/navi_4"
+        android:id="@+id/navi_both"
         android:icon="@drawable/swap_horiz_24px"
         android:title="@string/menu_navi_both" />
 
     <item
-        android:id="@+id/navi_3"
+        android:id="@+id/navi_settings"
         android:icon="@drawable/settings_24px"
         android:title="@string/activity_start" />
 

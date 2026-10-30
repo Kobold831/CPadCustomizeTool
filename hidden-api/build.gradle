@@ -1,10 +1,11 @@
 plugins {
-    alias(libs.plugins.agp.lib)
+    alias libs.plugins.agp.lib
 }
 
 android {
     namespace = "com.saradabar.hidden_api"
-    compileSdk = 37
+    //noinspection GradleDependency
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24

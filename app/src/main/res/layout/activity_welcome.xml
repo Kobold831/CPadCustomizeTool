@@ -41,6 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/welcome_spacing"
+                android:text="@string/wel_terms_of_service"
                 android:textColor="@color/textColor"
                 android:textSize="@dimen/welcome_text_size" />
 
@@ -58,7 +59,7 @@
         android:orientation="horizontal">
 
         <androidx.appcompat.widget.AppCompatButton
-            style="?welcomeButtonDoneStyle"
+            style="@style/WelcomeButton"
             android:id="@+id/wel_no"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -70,7 +71,7 @@
             android:textColor="@color/welcomeButtonTextColor" />
 
         <androidx.appcompat.widget.AppCompatButton
-            style="?welcomeButtonDoneStyle"
+            style="@style/WelcomeButton"
             android:id="@+id/wel_yes"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

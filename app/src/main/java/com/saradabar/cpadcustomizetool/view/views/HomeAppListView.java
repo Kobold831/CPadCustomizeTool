@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -13,7 +13,6 @@
 package com.saradabar.cpadcustomizetool.view.views;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +25,7 @@ import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Common;
 
 import java.util.List;
 import java.util.Objects;
@@ -79,7 +79,7 @@ public class HomeAppListView {
 
         /* ランチャーに設定されているかの確認 */
         private boolean isLauncher(String s) {
-            return Objects.equals(s, Objects.requireNonNull(getContext().getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0)).activityInfo.packageName);
+            return Objects.equals(s, Objects.requireNonNull(Common.getLauncherPackage(getContext())));
         }
     }
 

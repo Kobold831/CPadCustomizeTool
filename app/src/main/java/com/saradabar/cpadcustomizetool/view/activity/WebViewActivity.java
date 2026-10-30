@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -30,11 +30,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
 
 import java.util.Objects;
 
-/** @noinspection deprecation*/
 public class WebViewActivity extends AppCompatActivity {
 
     WebView webView;
@@ -109,10 +109,10 @@ public class WebViewActivity extends AppCompatActivity {
         webView.getSettings().setAllowUniversalAccessFromFileURLs(false);
         webView.getSettings().setAllowFileAccess(false);
 
-        if (getIntent().getStringExtra("URL") != null) {
-            webView.loadUrl(Objects.requireNonNull(getIntent().getStringExtra("URL")));
+        if (getIntent().getStringExtra(Constants.URI_EXTRA_NAME) != null) {
+            webView.loadUrl(Objects.requireNonNull(getIntent().getStringExtra(Constants.URI_EXTRA_NAME)));
         } else {
-            webView.loadUrl("https://www.google.co.jp/intl/ja/");
+            webView.loadUrl(Constants.WEBVIEW_DEFAULT_URL);
         }
     }
 
@@ -136,7 +136,7 @@ public class WebViewActivity extends AppCompatActivity {
 
     @Override
     public void applyOverrideConfiguration(final Configuration overrideConfiguration) {
-        if (Build.VERSION.SDK_INT < 25) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
             overrideConfiguration.uiMode &= ~Configuration.UI_MODE_NIGHT_MASK;
         }
         super.applyOverrideConfiguration(overrideConfiguration);

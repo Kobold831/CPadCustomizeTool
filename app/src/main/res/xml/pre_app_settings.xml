@@ -34,7 +34,7 @@
         <Preference
             app:selectable="false"
             android:key="pre_install_unknown_source_info"
-            android:icon="@drawable/ic_info_outline_24"
+            android:icon="@drawable/info_24px"
             android:summary="@string/pre_app_sum_normal_env" />
 
         <SwitchPreferenceCompat
@@ -100,11 +100,6 @@
             app:iconSpaceReserved="false"
             android:key="pre_app_debug_restriction"
             android:title="@string/pre_app_title_debug_restriction" />
-
-        <Preference
-            app:iconSpaceReserved="false"
-            android:key="pre_app_debug_force_crash"
-            android:title="@string/pre_app_title_debug_force_crash" />
 
         <Preference
             app:iconSpaceReserved="false"

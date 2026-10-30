@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -23,6 +23,7 @@ import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import com.saradabar.cpadcustomizetool.R;
+import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 
@@ -76,7 +77,7 @@ public class UpdateModeListView {
         /* ランチャーに設定されているかの確認 */
         private boolean isUpdater(int i) {
             try {
-                return Objects.equals(i, Preferences.load(getContext(), Constants.KEY_INT_UPDATE_MODE, 1));
+                return Objects.equals(i, Common.getFlag(getContext(), Constants.KEY_INT_UPDATE_MODE, Constants.DEF_UPDATE_MODE));
             } catch (NullPointerException ignored) {
                 return false;
             }

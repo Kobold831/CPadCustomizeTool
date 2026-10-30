@@ -1,21 +1,28 @@
 plugins {
-    alias(libs.plugins.agp.app)
+    alias libs.plugins.agp.app
 }
 
 android {
     namespace = 'com.saradabar.cpadcustomizetool'
-    compileSdk = 37
+    //noinspection GradleDependency
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 22
         //noinspection ExpiredTargetSdkVersion
-        targetSdk = minSdk
-        versionCode = 281
-        versionName = "2.8.1"
+        targetSdk = 22
+        versionCode = 290
+        versionName = "2.9.0"
+        resourceConfigurations += ["ja"]
         proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
 
     signingConfigs {
+        configureEach {
+            enableV1Signing = true
+            enableV2Signing = false
+            enableV3Signing = false
+        }
         android {
             storeFile file('android.jks')
             storePassword 'android'
@@ -34,6 +41,14 @@ android {
         }
     }
 
+    androidResources {
+        additionalParameters '--preferred-density', 'hdpi',
+                '--exclude-configs', 'v31',
+                '--exclude-configs', 'ldrtl',
+                '--exclude-configs', 'land',
+                '--exclude-configs', 'port'
+    }
+
     buildFeatures {
         aidl = true
         buildConfig = true
@@ -43,7 +58,7 @@ android {
         checkReleaseBuilds = false
         disable 'ProtectedPermissions', 'ExportedService', 'SetJavaScriptEnabled'
     }
-    
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_21
         targetCompatibility JavaVersion.VERSION_21
@@ -52,20 +67,13 @@ android {
 
 dependencies {
     // Custom Libraries
-    compileOnly libs.benesse.extension
-    compileOnly libs.benesse.extension.service
-    compileOnly libs.sts.extension
-    implementation libs.benesse.dchaservice
-    implementation libs.benesse.dchautilservice
+    compileOnly project(":ext")
+    implementation project(":svc")
     compileOnly project(":hidden-api")
     // AndroidX
     implementation libs.preference
     // Google Material You
     implementation libs.material
-    // Welcome
-    implementation libs.welcome
-    // ZIP
-    implementation libs.zt.zip
     // Dhizuku
     implementation libs.dhizuku.api
 }

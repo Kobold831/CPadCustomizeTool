@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -12,7 +12,6 @@
 
 package com.saradabar.cpadcustomizetool.view.flagment;
 
-import android.annotation.SuppressLint;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -31,7 +30,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.preference.Preference;
@@ -46,10 +44,9 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.event.InstallEventListener;
 import com.saradabar.cpadcustomizetool.data.handler.ByteProgressHandler;
 import com.saradabar.cpadcustomizetool.data.receiver.DeviceAdminReceiver;
+import com.saradabar.cpadcustomizetool.data.task.ApkCopyTask;
 import com.saradabar.cpadcustomizetool.data.task.ApkInstallTask;
-import com.saradabar.cpadcustomizetool.data.task.ApkSCopyTask;
-import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
-import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
+import com.saradabar.cpadcustomizetool.data.task.PermissionGrantTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
@@ -58,23 +55,19 @@ import com.saradabar.cpadcustomizetool.view.activity.UninstallBlockActivity;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 
-/** @noinspection deprecation*/
 public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implements InstallEventListener {
 
     AlertDialog progressDialog;
+    AppCompatTextView progressSpinnerText;
 
-    XApkCopyTask xApkCopyTask;
-    ApkMCopyTask apkMCopyTask;
-    ApkSCopyTask apkSCopyTask;
+    ApkCopyTask apkCopyTask;
 
     private Preference preUninstallBlock,
             preSessionInstall,
             preAbandonSession,
             preClrDevOwn,
-            preNowSetOwnPkg,
-            preSessionInstallNotice;
+            preNowSetOwnPkg;
 
     private SwitchPreferenceCompat swPrePermissionFrc;
 
@@ -88,7 +81,6 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
         preAbandonSession = findPreference("pre_owner_abandon_session");
         preClrDevOwn = findPreference("pre_owner_clr_dev_own");
         preNowSetOwnPkg = findPreference("pre_owner_now_set_own_pkg");
-        preSessionInstallNotice = findPreference("pre_owner_session_install_notice");
 
         if (adminComponentMeasures()) {
             // Admin Component エラー
@@ -125,7 +117,6 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
         requireActivity().finish();
     }
 
-    @SuppressLint("InlinedApi")
     private void setListener() {
         preUninstallBlock.setOnPreferenceClickListener(preference -> {
             startActivity(new Intent(requireActivity(), UninstallBlockActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
@@ -134,29 +125,9 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
         });
 
         swPrePermissionFrc.setOnPreferenceChangeListener((preference, o) -> {
-            DevicePolicyManager dpm = Common.getDevicePolicyManager(requireActivity());
-
-            if ((boolean) o) {
-                dpm.setPermissionPolicy(Common.getDeviceAdminComponent(requireActivity()), DevicePolicyManager.PERMISSION_POLICY_AUTO_GRANT);
-
-                for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
-                    /* ユーザーアプリか確認 */
-                    if (app.sourceDir.startsWith("/data/app/")) {
-                        setPermissionGrantState(app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
-                    }
-                }
-                swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_forced));
-            } else {
-                dpm.setPermissionPolicy(Common.getDeviceAdminComponent(requireActivity()), DevicePolicyManager.PERMISSION_POLICY_PROMPT);
-
-                for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
-                    /* ユーザーアプリか確認 */
-                    if (app.sourceDir.startsWith("/data/app/")) {
-                        setPermissionGrantState(app.packageName, DevicePolicyManager.PERMISSION_GRANT_STATE_DEFAULT);
-                    }
-                }
-                swPrePermissionFrc.setSummary(getString(R.string.pre_owner_sum_permission_default));
-            }
+            boolean grant = (boolean) o;
+            swPrePermissionFrc.setEnabled(false);
+            new PermissionGrantTask().execute(requireActivity(), grant, permissionGrantListener(grant));
             return true;
         });
 
@@ -200,21 +171,61 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
                     .show();
             return false;
         });
-
-        preSessionInstallNotice.setOnPreferenceClickListener(preference -> {
-            new DialogUtil(requireActivity())
-                    .setView(R.layout.view_owner_session_notice)
-                    .setTitle(R.string.dialog_title_install_file_select_notice)
-                    .setPositiveButton(getString(R.string.dialog_common_ok), null)
-                    .show();
-            return false;
-        });
         /* 初期化 */
         initPreference();
     }
 
+    @NonNull
+    private PermissionGrantTask.Listener permissionGrantListener(boolean grant) {
+        return new PermissionGrantTask.Listener() {
+            @Override
+            public void onShow() {
+                showLoadingDialog(getString(R.string.progress_state_permission));
+            }
+
+            @Override
+            public void onProgress(int currentApp, int totalApp, String packageName, int currentPermission, int totalPermission) {
+                if (!isAdded() || progressSpinnerText == null) {
+                    return;
+                }
+                progressSpinnerText.setText(String.format("%s\n%s",
+                        getString(R.string.progress_state_permission),
+                        getString(R.string.progress_permission_count, currentApp, totalApp, packageName, currentPermission, totalPermission)));
+            }
+
+            @Override
+            public void onSuccess() {
+                cancelLoadingDialog();
+
+                if (!isAdded()) {
+                    return;
+                }
+                swPrePermissionFrc.setEnabled(true);
+                swPrePermissionFrc.setSummary(getString(grant
+                        ? R.string.pre_owner_sum_permission_forced
+                        : R.string.pre_owner_sum_permission_default));
+            }
+
+            @Override
+            public void onError(String message) {
+                cancelLoadingDialog();
+
+                if (!isAdded()) {
+                    return;
+                }
+                swPrePermissionFrc.setEnabled(true);
+                initPreference();
+                new DialogUtil(requireActivity())
+                        .setTitle(getString(R.string.dialog_title_error))
+                        .setMessage(message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_common_ok, null)
+                        .show();
+            }
+        };
+    }
+
     /* 初期化 */
-    @SuppressLint("NewApi")
     private void initPreference() {
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
 
@@ -271,12 +282,9 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
     private String getDeviceOwnerPackage() {
         DevicePolicyManager dpm = (DevicePolicyManager) requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
 
-        for (ApplicationInfo app : requireActivity().getPackageManager().getInstalledApplications(0)) {
-            /* ユーザーアプリか確認 */
-            if (app.sourceDir.startsWith("/data/app/")) {
-                if (dpm.isDeviceOwnerApp(app.packageName)) {
-                    return app.loadLabel(requireActivity().getPackageManager()).toString();
-                }
+        for (ApplicationInfo app : Common.getUserApplications(requireActivity())) {
+            if (dpm.isDeviceOwnerApp(app.packageName)) {
+                return app.loadLabel(requireActivity().getPackageManager()).toString();
             }
         }
         return null;
@@ -310,16 +318,13 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
 
         if (Common.isDhizukuActive(requireActivity())) {
             // Dhizukuが動作
-            try {
-                if (requireActivity().getPackageManager().getPackageInfo(DhizukuVariables.OFFICIAL_PACKAGE_NAME, 0).versionCode < 12) {
-                    // Dhizukuのバージョンコードが12未満
-                    new DialogUtil(requireActivity())
-                            .setCancelable(false)
-                            .setMessage(getString(R.string.dialog_dhizuku_require_12))
-                            .setPositiveButton(getString(R.string.dialog_common_ok), null)
-                            .show();
-                }
-            } catch (PackageManager.NameNotFoundException ignored) {
+            if (Common.isVersionBelow(requireActivity(), DhizukuVariables.OFFICIAL_PACKAGE_NAME, Constants.MIN_VERSION_CODE_DHIZUKU)) {
+                // v2.13.0 未満は切り捨て
+                new DialogUtil(requireActivity())
+                        .setCancelable(false)
+                        .setMessage(getString(R.string.dialog_dhizuku_require_20))
+                        .setPositiveButton(getString(R.string.dialog_common_ok), null)
+                        .show();
             }
         }
         setListener();
@@ -339,21 +344,14 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
                 ArrayList<String> installFileArrayList = new ArrayList<>();
 
                 if (trySetInstallData(data, installFileArrayList)) {
-                    //noinspection SequencedCollectionMethodCanBeUsed
                     String installFileName = new File(installFileArrayList.get(0)).getName();
 
                     /* ファイルの拡張子 */
                     if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk")) {
                         new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), installFileArrayList, Constants.REQUEST_INSTALL_SILENT, this);
-                    } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".xapk")) {
-                        xApkCopyTask = new XApkCopyTask();
-                        xApkCopyTask.execute(requireActivity(), xApkListener(), installFileArrayList);
-                    } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apkm")) {
-                        apkMCopyTask = new ApkMCopyTask();
-                        apkMCopyTask.execute(requireActivity(), apkMListener(), installFileArrayList);
-                    } else if (installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apks")) {
-                        apkSCopyTask = new ApkSCopyTask();
-                        apkSCopyTask.execute(requireActivity(), apkSListener(), installFileArrayList);
+                    } else if (ApkCopyTask.isSupported(installFileName)) {
+                        apkCopyTask = new ApkCopyTask(installFileName);
+                        apkCopyTask.execute(requireActivity(), apkCopyTaskListener(), installFileArrayList);
                     }
                 } else {
                     new DialogUtil(requireActivity())
@@ -370,9 +368,6 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
         }
     }
 
-    /**
-     * @noinspection SequencedCollectionMethodCanBeUsed
-     */
     /* splitInstallDataにファイルパスを格納 */
     private boolean trySetInstallData(Intent intent, ArrayList<String> stringArrayList) {
         try {
@@ -389,9 +384,7 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
                 /* ファイルの拡張子 */
                 /* 未対応またはインストールファイルでないなら終了 */
                 return installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apk")
-                        || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".xapk")
-                        || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apkm")
-                        || installFileName.substring(installFileName.lastIndexOf(".")).equalsIgnoreCase(".apks");
+                        || ApkCopyTask.isSupported(installFileName);
             } else {
                 /* マルチApk */
                 for (int i = 0; i < clipData.getItemCount(); i++) {
@@ -405,75 +398,76 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
         }
     }
 
+    @NonNull
     private ApkInstallTask.Listener apkInstallTaskListener() {
-        return new ApkInstallTask.Listener() {
-
-            /* プログレスバーの表示 */
+        return Common.apkInstallTaskListener(new Common.TaskUi() {
             @Override
-            public void onShow() {
+            public Context context() {
+                return isAdded() ? requireActivity() : null;
+            }
+
+            @Override
+            public void showLoading() {
                 showLoadingDialog(getString(R.string.progress_state_installing));
             }
 
-            /* 成功 */
             @Override
-            public void onSuccess() {
-                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
+            public void cancelLoading() {
                 cancelLoadingDialog();
-                AlertDialog alertDialog = new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
-                        .setMessage(R.string.dialog_success_silent_install)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                            // ok 押下後に再接続する
-                            init();
-                        })
-                        .create();
-
-                if (!alertDialog.isShowing()) {
-                    alertDialog.show();
-                }
             }
-
-            /* 失敗 */
-            @Override
-            public void onFailure(String message) {
-                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
-                cancelLoadingDialog();
-                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
-                        .setMessage(getString(R.string.dialog_failure_silent_install) + "\n" + message)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                            // ok 押下後に再接続する
-                            init();
-                        })
-                        .show();
-            }
-
-            @Override
-            public void onError(String message) {
-                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
-                cancelLoadingDialog();
-                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
-                        .setTitle(getString(R.string.dialog_title_error))
-                        .setMessage(message)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                            // ok 押下後に再接続する
-                            init();
-                        })
-                        .show();
-            }
-        };
+        }, this::init);
     }
 
-    private XApkCopyTask.Listener xApkListener() {
-        return new XApkCopyTask.Listener() {
+    private void showSplitSelectionDialog(ArrayList<String> entries, ArrayList<String> defaults) {
+        ArrayList<String> ordered = new ArrayList<>(defaults);
+
+        for (String entry : entries) {
+            if (!defaults.contains(entry)) {
+                ordered.add(entry);
+            }
+        }
+
+        String[] names = new String[ordered.size()];
+        boolean[] checked = new boolean[ordered.size()];
+
+        for (int i = 0; i < ordered.size(); i++) {
+            names[i] = new File(ordered.get(i)).getName();
+            checked[i] = defaults.contains(ordered.get(i));
+        }
+
+        new DialogUtil(requireActivity())
+                .setTitle(R.string.dialog_title_select_split)
+                .setMultiChoiceItems(names, checked, (dialog, which, isChecked) -> checked[which] = isChecked)
+                .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
+                    ArrayList<String> installData = new ArrayList<>();
+
+                    for (int i = 0; i < ordered.size(); i++) {
+                        if (checked[i]) {
+                            installData.add(ordered.get(i));
+                        }
+                    }
+
+                    if (installData.isEmpty()) {
+                        Toast.makeText(requireActivity(), R.string.dialog_error, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    apkCopyTask.extract(requireActivity(), apkCopyTaskListener(), installData);
+                })
+                .setNegativeButton(R.string.dialog_common_cancel, null)
+                .show();
+    }
+
+    @NonNull
+    private ApkCopyTask.Listener apkCopyTaskListener() {
+        return new ApkCopyTask.Listener() {
 
             AlertDialog alertDialog;
             ByteProgressHandler progressHandler;
 
             @Override
             public void onShow() {
-                @SuppressLint("InflateParams") View view = getLayoutInflater().inflate(R.layout.view_progress, null);
+                View view = getLayoutInflater().inflate(R.layout.view_progress, null);
                 ProgressBar progressBar = view.findViewById(R.id.progress);
                 AppCompatTextView textPercent = view.findViewById(R.id.progress_percent);
                 AppCompatTextView textByte = view.findViewById(R.id.progress_byte);
@@ -492,177 +486,44 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
                 progressHandler.progressBar = progressBar;
                 progressHandler.textPercent = textPercent;
                 progressHandler.textByte = textByte;
-                progressHandler.xApkCopyTask = xApkCopyTask;
+                progressHandler.task = apkCopyTask;
                 progressHandler.sendEmptyMessage(0);
             }
 
             @Override
-            public void onSuccess(ArrayList<String> stringArrayList) {
-                alertDialog.dismiss();
-                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFunctionFragment.this);
-                // インストール処理でdhizukuに接続するのでここでは再接続しない
-            }
-
-            @Override
-            public void onFailure() {
-                alertDialog.dismiss();
-                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
-                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
-                        .setTitle(getString(R.string.dialog_title_error))
-                        .setMessage(getString(R.string.dialog_failure))
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                            // ok 押下後に再接続する
-                            init();
-                        })
-                        .show();
-            }
-
-            @Override
-            public void onError(String message) {
-                alertDialog.dismiss();
-                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
-                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
-                        .setTitle(getString(R.string.dialog_title_error))
-                        .setMessage(message)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                            // ok 押下後に再接続する
-                            init();
-                        })
-                        .show();
-            }
-
-            @Override
-            public void onProgressUpdate(String message) {
-                alertDialog.setMessage(message);
-            }
-        };
-    }
-
-    private ApkMCopyTask.Listener apkMListener() {
-        return new ApkMCopyTask.Listener() {
-
-            AlertDialog alertDialog;
-            ByteProgressHandler progressHandler;
-
-            @Override
-            public void onShow() {
-                @SuppressLint("InflateParams") View view = getLayoutInflater().inflate(R.layout.view_progress, null);
-                ProgressBar progressBar = view.findViewById(R.id.progress);
-                AppCompatTextView textPercent = view.findViewById(R.id.progress_percent);
-                AppCompatTextView textByte = view.findViewById(R.id.progress_byte);
-                progressBar.setProgress(0);
-                textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
-                alertDialog = new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
-                        .setView(view)
-                        .setMessage("")
-                        .setCancelable(false)
-                        .create();
-
-                if (!alertDialog.isShowing()) {
-                    alertDialog.show();
+            public void onAnalyzed(ArrayList<String> entries, ArrayList<String> defaults, boolean notOptimized) {
+                if (!notOptimized) {
+                    showSplitSelectionDialog(entries, defaults);
+                    return;
                 }
-                progressHandler = new ByteProgressHandler(Looper.getMainLooper());
-                progressHandler.progressBar = progressBar;
-                progressHandler.textPercent = textPercent;
-                progressHandler.textByte = textByte;
-                progressHandler.apkMCopyTask = apkMCopyTask;
-                progressHandler.sendEmptyMessage(0);
-            }
 
-            @Override
-            public void onSuccess(ArrayList<String> stringArrayList) {
-                alertDialog.dismiss();
-                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFunctionFragment.this);
-                // インストール処理でdhizukuに接続するのでここでは再接続しない
-            }
-
-            @Override
-            public void onFailure() {
-                alertDialog.dismiss();
-                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
-                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
-                        .setTitle(getString(R.string.dialog_title_error))
-                        .setMessage(getString(R.string.dialog_failure))
+                new DialogUtil(requireActivity())
+                        .setMessage(R.string.dialog_split_not_optimized)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                            // ok 押下後に再接続する
-                            init();
-                        })
+                        .setPositiveButton(R.string.dialog_common_next, (dialog, which) -> showSplitSelectionDialog(entries, defaults))
+                        .setNegativeButton(R.string.dialog_common_cancel, null)
                         .show();
             }
 
             @Override
-            public void onError(String message) {
-                alertDialog.dismiss();
-                Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
-                new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
-                        .setTitle(getString(R.string.dialog_title_error))
-                        .setMessage(message)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                            // ok 押下後に再接続する
-                            init();
-                        })
-                        .show();
-            }
-
-            @Override
-            public void onProgressUpdate(String message) {
-                alertDialog.setMessage(message);
-            }
-        };
-    }
-
-    private ApkSCopyTask.Listener apkSListener() {
-        return new ApkSCopyTask.Listener() {
-
-            AlertDialog alertDialog;
-            ByteProgressHandler progressHandler;
-
-            @Override
-            public void onShow() {
-                @SuppressLint("InflateParams") View view = getLayoutInflater().inflate(R.layout.view_progress, null);
-                ProgressBar progressBar = view.findViewById(R.id.progress);
-                AppCompatTextView textPercent = view.findViewById(R.id.progress_percent);
-                AppCompatTextView textByte = view.findViewById(R.id.progress_byte);
-                progressBar.setProgress(0);
-                textPercent.setText(new StringBuilder(progressBar.getProgress()).append(getString(R.string.percent)));
-                alertDialog = new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
-                        .setView(view)
-                        .setMessage("")
-                        .setCancelable(false)
-                        .create();
-
-                if (!alertDialog.isShowing()) {
-                    alertDialog.show();
+            public void onSuccess(ArrayList<String> paths) {
+                if (alertDialog != null) {
+                    alertDialog.dismiss();
                 }
-                progressHandler = new ByteProgressHandler(Looper.getMainLooper());
-                progressHandler.progressBar = progressBar;
-                progressHandler.textPercent = textPercent;
-                progressHandler.textByte = textByte;
-                progressHandler.apkSCopyTask = apkSCopyTask;
-                progressHandler.sendEmptyMessage(0);
-            }
-
-            @Override
-            public void onSuccess(ArrayList<String> stringArrayList) {
-                alertDialog.dismiss();
-                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), stringArrayList, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFunctionFragment.this);
-                // インストール処理でdhizukuに接続するのでここでは再接続しない
+                new ApkInstallTask().execute(requireActivity(), apkInstallTaskListener(), paths, Constants.REQUEST_INSTALL_SILENT, DeviceOwnerFunctionFragment.this);
             }
 
             @Override
             public void onFailure() {
-                alertDialog.dismiss();
+                if (alertDialog != null) {
+                    alertDialog.dismiss();
+                }
                 Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(getString(R.string.dialog_failure))
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                            // ok 押下後に再接続する
                             init();
                         })
                         .show();
@@ -670,14 +531,15 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
 
             @Override
             public void onError(String message) {
-                alertDialog.dismiss();
+                if (alertDialog != null) {
+                    alertDialog.dismiss();
+                }
                 Common.deleteDirectoryAsync(requireActivity().getExternalCacheDir());
                 new DialogUtil(DeviceOwnerFunctionFragment.this.requireActivity())
                         .setTitle(getString(R.string.dialog_title_error))
                         .setMessage(message)
                         .setCancelable(false)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
-                            // ok 押下後に再接続する
                             init();
                         })
                         .show();
@@ -685,7 +547,16 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
 
             @Override
             public void onProgressUpdate(String message) {
-                alertDialog.setMessage(message);
+                if (alertDialog != null) {
+                    alertDialog.setMessage(message);
+                }
+            }
+
+            @Override
+            public void onFileProgress(int current, int total) {
+                if (progressHandler != null) {
+                    progressHandler.obtainMessage(1, current, total).sendToTarget();
+                }
             }
         };
     }
@@ -711,51 +582,15 @@ public class DeviceOwnerFunctionFragment extends PreferenceFragmentCompat implem
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    private void setPermissionGrantState(String packageName, int grantState) {
-        DevicePolicyManager dpm = Common.getDevicePolicyManager(requireActivity());
-        for (String permission : getRuntimePermissions(packageName)) {
-            dpm.setPermissionGrantState(Common.getDeviceAdminComponent(requireActivity()), packageName, permission, grantState);
-        }
-    }
-
-    @NonNull
-    @RequiresApi(Build.VERSION_CODES.M)
-    private String[] getRuntimePermissions(String packageName) {
-        return new ArrayList<>(Arrays.asList(getRequiredPermissions(packageName))).toArray(new String[0]);
-    }
-
-    @NonNull
-    private String[] getRequiredPermissions(String packageName) {
-        try {
-            String[] str = requireActivity().getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS).requestedPermissions;
-            if (str != null && str.length > 0) {
-                return str;
-            } else {
-                return new String[0];
-            }
-        } catch (Exception ignored) {
-            return new String[0];
-        }
-    }
-
     /* ローディングダイアログを表示する */
     private void showLoadingDialog(String message) {
-        View view = getLayoutInflater().inflate(R.layout.view_progress_spinner, null);
-        AppCompatTextView textView = view.findViewById(R.id.view_progress_spinner_text);
-        textView.setText(message);
-        progressDialog = new DialogUtil(requireActivity()).setCancelable(false).setView(view).create();
-        progressDialog.show();
+        progressDialog = Common.showProgressSpinner(requireActivity(), message);
+        progressSpinnerText = progressDialog.findViewById(R.id.view_progress_spinner_text);
     }
 
     /* ローディングダイアログを非表示にする */
     private void cancelLoadingDialog() {
-        if (progressDialog == null) {
-            return;
-        }
-
-        if (progressDialog.isShowing()) {
-            progressDialog.cancel();
-        }
+        progressSpinnerText = null;
+        Common.cancelDialog(progressDialog);
     }
 }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="toast_wait_ms">2200</integer>
+    <integer name="resolution_reset_sec">10</integer>
+    <integer name="sec_ms">1000</integer>
+    <integer name="retry_wait_ms">100</integer>
+    <integer name="keep_service_interval_ms">10000</integer>
+    <integer name="def_screen_off_timeout_ms">60</integer>
+</resources>

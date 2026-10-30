@@ -4,6 +4,8 @@
 
 学習兼用環境での改造サポートを提供します。
 
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/s1204IT/badge.svg)](https://hub.xerj.org/contributors/s1204IT)
+
 ## 初期状態からのインストール
 
 PC または SDカード から簡単に利用できるようになりました。
@@ -44,23 +46,21 @@ PC または SDカード から簡単に利用できるようになりました�
   - 単一APKのサイレントインストール
   - 既定のランチャーの切り替え
   - 再起動のショートカット
-  - ファームウェアアップデート  
-    ファイルは各自で用意する必要あり
-- **DchaUtilService**
-  - 解像度の変更
 - 端末所有者 (デバイスオーナー)
   - アンインストールブロック
   - サイレントインストール
   - アプリの権限自動昇格
+- 保護システム領域へのアクセス権限
+  - 常時 ADB 維持
+  - 解像度の変更
 
 ## サンプル画像
 
-<a href="#"><img src="images/image-01.png" height="600"></a>
+<a href="#"><img src="https://github.com/user-attachments/assets/5a2dff3b-3c6b-489b-9e56-a8a52f2539f3" height="600"></a>
 
 ## 権限付与
 
-ADB 及び 開発者向けオプション の状態を保持する機能を使用するには、  
-`WRITE_SECURE_SETTINGS` の権限が必要です。
+特殊機能（ADB 保持等）を使用するには、`WRITE_SECURE_SETTINGS` の権限が必要です。
 
 アプリで該当の設定の有効にするには、  
 以下のコマンドをADBで実行してください：
@@ -73,7 +73,7 @@ adb shell pm grant com.saradabar.cpadcustomizetool android.permission.WRITE_SECU
 
 アンインストールブロッカーなどの一部の機能を使用するにはデバイスオーナーを設定する必要があります。
 
-チャレンジパッド３以降の場合、デバイスオーナーには [**Dhizuku**](https://github.com/iamr0s/Dhizuku) が推奨されています。
+デバイスオーナーには [**Dhizuku**](https://github.com/iamr0s/Dhizuku) が推奨されています。
 
 > [!WARNING]
 > デバイスオーナーの設定をする際にデバイスにアカウントが１つも存在しないか確認してください。  
@@ -101,7 +101,7 @@ adb shell dpm set-device-owner com.saradabar.cpadcustomizetool/.data.receiver.De
 > [!NOTE]
 > 「デバイスオーナーを解除」で解除することができない場合は、以下のいずれかをお試しください。
 > 
-> ・デバイスの初期化
+> ・デバイスの初期化  
 > ・`/data/system/` の `device_owner_2.xml`（または `profile_owner.xml`）の削除
 
 ## 問題の報告
@@ -120,14 +120,5 @@ GitHub アカウントをお持ちでない方、または匿名を希望の場�
 
 このアプリは以下のライブラリーを使用しています。
 
-- [**welcome-android**](https://github.com/stephentuso/welcome-android)
-  
-  Copyright © 2015-2017 Stephen Tuso
-
-- [**ZeroTurnaround ZIP Library**](https://github.com/zeroturnaround/zt-zip)
-  
-  Copyright © 2012 ZeroTurnaround LLC.
-
-- [**Dhizuku-API**](https://github.com/iamr0s/Dhizuku-API)
-  
-  Copyright © 2023 R0S
+- [**Dhizuku-API**](https://github.com/iamr0s/Dhizuku-API)  
+  &copy; 2023 R0S

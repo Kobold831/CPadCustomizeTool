@@ -29,6 +29,8 @@ import java.util.List;
 
 public class NoticeActivity extends AppCompatActivity implements DownloadEventListener {
 
+    private FileDownloadTask fileDownloadTask;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,19 +40,29 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-        new FileDownloadTask().execute(this, Constants.URL_NOTICE, new File(getExternalCacheDir(), Constants.NOTICE_JSON), Constants.REQUEST_DOWNLOAD_NOTICE);
+        fileDownloadTask = new FileDownloadTask();
+        fileDownloadTask.execute(this, Constants.URL_CORE, new File(getExternalCacheDir(), Constants.CORE_JSON), Constants.REQUEST_DOWNLOAD_NOTICE, Constants.JSON_TIMEOUT_MS, Constants.JSON_TIMEOUT_MS);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (fileDownloadTask != null) {
+            fileDownloadTask.removeEventListener(this);
+        }
     }
 
     @Override
     public void onDownloadComplete(int reqCode) {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
         if (reqCode == Constants.REQUEST_DOWNLOAD_NOTICE) {
             try {
                 List<NoticeListView.AppData> appDataList = new ArrayList<>();
                 ListView listView = findViewById(R.id.list_notice);
 
-                JSONObject jsonObj1 = Common.parseJson(new File(getExternalCacheDir(), Constants.NOTICE_JSON));
-                JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-                JSONArray jsonArray = jsonObj2.getJSONArray("noticeList");
+                JSONArray jsonArray = Common.getNotices(new File(getExternalCacheDir(), Constants.CORE_JSON));
 
                 if (jsonArray.length() == 0) {
                     new DialogUtil(this)
@@ -72,7 +84,7 @@ public class NoticeActivity extends AppCompatActivity implements DownloadEventLi
                     try {
                         String url = jsonArray.getJSONObject(position).getString("url");
                         if (!url.isEmpty()) {
-                            startActivity(new Intent(this, WebViewActivity.class).putExtra("URL", url).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                            startActivity(new Intent(this, WebViewActivity.class).putExtra(Constants.URI_EXTRA_NAME, url).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         }
                     } catch (JSONException ignored) {
                     }

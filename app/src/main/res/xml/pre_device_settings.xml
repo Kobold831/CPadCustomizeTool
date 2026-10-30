@@ -14,7 +14,7 @@
 
         <Preference
             app:selectable="false"
-            android:icon="@drawable/ic_info_outline_24"
+            android:icon="@drawable/info_24px"
             android:summary="@string/pre_other_sum_dark_mode" />
 
         <Preference
@@ -25,13 +25,13 @@
 
         <Preference
             app:selectable="false"
-            android:icon="@drawable/ic_info_outline_24"
+            android:icon="@drawable/info_24px"
             android:summary="@string/pre_other_sum_screen_off_time_warning" />
 
 
         <Preference
             app:selectable="false"
-            android:icon="@drawable/ic_info_outline_24"
+            android:icon="@drawable/info_24px"
             android:summary="@string/pre_other_sum_write_secure_settings" />
 
     </PreferenceCategory>

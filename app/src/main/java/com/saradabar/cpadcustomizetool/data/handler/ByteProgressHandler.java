@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -12,75 +12,67 @@
 
 package com.saradabar.cpadcustomizetool.data.handler;
 
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import com.saradabar.cpadcustomizetool.R;
-import com.saradabar.cpadcustomizetool.data.task.ApkMCopyTask;
-import com.saradabar.cpadcustomizetool.data.task.ApkSCopyTask;
-import com.saradabar.cpadcustomizetool.data.task.XApkCopyTask;
+import com.saradabar.cpadcustomizetool.data.task.CopyProgressTask;
+import com.saradabar.cpadcustomizetool.util.Constants;
 
 public class ByteProgressHandler extends Handler {
 
-    public XApkCopyTask xApkCopyTask;
-    public ApkMCopyTask apkMCopyTask;
-    public ApkSCopyTask apkSCopyTask;
+    public CopyProgressTask task;
     public ProgressBar progressBar;
     public AppCompatTextView textPercent, textByte;
+
+    private String lastPercent = "";
 
     public ByteProgressHandler(Looper looper) {
         super(looper);
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @Override
     public void handleMessage(@NonNull Message msg) {
         super.handleMessage(msg);
 
-        if (xApkCopyTask != null) {
-            if (xApkCopyTask.isFinish()) {
-                progressBar.setProgress(0);
-                return;
-            }
-
-            progressBar.setProgress(xApkCopyTask.getLoadedBytePercent(progressBar.getContext()));
-            textPercent.setText(textPercent.getContext().getString(R.string.progress_percent, progressBar.getProgress()));
-            textByte.setText(textByte.getContext().getString(R.string.progress_byte_short, xApkCopyTask.getLoadedCurrentByte(textByte.getContext()), xApkCopyTask.getLoadedTotalByte()));
-
-            sendEmptyMessageDelayed(0, 100);
+        if (task == null) {
+            return;
         }
 
-        if (apkMCopyTask != null) {
-            if (apkMCopyTask.isFinish()) {
-                progressBar.setProgress(0);
-                return;
+        if (msg.what == 1) {
+            if (msg.arg2 > 0) {
+                if (lastPercent.isEmpty()) {
+                    lastPercent = textPercent.getContext().getString(R.string.progress_percent, progressBar.getProgress());
+                }
+                textPercent.setText(lastPercent + textPercent.getContext().getString(R.string.progress_file_count, msg.arg1, msg.arg2));
             }
-
-            progressBar.setProgress(apkMCopyTask.getLoadedBytePercent(progressBar.getContext()));
-            textPercent.setText(textPercent.getContext().getString(R.string.progress_percent, progressBar.getProgress()));
-            textByte.setText(textByte.getContext().getString(R.string.progress_byte_short, apkMCopyTask.getLoadedCurrentByte(textByte.getContext()), apkMCopyTask.getLoadedTotalByte()));
-
-            sendEmptyMessageDelayed(0, 100);
+            return;
         }
 
-        if (apkSCopyTask != null) {
-            if (apkSCopyTask.isFinish()) {
-                progressBar.setProgress(0);
-                return;
-            }
-
-            progressBar.setProgress(apkSCopyTask.getLoadedBytePercent(progressBar.getContext()));
-            textPercent.setText(textPercent.getContext().getString(R.string.progress_percent, progressBar.getProgress()));
-            textByte.setText(textByte.getContext().getString(R.string.progress_byte_short, apkSCopyTask.getLoadedCurrentByte(textByte.getContext()), apkSCopyTask.getLoadedTotalByte()));
-
-            sendEmptyMessageDelayed(0, 100);
+        if (task.isFinish()) {
+            progressBar.setProgress(0);
+            return;
         }
+
+        int progress = task.getLoadedBytePercent(progressBar.getContext());
+        progressBar.setProgress(progress);
+        lastPercent = textPercent.getContext().getString(R.string.progress_percent, progress);
+
+        int totalFiles = task.getTotalFileCount();
+        String percent = lastPercent;
+
+        if (totalFiles > 0) {
+            percent = percent + textPercent.getContext().getString(R.string.progress_file_count, task.getCurrentFileCount(), totalFiles);
+        }
+
+        textPercent.setText(percent);
+        textByte.setText(textByte.getContext().getString(R.string.progress_byte, task.getLoadedCurrentByte(textByte.getContext()), task.getLoadedTotalByte()));
+
+        sendEmptyMessageDelayed(0, Constants.PROGRESS_INTERVAL_MS);
     }
 }

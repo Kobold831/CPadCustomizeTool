@@ -1,6 +1,6 @@
 /*
  * CPad Customize Tool
- * Copyright © 2021-2024 Kobold831 <146227823+kobold831@users.noreply.github.com>
+ * Copyright © 2021-2026 Kobold831 <146227823+kobold831@users.noreply.github.com>
  *
  * CPad Customize Tool is Open Source Software.
  * It is licensed under the terms of the Apache License 2.0 issued by the Apache Software Foundation.
@@ -12,13 +12,10 @@
 
 package com.saradabar.cpadcustomizetool;
 
-import static com.saradabar.cpadcustomizetool.util.Common.parseJson;
-
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.BenesseExtension;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -37,14 +35,13 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigationrail.NavigationRailView;
+
 import com.saradabar.cpadcustomizetool.data.event.DownloadEventListener;
 import com.saradabar.cpadcustomizetool.data.task.FileDownloadTask;
 import com.saradabar.cpadcustomizetool.data.task.ResolutionTask;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
-import com.saradabar.cpadcustomizetool.util.DchaUtilServiceUtil;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
-import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.AppInfoActivity;
 import com.saradabar.cpadcustomizetool.view.activity.CheckActivity;
 import com.saradabar.cpadcustomizetool.view.activity.SelfUpdateActivity;
@@ -61,10 +58,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
-/** @noinspection deprecation*/
 public class MainActivity extends AppCompatActivity implements DownloadEventListener {
 
-    Menu menu;
+    private Menu menu;
 
     public MainActivity() {
         super(R.layout.activity_main);
@@ -74,6 +70,14 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getSupportFragmentManager().registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
+            @Override
+            public void onFragmentResumed(@NonNull FragmentManager fragmentManager, @NonNull Fragment fragment) {
+                initNavigationState();
+            }
+        }, true);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -85,15 +89,15 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         }
 
         if (savedInstanceState == null) {
-            if (Preferences.load(this, Constants.KEY_FLAG_SIMPLE_MODE, Constants.DEF_BOOL)) {
+            if (Common.isFlagEnabled(this, Constants.KEY_FLAG_SIMPLE_MODE)) {
                 transitionFragment(new SimpleFunctionFragment(), false, getString(R.string.pre_app_title_simple_mode));
             } else {
                 transitionFragment(new MainFragment(), false, null);
             }
 
-            if (Preferences.load(this, Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
+            if (Common.isFlagEnabled(this, Constants.KEY_FLAG_APP_START_UPDATE_CHECK, true)) {
                 // アップデートチェックする設定
-                new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), Constants.CHECK_JSON), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK);
+                new FileDownloadTask().execute(this, Constants.URL_CORE, new File(getExternalCacheDir(), Constants.CORE_JSON), Constants.REQUEST_DOWNLOAD_UPDATE_CHECK, Constants.JSON_TIMEOUT_MS, Constants.JSON_TIMEOUT_MS);
             }
         }
         setNavigationView();
@@ -116,22 +120,22 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     private boolean initNavigationListener(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.navi_0) {
+        if (item.getItemId() == R.id.navi_simple) {
             if (!(getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof SimpleFunctionFragment)) {
                 transitionFragment(new SimpleFunctionFragment(), false, getString(R.string.pre_app_title_simple_mode));
             }
             return true;
         }
 
-        if (item.getItemId() == R.id.navi_1) {
+        if (item.getItemId() == R.id.navi_main) {
             if (!(getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof MainFragment)) {
                 transitionFragment(new MainFragment(), false, null);
             }
             return true;
         }
 
-        if (item.getItemId() == R.id.navi_2) {
-            if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
+        if (item.getItemId() == R.id.navi_dcha) {
+            if (!Common.isFlagEnabled(this, Constants.KEY_FLAG_DCHA_FUNCTION)) {
                 new DialogUtil(this)
                         .setMessage(getString(R.string.pre_main_sum_check_enabled, getString(R.string.pre_main_title_use_dcha)))
                         .setPositiveButton(R.string.dialog_common_ok, null)
@@ -142,13 +146,13 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             return true;
         }
 
-        if (item.getItemId() == R.id.navi_3) {
+        if (item.getItemId() == R.id.navi_settings) {
             transitionFragment(new AppSettingsFragment(), true, getString(R.string.menu_app_settings));
             return true;
         }
 
-        if (item.getItemId() == R.id.navi_4) {
-            if (!Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL)) {
+        if (item.getItemId() == R.id.navi_both) {
+            if (!Common.isFlagEnabled(this, Constants.KEY_FLAG_DCHA_FUNCTION)) {
                 new DialogUtil(this)
                         .setMessage(getString(R.string.pre_main_sum_check_enabled, getString(R.string.pre_main_title_use_dcha)))
                         .setPositiveButton(R.string.dialog_common_ok, null)
@@ -168,9 +172,9 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
             return;
         }
 
-        boolean isNormalEnv = Preferences.load(this, Constants.KEY_FLAG_NORMAL_ENV, Constants.DEF_BOOL);
-        navigationMenu.findItem(R.id.navi_2).setVisible(!isNormalEnv);
-        navigationMenu.findItem(R.id.navi_4).setVisible(!isNormalEnv);
+        boolean isNormalEnv = Common.isFlagEnabled(this, Constants.KEY_FLAG_NORMAL_ENV);
+        navigationMenu.findItem(R.id.navi_dcha).setVisible(!isNormalEnv);
+        navigationMenu.findItem(R.id.navi_both).setVisible(!isNormalEnv);
 
         int itemId = getNavigationItemId(getCurrentFragment());
         MenuItem item = itemId == 0 ? null : navigationMenu.findItem(itemId);
@@ -180,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         }
     }
 
+    @Nullable
     private Menu getNavigationMenu() {
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -196,19 +201,19 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
 
     private int getNavigationItemId(Fragment fragment) {
         if (fragment instanceof SimpleFunctionFragment) {
-            return R.id.navi_0;
+            return R.id.navi_simple;
         }
         if (fragment instanceof MainFragment) {
-            return R.id.navi_1;
+            return R.id.navi_main;
         }
         if (fragment instanceof DchaFunctionFragment) {
-            return R.id.navi_2;
+            return R.id.navi_dcha;
         }
         if (fragment instanceof AppFunctionFragment) {
-            return R.id.navi_4;
+            return R.id.navi_both;
         }
         if (fragment instanceof AppSettingsFragment) {
-            return R.id.navi_3;
+            return R.id.navi_settings;
         }
         return 0;
     }
@@ -222,38 +227,37 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
         this.menu = menu;
-        menu.findItem(R.id.app_info_3).setVisible(!(getCurrentFragment() instanceof AppSettingsFragment));
+        menu.findItem(R.id.menu_app_settings).setVisible(!(getCurrentFragment() instanceof AppSettingsFragment));
         return super.onPrepareOptionsMenu(menu);
     }
 
     /* メニュー選択 */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.app_info_1) {
+        if (item.getItemId() == R.id.menu_app_info) {
             // アプリ情報
             startActivity(new Intent(this, AppInfoActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             return true;
         }
 
-        if (item.getItemId() == R.id.app_info_2) {
+        if (item.getItemId() == R.id.menu_app_update) {
             // アップデートの確認
             startActivity(new Intent(this, SelfUpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             return true;
         }
 
-        if (item.getItemId() == R.id.app_info_3) {
+        if (item.getItemId() == R.id.menu_app_settings) {
             // アプリ設定
-            menu.findItem(R.id.app_info_3).setVisible(false);
+            menu.findItem(R.id.menu_app_settings).setVisible(false);
             transitionFragment(new AppSettingsFragment(), true, getString(R.string.menu_app_settings));
             return true;
         }
 
         if (item.getItemId() == android.R.id.home) {
             // 戻る
-            menu.findItem(R.id.app_info_3).setVisible(true);
-            //noinspection deprecation
+            menu.findItem(R.id.menu_app_settings).setVisible(true);
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             transitionFragment(new MainFragment(), false, null);
             return true;
@@ -265,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     @Override
     public void onBackPressed() {
         if (!(getSupportFragmentManager().findFragmentById(R.id.fragment_container_view) instanceof MainFragment)) {
-            menu.findItem(R.id.app_info_3).setVisible(true);
+            menu.findItem(R.id.menu_app_settings).setVisible(true);
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             transitionFragment(new MainFragment(), false, null);
         }
@@ -291,11 +295,11 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
     @Override
     public void onResume() {
         super.onResume();
-        if (!Preferences.load(this, "debug_restriction", Constants.DEF_BOOL) &&
-                Preferences.load(this, Constants.KEY_FLAG_DCHA_FUNCTION, Constants.DEF_BOOL) &&
+        if (!Common.isFlagEnabled(this, Constants.KEY_DEBUG_RESTRICTION) &&
+                Common.isFlagEnabled(this, Constants.KEY_FLAG_DCHA_FUNCTION) &&
                 !Common.isDchaActive(this)) {
             // デバッグモードが無効かつ DchaService を使う設定かつ DchaService と通信できない
-            Preferences.save(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
+            Common.setFlagEnabled(this, Constants.KEY_FLAG_DCHA_FUNCTION, false);
             startActivity(new Intent(this, CheckActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             overridePendingTransition(0, 0);
             finish();
@@ -307,9 +311,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
         if (reqCode == Constants.REQUEST_DOWNLOAD_UPDATE_CHECK) {
             // アップデートチェック要求
             try {
-                JSONObject jsonObj1 = parseJson(new File(getExternalCacheDir(), Constants.CHECK_JSON));
-                JSONObject jsonObj2 = jsonObj1.getJSONObject("ct");
-                JSONObject jsonObj3 = jsonObj2.getJSONObject("update");
+                JSONObject jsonObj3 = Common.getUpdateInfo(new File(getExternalCacheDir(), Constants.CORE_JSON));
 
                 if (jsonObj3.getInt("versionCode") > BuildConfig.VERSION_CODE) {
                     new DialogUtil(this)
@@ -367,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 AlertDialog alertDialog = new DialogUtil(MainActivity.this)
                         .setTitle(R.string.dialog_apply_resolution)
                         .setCancelable(false)
-                        .setMessage("")
+                        .setMessage(Constants.DEF_STR)
                         .setPositiveButton(R.string.dialog_common_ok, (dialog, which) -> {
                             dialog.dismiss();
                             mHandler.removeCallbacks(mRunnable);
@@ -375,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         .setNegativeButton(R.string.dialog_common_cancel, (dialog, which) -> {
                             dialog.dismiss();
                             mHandler.removeCallbacks(mRunnable);
-                            resetResolution();
+                            Common.resetResolution(MainActivity.this);
                         })
                         .create();
 
@@ -385,17 +387,17 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                 /* カウント開始 */
                 mHandler = new Handler(Looper.getMainLooper());
                 mRunnable = new Runnable() {
-                    int i = 10;
+                    int i = getResources().getInteger(R.integer.resolution_reset_sec);
 
                     @Override
                     public void run() {
                         alertDialog.setMessage(getString(R.string.dialog_resolution_countdown, i));
-                        mHandler.postDelayed(this, 1000);
+                        mHandler.postDelayed(this, getResources().getInteger(R.integer.sec_ms));
 
                         if (i <= 0) {
                             alertDialog.dismiss();
                             mHandler.removeCallbacks(this);
-                            resetResolution();
+                            Common.resetResolution(MainActivity.this);
                         }
                         i--;
                     }
@@ -422,33 +424,6 @@ public class MainActivity extends AppCompatActivity implements DownloadEventList
                         .show();
             }
         };
-    }
-
-    /* 解像度のリセット */
-    public void resetResolution() {
-        if (Common.isCTX() || Common.isCTZ()) {
-            // CTXとCTZ
-            try {
-                //noinspection ResultOfMethodCallIgnored
-                BenesseExtension.putInt(Constants.BC_COMPATSCREEN, 0);
-            } catch (Exception e) {
-                new DialogUtil(this)
-                        .setTitle(R.string.dialog_title_error)
-                        .setMessage(e.getMessage())
-                        .setPositiveButton(R.string.dialog_common_ok, null)
-                        .show();
-            }
-        } else {
-            // CT2とCT3
-            new DchaUtilServiceUtil(this).setForcedDisplaySize(1280, 800, object -> {
-                if (object.equals(false)) {
-                    new DialogUtil(MainActivity.this)
-                            .setMessage(R.string.dialog_error)
-                            .setPositiveButton(R.string.dialog_common_ok, null)
-                            .show();
-                }
-            });
-        }
     }
 
     private void setLayoutParams() {
