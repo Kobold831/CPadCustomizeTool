@@ -1,5 +1,6 @@
 package com.saradabar.cpadcustomizetool.view.flagment;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -28,6 +29,7 @@ import com.saradabar.cpadcustomizetool.R;
 import com.saradabar.cpadcustomizetool.data.service.AccessibilityService;
 import com.saradabar.cpadcustomizetool.util.Common;
 import com.saradabar.cpadcustomizetool.util.Constants;
+import com.saradabar.cpadcustomizetool.util.DchaServiceUtil;
 import com.saradabar.cpadcustomizetool.util.DialogUtil;
 import com.saradabar.cpadcustomizetool.util.Preferences;
 import com.saradabar.cpadcustomizetool.view.activity.EmergencyActivity;
@@ -39,8 +41,7 @@ import java.util.List;
 
 public class AppFunctionFragment extends PreferenceFragmentCompat {
 
-    private static final String ACCESSIBILITY_SERVICE =
-            BuildConfig.APPLICATION_ID + "/" + AccessibilityService.class.getName();
+    private static final String ACCESSIBILITY_SERVICE = BuildConfig.APPLICATION_ID + "/" + AccessibilityService.class.getName();
 
     SwitchPreferenceCompat swServiceStatus;
 
@@ -171,6 +172,16 @@ public class AppFunctionFragment extends PreferenceFragmentCompat {
             return false;
         });
 
+        findPreference("pre_app_continue_setup").setOnPreferenceClickListener(preference -> {
+            new DialogUtil(requireActivity())
+                    .setTitle(R.string.pre_app_title_continue_setup)
+                    .setMessage(R.string.dialog_continue_setup)
+                    .setPositiveButton(R.string.dialog_common_continue, (dialog, which) -> continueSetup())
+                    .setNegativeButton(R.string.dialog_common_cancel, null)
+                    .show();
+            return false;
+        });
+
         preNorShortcut.setOnPreferenceClickListener(preference -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requireActivity().getSystemService(ShortcutManager.class).requestPinShortcut(new ShortcutInfo.Builder(requireActivity(), getString(R.string.activity_normal))
@@ -188,6 +199,23 @@ public class AppFunctionFragment extends PreferenceFragmentCompat {
             return false;
         });
         initPreference();
+    }
+
+    private void continueSetup() {
+        Common.setFlagEnabled(requireActivity(), Constants.KEY_FLAG_KEEP_DCHA_STATE, false);
+        Common.startKeepService(requireActivity());
+
+        new DchaServiceUtil(requireActivity()).setSetupStatus(1, result -> {
+            try {
+                startActivity(new Intent().setComponent(new ComponentName(
+                        "jp.co.benesse.dcha.setupwizard",
+                        "jp.co.benesse.dcha.setupwizard.DownloadSettingActivity")));
+            } catch (RuntimeException ignored) {
+                new DchaServiceUtil(requireActivity()).setSetupStatus(0, unused -> {
+                });
+                Toast.makeText(requireActivity(), R.string.toast_activity_open_failure, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void initPreference() {

@@ -98,4 +98,17 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:iconSpaceReserved="false"
+        android:title="@string/pre_app_category_continue_setup">
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:key="pre_app_continue_setup"
+            android:title="@string/pre_app_title_continue_setup"
+            android:summary="@string/pre_app_sum_continue_setup" />
+
+    </PreferenceCategory>
+
 </androidx.preference.PreferenceScreen>

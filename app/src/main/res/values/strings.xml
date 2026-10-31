@@ -326,6 +326,12 @@
     <!-- メイン設定 -->
     <string name="pre_main_title_dcha_function">Dcha アプリの機能</string>
     <string name="pre_main_title_edit_admin">デバイス管理者の編集</string>
+    <string name="pre_app_category_continue_setup">兼用化処理</string>
+    <string name="pre_app_title_continue_setup">兼用化処理の続行</string>
+    <string name="pre_app_sum_continue_setup">チャレンジタッチ側のセットアップを開始します。</string>
+    <string name="dialog_continue_setup">チャレンジタッチ側のセットアップを開始します。\n・DchaState の保持は解除されます。\n・<font color="red">「ホームアプリ切り替えサービス」を<b>有効</b></font>にし、\n\　受講講座が設定されていることを確認してください。\n\　必ず<font color="red">該当講座を<b>タップ</b></font>してください。\n・Nova Launcher をインストールし、\n\　<font color="red">通常モードの<b>変更先として設定</b></font>してください。\n\　<font color="red">必ず <b><u>Nova Launcher</u></b> を設定</font>してください。\n・Wi-Fi 接続が有効な状態で続行してください。\n\ntest_environment_info.xml を使って回避し、\nこのアプリをインストールした場合、Sbox のデータ削除が必要です。\nADB から次のコマンドを実行してデータを削除してください：\nadb shell pm clear jp.co.benesse.dcha.databox\n\n削除が完了したら、続行してください。\n「USB デバッグの維持」を有効化することを推奨します。\n\n続行後、セットアップ完了時の再起動が終わるまで、\n絶対に作業を中断しないでください。</string>
+    <string name="dialog_common_continue">続行</string>
+    <string name="toast_activity_open_failure">アクティビティを開けませんでした。</string>
     <string name="pre_main_title_app_function">学習兼用補助機能</string>
     <string name="pre_main_title_app_function_settings">学習兼用関連の設定</string>
     <string name="pre_main_title_app_function_short">アプリの機能</string>
