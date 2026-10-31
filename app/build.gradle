@@ -42,6 +42,7 @@ android {
     }
 
     androidResources {
+        noCompress.add("der")
         additionalParameters '--preferred-density', 'hdpi',
                 '--exclude-configs', 'v31',
                 '--exclude-configs', 'ldrtl',

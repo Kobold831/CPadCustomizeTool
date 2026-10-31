@@ -264,6 +264,20 @@
             </intent-filter>
         </receiver>
 
+
+        <service
+            android:name=".plugin.SignaturePlugin"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="jp.co.benesse.dcha.signature.PLUGIN" />
+            </intent-filter>
+        </service>
+
+        <provider
+            android:name=".plugin.PackageSignatureProvider"
+            android:exported="true"
+            android:authorities="${applicationId}.plugin.PackageSignatureProvider" />
+
     </application>
 
 </manifest>
